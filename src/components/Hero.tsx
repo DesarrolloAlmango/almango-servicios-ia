@@ -1,13 +1,13 @@
 
 import { Button } from "@/components/ui/button";
 import ContactInfo from "@/components/ContactInfo";
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
-  const scrollToServices = () => {
-    const element = document.getElementById('servicios');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+  const navigate = useNavigate();
+  
+  const navigateToServices = () => {
+    navigate('/servicios');
   };
 
   return (
@@ -34,7 +34,7 @@ const Hero = () => {
           </p>
           
           <Button 
-            onClick={scrollToServices}
+            onClick={navigateToServices}
             className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg transition-transform hover:scale-105"
           >
             Solicita tu servicio
