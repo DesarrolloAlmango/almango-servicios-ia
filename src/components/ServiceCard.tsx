@@ -13,6 +13,7 @@ interface ServiceCardProps {
   name: string;
   icon: keyof typeof icons;
   addToCart: (item: CartItem) => void;
+  externalUrl?: string;
 }
 
 interface Category {
@@ -30,58 +31,67 @@ interface Product {
   category: string;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ name, icon, addToCart }) => {
+const ServiceCard: React.FC<ServiceCardProps> = ({ name, icon, addToCart, externalUrl }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const navigate = useNavigate();
   
   // Datos de ejemplo - en una aplicación real vendrían de una API
   const categories: Category[] = [
     {
       id: "cat1",
       name: "Instalaciones",
-      image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&q=80&w=300&h=300",
+      image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&q=80&w=200&h=200",
       products: [
-        { id: "p1", name: "Instalación de Tomacorriente", price: 25, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300&h=300", category: "Instalaciones" },
-        { id: "p2", name: "Cambio de Lámpara", price: 15, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300&h=300", category: "Instalaciones" },
+        { id: "p1", name: "Instalación de Tomacorriente", price: 25, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200", category: "Instalaciones" },
+        { id: "p2", name: "Cambio de Lámpara", price: 15, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200", category: "Instalaciones" },
       ]
     },
     {
       id: "cat2",
       name: "Reparaciones",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300&h=300",
+      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200",
       products: [
-        { id: "p3", name: "Reparación de Interruptor", price: 20, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300&h=300", category: "Reparaciones" },
-        { id: "p4", name: "Reparación de Enchufe", price: 18, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300&h=300", category: "Reparaciones" },
+        { id: "p3", name: "Reparación de Interruptor", price: 20, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200", category: "Reparaciones" },
+        { id: "p4", name: "Reparación de Enchufe", price: 18, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200", category: "Reparaciones" },
       ]
     },
     {
       id: "cat3",
       name: "Mantenimiento",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300&h=300",
+      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200",
       products: [
-        { id: "p5", name: "Mantenimiento de Tablero", price: 50, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300&h=300", category: "Mantenimiento" },
-        { id: "p6", name: "Revisión de Circuitos", price: 35, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300&h=300", category: "Mantenimiento" },
+        { id: "p5", name: "Mantenimiento de Tablero", price: 50, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200", category: "Mantenimiento" },
+        { id: "p6", name: "Revisión de Circuitos", price: 35, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200", category: "Mantenimiento" },
       ]
     }
   ];
   
   const IconComponent = icons[icon];
   
+  const handleCardClick = () => {
+    if (externalUrl) {
+      window.location.href = externalUrl;
+    } else {
+      setIsDialogOpen(true);
+    }
+  };
+  
   return (
     <>
       <Card 
-        className="rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer group"
-        onClick={() => setIsDialogOpen(true)}
+        className="rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 bg-transparent"
+        onClick={handleCardClick}
       >
         <CardContent className="p-6 flex flex-col items-center group-hover:bg-primary/5">
-          <h3 className="text-xl font-bold mb-4 uppercase text-primary">{name}</h3>
-          <IconComponent className="w-12 h-12 text-blue-500" />
+          <h3 className="text-xl font-bold mb-4 uppercase text-orange-500">{name}</h3>
+          <IconComponent className="w-16 h-16 text-blue-500" />
         </CardContent>
       </Card>
       
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-          <h2 className="text-2xl font-bold mb-4 text-center uppercase text-primary">{name}</h2>
+          <h2 className="text-2xl font-bold mb-4 text-center uppercase text-orange-500">{name}</h2>
           
           {!selectedCategory ? (
             <CategoryCarousel 
@@ -151,10 +161,22 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
     if (itemsToAdd.length > 0) {
       itemsToAdd.forEach(item => addToCart(item));
-      toast.success("Productos agregados al carrito");
+      toast.success("Productos agregados al carrito", {
+        classNames: {
+          toast: "bg-green-100 border-l-4 border-green-500 text-green-800",
+          title: "font-medium text-green-800",
+          description: "text-green-700",
+        }
+      });
       closeDialog();
     } else {
-      toast.error("Seleccione al menos un producto");
+      toast.error("Seleccione al menos un producto", {
+        classNames: {
+          toast: "bg-red-100 border-l-4 border-red-500 text-red-800",
+          title: "font-medium text-red-800",
+          description: "text-red-700",
+        }
+      });
     }
   };
   
@@ -175,7 +197,13 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       closeDialog();
       navigate('/servicios', { state: { openCart: true } });
     } else {
-      toast.error("Seleccione al menos un producto");
+      toast.error("Seleccione al menos un producto", {
+        classNames: {
+          toast: "bg-red-100 border-l-4 border-red-500 text-red-800",
+          title: "font-medium text-red-800",
+          description: "text-red-700",
+        }
+      });
     }
   };
 
@@ -213,11 +241,13 @@ const ProductGrid: React.FC<ProductGridProps> = ({
           <Button 
             variant="outline"
             onClick={handleAddAllToCart}
+            className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
           >
             Agregar al carrito
           </Button>
           <Button 
             onClick={handleContractNow}
+            className="bg-orange-500 hover:bg-orange-600 text-white"
           >
             Contratar ahora
           </Button>

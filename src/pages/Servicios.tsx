@@ -69,7 +69,7 @@ const Servicios = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <main className="flex-grow py-16 px-4">
+      <main className="flex-grow py-8 px-4">
         <div className="container mx-auto">
           {/* Navigation controls */}
           <div className="flex justify-between items-center mb-8 mt-4">
@@ -100,34 +100,40 @@ const Servicios = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <ServiceCard 
-              name="Electricidad" 
-              icon="Zap" 
+              name="Armado de Muebles" 
+              icon="Package" 
               addToCart={addToCart} 
             />
             <ServiceCard 
-              name="Plomería" 
+              name="Aire Libre" 
+              icon="Wind" 
+              addToCart={addToCart} 
+            />
+            <ServiceCard 
+              name="Decohogar" 
+              icon="Home" 
+              addToCart={addToCart} 
+            />
+            <ServiceCard 
+              name="Equipo Sanitario, Baño y Cocina" 
               icon="Droplets" 
               addToCart={addToCart} 
             />
             <ServiceCard 
-              name="Albañilería" 
-              icon="Hammer" 
+              name="Instalación de Electrodomésticos" 
+              icon="Zap" 
               addToCart={addToCart} 
             />
             <ServiceCard 
-              name="Carpintería" 
-              icon="Hammer" 
+              name="Aire Acondicionado" 
+              icon="Wind" 
               addToCart={addToCart} 
             />
             <ServiceCard 
-              name="Pintura" 
-              icon="Paintbrush" 
-              addToCart={addToCart} 
-            />
-            <ServiceCard 
-              name="Jardinería" 
-              icon="Flower2" 
-              addToCart={addToCart} 
+              name="Mudanza" 
+              icon="Truck" 
+              addToCart={addToCart}
+              externalUrl="http://localhost/AlmangoXV1NETFramework/mudanza.aspx?Mode=UPD&MudanzaId=0&ProveedorId=0&SecUserId=0"
             />
           </div>
         </div>

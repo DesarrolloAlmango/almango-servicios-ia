@@ -41,8 +41,12 @@ const Header = () => {
       )}
     >
       <div className="container mx-auto flex justify-between items-center px-4">
-        <div className="text-2xl font-bold text-primary">
-          ALMANGO
+        <div className="flex items-center">
+          <img 
+            src="/lovable-uploads/aa21b82a-14a1-4c51-9e29-f5e9e4671a81.png" 
+            alt="ALMANGO Logo" 
+            className="h-12"
+          />
         </div>
         
         {/* Desktop Navigation */}
