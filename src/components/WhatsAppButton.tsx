@@ -10,7 +10,7 @@ const WhatsAppButton = () => {
       className="fixed bottom-4 right-4 z-40 md:bottom-8 md:right-8 bg-green-500 text-white p-3 rounded-full shadow-lg hover:bg-green-600 transition-colors"
       aria-label="WhatsApp"
     >
-      <MessageCircle size={28} className="animate-pulse" />
+      <MessageCircle size={28} className="animate-bounce" />
     </a>
   );
 };

@@ -2,8 +2,8 @@
 import { Button } from "@/components/ui/button";
 
 const Hero = () => {
-  const scrollToContact = () => {
-    const element = document.getElementById('contacto');
+  const scrollToServices = () => {
+    const element = document.getElementById('servicios');
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
@@ -24,22 +24,24 @@ const Hero = () => {
       
       <div className="container mx-auto px-4 z-10">
         <div className="max-w-3xl">
-          <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-3 md:mb-6 uppercase leading-tight">
+          <h1 className="text-3xl md:text-5xl font-bold text-secondary mb-3 md:mb-6 uppercase leading-tight">
             Profesionales a tu servicio
           </h1>
           
-          <p className="text-xl md:text-2xl font-medium text-gray-700 mb-8 uppercase leading-relaxed">
+          <p className="text-xl md:text-2xl font-bold text-gray-700 mb-8 uppercase leading-relaxed">
             Soluciones para tu hogar o empresa en un solo lugar
           </p>
           
           <Button 
-            onClick={scrollToContact}
+            onClick={scrollToServices}
             className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg transition-transform hover:scale-105"
           >
             Solicita tu servicio
           </Button>
         </div>
       </div>
+      
+      <ContactInfo />
       
       {/* Add design elements */}
       <div className="absolute bottom-0 right-0 w-1/3 h-32 bg-primary opacity-10 z-0" />

@@ -3,7 +3,7 @@ import { Phone, MessageCircle } from 'lucide-react';
 
 const ContactInfo = () => {
   return (
-    <div className="fixed bottom-4 left-4 z-40 md:bottom-8 md:left-8">
+    <div className="absolute bottom-4 left-4 z-30 md:bottom-8 md:left-8">
       <div className="bg-white/90 backdrop-blur-sm shadow-lg rounded-lg p-2 space-y-2">
         <a 
           href="tel:08008248" 
