@@ -1,13 +1,10 @@
 
 import React, { useState, useEffect } from "react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "@/components/ServiceCard";
 import CartDrawer from "@/components/CartDrawer";
-import WhatsAppButton from "@/components/WhatsAppButton";
 
 export interface CartItem {
   id: string;
@@ -72,7 +69,6 @@ const Servicios = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="flex-grow py-16 px-4">
         <div className="container mx-auto">
           {/* Navigation controls */}
@@ -100,7 +96,7 @@ const Servicios = () => {
             </Button>
           </div>
           
-          <h1 className="text-3xl font-bold mb-12 text-center text-secondary uppercase">Nuestros Servicios</h1>
+          <h1 className="text-3xl font-bold mb-12 text-center text-gray-500 uppercase">Nuestros Servicios</h1>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <ServiceCard 
@@ -144,8 +140,6 @@ const Servicios = () => {
           total={getCartTotal()}
         />
       </main>
-      <Footer />
-      <WhatsAppButton />
     </div>
   );
 };

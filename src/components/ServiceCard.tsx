@@ -75,7 +75,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ name, icon, addToCart }) => {
       >
         <CardContent className="p-6 flex flex-col items-center group-hover:bg-primary/5">
           <h3 className="text-xl font-bold mb-4 uppercase text-primary">{name}</h3>
-          <IconComponent className="w-12 h-12 text-secondary" />
+          <IconComponent className="w-12 h-12 text-blue-500" />
         </CardContent>
       </Card>
       
@@ -118,6 +118,70 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   serviceName,
   closeDialog 
 }) => {
+  const navigate = useNavigate();
+  const [productQuantities, setProductQuantities] = useState<Record<string, number>>(
+    Object.fromEntries(category.products.map(product => [product.id, 0]))
+  );
+
+  const increaseQuantity = (productId: string) => {
+    setProductQuantities(prev => ({
+      ...prev,
+      [productId]: (prev[productId] || 0) + 1
+    }));
+  };
+
+  const decreaseQuantity = (productId: string) => {
+    setProductQuantities(prev => ({
+      ...prev,
+      [productId]: Math.max(0, (prev[productId] || 0) - 1)
+    }));
+  };
+
+  const handleAddAllToCart = () => {
+    const itemsToAdd = category.products
+      .filter(product => productQuantities[product.id] > 0)
+      .map(product => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: productQuantities[product.id],
+        image: product.image,
+        serviceCategory: `${serviceName} - ${category.name}`
+      }));
+
+    if (itemsToAdd.length > 0) {
+      itemsToAdd.forEach(item => addToCart(item));
+      toast.success("Productos agregados al carrito");
+      closeDialog();
+    } else {
+      toast.error("Seleccione al menos un producto");
+    }
+  };
+  
+  const handleContractNow = () => {
+    const itemsToAdd = category.products
+      .filter(product => productQuantities[product.id] > 0)
+      .map(product => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: productQuantities[product.id],
+        image: product.image,
+        serviceCategory: `${serviceName} - ${category.name}`
+      }));
+
+    if (itemsToAdd.length > 0) {
+      itemsToAdd.forEach(item => addToCart(item));
+      closeDialog();
+      navigate('/servicios', { state: { openCart: true } });
+    } else {
+      toast.error("Seleccione al menos un producto");
+    }
+  };
+
+  // Check if any product has a quantity greater than 0
+  const hasSelectedProducts = Object.values(productQuantities).some(qty => qty > 0);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center mb-4">
@@ -135,74 +199,50 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         {category.products.map(product => (
           <ProductCard 
             key={product.id} 
-            product={product} 
-            addToCart={addToCart}
-            serviceName={serviceName}
-            category={category.name}
-            closeDialog={closeDialog}
+            product={product}
+            quantity={productQuantities[product.id] || 0}
+            onIncrease={() => increaseQuantity(product.id)}
+            onDecrease={() => decreaseQuantity(product.id)}
           />
         ))}
       </div>
+
+      {/* Action buttons below all products */}
+      {hasSelectedProducts && (
+        <div className="flex justify-center gap-4 mt-8">
+          <Button 
+            variant="outline"
+            onClick={handleAddAllToCart}
+          >
+            Agregar al carrito
+          </Button>
+          <Button 
+            onClick={handleContractNow}
+          >
+            Contratar ahora
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
 
 interface ProductCardProps {
   product: Product;
-  addToCart: (item: CartItem) => void;
-  serviceName: string;
-  category: string;
-  closeDialog: () => void;
+  quantity: number;
+  onIncrease: () => void;
+  onDecrease: () => void;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ 
   product, 
-  addToCart, 
-  serviceName, 
-  category,
-  closeDialog
+  quantity,
+  onIncrease,
+  onDecrease
 }) => {
-  const navigate = useNavigate();
-  const [quantity, setQuantity] = useState(0);
-  
-  const increaseQuantity = () => setQuantity(prev => prev + 1);
-  const decreaseQuantity = () => setQuantity(prev => Math.max(0, prev - 1));
-  
-  const handleAddToCart = () => {
-    if (quantity > 0) {
-      addToCart({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        quantity,
-        image: product.image,
-        serviceCategory: `${serviceName} - ${category}`
-      });
-      
-      toast.success("Productos agregados al carrito");
-      closeDialog();
-    }
-  };
-  
-  const handleContractNow = () => {
-    if (quantity > 0) {
-      addToCart({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        quantity,
-        image: product.image,
-        serviceCategory: `${serviceName} - ${category}`
-      });
-      
-      closeDialog();
-      navigate('/servicios', { state: { openCart: true } });
-    }
-  };
-  
   return (
     <Card className="overflow-hidden">
-      <div className="relative h-32 bg-gray-100">
+      <div className="relative h-24 bg-gray-100">
         <img 
           src={product.image} 
           alt={product.name} 
@@ -212,7 +252,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <div className="bg-white rounded-full p-1 shadow-md flex items-center">
             <button 
               className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary"
-              onClick={(e) => { e.stopPropagation(); decreaseQuantity(); }}
+              onClick={(e) => { e.stopPropagation(); onDecrease(); }}
             >
               -
             </button>
@@ -221,7 +261,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </span>
             <button 
               className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary"
-              onClick={(e) => { e.stopPropagation(); increaseQuantity(); }}
+              onClick={(e) => { e.stopPropagation(); onIncrease(); }}
             >
               +
             </button>
@@ -233,30 +273,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <h4 className="font-medium mb-1">{product.name}</h4>
         <div className="flex justify-between items-center mt-2">
           <span className="font-bold">${product.price.toFixed(2)}</span>
-          
-          {quantity > 0 && (
-            <div className="flex gap-2">
-              <Button 
-                size="sm" 
-                variant="outline"
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  handleAddToCart(); 
-                }}
-              >
-                Agregar al carrito
-              </Button>
-              <Button 
-                size="sm"
-                onClick={(e) => { 
-                  e.stopPropagation(); 
-                  handleContractNow(); 
-                }}
-              >
-                Contratar ahora
-              </Button>
-            </div>
-          )}
         </div>
       </CardContent>
     </Card>

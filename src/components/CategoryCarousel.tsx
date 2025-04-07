@@ -40,7 +40,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
                 className="cursor-pointer hover:scale-105 transition-transform"
                 onClick={() => onSelectCategory(category)}
               >
-                <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-24 h-24 mb-2">
+                <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-20 h-20 mb-2">
                   <AspectRatio ratio={1} className="bg-gray-100">
                     <img
                       src={category.image}
