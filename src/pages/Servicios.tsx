@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -21,11 +20,9 @@ const Servicios = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  // Check if we should open the cart from navigation state
   useEffect(() => {
     if (location.state && location.state.openCart) {
       setIsCartOpen(true);
-      // Clear the state to prevent reopening on refresh
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
@@ -71,7 +68,6 @@ const Servicios = () => {
     <div className="min-h-screen flex flex-col">
       <main className="flex-grow py-8 px-4">
         <div className="container mx-auto">
-          {/* Navigation controls */}
           <div className="flex justify-between items-center mb-8 mt-4">
             <Button 
               variant="ghost" 
@@ -111,7 +107,7 @@ const Servicios = () => {
             />
             <ServiceCard 
               name="Decohogar" 
-              icon="home" 
+              icon="Home" 
               addToCart={addToCart} 
             />
             <ServiceCard 
@@ -151,4 +147,3 @@ const Servicios = () => {
 };
 
 export default Servicios;
-
