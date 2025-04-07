@@ -271,11 +271,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ name, iconComponent: IconComp
   return (
     <>
       <Card 
-        className="w-[170px] h-[170px] rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 hover:bg-primary/5"
+        className="w-[200px] h-[200px] rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 hover:bg-primary/5"
         onClick={handleCardClick}
       >
-        <CardContent className="p-6 flex flex-col items-center justify-center h-full">
-          <IconComponent className="w-12 h-12 text-blue-500 mb-4" />
+        <CardContent className="p-8 flex flex-col items-center justify-center h-full">
+          <IconComponent className="w-14 h-14 text-blue-500 mb-5" />
           <h3 className="text-lg font-bold text-center uppercase text-orange-500">{name}</h3>
         </CardContent>
       </Card>

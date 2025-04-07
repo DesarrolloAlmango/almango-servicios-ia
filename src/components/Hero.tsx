@@ -24,20 +24,20 @@ const Hero = () => {
   return (
     <section 
       id="inicio" 
-      className="relative min-h-screen flex items-center pt-16 bg-gradient-to-br from-gray-800 to-gray-900"
+      className="relative min-h-screen flex items-center pt-16 bg-[#008be1]"
     >
       <div className="absolute inset-0 z-0">
         <div className="w-full h-full bg-cover bg-center" style={{ 
-          backgroundImage: "url('/lovable-uploads/c378da4a-a68e-48f2-83b3-10f5a6c9de6f.png')",
+          backgroundImage: "url('/lovable-uploads/aab5a4c1-bbe2-4be4-ac76-41eeb5f246fd.png')",
           backgroundBlendMode: "overlay",
-          backgroundColor: "rgba(0, 0, 0, 0.4)"
+          backgroundColor: "rgba(0, 139, 225, 0.7)"
         }} />
       </div>
       
       <div className="container mx-auto px-4 z-10">
-        <div className="max-w-3xl">
+        <div className="flex flex-col items-center max-w-3xl mx-auto text-center">
           <h1 
-            className={`text-3xl md:text-5xl font-bold text-white mb-3 md:mb-6 uppercase leading-tight transition-all duration-1000 transform ${
+            className={`text-3xl md:text-5xl font-bold text-[#ff6900] mb-3 md:mb-6 uppercase leading-tight font-display transition-all duration-1000 transform ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
             }`}
           >
@@ -45,7 +45,7 @@ const Hero = () => {
           </h1>
           
           <p 
-            className={`text-xl md:text-2xl font-bold text-gray-200 mb-8 uppercase leading-relaxed transition-all duration-1000 delay-300 transform ${
+            className={`text-xl md:text-2xl font-bold text-white mb-8 uppercase leading-relaxed transition-all duration-1000 delay-300 transform ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
             }`}
           >
@@ -56,7 +56,7 @@ const Hero = () => {
             onClick={navigateToServices}
             className={`bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg transition-all duration-1000 delay-500 transform ${
               isVisible ? 'opacity-100 translate-y-0 hover:scale-105' : 'opacity-0 translate-y-10'
-            }`}
+            } font-display`}
           >
             Solicita tu servicio
           </Button>

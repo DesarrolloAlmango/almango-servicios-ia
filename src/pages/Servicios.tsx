@@ -94,7 +94,7 @@ const Servicios = () => {
               className="relative"
               onClick={() => setIsCartOpen(true)}
             >
-              <ShoppingCart size={20} />
+              <ShoppingCart size={24} /> {/* Increased size from 20 to 24 */}
               {getCartItemsCount() > 0 && (
                 <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {getCartItemsCount()}
@@ -103,9 +103,9 @@ const Servicios = () => {
             </Button>
           </div>
           
-          <h1 className="text-3xl font-bold mb-12 text-center text-gray-400 uppercase">Nuestros Servicios</h1>
+          <h1 className="text-3xl font-bold mb-12 text-center text-gray-300 uppercase font-display">Nuestros Servicios</h1>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center">
             {[
               { name: "Armado de Muebles", icon: Package },
               { name: "Aire Libre", icon: Wind },
@@ -118,7 +118,7 @@ const Servicios = () => {
               <div 
                 key={index}
                 className={`transition-all duration-700 transform ${
-                  scrollY > 100 + index * 50 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+                  index < 3 || scrollY > 100 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
                 }`}
               >
                 <ServiceCard 
