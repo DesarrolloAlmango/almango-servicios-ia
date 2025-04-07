@@ -2,7 +2,8 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { icons } from "lucide-react";
+import { icons, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import CategoryCarousel from "@/components/CategoryCarousel";
 import { CartItem } from "@/pages/Servicios";
 
