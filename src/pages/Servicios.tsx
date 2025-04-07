@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, ShoppingCart } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "@/components/ServiceCard";
@@ -98,37 +98,37 @@ const Servicios = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <ServiceCard 
               name="Armado de Muebles" 
-              icon="Package" 
+              iconComponent={Package} 
               addToCart={addToCart} 
             />
             <ServiceCard 
               name="Aire Libre" 
-              icon="Wind" 
+              iconComponent={Wind} 
               addToCart={addToCart} 
             />
             <ServiceCard 
               name="Decohogar" 
-              icon="home" 
+              iconComponent={Home} 
               addToCart={addToCart} 
             />
             <ServiceCard 
               name="Equipo Sanitario, Baño y Cocina" 
-              icon="Droplets" 
+              iconComponent={Droplets} 
               addToCart={addToCart} 
             />
             <ServiceCard 
               name="Instalación de Electrodomésticos" 
-              icon="Zap" 
+              iconComponent={Zap} 
               addToCart={addToCart} 
             />
             <ServiceCard 
               name="Aire Acondicionado" 
-              icon="Wind" 
+              iconComponent={Wind} 
               addToCart={addToCart} 
             />
             <ServiceCard 
               name="Mudanza" 
-              icon="Truck" 
+              iconComponent={Truck} 
               addToCart={addToCart}
               externalUrl="http://localhost/AlmangoXV1NETFramework/mudanza.aspx?Mode=UPD&MudanzaId=0&ProveedorId=0&SecUserId=0"
             />
