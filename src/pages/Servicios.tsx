@@ -1,9 +1,9 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "@/components/ServiceCard";
 import CartDrawer from "@/components/CartDrawer";
@@ -20,8 +20,18 @@ export interface CartItem {
 
 const Servicios = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+  // Check if we should open the cart from navigation state
+  useEffect(() => {
+    if (location.state && location.state.openCart) {
+      setIsCartOpen(true);
+      // Clear the state to prevent reopening on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const handleBackToHome = () => {
     navigate('/');
@@ -63,10 +73,10 @@ const Servicios = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow py-10 px-4">
+      <main className="flex-grow py-16 px-4">
         <div className="container mx-auto">
           {/* Navigation controls */}
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex justify-between items-center mb-8 mt-4">
             <Button 
               variant="ghost" 
               onClick={handleBackToHome}
@@ -82,9 +92,11 @@ const Servicios = () => {
               onClick={() => setIsCartOpen(true)}
             >
               <ShoppingCart size={20} />
-              <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {getCartItemsCount()}
-              </span>
+              {getCartItemsCount() > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {getCartItemsCount()}
+                </span>
+              )}
             </Button>
           </div>
           

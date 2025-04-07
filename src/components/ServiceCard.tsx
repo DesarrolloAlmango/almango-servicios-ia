@@ -6,6 +6,8 @@ import { icons, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CategoryCarousel from "@/components/CategoryCarousel";
 import { CartItem } from "@/pages/Servicios";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface ServiceCardProps {
   name: string;
@@ -37,28 +39,28 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ name, icon, addToCart }) => {
     {
       id: "cat1",
       name: "Instalaciones",
-      image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&q=80&w=500&h=500",
+      image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&q=80&w=300&h=300",
       products: [
-        { id: "p1", name: "Instalación de Tomacorriente", price: 25, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=500&h=500", category: "Instalaciones" },
-        { id: "p2", name: "Cambio de Lámpara", price: 15, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=500&h=500", category: "Instalaciones" },
+        { id: "p1", name: "Instalación de Tomacorriente", price: 25, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300&h=300", category: "Instalaciones" },
+        { id: "p2", name: "Cambio de Lámpara", price: 15, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300&h=300", category: "Instalaciones" },
       ]
     },
     {
       id: "cat2",
       name: "Reparaciones",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=500&h=500",
+      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300&h=300",
       products: [
-        { id: "p3", name: "Reparación de Interruptor", price: 20, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=500&h=500", category: "Reparaciones" },
-        { id: "p4", name: "Reparación de Enchufe", price: 18, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=500&h=500", category: "Reparaciones" },
+        { id: "p3", name: "Reparación de Interruptor", price: 20, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300&h=300", category: "Reparaciones" },
+        { id: "p4", name: "Reparación de Enchufe", price: 18, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300&h=300", category: "Reparaciones" },
       ]
     },
     {
       id: "cat3",
       name: "Mantenimiento",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=500&h=500",
+      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300&h=300",
       products: [
-        { id: "p5", name: "Mantenimiento de Tablero", price: 50, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=500&h=500", category: "Mantenimiento" },
-        { id: "p6", name: "Revisión de Circuitos", price: 35, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=500&h=500", category: "Mantenimiento" },
+        { id: "p5", name: "Mantenimiento de Tablero", price: 50, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300&h=300", category: "Mantenimiento" },
+        { id: "p6", name: "Revisión de Circuitos", price: 35, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=300&h=300", category: "Mantenimiento" },
       ]
     }
   ];
@@ -72,16 +74,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ name, icon, addToCart }) => {
         onClick={() => setIsDialogOpen(true)}
       >
         <CardContent className="p-6 flex flex-col items-center group-hover:bg-primary/5">
-          <h3 className="text-xl font-bold mb-4 uppercase">{name}</h3>
-          <div className="h-16 w-16 bg-gray-100 rounded-lg flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors">
-            <IconComponent className="w-8 h-8 text-primary" />
-          </div>
+          <h3 className="text-xl font-bold mb-4 uppercase text-primary">{name}</h3>
+          <IconComponent className="w-12 h-12 text-secondary" />
         </CardContent>
       </Card>
       
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-          <h2 className="text-2xl font-bold mb-4 text-center uppercase">{name}</h2>
+          <h2 className="text-2xl font-bold mb-4 text-center uppercase text-primary">{name}</h2>
           
           {!selectedCategory ? (
             <CategoryCarousel 
@@ -94,6 +94,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ name, icon, addToCart }) => {
               addToCart={addToCart}
               onBack={() => setSelectedCategory(null)}
               serviceName={name}
+              closeDialog={() => setIsDialogOpen(false)}
             />
           )}
         </DialogContent>
@@ -107,9 +108,16 @@ interface ProductGridProps {
   addToCart: (item: CartItem) => void;
   onBack: () => void;
   serviceName: string;
+  closeDialog: () => void;
 }
 
-const ProductGrid: React.FC<ProductGridProps> = ({ category, addToCart, onBack, serviceName }) => {
+const ProductGrid: React.FC<ProductGridProps> = ({ 
+  category, 
+  addToCart, 
+  onBack, 
+  serviceName,
+  closeDialog 
+}) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center mb-4">
@@ -131,6 +139,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({ category, addToCart, onBack, 
             addToCart={addToCart}
             serviceName={serviceName}
             category={category.name}
+            closeDialog={closeDialog}
           />
         ))}
       </div>
@@ -143,28 +152,57 @@ interface ProductCardProps {
   addToCart: (item: CartItem) => void;
   serviceName: string;
   category: string;
+  closeDialog: () => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, addToCart, serviceName, category }) => {
-  const [quantity, setQuantity] = useState(1);
+const ProductCard: React.FC<ProductCardProps> = ({ 
+  product, 
+  addToCart, 
+  serviceName, 
+  category,
+  closeDialog
+}) => {
+  const navigate = useNavigate();
+  const [quantity, setQuantity] = useState(0);
   
   const increaseQuantity = () => setQuantity(prev => prev + 1);
-  const decreaseQuantity = () => setQuantity(prev => Math.max(1, prev - 1));
+  const decreaseQuantity = () => setQuantity(prev => Math.max(0, prev - 1));
   
   const handleAddToCart = () => {
-    addToCart({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity,
-      image: product.image,
-      serviceCategory: `${serviceName} - ${category}`
-    });
+    if (quantity > 0) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity,
+        image: product.image,
+        serviceCategory: `${serviceName} - ${category}`
+      });
+      
+      toast.success("Productos agregados al carrito");
+      closeDialog();
+    }
+  };
+  
+  const handleContractNow = () => {
+    if (quantity > 0) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity,
+        image: product.image,
+        serviceCategory: `${serviceName} - ${category}`
+      });
+      
+      closeDialog();
+      navigate('/servicios', { state: { openCart: true } });
+    }
   };
   
   return (
     <Card className="overflow-hidden">
-      <div className="relative h-40 bg-gray-100">
+      <div className="relative h-32 bg-gray-100">
         <img 
           src={product.image} 
           alt={product.name} 
@@ -195,15 +233,30 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, addToCart, serviceNa
         <h4 className="font-medium mb-1">{product.name}</h4>
         <div className="flex justify-between items-center mt-2">
           <span className="font-bold">${product.price.toFixed(2)}</span>
-          <Button 
-            size="sm" 
-            onClick={(e) => { 
-              e.stopPropagation(); 
-              handleAddToCart(); 
-            }}
-          >
-            Agregar
-          </Button>
+          
+          {quantity > 0 && (
+            <div className="flex gap-2">
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  handleAddToCart(); 
+                }}
+              >
+                Agregar al carrito
+              </Button>
+              <Button 
+                size="sm"
+                onClick={(e) => { 
+                  e.stopPropagation(); 
+                  handleContractNow(); 
+                }}
+              >
+                Contratar ahora
+              </Button>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
