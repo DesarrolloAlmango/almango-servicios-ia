@@ -10,13 +10,6 @@ import { CartItem } from "@/pages/Servicios";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
-interface ServiceCardProps {
-  name: string;
-  icon: keyof typeof icons;
-  addToCart: (item: CartItem) => void;
-  externalUrl?: string;
-}
-
 interface Category {
   id: string;
   name: string;
@@ -32,6 +25,14 @@ interface Product {
   category: string;
 }
 
+interface ProductCardProps {
+  product: Product;
+  quantity: number;
+  onIncrease: () => void;
+  onDecrease: () => void;
+}
+
+// ProductCard component defined before it's used
 const ProductCard: React.FC<ProductCardProps> = ({ 
   product, 
   quantity,
@@ -77,13 +78,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
   );
 };
 
-interface ProductCardProps {
-  product: Product;
-  quantity: number;
-  onIncrease: () => void;
-  onDecrease: () => void;
-}
-
 interface ProductGridProps {
   category: Category;
   addToCart: (item: CartItem) => void;
@@ -92,6 +86,7 @@ interface ProductGridProps {
   closeDialog: () => void;
 }
 
+// ProductGrid component defined before it's used
 const ProductGrid: React.FC<ProductGridProps> = ({ 
   category, 
   addToCart, 
@@ -227,6 +222,14 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     </div>
   );
 };
+
+// Main ServiceCard component
+interface ServiceCardProps {
+  name: string;
+  icon: keyof typeof icons;
+  addToCart: (item: CartItem) => void;
+  externalUrl?: string;
+}
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ name, icon, addToCart, externalUrl }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);

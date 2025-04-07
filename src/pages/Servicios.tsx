@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -107,7 +108,7 @@ const Servicios = () => {
             />
             <ServiceCard 
               name="Decohogar" 
-              icon="Home" 
+              icon="home" 
               addToCart={addToCart} 
             />
             <ServiceCard 
