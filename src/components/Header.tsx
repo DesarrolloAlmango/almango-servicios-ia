@@ -36,8 +36,8 @@ const Header = () => {
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         isScrolled 
-          ? 'bg-white shadow-md py-2' 
-          : 'bg-transparent py-4'
+          ? 'bg-gray-900/90 backdrop-blur-sm shadow-md py-2' 
+          : 'bg-gray-900/70 backdrop-blur-sm py-4'
       )}
     >
       <div className="container mx-auto flex justify-between items-center px-4">
@@ -45,7 +45,7 @@ const Header = () => {
           <img 
             src="/lovable-uploads/aa21b82a-14a1-4c51-9e29-f5e9e4671a81.png" 
             alt="ALMANGO Logo" 
-            className="h-12"
+            className="h-16 transition-all duration-300"
           />
         </div>
         
@@ -53,31 +53,31 @@ const Header = () => {
         <nav className="hidden md:flex items-center space-x-6">
           <button 
             onClick={() => scrollToSection('inicio')}
-            className="uppercase text-sm font-medium hover:text-primary transition-colors"
+            className="uppercase text-sm font-medium text-gray-200 hover:text-primary transition-colors"
           >
             Inicio
           </button>
           <button 
             onClick={() => scrollToSection('servicios')}
-            className="uppercase text-sm font-medium hover:text-primary transition-colors"
+            className="uppercase text-sm font-medium text-gray-200 hover:text-primary transition-colors"
           >
             Servicios
           </button>
           <button 
             onClick={() => scrollToSection('quienes-somos')}
-            className="uppercase text-sm font-medium hover:text-primary transition-colors"
+            className="uppercase text-sm font-medium text-gray-200 hover:text-primary transition-colors"
           >
             ¿Quienes somos?
           </button>
           <button 
             onClick={() => scrollToSection('formar-parte')}
-            className="uppercase text-sm font-medium hover:text-primary transition-colors"
+            className="uppercase text-sm font-medium text-gray-200 hover:text-primary transition-colors"
           >
             Formar parte
           </button>
           <button 
             onClick={() => scrollToSection('contacto')}
-            className="uppercase text-sm font-medium hover:text-primary transition-colors"
+            className="uppercase text-sm font-medium text-gray-200 hover:text-primary transition-colors"
           >
             Contacto
           </button>
@@ -89,7 +89,7 @@ const Header = () => {
             href="https://www.facebook.com/almango.com.uy" 
             target="_blank" 
             rel="noreferrer"
-            className="text-gray-600 hover:text-primary transition-colors"
+            className="text-gray-300 hover:text-primary transition-colors"
             aria-label="Facebook"
           >
             <Facebook size={20} />
@@ -98,7 +98,7 @@ const Header = () => {
             href="https://www.instagram.com/almangoservicios/" 
             target="_blank" 
             rel="noreferrer"
-            className="text-gray-600 hover:text-primary transition-colors"
+            className="text-gray-300 hover:text-primary transition-colors"
             aria-label="Instagram"
           >
             <Instagram size={20} />
@@ -107,7 +107,7 @@ const Header = () => {
         
         {/* Mobile Menu Button */}
         <button 
-          className="md:hidden text-gray-700 focus:outline-none"
+          className="md:hidden text-gray-300 focus:outline-none"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label="Toggle menu"
         >
@@ -117,35 +117,35 @@ const Header = () => {
       
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-white shadow-lg absolute top-full left-0 right-0">
+        <div className="md:hidden bg-gray-900 shadow-lg absolute top-full left-0 right-0">
           <div className="flex flex-col py-4 px-6 space-y-4">
             <button 
               onClick={() => scrollToSection('inicio')}
-              className="uppercase text-sm font-medium py-2 hover:text-primary transition-colors text-left"
+              className="uppercase text-sm font-medium py-2 text-gray-200 hover:text-primary transition-colors text-left"
             >
               Inicio
             </button>
             <button 
               onClick={() => scrollToSection('servicios')}
-              className="uppercase text-sm font-medium py-2 hover:text-primary transition-colors text-left"
+              className="uppercase text-sm font-medium py-2 text-gray-200 hover:text-primary transition-colors text-left"
             >
               Servicios
             </button>
             <button 
               onClick={() => scrollToSection('quienes-somos')}
-              className="uppercase text-sm font-medium py-2 hover:text-primary transition-colors text-left"
+              className="uppercase text-sm font-medium py-2 text-gray-200 hover:text-primary transition-colors text-left"
             >
               ¿Quienes somos?
             </button>
             <button 
               onClick={() => scrollToSection('formar-parte')}
-              className="uppercase text-sm font-medium py-2 hover:text-primary transition-colors text-left"
+              className="uppercase text-sm font-medium py-2 text-gray-200 hover:text-primary transition-colors text-left"
             >
               Formar parte
             </button>
             <button 
               onClick={() => scrollToSection('contacto')}
-              className="uppercase text-sm font-medium py-2 hover:text-primary transition-colors text-left"
+              className="uppercase text-sm font-medium py-2 text-gray-200 hover:text-primary transition-colors text-left"
             >
               Contacto
             </button>
@@ -156,7 +156,7 @@ const Header = () => {
                 href="https://www.facebook.com/almango.com.uy" 
                 target="_blank" 
                 rel="noreferrer"
-                className="text-gray-600 hover:text-primary transition-colors"
+                className="text-gray-300 hover:text-primary transition-colors"
                 aria-label="Facebook"
               >
                 <Facebook size={20} />
@@ -165,7 +165,7 @@ const Header = () => {
                 href="https://www.instagram.com/almangoservicios/" 
                 target="_blank" 
                 rel="noreferrer"
-                className="text-gray-600 hover:text-primary transition-colors"
+                className="text-gray-300 hover:text-primary transition-colors"
                 aria-label="Instagram"
               >
                 <Instagram size={20} />

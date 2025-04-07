@@ -20,12 +20,22 @@ const Servicios = () => {
   const location = useLocation();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
     if (location.state && location.state.openCart) {
       setIsCartOpen(true);
       window.history.replaceState({}, document.title);
     }
+
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, [location.state]);
 
   const handleBackToHome = () => {
@@ -66,7 +76,7 @@ const Servicios = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
       <main className="flex-grow py-8 px-4">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-8 mt-4">
@@ -93,45 +103,32 @@ const Servicios = () => {
             </Button>
           </div>
           
-          <h1 className="text-3xl font-bold mb-12 text-center text-gray-500 uppercase">Nuestros Servicios</h1>
+          <h1 className="text-3xl font-bold mb-12 text-center text-gray-400 uppercase">Nuestros Servicios</h1>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <ServiceCard 
-              name="Armado de Muebles" 
-              iconComponent={Package} 
-              addToCart={addToCart} 
-            />
-            <ServiceCard 
-              name="Aire Libre" 
-              iconComponent={Wind} 
-              addToCart={addToCart} 
-            />
-            <ServiceCard 
-              name="Decohogar" 
-              iconComponent={Home} 
-              addToCart={addToCart} 
-            />
-            <ServiceCard 
-              name="Equipo Sanitario, Baño y Cocina" 
-              iconComponent={Droplets} 
-              addToCart={addToCart} 
-            />
-            <ServiceCard 
-              name="Instalación de Electrodomésticos" 
-              iconComponent={Zap} 
-              addToCart={addToCart} 
-            />
-            <ServiceCard 
-              name="Aire Acondicionado" 
-              iconComponent={Wind} 
-              addToCart={addToCart} 
-            />
-            <ServiceCard 
-              name="Mudanza" 
-              iconComponent={Truck} 
-              addToCart={addToCart}
-              externalUrl="http://localhost/AlmangoXV1NETFramework/mudanza.aspx?Mode=UPD&MudanzaId=0&ProveedorId=0&SecUserId=0"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+            {[
+              { name: "Armado de Muebles", icon: Package },
+              { name: "Aire Libre", icon: Wind },
+              { name: "Decohogar", icon: Home },
+              { name: "Equipo Sanitario, Baño y Cocina", icon: Droplets },
+              { name: "Instalación de Electrodomésticos", icon: Zap },
+              { name: "Aire Acondicionado", icon: Wind },
+              { name: "Mudanza", icon: Truck, url: "http://localhost/AlmangoXV1NETFramework/mudanza.aspx?Mode=UPD&MudanzaId=0&ProveedorId=0&SecUserId=0" }
+            ].map((service, index) => (
+              <div 
+                key={index}
+                className={`transition-all duration-700 transform ${
+                  scrollY > 100 + index * 50 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+                }`}
+              >
+                <ServiceCard 
+                  name={service.name} 
+                  iconComponent={service.icon} 
+                  addToCart={addToCart}
+                  externalUrl={service.url}
+                />
+              </div>
+            ))}
           </div>
         </div>
         

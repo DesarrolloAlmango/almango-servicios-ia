@@ -31,7 +31,6 @@ interface ProductCardProps {
   onDecrease: () => void;
 }
 
-// ProductCard component defined before it's used
 const ProductCard: React.FC<ProductCardProps> = ({ 
   product, 
   quantity,
@@ -85,7 +84,6 @@ interface ProductGridProps {
   closeDialog: () => void;
 }
 
-// ProductGrid component defined before it's used
 const ProductGrid: React.FC<ProductGridProps> = ({ 
   category, 
   addToCart, 
@@ -172,7 +170,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   };
 
-  // Check if any product has a quantity greater than 0
   const hasSelectedProducts = Object.values(productQuantities).some(qty => qty > 0);
 
   return (
@@ -200,7 +197,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         ))}
       </div>
 
-      {/* Action buttons below all products */}
       {hasSelectedProducts && (
         <div className="flex justify-center gap-4 mt-8">
           <Button 
@@ -222,7 +218,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   );
 };
 
-// Main ServiceCard component
 interface ServiceCardProps {
   name: string;
   iconComponent: LucideIcon;
@@ -232,11 +227,10 @@ interface ServiceCardProps {
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ name, iconComponent: IconComponent, addToCart, externalUrl }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const navigate = useNavigate();
   
-  // Datos de ejemplo - en una aplicación real vendrían de una API
-  const categories: Category[] = [
+  const categories = [
     {
       id: "cat1",
       name: "Instalaciones",
@@ -277,12 +271,12 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ name, iconComponent: IconComp
   return (
     <>
       <Card 
-        className="rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 bg-transparent"
+        className="w-[170px] h-[170px] rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 hover:bg-primary/5"
         onClick={handleCardClick}
       >
-        <CardContent className="p-6 flex flex-col items-center group-hover:bg-primary/5">
-          <h3 className="text-xl font-bold mb-4 uppercase text-orange-500">{name}</h3>
-          <IconComponent className="w-16 h-16 text-blue-500" />
+        <CardContent className="p-6 flex flex-col items-center justify-center h-full">
+          <IconComponent className="w-12 h-12 text-blue-500 mb-4" />
+          <h3 className="text-lg font-bold text-center uppercase text-orange-500">{name}</h3>
         </CardContent>
       </Card>
       
