@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import ContactInfo from "@/components/ContactInfo";
 
 const Hero = () => {
   const scrollToServices = () => {
