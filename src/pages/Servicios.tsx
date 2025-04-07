@@ -111,7 +111,7 @@ const Servicios = () => {
             />
             <ServiceCard 
               name="Decohogar" 
-              icon="Home" 
+              icon="home" 
               addToCart={addToCart} 
             />
             <ServiceCard 
@@ -151,3 +151,4 @@ const Servicios = () => {
 };
 
 export default Servicios;
+
