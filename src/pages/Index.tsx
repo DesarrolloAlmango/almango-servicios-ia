@@ -62,7 +62,7 @@ const Index = () => {
                     className="w-full max-w-md mx-auto"
                   />
                 </div>
-                <div className="md:w-1/2">
+                <div className="md:w-1/2 w-full">
                   <h3 className="text-xl font-semibold mb-4 text-primary">ACERCA DE NOSOTROS</h3>
                   <p className="text-lg text-gray-600 mb-6">
                     Somos una empresa tecnológica que brinda soluciones en la contratación de servicios y oficios, 
@@ -87,7 +87,7 @@ const Index = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               <div className="bg-white p-8 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold mb-4 text-primary">Formar Parte</h3>
+                <h3 className="text-xl font-semibold mb-4 text-primary">FORMAR PARTE COMERCIOS</h3>
                 <p className="text-lg text-gray-600 mb-6">
                   Incrementá tus ingresos al ser parte de nuestra red de socios. Generando solicitudes de 
                   servicio en nuestra plataforma, obtendrás atractivas comisiones. Registrate para más información.
@@ -102,15 +102,15 @@ const Index = () => {
                     <Button 
                       className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg"
                     >
-                      <span className="block md:inline">Pre-Registros de Comercios</span>
-                      <span className="block md:hidden">COMERCIOS</span>
+                      <span className="hidden md:inline">Pre-Registros de Comercios</span>
+                      <span className="inline md:hidden">COMERCIOS</span>
                     </Button>
                   </a>
                 </div>
               </div>
               
               <div className="bg-white p-8 rounded-lg shadow-md">
-                <h3 className="text-xl font-semibold mb-4 text-primary">FORMAR PARTE</h3>
+                <h3 className="text-xl font-semibold mb-4 text-primary">FORMAR PARTE PROFESIONALES</h3>
                 <p className="text-lg text-gray-600 mb-6">
                   Unite a nuestra red de prestadores de servicios y aumentá tus ingresos. Con Almango, 
                   tendrás acceso a clientes potenciales y oportunidades de negocio constantes. Registrate para formar parte.
@@ -125,8 +125,8 @@ const Index = () => {
                     <Button 
                       className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg"
                     >
-                      <span className="block md:inline">Pre-Registros de Profesionales</span>
-                      <span className="block md:hidden">PROFESIONALES</span>
+                      <span className="hidden md:inline">Pre-Registros de Profesionales</span>
+                      <span className="inline md:hidden">PROFESIONALES</span>
                     </Button>
                   </a>
                 </div>

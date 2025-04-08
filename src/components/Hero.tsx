@@ -7,7 +7,7 @@ const Hero = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="relative w-full overflow-hidden bg-gray-900 min-h-[70vh] md:min-h-[80vh] flex items-center">
+    <div className="relative w-full overflow-hidden bg-gray-950 min-h-[60vh] md:min-h-[70vh] flex items-center">
       {/* Stars background */}
       <div className="absolute inset-0 z-0">
         <div className="stars-container absolute inset-0">
@@ -17,16 +17,16 @@ const Hero = () => {
         </div>
       </div>
       
-      <div className="container relative z-10 mx-auto px-6 text-left">
-        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 max-w-xl">
-          Servicios Para Tu Hogar y Empresa
+      <div className="container relative z-10 mx-auto px-6 text-left pl-8 md:pl-12">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4 max-w-xl animate-fade-in">
+          PROFESIONALES A TU SERVICIO
         </h1>
-        <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-xl">
-          Conectamos a personas y empresas con los mejores profesionales verificados
+        <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-xl font-normal animate-fade-in">
+          SOLUCIONES PARA TU HOGAR O EMPRESA EN UN SOLO LUGAR
         </p>
         <Button 
           onClick={() => navigate('/servicios')}
-          className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg flex items-center"
+          className="bg-primary hover:bg-primary/80 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg flex items-center transition-transform hover:scale-105 animate-fade-in"
         >
           Solicita Tu Servicio <ArrowRight className="ml-2" size={18} />
         </Button>
