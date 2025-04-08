@@ -1,13 +1,10 @@
-
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { Button } from "@/components/ui/button";
-
 const Index = () => {
-  return (
-    <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow" id="inicio">
         <Hero />
@@ -56,11 +53,7 @@ const Index = () => {
             <div className="max-w-4xl mx-auto">
               <div className="flex flex-col items-center gap-8">
                 <div className="w-full max-w-md mx-auto mb-6">
-                  <img 
-                    src="/lovable-uploads/10976e12-6bf7-48d0-b947-61ef37b1289b.png" 
-                    alt="ALMANGO logo" 
-                    className="w-full max-w-md mx-auto"
-                  />
+                  
                 </div>
                 <div className="w-full max-w-3xl">
                   <h3 className="text-xl font-semibold mb-4 text-primary">ACERCA DE NOSOTROS</h3>
@@ -94,15 +87,8 @@ const Index = () => {
                 </p>
                 
                 <div className="mt-8 text-center">
-                  <a 
-                    href="https://almango.com.uy/altas/altacomercio.html" 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="inline-block"
-                  >
-                    <Button 
-                      className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg max-w-full break-words"
-                    >
+                  <a href="https://almango.com.uy/altas/altacomercio.html" target="_blank" rel="noreferrer" className="inline-block">
+                    <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg max-w-full break-words">
                       <span className="hidden md:inline">Pre-Registros de Comercios</span>
                       <span className="inline md:hidden">COMERCIOS</span>
                     </Button>
@@ -118,15 +104,8 @@ const Index = () => {
                 </p>
                 
                 <div className="mt-8 text-center">
-                  <a 
-                    href="https://almango.com.uy/altas/altaprestador.html" 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="inline-block"
-                  >
-                    <Button 
-                      className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg max-w-full break-words"
-                    >
+                  <a href="https://almango.com.uy/altas/altaprestador.html" target="_blank" rel="noreferrer" className="inline-block">
+                    <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg max-w-full break-words">
                       <span className="hidden md:inline">Pre-Registros de Profesionales</span>
                       <span className="inline md:hidden">PROFESIONALES</span>
                     </Button>
@@ -140,8 +119,6 @@ const Index = () => {
       
       <Footer />
       <WhatsAppButton />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
