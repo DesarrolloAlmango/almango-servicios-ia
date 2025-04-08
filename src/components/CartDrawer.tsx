@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { 
   Sheet,
   SheetContent,
@@ -8,9 +8,13 @@ import {
   SheetFooter,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Trash2, Plus, Minus } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 import { CartItem } from "@/pages/Servicios";
+import StepIndicator from "@/components/checkout/StepIndicator";
+import LocationStep from "@/components/checkout/LocationStep";
+import CartItemsStep from "@/components/checkout/CartItemsStep";
+import DateTimeStep from "@/components/checkout/DateTimeStep";
+import PersonalInfoStep from "@/components/checkout/PersonalInfoStep";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -27,92 +31,114 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   updateCartItem, 
   total 
 }) => {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
+
+  const handleNextStep = () => {
+    setCurrentStep((prev) => Math.min(prev + 1, 3));
+  };
+
+  const handlePreviousStep = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
+  };
+
+  const handleSubmit = (data: any) => {
+    console.log("Checkout data:", {
+      department: selectedDepartment,
+      location: selectedLocation,
+      date: selectedDate,
+      timeSlot: selectedTimeSlot,
+      personalInfo: data
+    });
+    
+    toast.success("¡Pedido realizado con éxito! Te contactaremos pronto.", {
+      duration: 5000
+    });
+    
+    // Restablecer el carrito y cerrar el drawer
+    setCurrentStep(0);
+    setSelectedDepartment("");
+    setSelectedLocation("");
+    setSelectedDate(undefined);
+    setSelectedTimeSlot("");
+    setIsOpen(false);
+  };
+
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent className="w-full sm:max-w-md">
+      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Carrito de Compras</SheetTitle>
+          <SheetTitle>Carrito de Servicios</SheetTitle>
         </SheetHeader>
         
-        <div className="flex flex-col h-[calc(100vh-12rem)]">
-          {cartItems.length === 0 ? (
+        <div className="flex flex-col h-[calc(100vh-12rem)] mt-6">
+          {cartItems.length === 0 && currentStep === 0 ? (
             <div className="flex-grow flex items-center justify-center">
               <p className="text-muted-foreground text-center">
                 Tu carrito está vacío
               </p>
             </div>
           ) : (
-            <ScrollArea className="flex-grow pr-4 my-6">
-              <div className="space-y-4">
-                {cartItems.map(item => (
-                  <div key={item.id} className="flex items-center gap-4 border-b pb-4">
-                    {item.image && (
-                      <div className="h-16 w-16 rounded bg-gray-100 overflow-hidden">
-                        <img 
-                          src={item.image} 
-                          alt={item.name} 
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                    )}
-                    
-                    <div className="flex-grow">
-                      <p className="font-medium">{item.name}</p>
-                      <p className="text-sm text-muted-foreground">{item.serviceCategory}</p>
-                      <p className="font-bold mt-1">${item.price.toFixed(2)}</p>
-                    </div>
-                    
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="flex items-center border rounded-md">
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          className="h-8 w-8 p-0"
-                          onClick={() => updateCartItem(item.id, item.quantity - 1)}
-                        >
-                          <Minus size={16} />
-                        </Button>
-                        <span className="w-8 text-center">{item.quantity}</span>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          className="h-8 w-8 p-0"
-                          onClick={() => updateCartItem(item.id, item.quantity + 1)}
-                        >
-                          <Plus size={16} />
-                        </Button>
-                      </div>
-                      
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="text-red-500 h-6 w-6"
-                        onClick={() => updateCartItem(item.id, 0)}
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
+            <>
+              <StepIndicator currentStep={currentStep} totalSteps={4} />
+              
+              <div className="flex-grow">
+                {currentStep === 0 && (
+                  <LocationStep 
+                    selectedDepartment={selectedDepartment}
+                    setSelectedDepartment={setSelectedDepartment}
+                    selectedLocation={selectedLocation}
+                    setSelectedLocation={setSelectedLocation}
+                    onNext={handleNextStep}
+                  />
+                )}
+                
+                {currentStep === 1 && (
+                  <CartItemsStep 
+                    cartItems={cartItems}
+                    updateCartItem={updateCartItem}
+                    total={total}
+                    onPrevious={handlePreviousStep}
+                    onNext={handleNextStep}
+                  />
+                )}
+                
+                {currentStep === 2 && (
+                  <DateTimeStep 
+                    selectedDate={selectedDate}
+                    setSelectedDate={setSelectedDate}
+                    selectedTimeSlot={selectedTimeSlot}
+                    setSelectedTimeSlot={setSelectedTimeSlot}
+                    onPrevious={handlePreviousStep}
+                    onNext={handleNextStep}
+                  />
+                )}
+                
+                {currentStep === 3 && (
+                  <PersonalInfoStep 
+                    onPrevious={handlePreviousStep}
+                    onSubmit={handleSubmit}
+                  />
+                )}
               </div>
-            </ScrollArea>
+            </>
           )}
           
-          <SheetFooter className="mt-auto border-t pt-4">
-            <div className="w-full space-y-4">
-              <div className="flex justify-between">
-                <span className="font-medium">Total</span>
-                <span className="font-bold">${total.toFixed(2)}</span>
+          {cartItems.length === 0 && currentStep === 0 && (
+            <SheetFooter className="mt-auto pt-4">
+              <div className="w-full">
+                <Button 
+                  className="w-full" 
+                  disabled={true}
+                >
+                  Proceder al Pago
+                </Button>
               </div>
-              
-              <Button 
-                className="w-full" 
-                disabled={cartItems.length === 0}
-              >
-                Proceder al Pago
-              </Button>
-            </div>
-          </SheetFooter>
+            </SheetFooter>
+          )}
         </div>
       </SheetContent>
     </Sheet>

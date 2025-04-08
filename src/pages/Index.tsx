@@ -62,7 +62,7 @@ const Index = () => {
                     className="w-full max-w-md mx-auto"
                   />
                 </div>
-                <div className="md:w-1/2 text-left">
+                <div className="md:w-1/2">
                   <h3 className="text-xl font-semibold mb-4 text-primary">ACERCA DE NOSOTROS</h3>
                   <p className="text-lg text-gray-600 mb-6">
                     Somos una empresa tecnológica que brinda soluciones en la contratación de servicios y oficios, 
@@ -102,7 +102,8 @@ const Index = () => {
                     <Button 
                       className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg"
                     >
-                      Pre-Registros de Comercios
+                      <span className="block md:inline">Pre-Registros de Comercios</span>
+                      <span className="block md:hidden">COMERCIOS</span>
                     </Button>
                   </a>
                 </div>
@@ -124,7 +125,8 @@ const Index = () => {
                     <Button 
                       className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg"
                     >
-                      Pre-Registros de Profesionales
+                      <span className="block md:inline">Pre-Registros de Profesionales</span>
+                      <span className="block md:hidden">PROFESIONALES</span>
                     </Button>
                   </a>
                 </div>

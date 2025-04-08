@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -271,7 +272,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ name, iconComponent: IconComp
   return (
     <>
       <Card 
-        className="w-[280px] h-[240px] rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 hover:bg-orange-100"
+        data-component="service-card"
+        className="w-[280px] h-[240px] rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 service-card-hover"
         onClick={handleCardClick}
       >
         <CardContent className="p-8 flex flex-col items-center justify-center h-full">
