@@ -1,17 +1,10 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2, Plus, Minus, ShoppingCart, Eye } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingCart } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CartItem } from "@/pages/Servicios";
 import { Checkbox } from "@/components/ui/checkbox";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from "@/components/ui/dialog";
 
 interface CartItemsStepProps {
   cartItems: CartItem[];
@@ -29,29 +22,6 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
   onNext,
 }) => {
   const [termsAccepted, setTermsAccepted] = useState(false);
-  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-
-  const ServiceDetails = () => (
-    <div className="space-y-4">
-      <h3 className="text-lg font-medium">Detalle del Servicio</h3>
-      {cartItems.map((item) => (
-        <div key={item.id} className="p-4 bg-gray-50 rounded-md">
-          <h4 className="font-medium">{item.name}</h4>
-          <p className="text-sm text-muted-foreground">{item.serviceCategory}</p>
-          <div className="flex justify-between mt-2">
-            <span>Cantidad: {item.quantity}</span>
-            <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
-          </div>
-        </div>
-      ))}
-      <div className="border-t pt-4 mt-4">
-        <div className="flex justify-between font-bold">
-          <span>Total:</span>
-          <span>${total.toFixed(2)}</span>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <div className="space-y-6">
@@ -123,25 +93,6 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
               ))}
             </div>
           </ScrollArea>
-
-          <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-            <DialogTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="w-full flex items-center justify-center gap-2"
-                onClick={() => setIsDetailsOpen(true)}
-              >
-                <Eye size={16} />
-                Ver detalle completo
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Detalle de la Solicitud</DialogTitle>
-              </DialogHeader>
-              <ServiceDetails />
-            </DialogContent>
-          </Dialog>
 
           <div className="flex items-start gap-2 pt-2">
             <Checkbox 

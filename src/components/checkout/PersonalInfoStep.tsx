@@ -8,7 +8,7 @@ import {
   RadioGroupItem 
 } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { User, ClipboardList } from "lucide-react";
+import { User, ClipboardList, CreditCard, Banknote } from "lucide-react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -103,6 +103,38 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     }).format(date);
   };
 
+  // Map department IDs to names
+  const getDepartmentName = (departmentId: string) => {
+    const departments: Record<string, string> = {
+      "1": "Montevideo",
+      "2": "Canelones",
+      "3": "Maldonado"
+    };
+    return departments[departmentId] || departmentId;
+  };
+
+  // Map location IDs to names
+  const getLocationName = (departmentId: string, locationId: string) => {
+    const locations: Record<string, Record<string, string>> = {
+      "1": {
+        "1-1": "Centro",
+        "1-2": "Pocitos",
+        "1-3": "Carrasco"
+      },
+      "2": {
+        "2-1": "Ciudad de la Costa",
+        "2-2": "Las Piedras",
+        "2-3": "Pando"
+      },
+      "3": {
+        "3-1": "Punta del Este",
+        "3-2": "Maldonado",
+        "3-3": "San Carlos"
+      }
+    };
+    return locations[departmentId]?.[locationId] || locationId;
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -123,7 +155,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             <div className="space-y-2">
               <h4 className="font-medium">Ubicación</h4>
               <p className="text-sm text-muted-foreground">
-                {selectedDepartment}, {selectedLocation}
+                {getDepartmentName(selectedDepartment)}, {getLocationName(selectedDepartment, selectedLocation)}
               </p>
             </div>
             
@@ -290,11 +322,17 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="later" id="payment-later" />
-                      <Label htmlFor="payment-later">Pagar después (directo al profesional)</Label>
+                      <Label htmlFor="payment-later" className="flex items-center gap-2">
+                        Pagar después (directo al profesional)
+                        <Banknote size={18} className="text-green-500" />
+                      </Label>
                     </div>
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="now" id="payment-now" />
-                      <Label htmlFor="payment-now">Pagar ahora (Mercado Pago)</Label>
+                      <Label htmlFor="payment-now" className="flex items-center gap-2">
+                        Pagar ahora (Mercado Pago)
+                        <CreditCard size={18} className="text-sky-500" />
+                      </Label>
                     </div>
                   </RadioGroup>
                 </FormControl>
