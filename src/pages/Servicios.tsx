@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Hammer, Briefcase } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "@/components/ServiceCard";
@@ -20,22 +20,12 @@ const Servicios = () => {
   const location = useLocation();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
     if (location.state && location.state.openCart) {
       setIsCartOpen(true);
       window.history.replaceState({}, document.title);
     }
-
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
   }, [location.state]);
 
   const handleBackToHome = () => {
@@ -75,6 +65,24 @@ const Servicios = () => {
     return cartItems.reduce((count, item) => count + item.quantity, 0);
   };
 
+  // Array de servicios para mostrar
+  const services = [
+    { name: "Armado de Muebles", icon: Package },
+    { name: "Aire Libre", icon: Wind },
+    { name: "Decohogar", icon: Home },
+    { name: "Equipo Sanitario, Baño y Cocina", icon: Droplets },
+    { name: "Instalación de Electrodomésticos", icon: Zap },
+    { name: "Aire Acondicionado", icon: Wind },
+    { name: "Mudanza", icon: Truck, url: "http://localhost/AlmangoXV1NETFramework/mudanza.aspx?Mode=UPD&MudanzaId=0&ProveedorId=0&SecUserId=0" },
+    { name: "Reparaciones", icon: Hammer },
+    { name: "Servicios Profesionales", icon: Briefcase }
+  ];
+
+  // Calcular filas completas y elementos en la última fila
+  const itemsPerRow = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1;
+  const lastRowItemCount = services.length % itemsPerRow;
+  const needsCentering = lastRowItemCount > 0 && lastRowItemCount < itemsPerRow;
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
       <main className="flex-grow py-8 px-4">
@@ -94,7 +102,7 @@ const Servicios = () => {
               className="relative"
               onClick={() => setIsCartOpen(true)}
             >
-              <ShoppingCart size={24} /> {/* Increased size from 20 to 24 */}
+              <ShoppingCart size={24} />
               {getCartItemsCount() > 0 && (
                 <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {getCartItemsCount()}
@@ -103,24 +111,11 @@ const Servicios = () => {
             </Button>
           </div>
           
-          <h1 className="text-3xl font-bold mb-12 text-center text-gray-300 uppercase font-display">Nuestros Servicios</h1>
+          <h1 className="text-3xl font-normal mb-12 text-center text-gray-900 uppercase font-display">Nuestros Servicios</h1>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center">
-            {[
-              { name: "Armado de Muebles", icon: Package },
-              { name: "Aire Libre", icon: Wind },
-              { name: "Decohogar", icon: Home },
-              { name: "Equipo Sanitario, Baño y Cocina", icon: Droplets },
-              { name: "Instalación de Electrodomésticos", icon: Zap },
-              { name: "Aire Acondicionado", icon: Wind },
-              { name: "Mudanza", icon: Truck, url: "http://localhost/AlmangoXV1NETFramework/mudanza.aspx?Mode=UPD&MudanzaId=0&ProveedorId=0&SecUserId=0" }
-            ].map((service, index) => (
-              <div 
-                key={index}
-                className={`transition-all duration-700 transform ${
-                  index < 3 || scrollY > 100 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
-                }`}
-              >
+            {services.map((service, index) => (
+              <div key={index} className="opacity-100 translate-y-0">
                 <ServiceCard 
                   name={service.name} 
                   iconComponent={service.icon} 
@@ -130,6 +125,17 @@ const Servicios = () => {
               </div>
             ))}
           </div>
+          
+          {/* Ajustar filas incompletas para que estén centradas */}
+          {needsCentering && (
+            <style jsx>{`
+              @media (min-width: 768px) {
+                .grid > div:nth-last-child(-n+${lastRowItemCount}) {
+                  grid-column-start: ${Math.ceil((itemsPerRow - lastRowItemCount) / 2) + 1};
+                }
+              }
+            `}</style>
+          )}
         </div>
         
         <CartDrawer 
