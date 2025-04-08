@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Hammer, Briefcase } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "@/components/ServiceCard";
@@ -65,7 +65,7 @@ const Servicios = () => {
     return cartItems.reduce((count, item) => count + item.quantity, 0);
   };
 
-  // Array de servicios para mostrar
+  // Array de servicios para mostrar (eliminados Reparaciones y Servicios Profesionales)
   const services = [
     { name: "Armado de Muebles", icon: Package },
     { name: "Aire Libre", icon: Wind },
@@ -73,9 +73,7 @@ const Servicios = () => {
     { name: "Equipo Sanitario, Baño y Cocina", icon: Droplets },
     { name: "Instalación de Electrodomésticos", icon: Zap },
     { name: "Aire Acondicionado", icon: Wind },
-    { name: "Mudanza", icon: Truck, url: "http://localhost/AlmangoXV1NETFramework/mudanza.aspx?Mode=UPD&MudanzaId=0&ProveedorId=0&SecUserId=0" },
-    { name: "Reparaciones", icon: Hammer },
-    { name: "Servicios Profesionales", icon: Briefcase }
+    { name: "Mudanza", icon: Truck, url: "http://localhost/AlmangoXV1NETFramework/mudanza.aspx?Mode=UPD&MudanzaId=0&ProveedorId=0&SecUserId=0" }
   ];
 
   // Calcular filas completas y elementos en la última fila
@@ -126,15 +124,16 @@ const Servicios = () => {
             ))}
           </div>
           
-          {/* Ajustar filas incompletas para que estén centradas */}
           {needsCentering && (
-            <style jsx>{`
-              @media (min-width: 768px) {
-                .grid > div:nth-last-child(-n+${lastRowItemCount}) {
-                  grid-column-start: ${Math.ceil((itemsPerRow - lastRowItemCount) / 2) + 1};
+            <style dangerouslySetInnerHTML={{
+              __html: `
+                @media (min-width: 768px) {
+                  .grid > div:nth-last-child(-n+${lastRowItemCount}) {
+                    grid-column-start: ${Math.ceil((itemsPerRow - lastRowItemCount) / 2) + 1};
+                  }
                 }
-              }
-            `}</style>
+              `
+            }} />
           )}
         </div>
         

@@ -24,11 +24,11 @@ const Hero = () => {
   return (
     <section 
       id="inicio" 
-      className="relative min-h-screen flex items-center pt-16"
+      className="relative min-h-[85vh] md:min-h-screen flex items-center pt-16"
     >
       <div className="absolute inset-0 z-0">
         <div className="w-full h-full bg-cover bg-center" style={{ 
-          backgroundImage: "linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(20,27,46,0.9)), url('/lovable-uploads/aab5a4c1-bbe2-4be4-ac76-41eeb5f246fd.png')",
+          backgroundImage: "linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(10,15,30,0.95)), url('/lovable-uploads/aab5a4c1-bbe2-4be4-ac76-41eeb5f246fd.png')",
           backgroundSize: "cover"
         }} />
         {/* Efecto estrellado */}
@@ -36,9 +36,9 @@ const Hero = () => {
       </div>
       
       <div className="container mx-auto px-4 z-10">
-        <div className="flex flex-col items-start max-w-3xl mx-auto text-left">
+        <div className="flex flex-col items-start max-w-3xl ml-2 md:ml-6 text-left">
           <h1 
-            className={`text-4xl md:text-6xl font-bold text-[#ff6900] mb-3 md:mb-6 uppercase leading-tight font-display transition-all duration-1000 transform ${
+            className={`text-5xl md:text-7xl font-bold text-[#ff6900] mb-3 md:mb-6 uppercase leading-tight font-display transition-all duration-1000 transform ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
             }`}
           >
@@ -46,7 +46,7 @@ const Hero = () => {
           </h1>
           
           <p 
-            className={`text-xl md:text-3xl font-bold text-white mb-8 uppercase leading-relaxed transition-all duration-1000 delay-300 transform ${
+            className={`text-xl md:text-3xl text-white mb-8 uppercase leading-relaxed transition-all duration-1000 delay-300 transform ${
               isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
             }`}
           >
