@@ -9,7 +9,7 @@ const Hero = () => {
   const isMobile = useIsMobile();
 
   return (
-    <div className={`relative w-full overflow-hidden bg-gray-950 ${isMobile ? "min-h-[calc(100vh-20px)]" : "min-h-[100vh] md:min-h-[110vh]"} flex items-center`}>
+    <div className={`relative w-full overflow-hidden bg-gray-950 ${isMobile ? "min-h-[calc(100vh-40px)]" : "min-h-[100vh] md:min-h-[110vh]"} flex items-center`}>
       {/* Stars background */}
       <div className="absolute inset-0 z-0">
         <div className="stars-container absolute inset-0">
