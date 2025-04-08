@@ -121,6 +121,12 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                   <PersonalInfoStep 
                     onPrevious={handlePreviousStep}
                     onSubmit={handleSubmit}
+                    cartItems={cartItems}
+                    total={total}
+                    selectedDepartment={selectedDepartment}
+                    selectedLocation={selectedLocation}
+                    selectedDate={selectedDate}
+                    selectedTimeSlot={selectedTimeSlot}
                   />
                 )}
               </div>

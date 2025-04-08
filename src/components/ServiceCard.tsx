@@ -277,7 +277,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ name, iconComponent: IconComp
         onClick={handleCardClick}
       >
         <CardContent className="p-8 flex flex-col items-center justify-center h-full">
-          <IconComponent className="w-16 h-16 text-blue-500 mb-5" />
+          <IconComponent className="w-16 h-16 text-blue-500 mb-5 transition-transform duration-300 group-hover:scale-110" />
           <h3 className="text-lg font-bold text-center uppercase text-orange-500">{name}</h3>
         </CardContent>
       </Card>

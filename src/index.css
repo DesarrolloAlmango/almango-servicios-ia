@@ -201,3 +201,10 @@ html {
 .service-card-hover:hover {
   background-color: rgba(255, 166, 0, 0.1) !important;
 }
+
+[data-component="service-card"]:hover svg,
+.service-card-hover:hover svg {
+  transform: scale(1.2);
+  transition: transform 0.3s ease;
+}
+

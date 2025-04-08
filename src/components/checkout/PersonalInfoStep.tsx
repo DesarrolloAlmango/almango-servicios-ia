@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,7 +8,7 @@ import {
   RadioGroupItem 
 } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { User } from "lucide-react";
+import { User, ClipboardList } from "lucide-react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -20,6 +20,19 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
+import { CartItem } from "@/pages/Servicios";
+import { 
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre es obligatorio" }),
@@ -33,6 +46,9 @@ const formSchema = z.object({
   paymentMethod: z.enum(["later", "now"], {
     required_error: "Selecciona un método de pago",
   }),
+  termsAccepted: z.literal(true, {
+    errorMap: () => ({ message: "Debes aceptar los términos y condiciones" }),
+  }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -40,12 +56,26 @@ type FormValues = z.infer<typeof formSchema>;
 interface PersonalInfoStepProps {
   onPrevious: () => void;
   onSubmit: (data: FormValues) => void;
+  cartItems: CartItem[];
+  total: number;
+  selectedDepartment: string;
+  selectedLocation: string;
+  selectedDate?: Date;
+  selectedTimeSlot: string;
 }
 
 const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   onPrevious,
   onSubmit,
+  cartItems,
+  total,
+  selectedDepartment,
+  selectedLocation,
+  selectedDate,
+  selectedTimeSlot,
 }) => {
+  const [showOrderSummary, setShowOrderSummary] = useState(false);
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -58,8 +88,18 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       apartment: "",
       comments: "",
       paymentMethod: "later",
+      termsAccepted: false,
     },
   });
+
+  const formatDate = (date?: Date) => {
+    if (!date) return "No seleccionada";
+    return new Intl.DateTimeFormat('es-UY', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(date);
+  };
 
   return (
     <div className="space-y-6">
@@ -68,6 +108,48 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
         <h3 className="text-xl font-semibold">Datos Personales</h3>
         <p className="text-muted-foreground">Completa tus datos para finalizar</p>
       </div>
+
+      <Accordion type="single" collapsible className="mb-6 border rounded-md">
+        <AccordionItem value="order-summary">
+          <AccordionTrigger className="px-4 py-2">
+            <div className="flex items-center gap-2">
+              <ClipboardList size={18} />
+              <span>Ver resumen del pedido</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="px-4 py-2 space-y-4">
+            <div className="space-y-2">
+              <h4 className="font-medium">Ubicación</h4>
+              <p className="text-sm text-muted-foreground">
+                {selectedDepartment}, {selectedLocation}
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <h4 className="font-medium">Fecha y hora</h4>
+              <p className="text-sm text-muted-foreground">
+                {formatDate(selectedDate)} - {selectedTimeSlot || "No seleccionada"}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="font-medium">Productos seleccionados</h4>
+              <ul className="text-sm space-y-1">
+                {cartItems.map(item => (
+                  <li key={item.id} className="flex justify-between">
+                    <span>{item.name} x{item.quantity}</span>
+                    <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="flex justify-between font-medium pt-2 border-t mt-2">
+                <span>Total</span>
+                <span>${total.toFixed(2)}</span>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -215,6 +297,43 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                   </RadioGroup>
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="termsAccepted"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 pt-2">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    id="terms"
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel htmlFor="terms" className="text-sm font-normal">
+                    Acepto los{" "}
+                    <HoverCard>
+                      <HoverCardTrigger asChild>
+                        <span className="text-primary hover:underline cursor-pointer">
+                          términos y condiciones
+                        </span>
+                      </HoverCardTrigger>
+                      <HoverCardContent className="text-xs">
+                        <p>Al contratar nuestros servicios, aceptas nuestros términos y condiciones, que incluyen:</p>
+                        <ul className="list-disc pl-4 mt-2 space-y-1">
+                          <li>Política de cancelación</li>
+                          <li>Política de privacidad</li>
+                          <li>Condiciones de servicio</li>
+                        </ul>
+                      </HoverCardContent>
+                    </HoverCard>
+                  </FormLabel>
+                  <FormMessage />
+                </div>
               </FormItem>
             )}
           />
