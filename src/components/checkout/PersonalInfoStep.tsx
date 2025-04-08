@@ -88,7 +88,9 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       apartment: "",
       comments: "",
       paymentMethod: "later",
-      termsAccepted: false,
+      // Fix: Changed termsAccepted from false to undefined to avoid type error
+      // We can't use false as a default value because the schema requires true
+      termsAccepted: undefined as any,
     },
   });
 
