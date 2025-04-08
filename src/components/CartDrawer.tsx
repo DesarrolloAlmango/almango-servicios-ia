@@ -126,19 +126,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
               </div>
             </>
           )}
-          
-          {cartItems.length === 0 && currentStep === 0 && (
-            <SheetFooter className="mt-auto pt-4">
-              <div className="w-full">
-                <Button 
-                  className="w-full" 
-                  disabled={true}
-                >
-                  Proceder al Pago
-                </Button>
-              </div>
-            </SheetFooter>
-          )}
         </div>
       </SheetContent>
     </Sheet>

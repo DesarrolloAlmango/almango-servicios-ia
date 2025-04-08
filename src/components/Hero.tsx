@@ -7,7 +7,7 @@ const Hero = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="relative w-full overflow-hidden bg-gray-950 min-h-[60vh] md:min-h-[70vh] flex items-center">
+    <div className="relative w-full overflow-hidden bg-gray-950 min-h-[100vh] md:min-h-[110vh] flex items-center">
       {/* Stars background */}
       <div className="absolute inset-0 z-0">
         <div className="stars-container absolute inset-0">

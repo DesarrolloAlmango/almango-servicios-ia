@@ -1,3 +1,4 @@
+
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
@@ -49,14 +50,14 @@ const Index = () => {
         
         <section id="quienes-somos" className="py-20 px-4 bg-white">
           <div className="container mx-auto">
-            <h2 className="text-3xl font-bold mb-12 text-center text-secondary uppercase font-display">¿Quiénes Somos?</h2>
+            <h2 className="text-3xl font-bold mb-8 text-center text-secondary uppercase font-display">¿Quiénes Somos?</h2>
             <div className="max-w-4xl mx-auto">
-              <div className="flex flex-col items-center gap-8">
-                <div className="w-full max-w-md mx-auto mb-6">
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-full max-w-md mx-auto mb-4">
                   
                 </div>
                 <div className="w-full max-w-3xl">
-                  <h3 className="text-xl font-semibold mb-4 text-primary">ACERCA DE NOSOTROS</h3>
+                  <h3 className="text-xl font-semibold mb-3 text-primary">ACERCA DE NOSOTROS</h3>
                   <p className="text-lg text-gray-600 mb-6">
                     Somos una empresa tecnológica que brinda soluciones en la contratación de servicios y oficios, 
                     conectando a personas y empresas con proveedores de servicio previamente validados.
@@ -88,7 +89,7 @@ const Index = () => {
                 
                 <div className="mt-8 text-center">
                   <a href="https://almango.com.uy/altas/altacomercio.html" target="_blank" rel="noreferrer" className="inline-block">
-                    <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg max-w-full break-words">
+                    <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg w-full sm:w-auto break-words">
                       <span className="hidden md:inline">Pre-Registros de Comercios</span>
                       <span className="inline md:hidden">COMERCIOS</span>
                     </Button>
@@ -105,7 +106,7 @@ const Index = () => {
                 
                 <div className="mt-8 text-center">
                   <a href="https://almango.com.uy/altas/altaprestador.html" target="_blank" rel="noreferrer" className="inline-block">
-                    <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg max-w-full break-words">
+                    <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg w-full sm:w-auto break-words">
                       <span className="hidden md:inline">Pre-Registros de Profesionales</span>
                       <span className="inline md:hidden">PROFESIONALES</span>
                     </Button>

@@ -30,13 +30,13 @@ const LocationStep: React.FC<LocationStepProps> = ({
   const [otherStore, setOtherStore] = useState("");
   const [showOtherInput, setShowOtherInput] = useState(false);
 
-  // Lista de tiendas o comercios donde se pudo haber realizado la compra
+  // Lista reordenada de tiendas o comercios donde se pudo haber realizado la compra
   const stores = [
+    { id: "4", name: "Otro" },
+    { id: "5", name: "No lo sé" },
     { id: "1", name: "Tienda ALMANGO" },
     { id: "2", name: "Comercio Afiliado 1" },
     { id: "3", name: "Comercio Afiliado 2" },
-    { id: "4", name: "Otro" },
-    { id: "5", name: "No lo sé" },
   ];
 
   // Lista simplificada de departamentos y localidades
