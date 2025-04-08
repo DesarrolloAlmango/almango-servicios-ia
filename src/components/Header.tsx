@@ -31,7 +31,7 @@ const Header = () => {
   return <header className={cn('fixed top-0 left-0 right-0 z-50 transition-all duration-300', isScrolled ? 'bg-gray-900/90 backdrop-blur-sm shadow-md py-2' : 'bg-gray-900/70 backdrop-blur-sm py-4')}>
       <div className="container mx-auto flex justify-between items-center px-4">
         <div className="flex items-center">
-          <img alt="ALMANGO Logo" src="/lovable-uploads/48b8c904-a0fd-45fe-b78e-3c7199090818.png" className="h-18 transition-all duration-300 object-cover" />
+          <img alt="ALMANGO Logo" src="/lovable-uploads/10976e12-6bf7-48d0-b947-61ef37b1289b.png" className="h-12 transition-all duration-300 object-scale-down" />
         </div>
         
         {/* Desktop Navigation */}
