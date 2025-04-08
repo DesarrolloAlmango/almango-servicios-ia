@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { 
   Select, 
   SelectContent, 
@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface LocationStepProps {
   selectedDepartment: string;
@@ -25,6 +26,19 @@ const LocationStep: React.FC<LocationStepProps> = ({
   setSelectedLocation,
   onNext
 }) => {
+  const [selectedStore, setSelectedStore] = useState("");
+  const [otherStore, setOtherStore] = useState("");
+  const [showOtherInput, setShowOtherInput] = useState(false);
+
+  // Lista de tiendas o comercios donde se pudo haber realizado la compra
+  const stores = [
+    { id: "1", name: "Tienda ALMANGO" },
+    { id: "2", name: "Comercio Afiliado 1" },
+    { id: "3", name: "Comercio Afiliado 2" },
+    { id: "4", name: "Otro" },
+    { id: "5", name: "No lo sé" },
+  ];
+
   // Lista simplificada de departamentos y localidades
   const departments = [
     { id: "1", name: "Montevideo" },
@@ -55,6 +69,16 @@ const LocationStep: React.FC<LocationStepProps> = ({
     setSelectedLocation("");
   };
 
+  const handleStoreChange = (value: string) => {
+    setSelectedStore(value);
+    if (value === "4") { // "Otro"
+      setShowOtherInput(true);
+    } else {
+      setShowOtherInput(false);
+      setOtherStore("");
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -64,6 +88,38 @@ const LocationStep: React.FC<LocationStepProps> = ({
       </div>
 
       <div className="space-y-4">
+        <div className="space-y-2">
+          <label htmlFor="store" className="block text-sm font-medium">
+            Lugar de Compra
+          </label>
+          <Select
+            value={selectedStore}
+            onValueChange={handleStoreChange}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Selecciona un comercio" />
+            </SelectTrigger>
+            <SelectContent>
+              {stores.map((store) => (
+                <SelectItem key={store.id} value={store.id}>
+                  {store.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          
+          {showOtherInput && (
+            <div className="mt-2">
+              <Input
+                placeholder="Ingresa el nombre del comercio"
+                value={otherStore}
+                onChange={(e) => setOtherStore(e.target.value)}
+                className="w-full"
+              />
+            </div>
+          )}
+        </div>
+
         <div className="space-y-2">
           <label htmlFor="department" className="block text-sm font-medium">
             Departamento
@@ -112,7 +168,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
       <div className="flex justify-end pt-4 mt-4">
         <Button
           onClick={onNext}
-          disabled={!selectedDepartment || !selectedLocation}
+          disabled={!selectedDepartment || !selectedLocation || (!selectedStore || (selectedStore === "4" && !otherStore))}
           className="bg-primary"
         >
           Siguiente

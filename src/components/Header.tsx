@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { Facebook, Instagram, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -19,16 +21,26 @@ const Header = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+
   const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({
+    if (id === 'inicio') {
+      window.scrollTo({
+        top: 0,
         behavior: 'smooth'
       });
+    } else {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth'
+        });
+      }
     }
     setIsMobileMenuOpen(false);
   };
-  return <header className={cn('fixed top-0 left-0 right-0 z-50 transition-all duration-300', isScrolled ? 'bg-gray-900/90 backdrop-blur-sm shadow-md py-2' : 'bg-gray-900/70 backdrop-blur-sm py-4')}>
+
+  return (
+    <header className={cn('fixed top-0 left-0 right-0 z-50 transition-all duration-300', isScrolled ? 'bg-gray-900/90 backdrop-blur-sm shadow-md py-2' : 'bg-gray-900/70 backdrop-blur-sm py-4')}>
       <div className="container mx-auto flex justify-between items-center px-4">
         <div className="flex items-center">
           <img alt="ALMANGO Logo" src="/lovable-uploads/10976e12-6bf7-48d0-b947-61ef37b1289b.png" className="h-14 transition-all duration-300 object-scale-down" />
@@ -99,6 +111,8 @@ const Header = () => {
             </div>
           </div>
         </div>}
-    </header>;
+    </header>
+  );
 };
+
 export default Header;
