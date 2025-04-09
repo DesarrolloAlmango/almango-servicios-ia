@@ -1,29 +1,14 @@
-
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CategoryCarousel from "@/components/CategoryCarousel";
-import { CartItem } from "@/pages/Servicios";
+import { CartItem, Category, Product } from "@/types/service";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { LucideIcon } from "lucide-react";
-
-interface Category {
-  id: string;
-  name: string;
-  image: string;
-  products: Product[];
-}
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  category: string;
-}
+import { useCategoriesData } from "@/hooks/useCategoriesData";
 
 interface ProductCardProps {
   product: Product;
@@ -83,7 +68,7 @@ interface ProductGridProps {
   onBack: () => void;
   serviceName: string;
   closeDialog: () => void;
-  serviceId?: string; // Added serviceId prop
+  serviceId?: string;
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({ 
@@ -92,7 +77,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   onBack, 
   serviceName,
   closeDialog,
-  serviceId // Added serviceId
+  serviceId
 }) => {
   const navigate = useNavigate();
   const [productQuantities, setProductQuantities] = useState<Record<string, number>>(
@@ -188,12 +173,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
       </div>
       
-      {/* Display service ID for testing */}
-      {serviceId && (
-        <div className="bg-blue-50 p-3 rounded-md mb-4 border border-blue-200">
-          <p className="text-blue-700 font-medium">ID del Servicio (Test): {serviceId}</p>
-        </div>
-      )}
+      <div className="bg-blue-50 p-3 rounded-md mb-4 border border-blue-200">
+        <p className="text-blue-700 font-medium">ID del Servicio: {serviceId}</p>
+        <p className="text-blue-700 font-medium">Categoría: {category.name}</p>
+        <p className="text-blue-700 font-medium">Precio: {category.precio} {category.monedaid}</p>
+      </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {category.products.map(product => (
@@ -229,7 +213,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 };
 
 interface ServiceCardProps {
-  id?: string; // Added id prop
+  id?: string;
   name: string;
   iconComponent: LucideIcon;
   addToCart: (item: CartItem) => void;
@@ -238,41 +222,12 @@ interface ServiceCardProps {
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ id, name, iconComponent: IconComponent, addToCart, externalUrl }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const navigate = useNavigate();
   
-  const categories = [
-    {
-      id: "cat1",
-      name: "Instalaciones",
-      image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?auto=format&fit=crop&q=80&w=200&h=200",
-      products: [
-        { id: "p1", name: "Instalación de Tomacorriente", price: 25, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200", category: "Instalaciones" },
-        { id: "p2", name: "Cambio de Lámpara", price: 15, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200", category: "Instalaciones" },
-      ]
-    },
-    {
-      id: "cat2",
-      name: "Reparaciones",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200",
-      products: [
-        { id: "p3", name: "Reparación de Interruptor", price: 20, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200", category: "Reparaciones" },
-        { id: "p4", name: "Reparación de Enchufe", price: 18, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200", category: "Reparaciones" },
-      ]
-    },
-    {
-      id: "cat3",
-      name: "Mantenimiento",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200",
-      products: [
-        { id: "p5", name: "Mantenimiento de Tablero", price: 50, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200", category: "Mantenimiento" },
-        { id: "p6", name: "Revisión de Circuitos", price: 35, image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=200&h=200", category: "Mantenimiento" },
-      ]
-    }
-  ];
+  const { categories, isLoading, isError, responseData } = useCategoriesData(id);
   
   const handleCardClick = () => {
-    // Display service data for testing
     if (id) {
       console.log('Service clicked:', { id, name, externalUrl });
       toast.info(`Servicio: ${name} (ID: ${id})`, {
@@ -304,15 +259,30 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ id, name, iconComponent: Icon
         <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           <h2 className="text-2xl font-bold mb-4 text-center uppercase text-orange-500">{name}</h2>
           
-          {/* Display service info for testing */}
           <div className="bg-blue-50 p-3 rounded-md mb-4 border border-blue-200">
-            <p className="text-blue-700 font-medium">Datos del Servicio (Test):</p>
-            <pre className="bg-white p-2 rounded mt-2 overflow-x-auto text-sm">
-              {JSON.stringify({ id, name, externalUrl }, null, 2)}
-            </pre>
+            <p className="text-blue-700 font-medium">Datos del Servicio:</p>
+            <p className="text-blue-700">ID: {id}</p>
+            {isLoading && <p className="text-blue-700">Cargando categorías...</p>}
+            {isError && <p className="text-red-700">Error al cargar categorías. Usando datos predeterminados.</p>}
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-2 mb-2"
+              onClick={() => {
+                console.log("Categories data:", categories);
+                console.log("API Response:", responseData);
+                toast.info("Datos en la consola", { duration: 2000 });
+              }}
+            >
+              Ver datos en consola
+            </Button>
           </div>
           
-          {!selectedCategory ? (
+          {isLoading ? (
+            <div className="flex justify-center items-center p-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : !selectedCategory ? (
             <CategoryCarousel 
               categories={categories} 
               onSelectCategory={setSelectedCategory} 
@@ -324,7 +294,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ id, name, iconComponent: Icon
               onBack={() => setSelectedCategory(null)}
               serviceName={name}
               closeDialog={() => setIsDialogOpen(false)}
-              serviceId={id} // Pass service ID to ProductGrid
+              serviceId={id}
             />
           )}
         </DialogContent>

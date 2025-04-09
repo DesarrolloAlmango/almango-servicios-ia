@@ -20,3 +20,20 @@ export interface TarjetaServicio {
 export interface ServiceIconsMap {
   [key: string]: LucideIcon;
 }
+
+export interface Category {
+  id: string;
+  name: string;
+  monedaid: string;
+  precio: number;
+  image: string;
+  products: Product[];
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+}

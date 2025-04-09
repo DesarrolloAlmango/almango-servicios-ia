@@ -31,6 +31,11 @@ const ServiceGrid: React.FC<ServiceGridProps> = ({
   const lastRowItemCount = services.length % itemsPerRow;
   const needsCentering = lastRowItemCount > 0 && lastRowItemCount < itemsPerRow;
 
+  const handleViewInConsole = () => {
+    console.log("All services data:", services);
+    toast.info("Datos mostrados en la consola", { duration: 2000 });
+  };
+
   return (
     <>
       {isError && (
@@ -48,13 +53,10 @@ const ServiceGrid: React.FC<ServiceGridProps> = ({
           variant="outline"
           size="sm"
           className="mt-2 mb-2"
-          onClick={() => toast.info("Datos en la consola", { duration: 2000 })}
+          onClick={handleViewInConsole}
         >
           Ver en consola
         </Button>
-        <div className="hidden">
-          {console.log("All services data:", services)}
-        </div>
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center">
