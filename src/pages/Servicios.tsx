@@ -36,7 +36,7 @@ const iconComponents = {
 };
 
 const fallbackServices: TarjetaServicio[] = [
-  { id: "elec-1", name: "Electricidad", icon: "Zap" },
+  { id: "elec-1", name: "Electricidades", icon: "Zap" },
   { id: "plum-2", name: "Plomería", icon: "Droplets" },
   { id: "cerr-3", name: "Cerrajería", icon: "Home" },
   { id: "clim-4", name: "Climatización", icon: "Wind" },
