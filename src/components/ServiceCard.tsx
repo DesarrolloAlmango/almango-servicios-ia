@@ -83,6 +83,7 @@ interface ProductGridProps {
   onBack: () => void;
   serviceName: string;
   closeDialog: () => void;
+  serviceId?: string; // Added serviceId prop
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({ 
@@ -90,7 +91,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   addToCart, 
   onBack, 
   serviceName,
-  closeDialog 
+  closeDialog,
+  serviceId // Added serviceId
 }) => {
   const navigate = useNavigate();
   const [productQuantities, setProductQuantities] = useState<Record<string, number>>(
@@ -186,6 +188,13 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
       </div>
       
+      {/* Display service ID for testing */}
+      {serviceId && (
+        <div className="bg-blue-50 p-3 rounded-md mb-4 border border-blue-200">
+          <p className="text-blue-700 font-medium">ID del Servicio (Test): {serviceId}</p>
+        </div>
+      )}
+      
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {category.products.map(product => (
           <ProductCard 
@@ -220,13 +229,14 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 };
 
 interface ServiceCardProps {
+  id?: string; // Added id prop
   name: string;
   iconComponent: LucideIcon;
   addToCart: (item: CartItem) => void;
   externalUrl?: string;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ name, iconComponent: IconComponent, addToCart, externalUrl }) => {
+const ServiceCard: React.FC<ServiceCardProps> = ({ id, name, iconComponent: IconComponent, addToCart, externalUrl }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const navigate = useNavigate();
@@ -262,6 +272,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ name, iconComponent: IconComp
   ];
   
   const handleCardClick = () => {
+    // Display service data for testing
+    if (id) {
+      console.log('Service clicked:', { id, name, externalUrl });
+      toast.info(`Servicio: ${name} (ID: ${id})`, {
+        duration: 3000,
+      });
+    }
+    
     if (externalUrl) {
       window.location.href = externalUrl;
     } else {
@@ -286,6 +304,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ name, iconComponent: IconComp
         <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           <h2 className="text-2xl font-bold mb-4 text-center uppercase text-orange-500">{name}</h2>
           
+          {/* Display service info for testing */}
+          <div className="bg-blue-50 p-3 rounded-md mb-4 border border-blue-200">
+            <p className="text-blue-700 font-medium">Datos del Servicio (Test):</p>
+            <pre className="bg-white p-2 rounded mt-2 overflow-x-auto text-sm">
+              {JSON.stringify({ id, name, externalUrl }, null, 2)}
+            </pre>
+          </div>
+          
           {!selectedCategory ? (
             <CategoryCarousel 
               categories={categories} 
@@ -298,6 +324,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ name, iconComponent: IconComp
               onBack={() => setSelectedCategory(null)}
               serviceName={name}
               closeDialog={() => setIsDialogOpen(false)}
+              serviceId={id} // Pass service ID to ProductGrid
             />
           )}
         </DialogContent>

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -18,6 +19,7 @@ export interface CartItem {
 }
 
 interface TarjetaServicio {
+  id?: string; // Added id as optional
   name: string;
   icon: keyof typeof iconComponents;
   url?: string;
@@ -34,13 +36,13 @@ const iconComponents = {
 };
 
 const fallbackServices: TarjetaServicio[] = [
-  { name: "Electricidad", icon: "Zap" },
-  { name: "Plomería", icon: "Droplets" },
-  { name: "Cerrajería", icon: "Home" },
-  { name: "Climatización", icon: "Wind" },
-  { name: "Mudanzas", icon: "Truck" },
-  { name: "Paquetería", icon: "Package" },
-  { name: "Cuidado Infantil", icon: "Baby" }
+  { id: "elec-1", name: "Electricidad", icon: "Zap" },
+  { id: "plum-2", name: "Plomería", icon: "Droplets" },
+  { id: "cerr-3", name: "Cerrajería", icon: "Home" },
+  { id: "clim-4", name: "Climatización", icon: "Wind" },
+  { id: "mudz-5", name: "Mudanzas", icon: "Truck" },
+  { id: "paqt-6", name: "Paquetería", icon: "Package" },
+  { id: "baby-7", name: "Cuidado Infantil", icon: "Baby" }
 ];
 
 const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
@@ -54,6 +56,7 @@ const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
     }
     
     const data = await response.json();
+    console.log("API Response:", data); // Log the full API response for testing
     return JSON.parse(data.SDTTarjetasServiciosJson);
   } catch (error) {
     console.error("Error fetching services:", error);
@@ -75,8 +78,8 @@ const Servicios = () => {
   } = useQuery<TarjetaServicio[], Error>({
     queryKey: ["tarjetasServicios"],
     queryFn: fetchTarjetasServicios,
-    onError: (err) => {
-      console.error("Error en la consulta:", err);
+    onError: (error) => {
+      console.error("Error en la consulta:", error);
       toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
     }
   });
@@ -206,10 +209,30 @@ const Servicios = () => {
             </div>
           )}
           
+          {/* Display all services raw data for testing */}
+          {displayedServices && !isLoading && (
+            <div className="bg-blue-50 p-3 rounded-md mb-6 border border-blue-200">
+              <p className="text-blue-700 font-medium">Datos de Servicios (Test):</p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2 mb-2"
+                onClick={() => toast.info("Datos en la consola", { duration: 2000 })}
+              >
+                Ver en consola
+              </Button>
+              <div className="hidden">
+                {/* This will be logged but not displayed */}
+                {console.log("All services data:", displayedServices)}
+              </div>
+            </div>
+          )}
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center">
             {displayedServices?.map((service, index) => (
               <div key={index} className="opacity-100 translate-y-0">
                 <ServiceCard 
+                  id={service.id} // Pass id to ServiceCard
                   name={service.name} 
                   iconComponent={iconComponents[service.icon]} 
                   addToCart={addToCart}
