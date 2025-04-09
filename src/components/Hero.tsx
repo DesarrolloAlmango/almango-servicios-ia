@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import ContactInfo from "@/components/ContactInfo";
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ const Hero = () => {
           Solicita Tu Servicio <ArrowRight className="ml-2" size={18} />
         </Button>
       </div>
+      <ContactInfo />
     </div>
   );
 };
