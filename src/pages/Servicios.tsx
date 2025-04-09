@@ -48,7 +48,7 @@ const fallbackServices: TarjetaServicio[] = [
 const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
   try {
     const response = await fetch(
-      "/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios"
+      "http://109.199.100.16/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios"
     );
     
     if (!response.ok) {
