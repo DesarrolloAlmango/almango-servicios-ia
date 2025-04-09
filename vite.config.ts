@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     proxy: {
       '/api': {
-        target: 'http://localhost', // URL base de tu API
+        target: 'http://109.199.100.16', // URL base de tu API
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
         secure: false, // Si estás usando HTTPS autofirmado
