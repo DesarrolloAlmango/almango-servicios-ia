@@ -6,7 +6,8 @@ import ServiceCard from "@/components/ServiceCard";
 import CartDrawer from "@/components/CartDrawer";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-/* prueba*/
+import { toast } from "sonner";
+
 export interface CartItem {
   id: string;
   name: string;
@@ -32,17 +33,32 @@ const iconComponents = {
   Truck
 };
 
+const fallbackServices: TarjetaServicio[] = [
+  { name: "Electricidad", icon: "Zap" },
+  { name: "Plomería", icon: "Droplets" },
+  { name: "Cerrajería", icon: "Home" },
+  { name: "Climatización", icon: "Wind" },
+  { name: "Mudanzas", icon: "Truck" },
+  { name: "Paquetería", icon: "Package" },
+  { name: "Cuidado Infantil", icon: "Baby" }
+];
+
 const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
-  const response = await fetch(
-    "/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios"
-  );
-  
-  if (!response.ok) {
-    throw new Error("Error al obtener las tarjetas de servicios");
+  try {
+    const response = await fetch(
+      "/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios"
+    );
+    
+    if (!response.ok) {
+      throw new Error("Error al obtener las tarjetas de servicios");
+    }
+    
+    const data = await response.json();
+    return JSON.parse(data.SDTTarjetasServiciosJson);
+  } catch (error) {
+    console.error("Error fetching services:", error);
+    throw error;
   }
-  
-  const data = await response.json();
-  return JSON.parse(data.SDTTarjetasServiciosJson);
 };
 
 const Servicios = () => {
@@ -59,7 +75,13 @@ const Servicios = () => {
   } = useQuery<TarjetaServicio[], Error>({
     queryKey: ["tarjetasServicios"],
     queryFn: fetchTarjetasServicios,
+    onError: (err) => {
+      console.error("Error en la consulta:", err);
+      toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
+    }
   });
+
+  const displayedServices = isError ? fallbackServices : services;
 
   useEffect(() => {
     if (location.state && location.state.openCart) {
@@ -106,7 +128,7 @@ const Servicios = () => {
   };
 
   const itemsPerRow = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1;
-  const lastRowItemCount = services?.length ? services.length % itemsPerRow : 0;
+  const lastRowItemCount = displayedServices?.length ? displayedServices.length % itemsPerRow : 0;
   const needsCentering = lastRowItemCount > 0 && lastRowItemCount < itemsPerRow;
 
   if (isLoading) {
@@ -146,38 +168,6 @@ const Servicios = () => {
     );
   }
 
-  if (isError) {
-    return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
-        <main className="flex-grow py-8 px-4">
-          <div className="container mx-auto">
-            <div className="flex justify-between items-center mb-8 mt-4">
-              <Button 
-                variant="ghost" 
-                onClick={handleBackToHome}
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft size={20} />
-                <span>Volver</span>
-              </Button>
-            </div>
-            
-            <div className="text-center py-8 text-red-500">
-              Error: {error.message}
-              <Button 
-                variant="outline" 
-                className="mt-4"
-                onClick={() => window.location.reload()}
-              >
-                Reintentar
-              </Button>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
       <main className="flex-grow py-8 px-4">
@@ -208,8 +198,16 @@ const Servicios = () => {
           
           <h1 className="text-3xl font-normal mb-12 text-center text-gray-900 uppercase font-display">Nuestros Servicios</h1>
           
+          {isError && (
+            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6 rounded-md">
+              <p className="text-amber-700">
+                No se pudieron obtener los servicios del servidor. Mostrando información local.
+              </p>
+            </div>
+          )}
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center">
-            {services?.map((service, index) => (
+            {displayedServices?.map((service, index) => (
               <div key={index} className="opacity-100 translate-y-0">
                 <ServiceCard 
                   name={service.name} 
