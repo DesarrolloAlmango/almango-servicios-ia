@@ -1,10 +1,11 @@
-
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "@/components/ServiceCard";
 import CartDrawer from "@/components/CartDrawer";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export interface CartItem {
   id: string;
@@ -15,11 +16,50 @@ export interface CartItem {
   serviceCategory: string;
 }
 
+interface TarjetaServicio {
+  name: string;
+  icon: keyof typeof iconComponents;
+  url?: string;
+}
+
+const iconComponents = {
+  Package,
+  Baby,
+  Wind,
+  Home,
+  Droplets,
+  Zap,
+  Truck
+};
+
+const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
+  const response = await fetch(
+    "/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios"
+  );
+  
+  if (!response.ok) {
+    throw new Error("Error al obtener las tarjetas de servicios");
+  }
+  
+  const data = await response.json();
+  return JSON.parse(data.SDTTarjetasServiciosJson);
+};
+
 const Servicios = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+
+  const {
+    data: services,
+    isLoading,
+    isError,
+    error,
+  } = useQuery<TarjetaServicio[], Error>({
+    queryKey: ["tarjetasServicios"],
+    queryFn: fetchTarjetasServicios,
+  });
 
   useEffect(() => {
     if (location.state && location.state.openCart) {
@@ -65,21 +105,78 @@ const Servicios = () => {
     return cartItems.reduce((count, item) => count + item.quantity, 0);
   };
 
-  // Array de servicios para mostrar (eliminados Reparaciones y Servicios Profesionales)
-  const services = [
-    { name: "Armado de Muebles", icon: Package },
-    { name: "Aire Libre", icon: Wind },
-    { name: "Decohogar", icon: Home },
-    { name: "Equipo Sanitario, Baño y Cocina", icon: Droplets },
-    { name: "Instalación de Electrodomésticos", icon: Zap },
-    { name: "Aire Acondicionado", icon: Wind },
-    { name: "Mudanza", icon: Truck, url: "http://localhost/AlmangoXV1NETFramework/mudanza.aspx?Mode=UPD&MudanzaId=0&ProveedorId=0&SecUserId=0" }
-  ];
-
-  // Calcular filas completas y elementos en la última fila
   const itemsPerRow = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1;
-  const lastRowItemCount = services.length % itemsPerRow;
+  const lastRowItemCount = services?.length ? services.length % itemsPerRow : 0;
   const needsCentering = lastRowItemCount > 0 && lastRowItemCount < itemsPerRow;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
+        <main className="flex-grow py-8 px-4">
+          <div className="container mx-auto">
+            <div className="flex justify-between items-center mb-8 mt-4">
+              <Button 
+                variant="ghost" 
+                onClick={handleBackToHome}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft size={20} />
+                <span>Volver</span>
+              </Button>
+              
+              <Button 
+                variant="ghost" 
+                className="relative"
+                onClick={() => setIsCartOpen(true)}
+              >
+                <ShoppingCart size={24} />
+              </Button>
+            </div>
+            
+            <h1 className="text-3xl font-normal mb-12 text-center text-gray-900 uppercase font-display">Nuestros Servicios</h1>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center">
+              {[...Array(7)].map((_, i) => (
+                <Skeleton key={i} className="h-48 w-full max-w-sm" />
+              ))}
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
+        <main className="flex-grow py-8 px-4">
+          <div className="container mx-auto">
+            <div className="flex justify-between items-center mb-8 mt-4">
+              <Button 
+                variant="ghost" 
+                onClick={handleBackToHome}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft size={20} />
+                <span>Volver</span>
+              </Button>
+            </div>
+            
+            <div className="text-center py-8 text-red-500">
+              Error: {error.message}
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={() => window.location.reload()}
+              >
+                Reintentar
+              </Button>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
@@ -112,11 +209,11 @@ const Servicios = () => {
           <h1 className="text-3xl font-normal mb-12 text-center text-gray-900 uppercase font-display">Nuestros Servicios</h1>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center">
-            {services.map((service, index) => (
+            {services?.map((service, index) => (
               <div key={index} className="opacity-100 translate-y-0">
                 <ServiceCard 
                   name={service.name} 
-                  iconComponent={service.icon} 
+                  iconComponent={iconComponents[service.icon]} 
                   addToCart={addToCart}
                   externalUrl={service.url}
                 />
