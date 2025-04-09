@@ -1,52 +1,39 @@
 
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Hero = () => {
-  const scrollToServices = () => {
-    const element = document.getElementById('servicios');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   return (
-    <section 
-      id="inicio" 
-      className="relative min-h-screen flex items-center pt-16 bg-gradient-to-br from-gray-50 to-gray-100"
-    >
+    <div className={`relative w-full overflow-hidden bg-gray-950 ${isMobile ? "min-h-[calc(100vh-40px)]" : "min-h-[100vh] md:min-h-[110vh]"} flex items-center`}>
+      {/* Stars background */}
       <div className="absolute inset-0 z-0">
-        <div className="w-full h-full bg-cover bg-center" style={{ 
-          backgroundImage: "url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80')",
-          backgroundBlendMode: "overlay",
-          backgroundColor: "rgba(255, 255, 255, 0.85)"
-        }} />
-      </div>
-      
-      <div className="container mx-auto px-4 z-10">
-        <div className="max-w-3xl">
-          <h1 className="text-3xl md:text-5xl font-bold text-secondary mb-3 md:mb-6 uppercase leading-tight">
-            Profesionales a tu servicio
-          </h1>
-          
-          <p className="text-xl md:text-2xl font-bold text-gray-700 mb-8 uppercase leading-relaxed">
-            Soluciones para tu hogar o empresa en un solo lugar
-          </p>
-          
-          <Button 
-            onClick={scrollToServices}
-            className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg transition-transform hover:scale-105"
-          >
-            Solicita tu servicio
-          </Button>
+        <div className="stars-container absolute inset-0">
+          <div className="stars"></div>
+          <div className="stars2"></div>
+          <div className="stars3"></div>
         </div>
       </div>
       
-      <ContactInfo />
-      
-      {/* Add design elements */}
-      <div className="absolute bottom-0 right-0 w-1/3 h-32 bg-primary opacity-10 z-0" />
-      <div className="absolute top-1/4 right-10 w-16 h-16 bg-secondary rounded-full opacity-20 z-0" />
-    </section>
+      <div className="container relative z-10 mx-auto px-6 text-left pl-8 md:pl-12">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4 max-w-xl animate-fade-in">
+          PROFESIONALES A TU SERVICIO
+        </h1>
+        <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-xl font-normal animate-fade-in">
+          SOLUCIONES PARA TU HOGAR O EMPRESA EN UN SOLO LUGAR
+        </p>
+        <Button 
+          onClick={() => navigate('/servicios')}
+          className="bg-primary hover:bg-primary/80 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg flex items-center transition-transform hover:scale-105 animate-fade-in"
+        >
+          Solicita Tu Servicio <ArrowRight className="ml-2" size={18} />
+        </Button>
+      </div>
+    </div>
   );
 };
 
