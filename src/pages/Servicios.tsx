@@ -19,7 +19,7 @@ export interface CartItem {
 }
 
 interface TarjetaServicio {
-  id?: string; // Added id as optional
+  id?: string;
   name: string;
   icon: keyof typeof iconComponents;
   url?: string;
@@ -47,13 +47,13 @@ const fallbackServices: TarjetaServicio[] = [
 
 const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
   try {
+    // Use the proxy to avoid CORS issues
     const response = await fetch(
-      "http://109.199.100.16/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios",{
+      "/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios",{
         "headers": {
           "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
           "accept-language": "es-ES,es;q=0.9",
         },
-        "referrerPolicy": "strict-origin-when-cross-origin",
         "method": "GET"
       }
     );
@@ -85,9 +85,11 @@ const Servicios = () => {
   } = useQuery<TarjetaServicio[], Error>({
     queryKey: ["tarjetasServicios"],
     queryFn: fetchTarjetasServicios,
-    onError: (error) => {
-      console.error("Error en la consulta:", error);
-      toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
+    meta: {
+      onError: (error: Error) => {
+        console.error("Error en la consulta:", error);
+        toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
+      }
     }
   });
 
@@ -138,7 +140,7 @@ const Servicios = () => {
   };
 
   const itemsPerRow = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1;
-  const lastRowItemCount = displayedServices?.length ? displayedServices.length % itemsPerRow : 0;
+  const lastRowItemCount = displayedServices && displayedServices.length ? displayedServices.length % itemsPerRow : 0;
   const needsCentering = lastRowItemCount > 0 && lastRowItemCount < itemsPerRow;
 
   if (isLoading) {
@@ -229,7 +231,6 @@ const Servicios = () => {
                 Ver en consola
               </Button>
               <div className="hidden">
-                {/* This will be logged but not displayed */}
                 {console.log("All services data:", displayedServices)}
               </div>
             </div>
@@ -239,7 +240,7 @@ const Servicios = () => {
             {displayedServices?.map((service, index) => (
               <div key={index} className="opacity-100 translate-y-0">
                 <ServiceCard 
-                  id={service.id} // Pass id to ServiceCard
+                  id={service.id} 
                   name={service.name} 
                   iconComponent={iconComponents[service.icon]} 
                   addToCart={addToCart}
