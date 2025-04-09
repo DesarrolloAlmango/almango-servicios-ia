@@ -263,7 +263,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ id, name, iconComponent: Icon
             <p className="text-blue-700 font-medium">Datos del Servicio:</p>
             <p className="text-blue-700">ID: {id}</p>
             {isLoading && <p className="text-blue-700">Cargando categorías...</p>}
-            {isError && <p className="text-red-700">Error al cargar categorías. Usando datos predeterminados...</p>}
+            {isError && <p className="text-red-700">Error al cargar categorías. Usando datos predeterminados.</p>}
             <Button
               variant="outline"
               size="sm"
