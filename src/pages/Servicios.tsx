@@ -48,7 +48,14 @@ const fallbackServices: TarjetaServicio[] = [
 const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
   try {
     const response = await fetch(
-      "http://109.199.100.16/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios"
+      "http://109.199.100.16/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios",{
+        "headers": {
+          "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+          "accept-language": "es-ES,es;q=0.9",
+        },
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "method": "GET"
+      }
     );
     
     if (!response.ok) {
