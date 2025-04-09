@@ -6,7 +6,7 @@ import ServiceCard from "@/components/ServiceCard";
 import CartDrawer from "@/components/CartDrawer";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-
+/* prueba*/
 export interface CartItem {
   id: string;
   name: string;
