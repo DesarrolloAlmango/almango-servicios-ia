@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "@/components/ServiceCard";
@@ -8,6 +7,7 @@ import CartDrawer from "@/components/CartDrawer";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import PurchaseLocationModal from "@/components/PurchaseLocationModal";
 
 export interface CartItem {
   id: string;
@@ -23,6 +23,12 @@ interface TarjetaServicio {
   name: string;
   icon: keyof typeof iconComponents;
   url?: string;
+}
+
+interface PurchaseLocation {
+  storeId: string;
+  storeName: string;
+  otherLocation?: string;
 }
 
 const iconComponents = {
@@ -69,18 +75,22 @@ const Servicios = () => {
   const location = useLocation();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [purchaseLocation, setPurchaseLocation] = useState<PurchaseLocation | null>(null);
+  const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
 
   const {
     data: services,
     isLoading,
     isError,
-    error,
-  } = useQuery<TarjetaServicio[], Error>({
+  } = useQuery({
     queryKey: ["tarjetasServicios"],
     queryFn: fetchTarjetasServicios,
-    onError: (error) => {
-      console.error("Error en la consulta:", error);
-      toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
+    onSettled: (data, error) => {
+      if (error) {
+        console.error("Error en la consulta:", error);
+        toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
+      }
     }
   });
 
@@ -128,6 +138,34 @@ const Servicios = () => {
 
   const getCartItemsCount = () => {
     return cartItems.reduce((count, item) => count + item.quantity, 0);
+  };
+
+  const handleServiceCardClick = (serviceId: string | undefined) => {
+    if (!serviceId) return;
+    
+    if (!purchaseLocation) {
+      setSelectedServiceId(serviceId);
+      setIsLocationModalOpen(true);
+    } else {
+      return true;
+    }
+    
+    return false;
+  };
+
+  const handleLocationSelect = (storeId: string, storeName: string, otherLocation?: string) => {
+    setPurchaseLocation({ 
+      storeId, 
+      storeName, 
+      otherLocation 
+    });
+    setIsLocationModalOpen(false);
+    toast.success("Lugar de compra registrado");
+  };
+
+  const clearPurchaseLocation = () => {
+    setPurchaseLocation(null);
+    setSelectedServiceId(null);
   };
 
   if (isLoading) {
@@ -205,27 +243,27 @@ const Servicios = () => {
             </div>
           )}
           
-          {/* Comentamos el bloque de datos de prueba */}
-          {/*
-          {displayedServices && !isLoading && (
-            <div className="bg-blue-50 p-3 rounded-md mb-6 border border-blue-200">
-              <p className="text-blue-700 font-medium">Datos de Servicios (Test):</p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-2 mb-2"
-                onClick={() => toast.info("Datos en la consola", { duration: 2000 })}
-              >
-                Ver en consola
-              </Button>
-              <div className="hidden">
-                {console.log("All services data:", displayedServices)}
+          {purchaseLocation && (
+            <div className="mb-6 bg-blue-50 p-3 rounded-lg border border-blue-200 flex justify-between items-center">
+              <div>
+                <span className="font-medium text-blue-700">Lugar de compra: </span>
+                <span className="text-blue-600">
+                  {purchaseLocation.storeId === "other" 
+                    ? purchaseLocation.otherLocation 
+                    : purchaseLocation.storeName}
+                </span>
               </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={clearPurchaseLocation} 
+                className="text-blue-700 hover:bg-blue-100"
+              >
+                <X size={16} />
+              </Button>
             </div>
           )}
-          */}
           
-          {/* Grid de tarjetas de servicio con CSS Grid exactamente como se solicita */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto max-w-6xl justify-items-center">
             {displayedServices?.map((service, index) => (
               <div key={index} className="w-full max-w-[280px]">
@@ -235,6 +273,7 @@ const Servicios = () => {
                   iconComponent={iconComponents[service.icon]} 
                   addToCart={addToCart}
                   externalUrl={service.url}
+                  onBeforeCardClick={() => handleServiceCardClick(service.id)}
                 />
               </div>
             ))}
@@ -247,11 +286,22 @@ const Servicios = () => {
           cartItems={cartItems}
           updateCartItem={updateCartItem}
           total={getCartTotal()}
+          purchaseLocation={purchaseLocation ? 
+            purchaseLocation.storeId === "other" ? 
+              purchaseLocation.otherLocation : 
+              purchaseLocation.storeName : 
+            undefined}
+        />
+        
+        <PurchaseLocationModal 
+          isOpen={isLocationModalOpen}
+          onClose={() => setIsLocationModalOpen(false)}
+          onSelectLocation={handleLocationSelect}
         />
       </main>
 
-      {/* Estilos adicionales para garantizar la distribución correcta de las tarjetas */}
-      <style jsx>{`
+      <style>
+        {`
         @media (min-width: 640px) and (max-width: 1023px) {
           .grid-cols-2 > div:nth-child(odd):last-child {
             grid-column: 1 / span 2;
@@ -271,7 +321,8 @@ const Servicios = () => {
             margin-left: calc(100% / 3);
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };

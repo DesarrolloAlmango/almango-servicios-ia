@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { 
   Sheet,
@@ -22,6 +21,7 @@ interface CartDrawerProps {
   cartItems: CartItem[];
   updateCartItem: (id: string, quantity: number) => void;
   total: number;
+  purchaseLocation?: string;
 }
 
 const CartDrawer: React.FC<CartDrawerProps> = ({ 
@@ -29,7 +29,8 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   setIsOpen, 
   cartItems, 
   updateCartItem, 
-  total 
+  total,
+  purchaseLocation
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedDepartment, setSelectedDepartment] = useState("");

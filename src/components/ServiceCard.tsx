@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -197,17 +196,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
       </div>
       
-      {/* Comentamos los bloques de información de ID por ahora */}
-      {/*
-      <div className="bg-blue-50 p-3 rounded-md mb-4 border border-blue-200">
-        {serviceId && (
-          <p className="text-blue-700 font-medium">ID del Servicio: {serviceId}</p>
-        )}
-        <p className="text-blue-700 font-medium">ID de Categoría: {category.id}</p>
-        <p className="text-blue-700">Categoría: {category.name}</p>
-      </div>
-      */}
-      
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {category.products.map(product => (
           <ProductCard 
@@ -247,9 +235,17 @@ interface ServiceCardProps {
   iconComponent: LucideIcon;
   addToCart: (item: CartItem) => void;
   externalUrl?: string;
+  onBeforeCardClick?: () => boolean;
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ id, name, iconComponent: IconComponent, addToCart, externalUrl }) => {
+const ServiceCard: React.FC<ServiceCardProps> = ({ 
+  id, 
+  name, 
+  iconComponent: IconComponent, 
+  addToCart, 
+  externalUrl,
+  onBeforeCardClick 
+}) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -269,7 +265,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ id, name, iconComponent: Icon
       
       const data = await response.json();
       
-      // Modificado para adaptarse a la estructura real del JSON
       const transformedCategories = data.map((category: any) => ({
         id: category.id || category.Nivel1Id,
         name: category.name || category.Nivel1Descripcion,
@@ -301,7 +296,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ id, name, iconComponent: Icon
       
       const data = await response.json();
       
-      // Modificado para adaptarse a la estructura real del JSON
       const transformedProducts = data.map((product: any) => ({
         id: product.id || product.Nivel2Id,
         name: product.name || product.Nivel2Descripcion,
@@ -331,7 +325,15 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ id, name, iconComponent: Icon
   const handleCardClick = () => {
     if (externalUrl) {
       window.location.href = externalUrl;
-    } else if (id) {
+      return;
+    }
+    
+    if (id) {
+      if (onBeforeCardClick) {
+        const shouldProceed = onBeforeCardClick();
+        if (!shouldProceed) return;
+      }
+      
       setIsDialogOpen(true);
       fetchCategories(id);
     }
@@ -361,16 +363,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ id, name, iconComponent: Icon
         <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto p-0">
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-4 text-center uppercase text-orange-500">{name}</h2>
-            
-            {/* Comentamos el bloque de información de ID */}
-            {/*
-            {id && (
-              <div className="bg-blue-50 p-3 rounded-md mb-4 border border-blue-200">
-                <p className="text-blue-700 font-medium">ID del Servicio: {id}</p>
-                {error && <p className="text-red-500 mt-2">{error}</p>}
-              </div>
-            )}
-            */}
             
             {isLoading ? (
               <div className="flex justify-center items-center h-40">
