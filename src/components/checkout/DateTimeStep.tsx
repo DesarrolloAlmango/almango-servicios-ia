@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -9,7 +8,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Clock } from "lucide-react";
 import { es } from "date-fns/locale";
-import { format, addDays, isWeekend, isBefore, isToday } from "date-fns";
+import { format, addDays, isBefore, isToday } from "date-fns";
 
 interface DateTimeStepProps {
   selectedDate: Date | undefined;
@@ -63,8 +62,8 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    // Deshabilitar domingos y fechas pasadas
-    return date.getDay() === 0 || isBefore(date, today);
+    // Deshabilitar domingos, fechas pasadas y el día actual
+    return date.getDay() === 0 || isBefore(date, today) || isToday(date);
   };
 
   return (
@@ -86,7 +85,7 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
               disabled={disabledDays}
               locale={es}
               className="rounded-md border"
-              fromDate={new Date()}
+              fromDate={addDays(new Date(), 1)} // Comienza desde mañana
               toDate={addDays(new Date(), 60)}
             />
           </div>
@@ -126,7 +125,7 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
         <Button 
           onClick={onNext}
           disabled={!selectedDate || !selectedTimeSlot}
-          className="bg-primary"
+          className="bg-primary hover:bg-primary-dark"
         >
           Siguiente
         </Button>
