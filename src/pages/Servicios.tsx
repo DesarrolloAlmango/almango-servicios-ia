@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -87,11 +86,9 @@ const Servicios = () => {
   } = useQuery({
     queryKey: ["tarjetasServicios"],
     queryFn: fetchTarjetasServicios,
-    meta: {
-      onError: (error: any) => {
-        console.error("Error en la consulta:", error);
-        toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
-      }
+    onError: (error) => {
+      console.error("Error en la consulta:", error);
+      toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
     }
   });
 
