@@ -1,8 +1,10 @@
+
 import React, { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
+
 interface LocationStepProps {
   selectedDepartment: string;
   setSelectedDepartment: (department: string) => void;
@@ -10,6 +12,7 @@ interface LocationStepProps {
   setSelectedLocation: (location: string) => void;
   onNext: () => void;
 }
+
 const LocationStep: React.FC<LocationStepProps> = ({
   selectedDepartment,
   setSelectedDepartment,
@@ -17,28 +20,6 @@ const LocationStep: React.FC<LocationStepProps> = ({
   setSelectedLocation,
   onNext
 }) => {
-  const [selectedStore, setSelectedStore] = useState("");
-  const [otherStore, setOtherStore] = useState("");
-  const [showOtherInput, setShowOtherInput] = useState(false);
-
-  // Lista reordenada de tiendas o comercios donde se pudo haber realizado la compra
-  const stores = [{
-    id: "4",
-    name: "Otro"
-  }, {
-    id: "5",
-    name: "No lo sé"
-  }, {
-    id: "1",
-    name: "Tienda ALMANGO"
-  }, {
-    id: "2",
-    name: "Comercio Afiliado 1"
-  }, {
-    id: "3",
-    name: "Comercio Afiliado 2"
-  }];
-
   // Lista simplificada de departamentos y localidades
   const departments = [{
     id: "1",
@@ -50,6 +31,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
     id: "3",
     name: "Maldonado"
   }];
+  
   const locations: Record<string, Array<{
     id: string;
     name: string;
@@ -85,20 +67,12 @@ const LocationStep: React.FC<LocationStepProps> = ({
       name: "San Carlos"
     }]
   };
+  
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartment(value);
     setSelectedLocation("");
   };
-  const handleStoreChange = (value: string) => {
-    setSelectedStore(value);
-    if (value === "4") {
-      // "Otro"
-      setShowOtherInput(true);
-    } else {
-      setShowOtherInput(false);
-      setOtherStore("");
-    }
-  };
+
   return <div className="space-y-6">
       <div className="text-center mb-6">
         <MapPin className="h-12 w-12 mx-auto text-primary mb-2" />
@@ -107,8 +81,6 @@ const LocationStep: React.FC<LocationStepProps> = ({
       </div>
 
       <div className="space-y-4">
-        
-
         <div className="space-y-2">
           <label htmlFor="department" className="block text-sm font-medium">
             Departamento
@@ -143,10 +115,11 @@ const LocationStep: React.FC<LocationStepProps> = ({
       </div>
 
       <div className="flex justify-end pt-4 mt-4">
-        <Button onClick={onNext} disabled={!selectedDepartment || !selectedLocation || !selectedStore || selectedStore === "4" && !otherStore} className="bg-primary">
+        <Button onClick={onNext} disabled={!selectedDepartment || !selectedLocation} className="bg-primary">
           Siguiente
         </Button>
       </div>
     </div>;
 };
+
 export default LocationStep;
