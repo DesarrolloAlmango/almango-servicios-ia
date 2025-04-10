@@ -86,11 +86,9 @@ const Servicios = () => {
   } = useQuery({
     queryKey: ["tarjetasServicios"],
     queryFn: fetchTarjetasServicios,
-    onSettled: (data, error) => {
-      if (error) {
-        console.error("Error en la consulta:", error);
-        toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
-      }
+    onError: (error) => {
+      console.error("Error en la consulta:", error);
+      toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
     }
   });
 
@@ -166,6 +164,14 @@ const Servicios = () => {
   const clearPurchaseLocation = () => {
     setPurchaseLocation(null);
     setSelectedServiceId(null);
+  };
+
+  const getPurchaseLocationDisplay = () => {
+    if (!purchaseLocation) return undefined;
+    
+    return purchaseLocation.storeId === "other" 
+      ? purchaseLocation.otherLocation 
+      : purchaseLocation.storeName;
   };
 
   if (isLoading) {
@@ -286,11 +292,7 @@ const Servicios = () => {
           cartItems={cartItems}
           updateCartItem={updateCartItem}
           total={getCartTotal()}
-          purchaseLocation={purchaseLocation ? 
-            purchaseLocation.storeId === "other" ? 
-              purchaseLocation.otherLocation : 
-              purchaseLocation.storeName : 
-            undefined}
+          purchaseLocation={getPurchaseLocationDisplay()}
         />
         
         <PurchaseLocationModal 

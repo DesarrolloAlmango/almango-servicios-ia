@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { 
   Sheet,
@@ -14,6 +15,7 @@ import LocationStep from "@/components/checkout/LocationStep";
 import CartItemsStep from "@/components/checkout/CartItemsStep";
 import DateTimeStep from "@/components/checkout/DateTimeStep";
 import PersonalInfoStep from "@/components/checkout/PersonalInfoStep";
+import { MapPin } from "lucide-react";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -52,7 +54,8 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
       location: selectedLocation,
       date: selectedDate,
       timeSlot: selectedTimeSlot,
-      personalInfo: data
+      personalInfo: data,
+      purchaseLocation
     });
     
     toast.success("¡Pedido realizado con éxito! Te contactaremos pronto.", {
@@ -74,6 +77,16 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         <SheetHeader>
           <SheetTitle>Carrito de Servicios</SheetTitle>
         </SheetHeader>
+        
+        {purchaseLocation && (
+          <div className="mt-4 p-3 rounded-lg border-[1px] border-blue-200 bg-blue-50 flex items-center">
+            <MapPin className="text-blue-500 mr-2" size={16} />
+            <div className="text-sm text-blue-700">
+              <span className="font-medium">Lugar de compra: </span>
+              <span>{purchaseLocation}</span>
+            </div>
+          </div>
+        )}
         
         <div className="flex flex-col h-[calc(100vh-12rem)] mt-6">
           {cartItems.length === 0 && currentStep === 0 ? (
