@@ -258,6 +258,9 @@ const Servicios = () => {
                     ? purchaseLocation.otherLocation 
                     : purchaseLocation.storeName}
                 </span>
+                <span className="ml-2 text-blue-500 text-xs">
+                  (ID: {purchaseLocation.storeId})
+                </span>
               </div>
               <Button 
                 variant="ghost" 
@@ -280,6 +283,7 @@ const Servicios = () => {
                   addToCart={addToCart}
                   externalUrl={service.url}
                   onBeforeCardClick={() => handleServiceCardClick(service.id)}
+                  purchaseLocation={purchaseLocation}
                 />
               </div>
             ))}

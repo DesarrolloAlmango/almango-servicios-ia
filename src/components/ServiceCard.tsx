@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -110,6 +111,7 @@ interface ProductGridProps {
   serviceName: string;
   closeDialog: () => void;
   serviceId?: string;
+  purchaseLocationId?: string; // Nuevo prop para recibir el ID del lugar de compra
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({ 
@@ -118,7 +120,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   onBack, 
   serviceName,
   closeDialog,
-  serviceId
+  serviceId,
+  purchaseLocationId // Nuevo parámetro
 }) => {
   const navigate = useNavigate();
   const [productQuantities, setProductQuantities] = useState<Record<string, number>>(
@@ -147,7 +150,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         name: product.name,
         price: product.price,
         quantity: productQuantities[product.id],
-        image: product.image,
+        image: product.image, // Conservamos la imagen original para usar en el carrito
         serviceCategory: `${serviceName} - ${category.name}`
       }));
 
@@ -168,7 +171,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         name: product.name,
         price: product.price,
         quantity: productQuantities[product.id],
-        image: product.image,
+        image: product.image, // Conservamos la imagen original para usar en el carrito
         serviceCategory: `${serviceName} - ${category.name}`
       }));
 
@@ -195,6 +198,15 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         </button>
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
       </div>
+
+      {/* Mostrar el ID del lugar de compra si está presente */}
+      {purchaseLocationId && (
+        <div className="bg-blue-50 p-3 rounded-md mb-4">
+          <p className="text-blue-700 text-sm">
+            <span className="font-medium">ID del lugar de compra:</span> {purchaseLocationId}
+          </p>
+        </div>
+      )}
       
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {category.products.map(product => (
@@ -236,6 +248,11 @@ interface ServiceCardProps {
   addToCart: (item: CartItem) => void;
   externalUrl?: string;
   onBeforeCardClick?: () => boolean;
+  purchaseLocation?: {
+    storeId: string;
+    storeName: string;
+    otherLocation?: string;
+  } | null; // Añadido para recibir la información del lugar de compra
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ 
@@ -244,7 +261,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   iconComponent: IconComponent, 
   addToCart, 
   externalUrl,
-  onBeforeCardClick 
+  onBeforeCardClick,
+  purchaseLocation // Nuevo prop
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -347,6 +365,9 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     }
   };
 
+  // Obtener el ID del lugar de compra
+  const purchaseLocationId = purchaseLocation ? purchaseLocation.storeId : undefined;
+
   return (
     <>
       <Card 
@@ -392,6 +413,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                 serviceName={name}
                 closeDialog={() => setIsDialogOpen(false)}
                 serviceId={id}
+                purchaseLocationId={purchaseLocationId} // Pasamos el ID del lugar de compra
               />
             )}
           </div>

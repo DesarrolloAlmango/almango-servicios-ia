@@ -23,6 +23,22 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
 }) => {
   const [termsAccepted, setTermsAccepted] = useState(false);
 
+  // Función para procesar la imagen del producto
+  const getImageSource = (imageString?: string) => {
+    if (!imageString) return null;
+    
+    if (imageString.startsWith('data:image')) {
+      return imageString;
+    }
+    
+    try {
+      new URL(imageString);
+      return imageString;
+    } catch {
+      return `data:image/png;base64,${imageString}`;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -46,9 +62,13 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                   {item.image && (
                     <div className="h-16 w-16 rounded bg-gray-100 overflow-hidden">
                       <img 
-                        src={item.image} 
+                        src={getImageSource(item.image)} 
                         alt={item.name} 
                         className="h-full w-full object-cover"
+                        onError={(e) => {
+                          // Fallback para imágenes que no cargan
+                          (e.target as HTMLImageElement).src = '/placeholder.svg';
+                        }}
                       />
                     </div>
                   )}
