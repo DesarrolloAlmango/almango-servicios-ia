@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -196,6 +197,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
       </div>
       
+      {/* Comentamos los bloques de información de ID por ahora */}
+      {/*
       <div className="bg-blue-50 p-3 rounded-md mb-4 border border-blue-200">
         {serviceId && (
           <p className="text-blue-700 font-medium">ID del Servicio: {serviceId}</p>
@@ -203,6 +206,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         <p className="text-blue-700 font-medium">ID de Categoría: {category.id}</p>
         <p className="text-blue-700">Categoría: {category.name}</p>
       </div>
+      */}
       
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {category.products.map(product => (
@@ -358,12 +362,15 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ id, name, iconComponent: Icon
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-4 text-center uppercase text-orange-500">{name}</h2>
             
+            {/* Comentamos el bloque de información de ID */}
+            {/*
             {id && (
               <div className="bg-blue-50 p-3 rounded-md mb-4 border border-blue-200">
                 <p className="text-blue-700 font-medium">ID del Servicio: {id}</p>
                 {error && <p className="text-red-500 mt-2">{error}</p>}
               </div>
             )}
+            */}
             
             {isLoading ? (
               <div className="flex justify-center items-center h-40">

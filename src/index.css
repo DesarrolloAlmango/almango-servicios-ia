@@ -208,3 +208,45 @@ html {
   transition: transform 0.3s ease;
 }
 
+/* Estilos para la distribución de las tarjetas de servicio */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 24px;
+  justify-content: space-evenly;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .grid-container {
+    grid-template-columns: repeat(2, minmax(0, 280px));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-container {
+    grid-template-columns: repeat(3, minmax(0, 280px));
+  }
+}
+
+/* Centrado de las tarjetas cuando hay menos de 3 en la última fila */
+@media (min-width: 1024px) {
+  .grid-container.cards-7 > div:nth-child(7),
+  .grid-container.cards-4 > div:nth-child(4) {
+    grid-column-start: 2;
+  }
+  
+  .grid-container.cards-8 > div:nth-child(7),
+  .grid-container.cards-8 > div:nth-child(8),
+  .grid-container.cards-5 > div:nth-child(4),
+  .grid-container.cards-5 > div:nth-child(5) {
+    grid-column-start: 1;
+  }
+  
+  .grid-container.cards-8 > div:nth-child(8),
+  .grid-container.cards-5 > div:nth-child(5) {
+    grid-column-start: 3;
+  }
+}

@@ -19,7 +19,7 @@ export interface CartItem {
 }
 
 interface TarjetaServicio {
-  id?: string; // Added id as optional
+  id?: string;
   name: string;
   icon: keyof typeof iconComponents;
   url?: string;
@@ -56,7 +56,7 @@ const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
     }
     
     const data = await response.json();
-    console.log("API Response:", data); // Log the full API response for testing
+    // console.log("API Response:", data); // Comentado para producción
     return JSON.parse(data.SDTTarjetasServiciosJson);
   } catch (error) {
     console.error("Error fetching services:", error);
@@ -130,10 +130,6 @@ const Servicios = () => {
     return cartItems.reduce((count, item) => count + item.quantity, 0);
   };
 
-  const itemsPerRow = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 640 ? 2 : 1;
-  const lastRowItemCount = displayedServices?.length ? displayedServices.length % itemsPerRow : 0;
-  const needsCentering = lastRowItemCount > 0 && lastRowItemCount < itemsPerRow;
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
@@ -160,7 +156,7 @@ const Servicios = () => {
             
             <h1 className="text-3xl font-normal mb-12 text-center text-gray-900 uppercase font-display">Nuestros Servicios</h1>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
               {[...Array(7)].map((_, i) => (
                 <Skeleton key={i} className="h-48 w-full max-w-sm" />
               ))}
@@ -209,7 +205,8 @@ const Servicios = () => {
             </div>
           )}
           
-          {/* Display all services raw data for testing */}
+          {/* Comentamos el bloque de datos de prueba */}
+          {/*
           {displayedServices && !isLoading && (
             <div className="bg-blue-50 p-3 rounded-md mb-6 border border-blue-200">
               <p className="text-blue-700 font-medium">Datos de Servicios (Test):</p>
@@ -222,17 +219,18 @@ const Servicios = () => {
                 Ver en consola
               </Button>
               <div className="hidden">
-                {/* This will be logged but not displayed */}
                 {console.log("All services data:", displayedServices)}
               </div>
             </div>
           )}
+          */}
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 justify-items-center">
+          {/* Grid de tarjetas de servicio con CSS Grid exactamente como se solicita */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto max-w-6xl justify-items-center">
             {displayedServices?.map((service, index) => (
-              <div key={index} className="opacity-100 translate-y-0">
+              <div key={index} className="w-full max-w-[280px]">
                 <ServiceCard 
-                  id={service.id} // Pass id to ServiceCard
+                  id={service.id}
                   name={service.name} 
                   iconComponent={iconComponents[service.icon]} 
                   addToCart={addToCart}
@@ -241,18 +239,6 @@ const Servicios = () => {
               </div>
             ))}
           </div>
-          
-          {needsCentering && (
-            <style dangerouslySetInnerHTML={{
-              __html: `
-                @media (min-width: 768px) {
-                  .grid > div:nth-last-child(-n+${lastRowItemCount}) {
-                    grid-column-start: ${Math.ceil((itemsPerRow - lastRowItemCount) / 2) + 1};
-                  }
-                }
-              `
-            }} />
-          )}
         </div>
         
         <CartDrawer 
@@ -263,6 +249,29 @@ const Servicios = () => {
           total={getCartTotal()}
         />
       </main>
+
+      {/* Estilos adicionales para garantizar la distribución correcta de las tarjetas */}
+      <style jsx>{`
+        @media (min-width: 640px) and (max-width: 1023px) {
+          .grid-cols-2 > div:nth-child(odd):last-child {
+            grid-column: 1 / span 2;
+            justify-self: center;
+          }
+        }
+        
+        @media (min-width: 1024px) {
+          /* Para la última fila cuando hay solo 2 elementos */
+          .grid-cols-3 > div:nth-last-child(1):nth-child(3n-1),
+          .grid-cols-3 > div:nth-last-child(2):nth-child(3n-1) {
+            margin-left: calc(100% / 3);
+          }
+          
+          /* Para la última fila cuando hay solo 1 elemento */
+          .grid-cols-3 > div:nth-last-child(1):nth-child(3n-2) {
+            margin-left: calc(100% / 3);
+          }
+        }
+      `}</style>
     </div>
   );
 };
