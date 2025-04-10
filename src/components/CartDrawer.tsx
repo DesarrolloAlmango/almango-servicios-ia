@@ -11,7 +11,6 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { CartItem } from "@/pages/Servicios";
 import StepIndicator from "@/components/checkout/StepIndicator";
-import LocationStep from "@/components/checkout/LocationStep";
 import CartItemsStep from "@/components/checkout/CartItemsStep";
 import DateTimeStep from "@/components/checkout/DateTimeStep";
 import PersonalInfoStep from "@/components/checkout/PersonalInfoStep";
@@ -35,23 +34,31 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   purchaseLocation
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
 
   const handleNextStep = () => {
-    setCurrentStep((prev) => Math.min(prev + 1, 3));
+    if (currentStep === 0) {
+      // Skip the location step and go directly to cart items
+      setCurrentStep(1);
+    } else {
+      // For other steps, just increment normally
+      setCurrentStep((prev) => Math.min(prev + 1, 2));
+    }
   };
 
   const handlePreviousStep = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 0));
+    if (currentStep === 1) {
+      // Skip the location step when going backwards as well
+      setCurrentStep(0);
+    } else {
+      // For other steps, just decrement normally
+      setCurrentStep((prev) => Math.max(prev - 1, 0));
+    }
   };
 
   const handleSubmit = (data: any) => {
     console.log("Checkout data:", {
-      department: selectedDepartment,
-      location: selectedLocation,
       date: selectedDate,
       timeSlot: selectedTimeSlot,
       personalInfo: data,
@@ -64,8 +71,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     
     // Restablecer el carrito y cerrar el drawer
     setCurrentStep(0);
-    setSelectedDepartment("");
-    setSelectedLocation("");
     setSelectedDate(undefined);
     setSelectedTimeSlot("");
     setIsOpen(false);
@@ -89,7 +94,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         )}
         
         <div className="flex flex-col h-[calc(100vh-12rem)] mt-6">
-          {cartItems.length === 0 && currentStep === 0 ? (
+          {cartItems.length === 0 ? (
             <div className="flex-grow flex items-center justify-center">
               <p className="text-muted-foreground text-center">
                 Tu carrito está vacío
@@ -97,30 +102,20 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
             </div>
           ) : (
             <>
-              <StepIndicator currentStep={currentStep} totalSteps={4} />
+              <StepIndicator currentStep={currentStep} totalSteps={3} />
               
               <div className="flex-grow">
                 {currentStep === 0 && (
-                  <LocationStep 
-                    selectedDepartment={selectedDepartment}
-                    setSelectedDepartment={setSelectedDepartment}
-                    selectedLocation={selectedLocation}
-                    setSelectedLocation={setSelectedLocation}
-                    onNext={handleNextStep}
-                  />
-                )}
-                
-                {currentStep === 1 && (
                   <CartItemsStep 
                     cartItems={cartItems}
                     updateCartItem={updateCartItem}
                     total={total}
-                    onPrevious={handlePreviousStep}
                     onNext={handleNextStep}
+                    onPrevious={() => setIsOpen(false)}
                   />
                 )}
                 
-                {currentStep === 2 && (
+                {currentStep === 1 && (
                   <DateTimeStep 
                     selectedDate={selectedDate}
                     setSelectedDate={setSelectedDate}
@@ -131,16 +126,15 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                   />
                 )}
                 
-                {currentStep === 3 && (
+                {currentStep === 2 && (
                   <PersonalInfoStep 
                     onPrevious={handlePreviousStep}
                     onSubmit={handleSubmit}
                     cartItems={cartItems}
                     total={total}
-                    selectedDepartment={selectedDepartment}
-                    selectedLocation={selectedLocation}
                     selectedDate={selectedDate}
                     selectedTimeSlot={selectedTimeSlot}
+                    purchaseLocation={purchaseLocation}
                   />
                 )}
               </div>
