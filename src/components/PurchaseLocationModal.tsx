@@ -1,15 +1,15 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { MapPin, X } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 interface Store {
   id: string;
   name: string;
+  logo?: string;
 }
 
 interface PurchaseLocationModalProps {
@@ -28,26 +28,75 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const [selectedStore, setSelectedStore] = useState<string>("");
   const [otherStore, setOtherStore] = useState<string>("");
   const [showOtherInput, setShowOtherInput] = useState(false);
+  const [apiStores, setApiStores] = useState<Store[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // Default stores if API fails or none are provided
-  const defaultStores: Store[] = [
+  // Opciones fijas que deben aparecer primero
+  const fixedStores: Store[] = [
     { id: "other", name: "Otro" },
-    { id: "unknown", name: "No lo sé" },
-    { id: "store1", name: "Tienda ALMANGO" },
-    { id: "store2", name: "Comercio Afiliado 1" },
-    { id: "store3", name: "Comercio Afiliado 2" }
+    { id: "unknown", name: "No lo sé" }
   ];
 
-  const displayedStores = stores.length > 0 ? stores : defaultStores;
+  useEffect(() => {
+    if (isOpen) {
+      fetchProviders();
+    }
+  }, [isOpen]);
+
+  const fetchProviders = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/AlmangoXV1NETFramework/WebAPI/ObtenerProveedor", {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType?.includes('application/json')) {
+        throw new TypeError("La respuesta no es JSON");
+      }
+
+      const data = await response.json();
+
+      if (!Array.isArray(data)) {
+        throw new Error("Formato de datos inválido");
+      }
+
+      const validStores = data
+        .filter((item: any) => item.ProveedorID && item.ProveedorNombre)
+        .map((item: any) => ({
+          id: item.ProveedorID.toString(),
+          name: item.ProveedorNombre.toString(),
+          logo: item.ProveedorLogo?.toString() || ""
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name)); // Ordenar alfabéticamente
+
+      setApiStores(validStores);
+    } catch (error) {
+      console.error("Error al obtener proveedores:", error);
+      toast.warning("No se pudieron cargar los proveedores. Usando opciones básicas.");
+      setApiStores([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Combinar opciones fijas primero y luego los proveedores de la API
+  const displayedStores = [
+    ...fixedStores,
+    ...(apiStores.length > 0 ? apiStores : stores)
+  ];
 
   const handleStoreChange = (value: string) => {
     setSelectedStore(value);
-    if (value === "other") {
-      setShowOtherInput(true);
-    } else {
-      setShowOtherInput(false);
-      setOtherStore("");
-    }
+    setShowOtherInput(value === "other");
+    if (value !== "other") setOtherStore("");
   };
 
   const handleConfirm = () => {
@@ -61,16 +110,17 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       return;
     }
 
-    const storeName = displayedStores.find(store => store.id === selectedStore)?.name || "";
-    onSelectLocation(
-      selectedStore, 
-      storeName, 
-      selectedStore === "other" ? otherStore : undefined
-    );
+    const selected = displayedStores.find(store => store.id === selectedStore);
+    const storeName = selectedStore === "other" 
+      ? otherStore 
+      : selected?.name || "";
+
+    onSelectLocation(selectedStore, storeName, selectedStore === "other" ? otherStore : undefined);
+    onClose();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <div className="text-center mb-6">
           <MapPin className="h-12 w-12 mx-auto text-orange-500 mb-2" />
@@ -82,48 +132,49 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
         <div className="space-y-4 mb-4">
           <div className="space-y-2">
-            <label htmlFor="store" className="block text-sm font-medium">
+            <label className="block text-sm font-medium">
               Lugar de Compra
             </label>
             <Select
               value={selectedStore}
               onValueChange={handleStoreChange}
+              disabled={loading}
             >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Selecciona un comercio" />
+              <SelectTrigger>
+                <SelectValue placeholder={loading ? "Cargando..." : "Selecciona un comercio"} />
               </SelectTrigger>
               <SelectContent>
-                {displayedStores.map((store) => (
-                  <SelectItem key={store.id} value={store.id}>
+                {displayedStores.map(store => (
+                  <SelectItem 
+                    key={store.id} 
+                    value={store.id}
+                    className={fixedStores.some(f => f.id === store.id) ? "font-semibold" : ""}
+                  >
                     {store.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            
+
             {showOtherInput && (
-              <div className="mt-2">
-                <Input
-                  placeholder="Ingresa el nombre del comercio"
-                  value={otherStore}
-                  onChange={(e) => setOtherStore(e.target.value)}
-                  className="w-full"
-                />
-              </div>
+              <Input
+                placeholder="Nombre del comercio"
+                value={otherStore}
+                onChange={(e) => setOtherStore(e.target.value)}
+                className="mt-2"
+              />
             )}
           </div>
         </div>
 
         <div className="flex justify-end gap-2">
-          <Button
-            variant="outline"
-            onClick={onClose}
-          >
+          <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <Button
+          <Button 
             onClick={handleConfirm}
-            className="bg-orange-500 hover:bg-orange-600 text-white"
+            disabled={loading}
+            className="bg-orange-500 hover:bg-orange-600"
           >
             Confirmar
           </Button>

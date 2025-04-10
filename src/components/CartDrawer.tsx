@@ -1,11 +1,9 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetFooter,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -26,6 +24,16 @@ interface CartDrawerProps {
   purchaseLocation?: string;
 }
 
+interface Department {
+  id: string;
+  name: string;
+}
+
+interface Municipality {
+  id: string;
+  name: string;
+}
+
 const CartDrawer: React.FC<CartDrawerProps> = ({ 
   isOpen, 
   setIsOpen, 
@@ -39,8 +47,99 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [municipalities, setMunicipalities] = useState<Record<string, Municipality[]>>({});
+  const [loading, setLoading] = useState({
+    departments: false,
+    municipalities: false
+  });
+
+  useEffect(() => {
+    if (isOpen && departments.length === 0) {
+      fetchDepartments();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (selectedDepartment && !municipalities[selectedDepartment]) {
+      fetchMunicipalities(selectedDepartment);
+    }
+  }, [selectedDepartment]);
+
+  const fetchDepartments = async () => {
+    setLoading(prev => ({...prev, departments: true}));
+    try {
+      const response = await fetch("/api/AlmangoXV1NETFramework/WebAPI/ObtenerDepto");
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      const formattedDepartments = data.map((item: any) => ({
+        id: item.DepartamentoId?.toString() || "",
+        name: item.DepartamentoDepartamento?.toString() || ""
+      })).filter(dept => dept.id && dept.name)
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      setDepartments(formattedDepartments);
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+      toast.error("No se pudieron cargar los departamentos");
+      setDepartments([
+        { id: "1", name: "Montevideo" },
+        { id: "2", name: "Canelones" },
+        { id: "3", name: "Maldonado" }
+      ]);
+    } finally {
+      setLoading(prev => ({...prev, departments: false}));
+    }
+  };
+
+  const fetchMunicipalities = async (departmentId: string) => {
+    setLoading(prev => ({...prev, municipalities: true}));
+    setSelectedLocation("");
+    try {
+      const response = await fetch(
+        `/api/AlmangoXV1NETFramework/WebAPI/ObtenerMunicipio?DepartamentoId=${departmentId}`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      const formattedMunicipalities = data
+        .map((item: any) => ({
+          id: item.DepartamentoMunicipioId?.toString() || "",
+          name: item.DepartamentoMunicipioNombre?.toString() || ""
+        }))
+        .filter(mun => mun.id && mun.name && mun.name !== "-")
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      setMunicipalities(prev => ({
+        ...prev,
+        [departmentId]: formattedMunicipalities
+      }));
+    } catch (error) {
+      console.error("Error fetching municipalities:", error);
+      toast.error("No se pudieron cargar las localidades");
+      setMunicipalities(prev => ({
+        ...prev,
+        [departmentId]: []
+      }));
+    } finally {
+      setLoading(prev => ({...prev, municipalities: false}));
+    }
+  };
 
   const handleNextStep = () => {
+    if (currentStep === 0 && (!selectedDepartment || !selectedLocation)) {
+      toast.error("Por favor selecciona departamento y localidad");
+      return;
+    }
     setCurrentStep((prev) => Math.min(prev + 1, 3));
   };
 
@@ -62,7 +161,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
       duration: 5000
     });
     
-    // Restablecer el carrito y cerrar el drawer
     setCurrentStep(0);
     setSelectedDepartment("");
     setSelectedLocation("");
@@ -107,6 +205,9 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                     selectedLocation={selectedLocation}
                     setSelectedLocation={setSelectedLocation}
                     onNext={handleNextStep}
+                    departments={departments}
+                    municipalities={municipalities}
+                    loading={loading}
                   />
                 )}
                 

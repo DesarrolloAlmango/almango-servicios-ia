@@ -1,9 +1,7 @@
-
-import React, { useState } from "react";
+import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { MapPin } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { MapPin, Loader2 } from "lucide-react";
 
 interface LocationStepProps {
   selectedDepartment: string;
@@ -11,6 +9,18 @@ interface LocationStepProps {
   selectedLocation: string;
   setSelectedLocation: (location: string) => void;
   onNext: () => void;
+  departments: Array<{
+    id: string;
+    name: string;
+  }>;
+  municipalities: Record<string, Array<{
+    id: string;
+    name: string;
+  }>>;
+  loading: {
+    departments: boolean;
+    municipalities: boolean;
+  };
 }
 
 const LocationStep: React.FC<LocationStepProps> = ({
@@ -18,62 +28,20 @@ const LocationStep: React.FC<LocationStepProps> = ({
   setSelectedDepartment,
   selectedLocation,
   setSelectedLocation,
-  onNext
+  onNext,
+  departments,
+  municipalities,
+  loading
 }) => {
-  // Lista simplificada de departamentos y localidades
-  const departments = [{
-    id: "1",
-    name: "Montevideo"
-  }, {
-    id: "2",
-    name: "Canelones"
-  }, {
-    id: "3",
-    name: "Maldonado"
-  }];
-  
-  const locations: Record<string, Array<{
-    id: string;
-    name: string;
-  }>> = {
-    "1": [{
-      id: "1-1",
-      name: "Centro"
-    }, {
-      id: "1-2",
-      name: "Pocitos"
-    }, {
-      id: "1-3",
-      name: "Carrasco"
-    }],
-    "2": [{
-      id: "2-1",
-      name: "Ciudad de la Costa"
-    }, {
-      id: "2-2",
-      name: "Las Piedras"
-    }, {
-      id: "2-3",
-      name: "Pando"
-    }],
-    "3": [{
-      id: "3-1",
-      name: "Punta del Este"
-    }, {
-      id: "3-2",
-      name: "Maldonado"
-    }, {
-      id: "3-3",
-      name: "San Carlos"
-    }]
-  };
-  
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartment(value);
     setSelectedLocation("");
   };
 
-  return <div className="space-y-6">
+  const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
+
+  return (
+    <div className="space-y-6">
       <div className="text-center mb-6">
         <MapPin className="h-12 w-12 mx-auto text-primary mb-2" />
         <h3 className="text-xl font-semibold">Lugar de Servicio</h3>
@@ -85,14 +53,26 @@ const LocationStep: React.FC<LocationStepProps> = ({
           <label htmlFor="department" className="block text-sm font-medium">
             Departamento
           </label>
-          <Select value={selectedDepartment} onValueChange={handleDepartmentChange}>
+          <Select 
+            value={selectedDepartment} 
+            onValueChange={handleDepartmentChange}
+            disabled={loading.departments}
+          >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Selecciona un departamento" />
+              <SelectValue placeholder={loading.departments ? "Cargando departamentos..." : "Selecciona un departamento"} />
             </SelectTrigger>
             <SelectContent>
-              {departments.map(dept => <SelectItem key={dept.id} value={dept.id}>
-                  {dept.name}
-                </SelectItem>)}
+              {loading.departments ? (
+                <div className="flex items-center justify-center p-4">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                </div>
+              ) : (
+                departments.map(dept => (
+                  <SelectItem key={dept.id} value={dept.id}>
+                    {dept.name}
+                  </SelectItem>
+                ))
+              )}
             </SelectContent>
           </Select>
         </div>
@@ -101,25 +81,41 @@ const LocationStep: React.FC<LocationStepProps> = ({
           <label htmlFor="location" className="block text-sm font-medium">
             Localidad
           </label>
-          <Select value={selectedLocation} onValueChange={setSelectedLocation} disabled={!selectedDepartment}>
+          <Select 
+            value={selectedLocation} 
+            onValueChange={setSelectedLocation} 
+            disabled={!selectedDepartment || loading.municipalities}
+          >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Selecciona una localidad" />
+              <SelectValue placeholder={
+                loading.municipalities ? "Cargando localidades..." : 
+                !selectedDepartment ? "Selecciona un departamento primero" : 
+                currentMunicipalities.length === 0 ? "No hay localidades disponibles" :
+                "Selecciona una localidad"
+              } />
             </SelectTrigger>
             <SelectContent>
-              {selectedDepartment && locations[selectedDepartment]?.map(loc => <SelectItem key={loc.id} value={loc.id}>
-                    {loc.name}
-                  </SelectItem>)}
+              {currentMunicipalities.map(municipality => (
+                <SelectItem key={municipality.id} value={municipality.id}>
+                  {municipality.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
       </div>
 
       <div className="flex justify-end pt-4 mt-4">
-        <Button onClick={onNext} disabled={!selectedDepartment || !selectedLocation} className="bg-primary">
+        <Button 
+          onClick={onNext} 
+          disabled={!selectedDepartment || !selectedLocation || loading.municipalities || loading.departments}
+          className="bg-primary hover:bg-primary-dark"
+        >
           Siguiente
         </Button>
       </div>
-    </div>;
+    </div>
+  );
 };
 
 export default LocationStep;
