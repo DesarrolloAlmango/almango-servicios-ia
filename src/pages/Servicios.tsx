@@ -92,9 +92,11 @@ const Servicios = () => {
   } = useQuery({
     queryKey: ["tarjetasServicios"],
     queryFn: fetchTarjetasServicios,
-    onError: (error) => {
-      console.error("Error en la consulta:", error);
-      toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
+    meta: {
+      onError: (error: Error) => {
+        console.error("Error en la consulta:", error);
+        toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
+      }
     }
   });
 
@@ -107,10 +109,16 @@ const Servicios = () => {
     }
   }, [location.state]);
 
+  // This effect will ensure that forceOpen is reset
   useEffect(() => {
     if (pendingServiceCardAction && selectedServiceId) {
-      setPendingServiceCardAction(false);
-      // This will trigger the forceOpen prop on the specific ServiceCard
+      // Set a timeout to automatically reset the pending action flag
+      // This prevents multiple dialogs from opening
+      const timer = setTimeout(() => {
+        setPendingServiceCardAction(false);
+      }, 500); // Half a second should be enough for the dialog to open
+      
+      return () => clearTimeout(timer);
     }
   }, [pendingServiceCardAction, selectedServiceId]);
 
@@ -163,6 +171,7 @@ const Servicios = () => {
     const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
     
     if (existingLocation) {
+      // Important: Don't set pendingServiceCardAction here, let the card handle its own opening
       return true; // Allow opening the service directly
     } else {
       // If not, open location modal
@@ -188,6 +197,7 @@ const Servicios = () => {
       toast.success(`Lugar de compra registrado para ${selectedServiceName}`);
       
       // Set the flag to open the service card after closing the location modal
+      // But clear all other pending actions first to prevent double-opens
       setPendingServiceCardAction(true);
     }
   };
@@ -334,7 +344,13 @@ const Servicios = () => {
         
         <PurchaseLocationModal 
           isOpen={isLocationModalOpen}
-          onClose={() => setIsLocationModalOpen(false)}
+          onClose={() => {
+            setIsLocationModalOpen(false);
+            // Reset selection when modal is closed without confirming
+            if (pendingServiceCardAction) {
+              setPendingServiceCardAction(false);
+            }
+          }}
           onSelectLocation={handleLocationSelect}
           serviceName={selectedServiceName || undefined}
         />

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -123,15 +123,29 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       : selected?.name || "";
 
     onSelectLocation(selectedStore, storeName, selectedStore === "other" ? otherStore : undefined);
+  };
+
+  // Handle clean close - important for preventing double-opens
+  const handleCloseModal = () => {
+    // Reset state completely before closing
+    setSelectedStore("");
+    setOtherStore("");
+    setShowOtherInput(false);
+    
+    // Call the provided onClose prop
     onClose();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleCloseModal}>
       <DialogContent className="sm:max-w-md">
-        <DialogTitle className="text-center sr-only">
+        <DialogTitle className="text-center">
           Selección de Lugar de Compra
         </DialogTitle>
+        
+        <DialogDescription className="text-center">
+          Necesitamos esta información para brindarte un mejor servicio
+        </DialogDescription>
         
         <div className="text-center mb-6">
           <MapPin className="h-12 w-12 mx-auto text-orange-500 mb-2" />
@@ -141,9 +155,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
               Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
             </p>
           )}
-          <p className="text-muted-foreground text-sm mt-1">
-            Necesitamos esta información para brindarte un mejor servicio
-          </p>
         </div>
 
         <div className="space-y-4 mb-4">
@@ -184,7 +195,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         </div>
 
         <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={handleCloseModal}>
             Cancelar
           </Button>
           <Button 
