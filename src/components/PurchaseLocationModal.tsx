@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -43,6 +43,10 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       fetchProviders();
+      // Reset values when modal opens
+      setSelectedStore("");
+      setOtherStore("");
+      setShowOtherInput(false);
     }
   }, [isOpen]);
 
@@ -125,6 +129,10 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
+        <DialogTitle className="text-center sr-only">
+          Selección de Lugar de Compra
+        </DialogTitle>
+        
         <div className="text-center mb-6">
           <MapPin className="h-12 w-12 mx-auto text-orange-500 mb-2" />
           <h3 className="text-xl font-semibold">¿Dónde realizaste la compra?</h3>

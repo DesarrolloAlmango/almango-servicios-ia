@@ -83,7 +83,7 @@ const Servicios = () => {
   const [purchaseLocations, setPurchaseLocations] = useState<PurchaseLocation[]>([]);
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
   const [selectedServiceName, setSelectedServiceName] = useState<string | null>(null);
-  const [shouldOpenServiceDialog, setShouldOpenServiceDialog] = useState(false);
+  const [pendingServiceCardAction, setPendingServiceCardAction] = useState<boolean>(false);
 
   const {
     data: services,
@@ -92,11 +92,9 @@ const Servicios = () => {
   } = useQuery({
     queryKey: ["tarjetasServicios"],
     queryFn: fetchTarjetasServicios,
-    onSettled: (_data, error) => {
-      if (error) {
-        console.error("Error en la consulta:", error);
-        toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
-      }
+    onError: (error) => {
+      console.error("Error en la consulta:", error);
+      toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
     }
   });
 
@@ -110,11 +108,11 @@ const Servicios = () => {
   }, [location.state]);
 
   useEffect(() => {
-    if (shouldOpenServiceDialog && selectedServiceId) {
-      setShouldOpenServiceDialog(false);
-      // Este efecto señalará al ServiceCard que debe abrirse automáticamente
+    if (pendingServiceCardAction && selectedServiceId) {
+      setPendingServiceCardAction(false);
+      // This will trigger the forceOpen prop on the specific ServiceCard
     }
-  }, [shouldOpenServiceDialog, selectedServiceId]);
+  }, [pendingServiceCardAction, selectedServiceId]);
 
   const handleBackToHome = () => {
     navigate('/');
@@ -156,12 +154,18 @@ const Servicios = () => {
   const handleServiceCardClick = (serviceId: string | undefined, serviceName: string) => {
     if (!serviceId) return false;
     
-    // Verificar si ya existe un lugar de compra para este servicio
+    // Check if the location modal is already open
+    if (isLocationModalOpen) {
+      return false;
+    }
+    
+    // Verify if a purchase location already exists for this service
     const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
+    
     if (existingLocation) {
-      return true; // Permitir abrir el servicio directamente
+      return true; // Allow opening the service directly
     } else {
-      // Si no existe, abrir modal de ubicación
+      // If not, open location modal
       setSelectedServiceId(serviceId);
       setSelectedServiceName(serviceName);
       setIsLocationModalOpen(true);
@@ -183,8 +187,8 @@ const Servicios = () => {
       setIsLocationModalOpen(false);
       toast.success(`Lugar de compra registrado para ${selectedServiceName}`);
       
-      // Configurar la bandera para abrir el servicio después de seleccionar la ubicación
-      setShouldOpenServiceDialog(true);
+      // Set the flag to open the service card after closing the location modal
+      setPendingServiceCardAction(true);
     }
   };
 
@@ -192,12 +196,12 @@ const Servicios = () => {
     setPurchaseLocations(prev => prev.filter(loc => loc.serviceId !== serviceId));
   };
 
-  // Esta función obtiene el lugar de compra para un servicio específico
+  // This function gets the purchase location for a specific service
   const getPurchaseLocationForService = (serviceId: string) => {
     return purchaseLocations.find(loc => loc.serviceId === serviceId);
   };
 
-  // Para el carrito, necesitamos todas las ubicaciones de compra
+  // For the cart, we need all purchase locations
   const getAllPurchaseLocations = () => {
     return purchaseLocations;
   };
@@ -312,7 +316,7 @@ const Servicios = () => {
                   externalUrl={service.url}
                   onBeforeCardClick={() => handleServiceCardClick(service.id, service.name)}
                   purchaseLocation={getPurchaseLocationForService(service.id || "")}
-                  forceOpen={shouldOpenServiceDialog && selectedServiceId === service.id}
+                  forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
                 />
               </div>
             ))}
