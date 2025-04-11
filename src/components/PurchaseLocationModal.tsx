@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -18,15 +17,13 @@ interface PurchaseLocationModalProps {
   onClose: () => void;
   onSelectLocation: (storeId: string, storeName: string, otherLocation?: string) => void;
   stores?: Store[];
-  serviceName?: string;
 }
 
 const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   isOpen,
   onClose,
   onSelectLocation,
-  stores = [],
-  serviceName
+  stores = []
 }) => {
   const [selectedStore, setSelectedStore] = useState<string>("");
   const [otherStore, setOtherStore] = useState<string>("");
@@ -127,11 +124,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       <DialogContent className="sm:max-w-md">
         <div className="text-center mb-6">
           <MapPin className="h-12 w-12 mx-auto text-orange-500 mb-2" />
-          <h3 className="text-xl font-semibold">
-            {serviceName 
-              ? `¿Dónde compraste ${serviceName}?`
-              : "¿Dónde realizaste la compra?"}
-          </h3>
+          <h3 className="text-xl font-semibold">¿Dónde realizaste la compra?</h3>
           <p className="text-muted-foreground text-sm">
             Necesitamos esta información para brindarte un mejor servicio
           </p>
