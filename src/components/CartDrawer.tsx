@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { 
   Sheet,
@@ -21,7 +22,13 @@ interface CartDrawerProps {
   cartItems: CartItem[];
   updateCartItem: (id: string, quantity: number) => void;
   total: number;
-  purchaseLocation?: string;
+  purchaseLocations?: {
+    storeId: string;
+    storeName: string;
+    otherLocation?: string;
+    serviceId?: string;
+    serviceName?: string;
+  }[];
 }
 
 interface Department {
@@ -40,7 +47,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   cartItems, 
   updateCartItem, 
   total,
-  purchaseLocation
+  purchaseLocations = []
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedDepartment, setSelectedDepartment] = useState("");
@@ -154,7 +161,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
       date: selectedDate,
       timeSlot: selectedTimeSlot,
       personalInfo: data,
-      purchaseLocation
+      purchaseLocations
     });
     
     toast.success("¡Pedido realizado con éxito! Te contactaremos pronto.", {
@@ -176,12 +183,19 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           <SheetTitle>Carrito de Servicios</SheetTitle>
         </SheetHeader>
         
-        {purchaseLocation && (
-          <div className="mt-4 p-3 rounded-lg border-[1px] border-blue-200 bg-blue-50 flex items-center">
-            <MapPin className="text-blue-500 mr-2" size={16} />
-            <div className="text-sm text-blue-700">
-              <span className="font-medium">Lugar de compra: </span>
-              <span>{purchaseLocation}</span>
+        {purchaseLocations.length > 0 && (
+          <div className="mt-4 p-3 rounded-lg border-[1px] border-blue-200 bg-blue-50">
+            <h4 className="text-sm font-medium text-blue-700 mb-1">Lugares de compra registrados:</h4>
+            <div className="space-y-1">
+              {purchaseLocations.map((location, index) => (
+                <div key={index} className="flex items-center text-xs">
+                  <MapPin className="text-blue-500 mr-1" size={12} />
+                  <span className="text-blue-700 font-medium">{location.serviceName}: </span>
+                  <span className="text-blue-600 ml-1">
+                    {location.storeId === "other" ? location.otherLocation : location.storeName}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         )}

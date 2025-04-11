@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -211,7 +212,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         price: product.price,
         quantity: productQuantities[product.id],
         image: product.image,
-        serviceCategory: `${serviceName} - ${category.name}`
+        serviceCategory: `${serviceName} - ${category.name}`,
+        serviceId: serviceId
       }));
 
     if (itemsToAdd.length > 0) {
@@ -232,7 +234,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         price: product.price,
         quantity: productQuantities[product.id],
         image: product.image,
-        serviceCategory: `${serviceName} - ${category.name}`
+        serviceCategory: `${serviceName} - ${category.name}`,
+        serviceId: serviceId
       }));
 
     if (itemsToAdd.length > 0) {
@@ -316,6 +319,7 @@ interface ServiceCardProps {
     storeId: string;
     storeName: string;
     otherLocation?: string;
+    serviceId?: string;
   } | null;
   forceOpen?: boolean;
 }
@@ -456,6 +460,17 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto p-0">
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-4 text-center uppercase text-orange-500">{name}</h2>
+            
+            {purchaseLocation && (
+              <div className="mb-4 bg-blue-50 p-3 rounded-lg border border-blue-200 text-sm">
+                <span className="font-medium text-blue-700">Lugar de compra: </span>
+                <span className="text-blue-600">
+                  {purchaseLocation.storeId === "other" 
+                    ? purchaseLocation.otherLocation 
+                    : purchaseLocation.storeName}
+                </span>
+              </div>
+            )}
             
             {isLoading ? (
               <div className="flex justify-center items-center h-40">

@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "@/components/ServiceCard";
@@ -16,6 +17,7 @@ export interface CartItem {
   quantity: number;
   image?: string;
   serviceCategory: string;
+  serviceId?: string; // ID del servicio al que pertenece
 }
 
 interface TarjetaServicio {
@@ -29,6 +31,8 @@ interface PurchaseLocation {
   storeId: string;
   storeName: string;
   otherLocation?: string;
+  serviceId?: string;
+  serviceName?: string;
 }
 
 const iconComponents = {
@@ -76,9 +80,9 @@ const Servicios = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
-  const [purchaseLocation, setPurchaseLocation] = useState<PurchaseLocation | null>(null);
+  const [purchaseLocations, setPurchaseLocations] = useState<PurchaseLocation[]>([]);
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
-  // Nuevo estado para controlar la apertura del diálogo de servicio después de seleccionar ubicación
+  const [selectedServiceName, setSelectedServiceName] = useState<string | null>(null);
   const [shouldOpenServiceDialog, setShouldOpenServiceDialog] = useState(false);
 
   const {
@@ -105,13 +109,12 @@ const Servicios = () => {
     }
   }, [location.state]);
 
-  // Nuevo useEffect para manejar la apertura del diálogo de servicio después de seleccionar la ubicación
   useEffect(() => {
-    if (shouldOpenServiceDialog && selectedServiceId && purchaseLocation) {
+    if (shouldOpenServiceDialog && selectedServiceId) {
       setShouldOpenServiceDialog(false);
       // Este efecto señalará al ServiceCard que debe abrirse automáticamente
     }
-  }, [shouldOpenServiceDialog, selectedServiceId, purchaseLocation]);
+  }, [shouldOpenServiceDialog, selectedServiceId]);
 
   const handleBackToHome = () => {
     navigate('/');
@@ -150,44 +153,53 @@ const Servicios = () => {
     return cartItems.reduce((count, item) => count + item.quantity, 0);
   };
 
-  const handleServiceCardClick = (serviceId: string | undefined) => {
-    if (!serviceId) return;
+  const handleServiceCardClick = (serviceId: string | undefined, serviceName: string) => {
+    if (!serviceId) return false;
     
-    if (!purchaseLocation) {
+    // Verificar si ya existe un lugar de compra para este servicio
+    const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
+    if (existingLocation) {
+      return true; // Permitir abrir el servicio directamente
+    } else {
+      // Si no existe, abrir modal de ubicación
       setSelectedServiceId(serviceId);
+      setSelectedServiceName(serviceName);
       setIsLocationModalOpen(true);
       return false;
-    } else {
-      return true;
     }
   };
 
   const handleLocationSelect = (storeId: string, storeName: string, otherLocation?: string) => {
-    setPurchaseLocation({ 
-      storeId, 
-      storeName, 
-      otherLocation 
-    });
-    setIsLocationModalOpen(false);
-    toast.success("Lugar de compra registrado");
-    
-    // Aquí está el cambio clave: después de seleccionar la ubicación, configuramos la bandera para abrir el servicio
-    if (selectedServiceId) {
+    if (selectedServiceId && selectedServiceName) {
+      const newLocation: PurchaseLocation = { 
+        storeId, 
+        storeName, 
+        otherLocation,
+        serviceId: selectedServiceId,
+        serviceName: selectedServiceName
+      };
+      
+      setPurchaseLocations(prev => [...prev, newLocation]);
+      setIsLocationModalOpen(false);
+      toast.success(`Lugar de compra registrado para ${selectedServiceName}`);
+      
+      // Configurar la bandera para abrir el servicio después de seleccionar la ubicación
       setShouldOpenServiceDialog(true);
     }
   };
 
-  const clearPurchaseLocation = () => {
-    setPurchaseLocation(null);
-    setSelectedServiceId(null);
+  const clearPurchaseLocation = (serviceId: string) => {
+    setPurchaseLocations(prev => prev.filter(loc => loc.serviceId !== serviceId));
   };
 
-  const getPurchaseLocationDisplay = () => {
-    if (!purchaseLocation) return undefined;
-    
-    return purchaseLocation.storeId === "other" 
-      ? purchaseLocation.otherLocation 
-      : purchaseLocation.storeName;
+  // Esta función obtiene el lugar de compra para un servicio específico
+  const getPurchaseLocationForService = (serviceId: string) => {
+    return purchaseLocations.find(loc => loc.serviceId === serviceId);
+  };
+
+  // Para el carrito, necesitamos todas las ubicaciones de compra
+  const getAllPurchaseLocations = () => {
+    return purchaseLocations;
   };
 
   if (isLoading) {
@@ -265,27 +277,27 @@ const Servicios = () => {
             </div>
           )}
           
-          {purchaseLocation && (
-            <div className="mb-6 bg-blue-50 p-3 rounded-lg border border-blue-200 flex justify-between items-center">
-              <div>
-                <span className="font-medium text-blue-700">Lugar de compra: </span>
-                <span className="text-blue-600">
-                  {purchaseLocation.storeId === "other" 
-                    ? purchaseLocation.otherLocation 
-                    : purchaseLocation.storeName}
-                </span>
-                <span className="ml-2 text-blue-500 text-xs">
-                  (ID: {purchaseLocation.storeId})
-                </span>
+          {purchaseLocations.length > 0 && (
+            <div className="mb-6 bg-blue-50 p-3 rounded-lg border border-blue-200">
+              <h3 className="font-medium text-blue-700 mb-2">Lugares de compra registrados:</h3>
+              <div className="flex flex-wrap gap-2">
+                {purchaseLocations.map((location, index) => (
+                  <div key={index} className="bg-white p-2 rounded-md border border-blue-200 flex items-center gap-1">
+                    <MapPin size={14} className="text-blue-500" />
+                    <span className="text-sm text-blue-600">
+                      {location.serviceName}: {location.storeId === "other" ? location.otherLocation : location.storeName}
+                    </span>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => clearPurchaseLocation(location.serviceId || "")} 
+                      className="h-5 w-5 p-0 text-blue-700 hover:bg-blue-100 ml-1"
+                    >
+                      <X size={12} />
+                    </Button>
+                  </div>
+                ))}
               </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={clearPurchaseLocation} 
-                className="text-blue-700 hover:bg-blue-100"
-              >
-                <X size={16} />
-              </Button>
             </div>
           )}
           
@@ -298,8 +310,8 @@ const Servicios = () => {
                   iconComponent={iconComponents[service.icon]} 
                   addToCart={addToCart}
                   externalUrl={service.url}
-                  onBeforeCardClick={() => handleServiceCardClick(service.id)}
-                  purchaseLocation={purchaseLocation}
+                  onBeforeCardClick={() => handleServiceCardClick(service.id, service.name)}
+                  purchaseLocation={getPurchaseLocationForService(service.id || "")}
                   forceOpen={shouldOpenServiceDialog && selectedServiceId === service.id}
                 />
               </div>
@@ -313,13 +325,14 @@ const Servicios = () => {
           cartItems={cartItems}
           updateCartItem={updateCartItem}
           total={getCartTotal()}
-          purchaseLocation={getPurchaseLocationDisplay()}
+          purchaseLocations={getAllPurchaseLocations()}
         />
         
         <PurchaseLocationModal 
           isOpen={isLocationModalOpen}
           onClose={() => setIsLocationModalOpen(false)}
           onSelectLocation={handleLocationSelect}
+          serviceName={selectedServiceName || undefined}
         />
       </main>
 
