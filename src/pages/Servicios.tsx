@@ -78,6 +78,8 @@ const Servicios = () => {
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [purchaseLocation, setPurchaseLocation] = useState<PurchaseLocation | null>(null);
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+  // Nuevo estado para controlar la apertura del diálogo de servicio después de seleccionar ubicación
+  const [shouldOpenServiceDialog, setShouldOpenServiceDialog] = useState(false);
 
   const {
     data: services,
@@ -86,9 +88,11 @@ const Servicios = () => {
   } = useQuery({
     queryKey: ["tarjetasServicios"],
     queryFn: fetchTarjetasServicios,
-    onError: (error) => {
-      console.error("Error en la consulta:", error);
-      toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
+    onSettled: (_data, error) => {
+      if (error) {
+        console.error("Error en la consulta:", error);
+        toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
+      }
     }
   });
 
@@ -100,6 +104,14 @@ const Servicios = () => {
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
+
+  // Nuevo useEffect para manejar la apertura del diálogo de servicio después de seleccionar la ubicación
+  useEffect(() => {
+    if (shouldOpenServiceDialog && selectedServiceId && purchaseLocation) {
+      setShouldOpenServiceDialog(false);
+      // Este efecto señalará al ServiceCard que debe abrirse automáticamente
+    }
+  }, [shouldOpenServiceDialog, selectedServiceId, purchaseLocation]);
 
   const handleBackToHome = () => {
     navigate('/');
@@ -144,11 +156,10 @@ const Servicios = () => {
     if (!purchaseLocation) {
       setSelectedServiceId(serviceId);
       setIsLocationModalOpen(true);
+      return false;
     } else {
       return true;
     }
-    
-    return false;
   };
 
   const handleLocationSelect = (storeId: string, storeName: string, otherLocation?: string) => {
@@ -159,6 +170,11 @@ const Servicios = () => {
     });
     setIsLocationModalOpen(false);
     toast.success("Lugar de compra registrado");
+    
+    // Aquí está el cambio clave: después de seleccionar la ubicación, configuramos la bandera para abrir el servicio
+    if (selectedServiceId) {
+      setShouldOpenServiceDialog(true);
+    }
   };
 
   const clearPurchaseLocation = () => {
@@ -284,6 +300,7 @@ const Servicios = () => {
                   externalUrl={service.url}
                   onBeforeCardClick={() => handleServiceCardClick(service.id)}
                   purchaseLocation={purchaseLocation}
+                  forceOpen={shouldOpenServiceDialog && selectedServiceId === service.id}
                 />
               </div>
             ))}

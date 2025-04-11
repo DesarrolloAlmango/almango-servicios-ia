@@ -317,6 +317,7 @@ interface ServiceCardProps {
     storeName: string;
     otherLocation?: string;
   } | null;
+  forceOpen?: boolean;
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ 
@@ -326,7 +327,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   addToCart, 
   externalUrl,
   onBeforeCardClick,
-  purchaseLocation
+  purchaseLocation,
+  forceOpen = false
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -335,6 +337,13 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   
+  useEffect(() => {
+    if (forceOpen && id) {
+      setIsDialogOpen(true);
+      fetchCategories(id);
+    }
+  }, [forceOpen, id]);
+
   const fetchCategories = async (serviceId: string) => {
     setIsLoading(true);
     setError(null);
