@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -16,6 +17,7 @@ export interface CartItem {
   quantity: number;
   image?: string;
   serviceCategory: string;
+  serviceId?: string;  // ID del servicio asociado
 }
 
 interface TarjetaServicio {
@@ -29,6 +31,11 @@ interface PurchaseLocation {
   storeId: string;
   storeName: string;
   otherLocation?: string;
+}
+
+// Nueva interfaz para almacenar las ubicaciones de compra por servicio
+interface ServicePurchaseLocations {
+  [serviceId: string]: PurchaseLocation;
 }
 
 const iconComponents = {
@@ -76,9 +83,11 @@ const Servicios = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
-  const [purchaseLocation, setPurchaseLocation] = useState<PurchaseLocation | null>(null);
+  
+  // Reemplazamos el estado único por un mapa de ubicaciones por servicio
+  const [servicePurchaseLocations, setServicePurchaseLocations] = useState<ServicePurchaseLocations>({});
+  
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
-  // Nuevo estado para controlar la apertura del diálogo de servicio después de seleccionar ubicación
   const [shouldOpenServiceDialog, setShouldOpenServiceDialog] = useState(false);
 
   const {
@@ -88,11 +97,9 @@ const Servicios = () => {
   } = useQuery({
     queryKey: ["tarjetasServicios"],
     queryFn: fetchTarjetasServicios,
-    onSettled: (_data, error) => {
-      if (error) {
-        console.error("Error en la consulta:", error);
-        toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
-      }
+    onError: (error) => {
+      console.error("Error en la consulta:", error);
+      toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
     }
   });
 
@@ -105,13 +112,11 @@ const Servicios = () => {
     }
   }, [location.state]);
 
-  // Nuevo useEffect para manejar la apertura del diálogo de servicio después de seleccionar la ubicación
   useEffect(() => {
-    if (shouldOpenServiceDialog && selectedServiceId && purchaseLocation) {
+    if (shouldOpenServiceDialog && selectedServiceId && servicePurchaseLocations[selectedServiceId]) {
       setShouldOpenServiceDialog(false);
-      // Este efecto señalará al ServiceCard que debe abrirse automáticamente
     }
-  }, [shouldOpenServiceDialog, selectedServiceId, purchaseLocation]);
+  }, [shouldOpenServiceDialog, selectedServiceId, servicePurchaseLocations]);
 
   const handleBackToHome = () => {
     navigate('/');
@@ -127,7 +132,8 @@ const Servicios = () => {
             : i
         );
       } else {
-        return [...prevItems, item];
+        // Añadimos el serviceId al item para rastrear a qué servicio pertenece
+        return [...prevItems, { ...item, serviceId: selectedServiceId || undefined }];
       }
     });
   };
@@ -153,7 +159,7 @@ const Servicios = () => {
   const handleServiceCardClick = (serviceId: string | undefined) => {
     if (!serviceId) return;
     
-    if (!purchaseLocation) {
+    if (!servicePurchaseLocations[serviceId]) {
       setSelectedServiceId(serviceId);
       setIsLocationModalOpen(true);
       return false;
@@ -163,31 +169,58 @@ const Servicios = () => {
   };
 
   const handleLocationSelect = (storeId: string, storeName: string, otherLocation?: string) => {
-    setPurchaseLocation({ 
-      storeId, 
-      storeName, 
-      otherLocation 
-    });
-    setIsLocationModalOpen(false);
-    toast.success("Lugar de compra registrado");
+    if (!selectedServiceId) return;
     
-    // Aquí está el cambio clave: después de seleccionar la ubicación, configuramos la bandera para abrir el servicio
+    // Actualizar el mapa de ubicaciones para el servicio seleccionado
+    setServicePurchaseLocations(prev => ({
+      ...prev,
+      [selectedServiceId]: {
+        storeId, 
+        storeName, 
+        otherLocation
+      }
+    }));
+    
+    setIsLocationModalOpen(false);
+    toast.success(`Lugar de compra registrado para ${displayedServices?.find(s => s.id === selectedServiceId)?.name || 'servicio'}`);
+    
     if (selectedServiceId) {
       setShouldOpenServiceDialog(true);
     }
   };
 
-  const clearPurchaseLocation = () => {
-    setPurchaseLocation(null);
-    setSelectedServiceId(null);
+  const clearPurchaseLocation = (serviceId: string) => {
+    setServicePurchaseLocations(prev => {
+      const newLocations = { ...prev };
+      delete newLocations[serviceId];
+      return newLocations;
+    });
   };
 
-  const getPurchaseLocationDisplay = () => {
-    if (!purchaseLocation) return undefined;
+  // Función para obtener la ubicación de compra para un determinado servicio
+  const getPurchaseLocationForService = (serviceId: string | undefined) => {
+    if (!serviceId) return undefined;
+    return servicePurchaseLocations[serviceId];
+  };
+
+  // Función para obtener todas las ubicaciones de compra para mostrar en el carrito
+  const getAllPurchaseLocations = () => {
+    const locations: Record<string, string> = {};
     
-    return purchaseLocation.storeId === "other" 
-      ? purchaseLocation.otherLocation 
-      : purchaseLocation.storeName;
+    // Agrupamos los items del carrito por serviceId y obtenemos sus ubicaciones
+    cartItems.forEach(item => {
+      if (item.serviceId && servicePurchaseLocations[item.serviceId]) {
+        const location = servicePurchaseLocations[item.serviceId];
+        const locationName = location.storeId === "other" 
+          ? location.otherLocation || "Otro" 
+          : location.storeName;
+        
+        const serviceName = displayedServices?.find(s => s.id === item.serviceId)?.name || 'Servicio';
+        locations[item.serviceId] = `${serviceName}: ${locationName}`;
+      }
+    });
+    
+    return locations;
   };
 
   if (isLoading) {
@@ -265,27 +298,32 @@ const Servicios = () => {
             </div>
           )}
           
-          {purchaseLocation && (
-            <div className="mb-6 bg-blue-50 p-3 rounded-lg border border-blue-200 flex justify-between items-center">
-              <div>
-                <span className="font-medium text-blue-700">Lugar de compra: </span>
-                <span className="text-blue-600">
-                  {purchaseLocation.storeId === "other" 
-                    ? purchaseLocation.otherLocation 
-                    : purchaseLocation.storeName}
-                </span>
-                <span className="ml-2 text-blue-500 text-xs">
-                  (ID: {purchaseLocation.storeId})
-                </span>
+          {Object.keys(servicePurchaseLocations).length > 0 && (
+            <div className="mb-6 bg-blue-50 p-3 rounded-lg border border-blue-200">
+              <h3 className="font-medium text-blue-700 mb-2">Lugares de compra seleccionados:</h3>
+              <div className="space-y-2">
+                {Object.entries(servicePurchaseLocations).map(([serviceId, location]) => {
+                  const serviceName = displayedServices?.find(s => s.id === serviceId)?.name || 'Servicio';
+                  return (
+                    <div key={serviceId} className="flex justify-between items-center">
+                      <div>
+                        <span className="font-medium text-blue-600">{serviceName}: </span>
+                        <span className="text-blue-600">
+                          {location.storeId === "other" ? location.otherLocation : location.storeName}
+                        </span>
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => clearPurchaseLocation(serviceId)} 
+                        className="text-blue-700 hover:bg-blue-100"
+                      >
+                        <X size={16} />
+                      </Button>
+                    </div>
+                  );
+                })}
               </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={clearPurchaseLocation} 
-                className="text-blue-700 hover:bg-blue-100"
-              >
-                <X size={16} />
-              </Button>
             </div>
           )}
           
@@ -299,7 +337,7 @@ const Servicios = () => {
                   addToCart={addToCart}
                   externalUrl={service.url}
                   onBeforeCardClick={() => handleServiceCardClick(service.id)}
-                  purchaseLocation={purchaseLocation}
+                  purchaseLocation={getPurchaseLocationForService(service.id)}
                   forceOpen={shouldOpenServiceDialog && selectedServiceId === service.id}
                 />
               </div>
@@ -313,13 +351,14 @@ const Servicios = () => {
           cartItems={cartItems}
           updateCartItem={updateCartItem}
           total={getCartTotal()}
-          purchaseLocation={getPurchaseLocationDisplay()}
+          purchaseLocations={getAllPurchaseLocations()}
         />
         
         <PurchaseLocationModal 
           isOpen={isLocationModalOpen}
           onClose={() => setIsLocationModalOpen(false)}
           onSelectLocation={handleLocationSelect}
+          serviceName={selectedServiceId ? displayedServices?.find(s => s.id === selectedServiceId)?.name : undefined}
         />
       </main>
 
