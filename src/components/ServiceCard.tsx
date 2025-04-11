@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -23,6 +22,7 @@ interface Product {
   price: number;
   image: string;
   category: string;
+  defaultPrice?: number;
 }
 
 interface ProductCardProps {
@@ -111,7 +111,7 @@ interface ProductGridProps {
   serviceName: string;
   closeDialog: () => void;
   serviceId?: string;
-  purchaseLocationId?: string; // Nuevo prop para recibir el ID del lugar de compra
+  purchaseLocationId?: string;
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({ 
@@ -121,12 +121,72 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   serviceName,
   closeDialog,
   serviceId,
-  purchaseLocationId // Nuevo parámetro
+  purchaseLocationId
 }) => {
   const navigate = useNavigate();
-  const [productQuantities, setProductQuantities] = useState<Record<string, number>>(
-    Object.fromEntries(category.products.map(product => [product.id, 0]))
-  );
+  const [productQuantities, setProductQuantities] = useState<Record<string, number>>({});
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoadingPrices, setIsLoadingPrices] = useState(true);
+
+  const fetchUpdatedPrice = async (product: Product): Promise<number> => {
+    if (!purchaseLocationId || !serviceId || !category.id) {
+      return product.defaultPrice || product.price;
+    }
+
+    try {
+      const response = await fetch(
+        `/api/AlmangoXV1NETFramework/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Error al obtener precio: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.Precio > 0 ? data.Precio : (product.defaultPrice || product.price);
+    } catch (error) {
+      console.error(`Error al obtener precio para producto ${product.id}:`, error);
+      return product.defaultPrice || product.price;
+    }
+  };
+
+  useEffect(() => {
+    const loadProductsWithPrices = async () => {
+      if (!category.products.length) {
+        setIsLoadingPrices(false);
+        return;
+      }
+
+      try {
+        const productsWithPrices = await Promise.all(
+          category.products.map(async (product) => {
+            const updatedPrice = await fetchUpdatedPrice(product);
+            return { 
+              ...product, 
+              price: updatedPrice,
+              defaultPrice: product.price
+            };
+          })
+        );
+        
+        setProducts(productsWithPrices);
+        setProductQuantities(
+          Object.fromEntries(productsWithPrices.map(product => [product.id, 0]))
+        );
+      } catch (error) {
+        console.error("Error al cargar precios:", error);
+        toast.error("Error al cargar precios de productos");
+        setProducts(category.products.map(p => ({ ...p, defaultPrice: p.price })));
+        setProductQuantities(
+          Object.fromEntries(category.products.map(product => [product.id, 0]))
+        );
+      } finally {
+        setIsLoadingPrices(false);
+      }
+    };
+
+    loadProductsWithPrices();
+  }, [category, purchaseLocationId, serviceId]);
 
   const increaseQuantity = (productId: string) => {
     setProductQuantities(prev => ({
@@ -143,14 +203,14 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   };
 
   const handleAddAllToCart = () => {
-    const itemsToAdd = category.products
+    const itemsToAdd = products
       .filter(product => productQuantities[product.id] > 0)
       .map(product => ({
         id: product.id,
         name: product.name,
         price: product.price,
         quantity: productQuantities[product.id],
-        image: product.image, // Conservamos la imagen original para usar en el carrito
+        image: product.image,
         serviceCategory: `${serviceName} - ${category.name}`
       }));
 
@@ -164,14 +224,14 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   };
   
   const handleContractNow = () => {
-    const itemsToAdd = category.products
+    const itemsToAdd = products
       .filter(product => productQuantities[product.id] > 0)
       .map(product => ({
         id: product.id,
         name: product.name,
         price: product.price,
         quantity: productQuantities[product.id],
-        image: product.image, // Conservamos la imagen original para usar en el carrito
+        image: product.image,
         serviceCategory: `${serviceName} - ${category.name}`
       }));
 
@@ -198,44 +258,48 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         </button>
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
       </div>
-
-      {/* Mostrar el ID del lugar de compra si está presente */}
-      {purchaseLocationId && (
-        <div className="bg-blue-50 p-3 rounded-md mb-4">
-          <p className="text-blue-700 text-sm">
-            <span className="font-medium">ID del lugar de compra:</span> {purchaseLocationId}
-          </p>
-        </div>
-      )}
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {category.products.map(product => (
-          <ProductCard 
-            key={product.id} 
-            product={product}
-            quantity={productQuantities[product.id] || 0}
-            onIncrease={() => increaseQuantity(product.id)}
-            onDecrease={() => decreaseQuantity(product.id)}
-          />
-        ))}
-      </div>
-
-      {hasSelectedProducts && (
-        <div className="flex justify-center gap-4 mt-8 sticky bottom-4 bg-white p-4 rounded-lg shadow-md">
-          <Button 
-            variant="outline"
-            onClick={handleAddAllToCart}
-            className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-          >
-            Agregar al carrito
-          </Button>
-          <Button 
-            onClick={handleContractNow}
-            className="bg-orange-500 hover:bg-orange-600 text-white"
-          >
-            Contratar ahora
-          </Button>
+      {isLoadingPrices ? (
+        <div className="flex flex-col items-center justify-center h-64 gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+          <p className="text-gray-600">Actualizando precios...</p>
         </div>
+      ) : products.length === 0 ? (
+        <div className="flex items-center justify-center h-40">
+          <p className="text-gray-500">No hay productos disponibles</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {products.map(product => (
+              <ProductCard 
+                key={product.id} 
+                product={product}
+                quantity={productQuantities[product.id] || 0}
+                onIncrease={() => increaseQuantity(product.id)}
+                onDecrease={() => decreaseQuantity(product.id)}
+              />
+            ))}
+          </div>
+
+          {hasSelectedProducts && (
+            <div className="flex justify-center gap-4 mt-8 sticky bottom-4 bg-white p-4 rounded-lg shadow-md">
+              <Button 
+                variant="outline"
+                onClick={handleAddAllToCart}
+                className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+              >
+                Agregar al carrito
+              </Button>
+              <Button 
+                onClick={handleContractNow}
+                className="bg-orange-500 hover:bg-orange-600 text-white"
+              >
+                Contratar ahora
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
@@ -252,7 +316,7 @@ interface ServiceCardProps {
     storeId: string;
     storeName: string;
     otherLocation?: string;
-  } | null; // Añadido para recibir la información del lugar de compra
+  } | null;
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ 
@@ -262,7 +326,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   addToCart, 
   externalUrl,
   onBeforeCardClick,
-  purchaseLocation // Nuevo prop
+  purchaseLocation
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -365,7 +429,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     }
   };
 
-  // Obtener el ID del lugar de compra
   const purchaseLocationId = purchaseLocation ? purchaseLocation.storeId : undefined;
 
   return (
@@ -413,7 +476,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                 serviceName={name}
                 closeDialog={() => setIsDialogOpen(false)}
                 serviceId={id}
-                purchaseLocationId={purchaseLocationId} // Pasamos el ID del lugar de compra
+                purchaseLocationId={purchaseLocationId}
               />
             )}
           </div>
