@@ -112,6 +112,14 @@ const Servicios = () => {
 
   const displayedServices = isError ? fallbackServices : services;
 
+  const getPurchaseLocationForService = (serviceId: string) => {
+    return purchaseLocations.find(location => location.serviceId === serviceId) || null;
+  };
+
+  const getAllPurchaseLocations = () => {
+    return purchaseLocations;
+  };
+
   useEffect(() => {
     if (location.state && location.state.openCart) {
       setIsCartOpen(true);
