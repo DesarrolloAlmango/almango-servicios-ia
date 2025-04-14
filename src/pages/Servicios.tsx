@@ -1,10 +1,19 @@
-
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "@/components/ServiceCard";
 import CartDrawer from "@/components/CartDrawer";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -17,7 +26,7 @@ export interface CartItem {
   quantity: number;
   image?: string;
   serviceCategory: string;
-  serviceId?: string; // ID del servicio al que pertenece_
+  serviceId?: string;
 }
 
 interface TarjetaServicio {
@@ -66,7 +75,6 @@ const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
     }
     
     const data = await response.json();
-    // console.log("API Response:", data); // Comentado para producción
     return JSON.parse(data.SDTTarjetasServiciosJson);
   } catch (error) {
     console.error("Error fetching services:", error);
@@ -84,6 +92,8 @@ const Servicios = () => {
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
   const [selectedServiceName, setSelectedServiceName] = useState<string | null>(null);
   const [pendingServiceCardAction, setPendingServiceCardAction] = useState<boolean>(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [locationToDelete, setLocationToDelete] = useState<{ serviceId: string, locationName: string } | null>(null);
 
   const {
     data: services,
@@ -109,15 +119,11 @@ const Servicios = () => {
     }
   }, [location.state]);
 
-  // This effect will ensure that forceOpen is reset
   useEffect(() => {
     if (pendingServiceCardAction && selectedServiceId) {
-      // Set a timeout to automatically reset the pending action flag
-      // This prevents multiple dialogs from opening
       const timer = setTimeout(() => {
         setPendingServiceCardAction(false);
-      }, 500); // Half a second should be enough for the dialog to open
-      
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [pendingServiceCardAction, selectedServiceId]);
@@ -162,19 +168,15 @@ const Servicios = () => {
   const handleServiceCardClick = (serviceId: string | undefined, serviceName: string) => {
     if (!serviceId) return false;
     
-    // Check if the location modal is already open
     if (isLocationModalOpen) {
       return false;
     }
     
-    // Verify if a purchase location already exists for this service
     const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
     
     if (existingLocation) {
-      // Important: Don't set pendingServiceCardAction here, let the card handle its own opening
-      return true; // Allow opening the service directly
+      return true;
     } else {
-      // If not, open location modal
       setSelectedServiceId(serviceId);
       setSelectedServiceName(serviceName);
       setIsLocationModalOpen(true);
@@ -196,24 +198,38 @@ const Servicios = () => {
       setIsLocationModalOpen(false);
       toast.success(`Lugar de compra registrado para ${selectedServiceName}`);
       
-      // Set the flag to open the service card after closing the location modal
-      // But clear all other pending actions first to prevent double-opens
       setPendingServiceCardAction(true);
     }
   };
 
   const clearPurchaseLocation = (serviceId: string) => {
-    setPurchaseLocations(prev => prev.filter(loc => loc.serviceId !== serviceId));
+    const location = purchaseLocations.find(loc => loc.serviceId === serviceId);
+    if (!location) return;
+
+    const hasAssociatedItems = cartItems.some(item => item.serviceId === serviceId);
+
+    if (hasAssociatedItems) {
+      setLocationToDelete({
+        serviceId,
+        locationName: location.storeId === "other" ? location.otherLocation! : location.storeName
+      });
+      setShowDeleteConfirmation(true);
+    } else {
+      setPurchaseLocations(prev => prev.filter(loc => loc.serviceId !== serviceId));
+      toast.success("Lugar de compra eliminado");
+    }
   };
 
-  // This function gets the purchase location for a specific service
-  const getPurchaseLocationForService = (serviceId: string) => {
-    return purchaseLocations.find(loc => loc.serviceId === serviceId);
-  };
+  const confirmDeleteLocation = () => {
+    if (!locationToDelete) return;
 
-  // For the cart, we need all purchase locations
-  const getAllPurchaseLocations = () => {
-    return purchaseLocations;
+    setCartItems(prev => prev.filter(item => item.serviceId !== locationToDelete.serviceId));
+    
+    setPurchaseLocations(prev => prev.filter(loc => loc.serviceId !== locationToDelete.serviceId));
+    
+    setShowDeleteConfirmation(false);
+    setLocationToDelete(null);
+    toast.success("Lugar de compra y productos asociados eliminados");
   };
 
   if (isLoading) {
@@ -346,7 +362,6 @@ const Servicios = () => {
           isOpen={isLocationModalOpen}
           onClose={() => {
             setIsLocationModalOpen(false);
-            // Reset selection when modal is closed without confirming
             if (pendingServiceCardAction) {
               setPendingServiceCardAction(false);
             }
@@ -355,6 +370,34 @@ const Servicios = () => {
           serviceName={selectedServiceName || undefined}
         />
       </main>
+
+      <AlertDialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar lugar de compra?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {locationToDelete && (
+                <>
+                  Al eliminar el lugar de compra "{locationToDelete.locationName}", 
+                  también se eliminarán todos los productos asociados del carrito. 
+                  ¿Desea continuar?
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setShowDeleteConfirmation(false);
+              setLocationToDelete(null);
+            }}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteLocation}>
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <style>
         {`
@@ -366,13 +409,11 @@ const Servicios = () => {
         }
         
         @media (min-width: 1024px) {
-          /* Para la última fila cuando hay solo 2 elementos */
           .grid-cols-3 > div:nth-last-child(1):nth-child(3n-1),
           .grid-cols-3 > div:nth-last-child(2):nth-child(3n-1) {
             margin-left: calc(100% / 3);
           }
           
-          /* Para la última fila cuando hay solo 1 elemento */
           .grid-cols-3 > div:nth-last-child(1):nth-child(3n-2) {
             margin-left: calc(100% / 3);
           }
