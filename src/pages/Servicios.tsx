@@ -17,7 +17,7 @@ export interface CartItem {
   quantity: number;
   image?: string;
   serviceCategory: string;
-  serviceId?: string; // ID del servicio al que pertenece
+  serviceId?: string; // ID del servicio al que pertenece_
 }
 
 interface TarjetaServicio {
