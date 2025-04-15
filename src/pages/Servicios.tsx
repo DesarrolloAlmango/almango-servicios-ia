@@ -347,7 +347,8 @@ const Servicios = () => {
                 <ServiceCard 
                   id={service.id}
                   name={service.name} 
-                  iconComponent={iconComponents[service.icon]} 
+                  iconComponent={iconComponents[service.icon as keyof typeof iconComponents]} 
+                  icon={typeof service.icon === 'string' && !Object.keys(iconComponents).includes(service.icon) ? service.icon : undefined}
                   addToCart={addToCart}
                   externalUrl={service.url}
                   onBeforeCardClick={() => handleServiceCardClick(service.id, service.name)}
