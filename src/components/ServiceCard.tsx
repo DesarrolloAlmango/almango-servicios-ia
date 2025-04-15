@@ -345,6 +345,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [imageError, setImageError] = useState(false);
   
   useEffect(() => {
     if (forceOpen && id) {
@@ -451,10 +452,24 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 
   const getCardBackground = () => {
     if (icon) {
-      return `data:image/png;base64,${icon}`;
+      if (icon.startsWith('data:image')) {
+        return icon;
+      }
+      
+      try {
+        new URL(icon);
+        return icon;
+      } catch (e) {
+        return `data:image/png;base64,${icon}`;
+      }
     }
+    
     return "/placeholder.svg";
   };
+
+  const backgroundImage = getCardBackground();
+  console.log("Icon data received:", icon);
+  console.log("Background image set to:", backgroundImage);
 
   return (
     <>
@@ -466,16 +481,18 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           <div className="absolute inset-0 w-full h-full">
             <div className="w-full h-full bg-gradient-to-t from-black/70 to-transparent absolute inset-0 z-10" />
             <img 
-              src={getCardBackground()}
+              src={backgroundImage}
               alt={name}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 brightness-90 group-hover:brightness-100"
               onError={(e) => {
+                console.error("Image failed to load:", backgroundImage);
                 e.currentTarget.src = "/placeholder.svg";
+                setImageError(true);
               }}
             />
           </div>
           <div className="relative z-20 p-6 text-center w-full transition-transform duration-300 transform group-hover:translate-y-[-8px]">
-            <h3 className="text-xl font-bold text-center text-white drop-shadow-md transition-all duration-300 group-hover:text-orange-100">
+            <h3 className="text-xl font-bold text-center text-white drop-shadow-md transition-all duration-300 group-hover:text-[#ff6900]">
               {name}
             </h3>
           </div>

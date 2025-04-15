@@ -266,7 +266,7 @@ const Servicios = () => {
               </Button>
             </div>
             
-            <h1 className="text-3xl font-normal mb-12 text-center text-gray-900 uppercase font-display">Nuestros Servicios</h1>
+            <h1 className="text-3xl font-normal mb-12 text-center text-[#ff6900] uppercase font-display">Nuestros Servicios</h1>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
               {[...Array(7)].map((_, i) => (
@@ -278,6 +278,8 @@ const Servicios = () => {
       </div>
     );
   }
+
+  console.log("Servicios recibidos de la API:", displayedServices);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
@@ -307,7 +309,7 @@ const Servicios = () => {
             </Button>
           </div>
           
-          <h1 className="text-3xl font-normal mb-12 text-center text-gray-900 uppercase font-display">Nuestros Servicios</h1>
+          <h1 className="text-3xl font-normal mb-12 text-center text-[#ff6900] uppercase font-display">Nuestros Servicios</h1>
           
           {isError && (
             <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6 rounded-md">
@@ -348,7 +350,7 @@ const Servicios = () => {
                   id={service.id}
                   name={service.name} 
                   iconComponent={iconComponents[service.icon as keyof typeof iconComponents]} 
-                  icon={typeof service.icon === 'string' && !Object.keys(iconComponents).includes(service.icon) ? service.icon : undefined}
+                  icon={service.icon}
                   addToCart={addToCart}
                   externalUrl={service.url}
                   onBeforeCardClick={() => handleServiceCardClick(service.id, service.name)}
