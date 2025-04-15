@@ -190,6 +190,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
 
     const checkoutDataArray: CheckoutData[] = Object.entries(serviceGroups).map(([serviceId, items]) => {
       const location = items[0].location;
+      const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       
       const formattedData: CheckoutData = {
         Nombre: data.name,
@@ -202,17 +203,17 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         Direccion: `${data.street} ${data.number}${data.apartment ? ` Apto ${data.apartment}` : ''}${data.corner ? ` esq. ${data.corner}` : ''}`,
         MetodoPagosID: data.paymentMethod === "later" ? 1 : 4,
         SolicitudPagada: "",
-        SolicitaCotizacion: "N",
+        SolicitaCotizacion: total.toString(),
         SolicitaOtroServicio: "",
         OtroServicioDetalle: "",
         FechaInstalacion: format(selectedDate!, "yyyy-MM-dd'T'HH:mm:ss"),
         TurnoInstalacion: getTimeSlotNumber(selectedTimeSlot),
         Comentario: data.comments || "",
-        ProveedorAuxiliar: getProviderAuxiliary(location?.otherLocation || location?.storeId || ""),
+        ProveedorAuxiliar: getProviderAuxiliary(location.storeId),
         items: items.map(item => ({
           RubrosId: Number(item.serviceId),
-          MedidasID: Number(item.categoryId) || null,
-          InventarioId: Number(item.productId) || null,
+          MedidasID: Number(item.categoryId),
+          InventarioId: Number(item.productId),
           SolicitudesItemsCantidad: item.quantity,
           SolicitudItemsSR: "N",
           SolicitudItemsComision: 0,

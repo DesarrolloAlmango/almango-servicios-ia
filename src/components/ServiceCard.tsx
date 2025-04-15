@@ -213,7 +213,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         quantity: productQuantities[product.id],
         image: product.image,
         serviceCategory: `${serviceName} - ${category.name}`,
-        serviceId: serviceId
+        serviceId: serviceId,
+        categoryId: category.id,
+        productId: product.id
       }));
 
     if (itemsToAdd.length > 0) {
@@ -235,7 +237,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         quantity: productQuantities[product.id],
         image: product.image,
         serviceCategory: `${serviceName} - ${category.name}`,
-        serviceId: serviceId
+        serviceId: serviceId,
+        categoryId: category.id,
+        productId: product.id
       }));
 
     if (itemsToAdd.length > 0) {

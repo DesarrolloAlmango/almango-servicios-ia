@@ -29,10 +29,8 @@ export interface CheckoutData {
   items: CheckoutItem[];
 }
 
-// Add helper function to get provider auxiliary value
-export const getProviderAuxiliary = (location: string | undefined): string | null => {
-  if (!location) return null;
-  if (location === "NoLoSe") return "NoLoSe";
-  if (location === "other") return location;
+export const getProviderAuxiliary = (storeId: string): string | null => {
+  if (storeId === "NoLoSe") return "NoLoSe";
+  if (storeId === "other") return "otro";
   return null;
 };
