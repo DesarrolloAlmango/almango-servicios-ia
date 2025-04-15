@@ -1,3 +1,4 @@
+
 export interface CheckoutItem {
   RubrosId: number;
   MedidasID: number | null;
@@ -30,7 +31,8 @@ export interface CheckoutData {
 }
 
 export const getProviderAuxiliary = (storeId: string, otherLocation?: string): string | null => {
-  if (storeId === "unknown") return "NoLoSe";
+  if (storeId === "unknown") return "No lo sé";
   if (storeId === "other" && otherLocation) return otherLocation;
   return null;
 };
+
