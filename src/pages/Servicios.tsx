@@ -34,7 +34,7 @@ export interface CartItem {
 interface TarjetaServicio {
   id?: string;
   name: string;
-  icon: keyof typeof iconComponents;
+  icon: keyof typeof iconComponents | string;
   url?: string;
 }
 
@@ -77,7 +77,10 @@ const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
     }
     
     const data = await response.json();
-    return JSON.parse(data.SDTTarjetasServiciosJson);
+    console.log("Datos de la API sin procesar:", data);
+    const parsedData = JSON.parse(data.SDTTarjetasServiciosJson);
+    console.log("Datos de servicios parseados:", parsedData);
+    return parsedData;
   } catch (error) {
     console.error("Error fetching services:", error);
     throw error;

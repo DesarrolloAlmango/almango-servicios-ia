@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CategoryCarousel from "@/components/CategoryCarousel";
@@ -346,6 +346,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
+  const [showBase64Dialog, setShowBase64Dialog] = useState(false);
   
   useEffect(() => {
     if (forceOpen && id) {
@@ -430,13 +431,12 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     }
     
     if (id) {
+      setShowBase64Dialog(true);
+      
       if (onBeforeCardClick) {
         const shouldProceed = onBeforeCardClick();
         if (!shouldProceed) return;
       }
-      
-      setIsDialogOpen(true);
-      fetchCategories(id);
     }
   };
   
@@ -471,6 +471,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   console.log("Icon data received:", icon);
   console.log("Background image set to:", backgroundImage);
 
+  const handleContinueToService = () => {
+    setShowBase64Dialog(false);
+    setIsDialogOpen(true);
+    if (id) {
+      fetchCategories(id);
+    }
+  };
+
   return (
     <>
       <Card 
@@ -498,6 +506,40 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           </div>
         </CardContent>
       </Card>
+      
+      <Dialog open={showBase64Dialog} onOpenChange={setShowBase64Dialog}>
+        <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <DialogTitle className="text-xl font-semibold text-[#ff6900]">Código Base64 de la Imagen</DialogTitle>
+          <DialogDescription className="mt-4">
+            <p className="text-sm font-medium text-gray-700 mb-2">ID: {id}</p>
+            <p className="text-sm font-medium text-gray-700 mb-2">Nombre: {name}</p>
+            <div className="bg-gray-100 p-4 rounded-md overflow-auto max-h-40">
+              <code className="text-xs break-all whitespace-pre-wrap text-gray-800">{icon || "No hay código base64"}</code>
+            </div>
+            <div className="mt-4">
+              <p className="text-sm mb-2">Vista previa de la imagen:</p>
+              <div className="w-full h-40 bg-gray-200 flex items-center justify-center">
+                {icon ? (
+                  <img 
+                    src={backgroundImage} 
+                    alt="Vista previa" 
+                    className="max-h-40 max-w-full object-contain"
+                    onError={() => toast.error("Error al cargar la imagen de vista previa")}
+                  />
+                ) : (
+                  <span className="text-gray-500">No hay imagen disponible</span>
+                )}
+              </div>
+            </div>
+            <Button 
+              className="mt-4 bg-[#ff6900] hover:bg-orange-600 text-white" 
+              onClick={handleContinueToService}
+            >
+              Continuar al servicio
+            </Button>
+          </DialogDescription>
+        </DialogContent>
+      </Dialog>
       
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto p-0">
