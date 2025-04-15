@@ -347,21 +347,25 @@ const Servicios = () => {
           )}
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto max-w-6xl justify-items-center">
-            {displayedServices?.map((service, index) => (
-              <div key={index} className="w-full max-w-[280px]">
-                <ServiceCard 
-                  id={service.id}
-                  name={service.name} 
-                  iconComponent={iconComponents[service.icon as keyof typeof iconComponents]} 
-                  icon={service.icon}
-                  addToCart={addToCart}
-                  externalUrl={service.url}
-                  onBeforeCardClick={() => handleServiceCardClick(service.id, service.name)}
-                  purchaseLocation={getPurchaseLocationForService(service.id || "")}
-                  forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
-                />
-              </div>
-            ))}
+            {displayedServices?.map((service, index) => {
+              const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
+              
+              return (
+                <div key={index} className="w-full max-w-[280px]">
+                  <ServiceCard 
+                    id={service.id}
+                    name={service.name} 
+                    iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Home} 
+                    icon={!isIconKey ? service.icon : undefined}
+                    addToCart={addToCart}
+                    externalUrl={service.url}
+                    onBeforeCardClick={() => handleServiceCardClick(service.id, service.name)}
+                    purchaseLocation={getPurchaseLocationForService(service.id || "")}
+                    forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
         

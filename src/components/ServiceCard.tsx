@@ -460,6 +460,9 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         new URL(icon);
         return icon;
       } catch (e) {
+        if (icon.startsWith('data:image')) {
+          return icon;
+        }
         return `data:image/png;base64,${icon}`;
       }
     }
@@ -509,12 +512,12 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       
       <Dialog open={showBase64Dialog} onOpenChange={setShowBase64Dialog}>
         <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-          <DialogTitle className="text-xl font-semibold text-[#ff6900]">Código Base64 de la Imagen</DialogTitle>
+          <DialogTitle className="text-xl font-semibold text-[#ff6900]">Información de la Imagen</DialogTitle>
           <DialogDescription className="mt-4">
             <p className="text-sm font-medium text-gray-700 mb-2">ID: {id}</p>
             <p className="text-sm font-medium text-gray-700 mb-2">Nombre: {name}</p>
             <div className="bg-gray-100 p-4 rounded-md overflow-auto max-h-40">
-              <code className="text-xs break-all whitespace-pre-wrap text-gray-800">{icon || "No hay código base64"}</code>
+              <code className="text-xs break-all whitespace-pre-wrap text-gray-800">{icon || "No hay URL de imagen"}</code>
             </div>
             <div className="mt-4">
               <p className="text-sm mb-2">Vista previa de la imagen:</p>
