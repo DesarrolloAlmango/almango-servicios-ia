@@ -27,6 +27,8 @@ export interface CartItem {
   image?: string;
   serviceCategory: string;
   serviceId?: string;
+  categoryId?: number | null;
+  productId?: number | null;
 }
 
 interface TarjetaServicio {

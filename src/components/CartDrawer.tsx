@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { 
   Sheet,
@@ -15,6 +14,9 @@ import CartItemsStep from "@/components/checkout/CartItemsStep";
 import DateTimeStep from "@/components/checkout/DateTimeStep";
 import PersonalInfoStep from "@/components/checkout/PersonalInfoStep";
 import { MapPin } from "lucide-react";
+import { format } from "date-fns";
+import CheckoutSummary from "./checkout/CheckoutSummary";
+import { CheckoutData } from "@/types/checkoutTypes";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -60,6 +62,8 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     departments: false,
     municipalities: false
   });
+  const [showSummary, setShowSummary] = useState(false);
+  const [checkoutData, setCheckoutData] = useState<CheckoutData[]>([]);
 
   useEffect(() => {
     if (isOpen && departments.length === 0) {
@@ -142,6 +146,15 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     }
   };
 
+  const getTimeSlotNumber = (timeSlot: string): string => {
+    const timeRanges = {
+      "08:00 - 12:00": "1",
+      "12:00 - 16:00": "2",
+      "16:00 - 20:00": "3"
+    };
+    return timeRanges[timeSlot as keyof typeof timeRanges] || "1";
+  };
+
   const handleNextStep = () => {
     if (currentStep === 0 && (!selectedDepartment || !selectedLocation)) {
       toast.error("Por favor selecciona departamento y localidad");
@@ -155,115 +168,150 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   };
 
   const handleSubmit = (data: any) => {
-    console.log("Checkout data:", {
-      department: selectedDepartment,
-      location: selectedLocation,
-      date: selectedDate,
-      timeSlot: selectedTimeSlot,
-      personalInfo: data,
-      purchaseLocations
+    const serviceGroups = cartItems.reduce((acc: Record<string, any[]>, item) => {
+      const location = purchaseLocations.find(loc => loc.serviceId === item.serviceId);
+      if (location) {
+        if (!acc[item.serviceId]) {
+          acc[item.serviceId] = [];
+        }
+        acc[item.serviceId].push(item);
+      }
+      return acc;
+    }, {});
+
+    const checkoutDataArray: CheckoutData[] = Object.entries(serviceGroups).map(([serviceId, items]) => {
+      const formattedData: CheckoutData = {
+        Nombre: data.name,
+        Telefono: data.phone,
+        Mail: data.email || null,
+        PaisISO: 0,
+        DepartamentoId: Number(selectedDepartment) || null,
+        MunicipioId: Number(selectedLocation) || null,
+        ZonasID: 0,
+        Direccion: `${data.street} ${data.number}${data.apartment ? ` Apto ${data.apartment}` : ''}${data.corner ? ` esq. ${data.corner}` : ''}`,
+        MetodoPagosID: data.paymentMethod === "later" ? 1 : 4,
+        SolicitudPagada: "",
+        SolicitaCotizacion: "N",
+        SolicitaOtroServicio: "",
+        OtroServicioDetalle: "",
+        FechaInstalacion: format(selectedDate!, "yyyy-MM-dd'T'HH:mm:ss"),
+        TurnoInstalacion: getTimeSlotNumber(selectedTimeSlot),
+        Comentario: data.comments || "",
+        ProveedorAuxiliar: null,
+        items: items.map(item => ({
+          RubrosId: Number(serviceId),
+          MedidasID: null,
+          InventarioId: null,
+          SolicitudesItemsCantidad: item.quantity,
+          SolicitudItemsSR: "N",
+          SolicitudItemsComision: 0,
+          SolicitudItemsComisionTipo: "P"
+        }))
+      };
+
+      return formattedData;
     });
-    
-    toast.success("¡Pedido realizado con éxito! Te contactaremos pronto.", {
-      duration: 5000
-    });
-    
-    setCurrentStep(0);
-    setSelectedDepartment("");
-    setSelectedLocation("");
-    setSelectedDate(undefined);
-    setSelectedTimeSlot("");
-    setIsOpen(false);
+
+    setCheckoutData(checkoutDataArray);
+    setShowSummary(true);
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent className="w-full sm:max-w-md overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>Carrito de Servicios</SheetTitle>
-        </SheetHeader>
-        
-        {purchaseLocations.length > 0 && (
-          <div className="mt-4 p-3 rounded-lg border-[1px] border-blue-200 bg-blue-50">
-            <h4 className="text-sm font-medium text-blue-700 mb-1">Lugares de compra registrados:</h4>
-            <div className="space-y-1">
-              {purchaseLocations.map((location, index) => (
-                <div key={index} className="flex items-center text-xs">
-                  <MapPin className="text-blue-500 mr-1" size={12} />
-                  <span className="text-blue-700 font-medium">{location.serviceName}: </span>
-                  <span className="text-blue-600 ml-1">
-                    {location.storeId === "other" ? location.otherLocation : location.storeName}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        
-        <div className="flex flex-col h-[calc(100vh-12rem)] mt-6">
-          {cartItems.length === 0 && currentStep === 0 ? (
-            <div className="flex-grow flex items-center justify-center">
-              <p className="text-muted-foreground text-center">
-                Tu carrito está vacío
-              </p>
-            </div>
-          ) : (
-            <>
-              <StepIndicator currentStep={currentStep} totalSteps={4} />
-              
-              <div className="flex-grow">
-                {currentStep === 0 && (
-                  <LocationStep 
-                    selectedDepartment={selectedDepartment}
-                    setSelectedDepartment={setSelectedDepartment}
-                    selectedLocation={selectedLocation}
-                    setSelectedLocation={setSelectedLocation}
-                    onNext={handleNextStep}
-                    departments={departments}
-                    municipalities={municipalities}
-                    loading={loading}
-                  />
-                )}
-                
-                {currentStep === 1 && (
-                  <CartItemsStep 
-                    cartItems={cartItems}
-                    updateCartItem={updateCartItem}
-                    total={total}
-                    onPrevious={handlePreviousStep}
-                    onNext={handleNextStep}
-                  />
-                )}
-                
-                {currentStep === 2 && (
-                  <DateTimeStep 
-                    selectedDate={selectedDate}
-                    setSelectedDate={setSelectedDate}
-                    selectedTimeSlot={selectedTimeSlot}
-                    setSelectedTimeSlot={setSelectedTimeSlot}
-                    onPrevious={handlePreviousStep}
-                    onNext={handleNextStep}
-                  />
-                )}
-                
-                {currentStep === 3 && (
-                  <PersonalInfoStep 
-                    onPrevious={handlePreviousStep}
-                    onSubmit={handleSubmit}
-                    cartItems={cartItems}
-                    total={total}
-                    selectedDepartment={selectedDepartment}
-                    selectedLocation={selectedLocation}
-                    selectedDate={selectedDate}
-                    selectedTimeSlot={selectedTimeSlot}
-                  />
-                )}
+    <>
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Carrito de Servicios</SheetTitle>
+          </SheetHeader>
+          
+          {purchaseLocations.length > 0 && (
+            <div className="mt-4 p-3 rounded-lg border-[1px] border-blue-200 bg-blue-50">
+              <h4 className="text-sm font-medium text-blue-700 mb-1">Lugares de compra registrados:</h4>
+              <div className="space-y-1">
+                {purchaseLocations.map((location, index) => (
+                  <div key={index} className="flex items-center text-xs">
+                    <MapPin className="text-blue-500 mr-1" size={12} />
+                    <span className="text-blue-700 font-medium">{location.serviceName}: </span>
+                    <span className="text-blue-600 ml-1">
+                      {location.storeId === "other" ? location.otherLocation : location.storeName}
+                    </span>
+                  </div>
+                ))}
               </div>
-            </>
+            </div>
           )}
-        </div>
-      </SheetContent>
-    </Sheet>
+          
+          <div className="flex flex-col h-[calc(100vh-12rem)] mt-6">
+            {cartItems.length === 0 && currentStep === 0 ? (
+              <div className="flex-grow flex items-center justify-center">
+                <p className="text-muted-foreground text-center">
+                  Tu carrito está vacío
+                </p>
+              </div>
+            ) : (
+              <>
+                <StepIndicator currentStep={currentStep} totalSteps={4} />
+                
+                <div className="flex-grow">
+                  {currentStep === 0 && (
+                    <LocationStep 
+                      selectedDepartment={selectedDepartment}
+                      setSelectedDepartment={setSelectedDepartment}
+                      selectedLocation={selectedLocation}
+                      setSelectedLocation={setSelectedLocation}
+                      onNext={handleNextStep}
+                      departments={departments}
+                      municipalities={municipalities}
+                      loading={loading}
+                    />
+                  )}
+                  
+                  {currentStep === 1 && (
+                    <CartItemsStep 
+                      cartItems={cartItems}
+                      updateCartItem={updateCartItem}
+                      total={total}
+                      onPrevious={handlePreviousStep}
+                      onNext={handleNextStep}
+                    />
+                  )}
+                  
+                  {currentStep === 2 && (
+                    <DateTimeStep 
+                      selectedDate={selectedDate}
+                      setSelectedDate={setSelectedDate}
+                      selectedTimeSlot={selectedTimeSlot}
+                      setSelectedTimeSlot={setSelectedTimeSlot}
+                      onPrevious={handlePreviousStep}
+                      onNext={handleNextStep}
+                    />
+                  )}
+                  
+                  {currentStep === 3 && (
+                    <PersonalInfoStep 
+                      onPrevious={handlePreviousStep}
+                      onSubmit={handleSubmit}
+                      cartItems={cartItems}
+                      total={total}
+                      selectedDepartment={selectedDepartment}
+                      selectedLocation={selectedLocation}
+                      selectedDate={selectedDate}
+                      selectedTimeSlot={selectedTimeSlot}
+                    />
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+      
+      <CheckoutSummary 
+        isOpen={showSummary}
+        onClose={() => setShowSummary(false)}
+        data={checkoutData}
+      />
+    </>
   );
 };
 
