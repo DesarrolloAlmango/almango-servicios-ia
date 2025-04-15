@@ -16,12 +16,15 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({ isOpen, onClose, data
         <DialogHeader>
           <DialogTitle>Resumen de la Compra</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className="space-y-6">
           {data.map((serviceData, index) => (
             <div key={index} className="border rounded-lg p-4">
-              <pre className="whitespace-pre-wrap overflow-x-auto text-xs">
-                {JSON.stringify(serviceData, null, 2)}
-              </pre>
+              <h3 className="font-medium mb-2">Servicio {index + 1}</h3>
+              <div className="bg-slate-50 p-4 rounded-md">
+                <pre className="whitespace-pre-wrap overflow-x-auto text-sm font-mono">
+                  {JSON.stringify(serviceData, null, 2)}
+                </pre>
+              </div>
             </div>
           ))}
         </div>

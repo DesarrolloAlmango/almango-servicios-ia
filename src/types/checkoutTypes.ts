@@ -1,4 +1,3 @@
-
 export interface CheckoutItem {
   RubrosId: number;
   MedidasID: number | null;
@@ -29,3 +28,11 @@ export interface CheckoutData {
   ProveedorAuxiliar: string | null;
   items: CheckoutItem[];
 }
+
+// Add helper function to get provider auxiliary value
+export const getProviderAuxiliary = (location: string | undefined): string | null => {
+  if (!location) return null;
+  if (location === "NoLoSe") return "NoLoSe";
+  if (location === "other") return location;
+  return null;
+};

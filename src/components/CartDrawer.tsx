@@ -43,6 +43,12 @@ interface Municipality {
   name: string;
 }
 
+const getProviderAuxiliary = (location: string): string | null => {
+  if (location === "other") return "otro";
+  if (location === "NoLoSe") return "NoLoSe";
+  return null;
+};
+
 const CartDrawer: React.FC<CartDrawerProps> = ({ 
   isOpen, 
   setIsOpen, 
@@ -174,12 +180,17 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         if (!acc[item.serviceId]) {
           acc[item.serviceId] = [];
         }
-        acc[item.serviceId].push(item);
+        acc[item.serviceId].push({
+          ...item,
+          location
+        });
       }
       return acc;
     }, {});
 
     const checkoutDataArray: CheckoutData[] = Object.entries(serviceGroups).map(([serviceId, items]) => {
+      const location = items[0].location;
+      
       const formattedData: CheckoutData = {
         Nombre: data.name,
         Telefono: data.phone,
@@ -197,11 +208,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         FechaInstalacion: format(selectedDate!, "yyyy-MM-dd'T'HH:mm:ss"),
         TurnoInstalacion: getTimeSlotNumber(selectedTimeSlot),
         Comentario: data.comments || "",
-        ProveedorAuxiliar: null,
+        ProveedorAuxiliar: getProviderAuxiliary(location?.otherLocation || location?.storeId || ""),
         items: items.map(item => ({
-          RubrosId: Number(serviceId),
-          MedidasID: null,
-          InventarioId: null,
+          RubrosId: Number(item.serviceId),
+          MedidasID: Number(item.categoryId) || null,
+          InventarioId: Number(item.productId) || null,
           SolicitudesItemsCantidad: item.quantity,
           SolicitudItemsSR: "N",
           SolicitudItemsComision: 0,
