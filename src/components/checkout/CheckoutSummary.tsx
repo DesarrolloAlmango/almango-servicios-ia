@@ -1,17 +1,6 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Loader2 } from "lucide-react";
-import { CheckoutData } from "@/types/checkoutTypes";
-import { toast } from "sonner";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -21,6 +10,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { CheckoutData } from "@/types/checkoutTypes";
+import { toast } from "sonner";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 interface CheckoutSummaryProps {
@@ -37,14 +30,12 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [solicitudId, setSolicitudId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   // Resetea los estados cuando el modal se cierra
   useEffect(() => {
     if (!isOpen) {
       setSolicitudId(null);
       setError(null);
-      setShowConfirmDialog(false);
     }
   }, [isOpen]);
 
@@ -52,7 +43,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     try {
       setSubmitting(true);
       setError(null);
-      setShowConfirmDialog(false);
 
       // Tomar solo el primer objeto del array (eliminar los corchetes)
       const checkoutItem = data.length > 0 ? data[0] : null;
@@ -99,36 +89,13 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   };
 
   return (
-    <AlertDialog open={showConfirmDialog || isOpen} onOpenChange={(open) => {
-      if (!open) {
-        setShowConfirmDialog(false);
-        if (!solicitudId && !error) {
-          onClose();
-        }
+    <AlertDialog open={isOpen} onOpenChange={(open) => {
+      if (!open && !solicitudId && !error) {
+        onClose();
       }
     }}>
       <AlertDialogContent className="max-w-md">
-        {showConfirmDialog ? (
-          <>
-            <AlertDialogHeader>
-              <AlertDialogTitle>¿Confirmar servicio?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Estás a punto de finalizar tu solicitud de servicio. Esta acción no se puede deshacer.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setShowConfirmDialog(false)}>Cancelar</AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={handleSubmitOrder}
-                disabled={submitting}
-                className="gap-2"
-              >
-                {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                Confirmar
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </>
-        ) : solicitudId !== null || error ? (
+        {solicitudId !== null || error ? (
           <>
             <AlertDialogHeader>
               <AlertDialogTitle className="text-center">
@@ -187,23 +154,20 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
             <AlertDialogHeader>
               <AlertDialogTitle>Confirmar Servicio</AlertDialogTitle>
               <AlertDialogDescription>
-                Revisa los detalles de tu servicio antes de finalizar.
+                ¿Estás seguro que deseas contratar este servicio?
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <div className="py-4 text-center space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Al confirmar, se procesará tu solicitud de servicio.
-              </p>
-            </div>
             <AlertDialogFooter>
               <AlertDialogCancel onClick={onClose}>
                 Cancelar
               </AlertDialogCancel>
               <AlertDialogAction 
-                onClick={() => setShowConfirmDialog(true)}
+                onClick={handleSubmitOrder}
+                disabled={submitting}
                 className="gap-2"
               >
-                Confirmar Servicio
+                {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                Confirmar
               </AlertDialogAction>
             </AlertDialogFooter>
           </>

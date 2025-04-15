@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -88,8 +87,6 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       apartment: "",
       comments: "",
       paymentMethod: "later",
-      // Fix: Changed termsAccepted from false to undefined to avoid type error
-      // We can't use false as a default value because the schema requires true
       termsAccepted: undefined as any,
     },
   });
@@ -103,7 +100,6 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     }).format(date);
   };
 
-  // Map department IDs to names
   const getDepartmentName = (departmentId: string) => {
     const departments: Record<string, string> = {
       "1": "Montevideo",
@@ -113,7 +109,6 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     return departments[departmentId] || departmentId;
   };
 
-  // Map location IDs to names
   const getLocationName = (departmentId: string, locationId: string) => {
     const locations: Record<string, Record<string, string>> = {
       "1": {
@@ -383,7 +378,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
               Anterior
             </Button>
             <Button type="submit" className="bg-primary">
-              Finalizar compra
+              Contratar Servicio
             </Button>
           </div>
         </form>
