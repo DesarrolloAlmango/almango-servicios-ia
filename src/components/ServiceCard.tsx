@@ -315,7 +315,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 interface ServiceCardProps {
   id?: string;
   name: string;
-  iconComponent: LucideIcon;
+  iconComponent: LucideIcon; // Mantenemos para compatibilidad, pero ya no la usamos
   addToCart: (item: CartItem) => void;
   externalUrl?: string;
   onBeforeCardClick?: () => boolean;
@@ -326,7 +326,42 @@ interface ServiceCardProps {
     serviceId?: string;
   } | null;
   forceOpen?: boolean;
+  imageUrl?: string; // Opcional para soporte de imágenes externas
 }
+
+// Función para obtener la imagen del servicio basada en su ID o nombre
+const getServiceImage = (id?: string, name?: string): string => {
+  // Mapeo de IDs a imágenes específicas
+  const imageMap: {[key: string]: string} = {
+    "elec-1": "https://images.unsplash.com/photo-1588046130717-0eb0c9a3ba15?q=80&w=1974&auto=format&fit=crop", // Electricidad
+    "plum-2": "https://images.unsplash.com/photo-1575231902142-c16bf2e5818c?q=80&w=2071&auto=format&fit=crop", // Plomería
+    "cerr-3": "https://images.unsplash.com/photo-1586864387789-628af9feed72?q=80&w=2070&auto=format&fit=crop", // Cerrajería
+    "clim-4": "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?q=80&w=1974&auto=format&fit=crop", // Climatización
+    "mudz-5": "https://images.unsplash.com/photo-1596014747910-5a7869f0ec38?q=80&w=1974&auto=format&fit=crop", // Mudanzas
+    "paqt-6": "https://images.unsplash.com/photo-1584545284372-f22510acf4c0?q=80&w=1974&auto=format&fit=crop", // Paquetería
+    "baby-7": "https://images.unsplash.com/photo-1519340241574-2cec6aef0c01?q=80&w=1876&auto=format&fit=crop", // Cuidado Infantil
+  };
+  
+  // Si tenemos un ID y existe en nuestro mapeo, lo usamos
+  if (id && imageMap[id]) {
+    return imageMap[id];
+  }
+  
+  // Fallback basado en el nombre (categoría)
+  if (name) {
+    const nameLower = name.toLowerCase();
+    if (nameLower.includes("electric")) return imageMap["elec-1"];
+    if (nameLower.includes("plom")) return imageMap["plum-2"];
+    if (nameLower.includes("cerr")) return imageMap["cerr-3"];
+    if (nameLower.includes("climat") || nameLower.includes("aire")) return imageMap["clim-4"];
+    if (nameLower.includes("mudanz")) return imageMap["mudz-5"];
+    if (nameLower.includes("paquet")) return imageMap["paqt-6"];
+    if (nameLower.includes("infantil") || nameLower.includes("baby") || nameLower.includes("niño")) return imageMap["baby-7"];
+  }
+  
+  // Si todo falla, devolvemos la primera imagen como default
+  return "/placeholder.svg";
+};
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ 
   id, 
@@ -451,12 +486,27 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   return (
     <>
       <Card 
-        className="w-[280px] h-[240px] rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0"
+        className="w-[280px] h-[240px] rounded-lg shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 overflow-hidden group"
         onClick={handleCardClick}
       >
-        <CardContent className="p-8 flex flex-col items-center justify-center h-full">
-          <IconComponent className="w-16 h-16 text-blue-500 mb-5" />
-          <h3 className="text-lg font-bold text-center uppercase text-orange-500">{name}</h3>
+        <CardContent className="p-0 flex flex-col items-center justify-end h-full relative">
+          <div className="absolute inset-0 w-full h-full">
+            <div className="w-full h-full bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute inset-0 z-10" />
+            <img 
+              src={getServiceImage(id, name)}
+              alt={name}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              onError={(e) => {
+                e.currentTarget.src = "/placeholder.svg";
+              }}
+            />
+          </div>
+          <div className="relative z-20 p-6 text-center">
+            <h3 className="text-xl font-bold text-center uppercase text-white mb-2 drop-shadow-md">{name}</h3>
+            <span className="text-xs text-white bg-orange-500 px-3 py-1 rounded-full inline-block shadow-md group-hover:bg-orange-600 transition-colors">
+              Ver servicios
+            </span>
+          </div>
         </CardContent>
       </Card>
       
