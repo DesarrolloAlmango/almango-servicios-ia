@@ -21,6 +21,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 interface CheckoutSummaryProps {
   isOpen: boolean;
@@ -46,14 +47,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       setShowConfirmDialog(false);
     }
   }, [isOpen]);
-
-  const handleConfirmOrder = () => {
-    setShowConfirmDialog(true);
-  };
-
-  const handleCancelConfirmation = () => {
-    setShowConfirmDialog(false);
-  };
 
   const handleSubmitOrder = async () => {
     try {
@@ -106,93 +99,117 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   };
 
   return (
-    <>
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-center">
-              {solicitudId !== null ? (
-                <div className="flex items-center justify-center gap-2 text-lg text-green-600">
-                  <CheckCircle className="h-6 w-6" />
-                  <span>¡Solicitud Enviada!</span>
-                </div>
-              ) : (
-                "Resumen de la Compra"
-              )}
-            </DialogTitle>
-          </DialogHeader>
-
-          {solicitudId !== null ? (
-            <div className="py-6 text-center space-y-4">
-              <p className="text-lg font-semibold">
-                Tu número de solicitud es:
-              </p>
-              <div className="text-3xl font-bold text-primary py-3 px-6 rounded-lg bg-primary/10 inline-block mx-auto">
-                {solicitudId}
-              </div>
-              <p className="text-muted-foreground text-sm mt-2">
-                Guarda este número para futuras consultas sobre tu pedido.
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="mb-5">
-                <h3 className="font-medium text-lg mb-2">Detalles del Pedido</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Revisa los detalles de tu pedido antes de finalizar la compra.
-                </p>
-              </div>
-
-              {error && (
-                <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded text-sm text-red-700">
-                  <div className="flex items-center gap-2">
-                    <XCircle size={16} className="shrink-0" />
-                    <p>Error: {error}</p>
+    <AlertDialog open={showConfirmDialog || isOpen} onOpenChange={(open) => {
+      if (!open) {
+        setShowConfirmDialog(false);
+        if (!solicitudId && !error) {
+          onClose();
+        }
+      }
+    }}>
+      <AlertDialogContent className="max-w-md">
+        {showConfirmDialog ? (
+          <>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Confirmar servicio?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Estás a punto de finalizar tu solicitud de servicio. Esta acción no se puede deshacer.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setShowConfirmDialog(false)}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleSubmitOrder}
+                disabled={submitting}
+                className="gap-2"
+              >
+                {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                Confirmar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </>
+        ) : solicitudId !== null || error ? (
+          <>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-center">
+                {solicitudId !== null ? (
+                  <div className="flex items-center justify-center gap-2 text-lg text-green-600">
+                    <CheckCircle className="h-6 w-6" />
+                    <span>¡Servicio Confirmado!</span>
                   </div>
-                </div>
-              )}
-            </>
-          )}
+                ) : (
+                  <div className="flex items-center justify-center gap-2 text-lg text-red-600">
+                    <XCircle className="h-6 w-6" />
+                    <span>Error al Procesar Servicio</span>
+                  </div>
+                )}
+              </AlertDialogTitle>
+            </AlertDialogHeader>
 
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            {solicitudId === null ? (
-              <>
-                <Button variant="outline" className="flex-1" onClick={onClose}>
-                  Cancelar
-                </Button>
-                <Button 
-                  className="flex-1 gap-2" 
-                  onClick={handleConfirmOrder}
-                  disabled={submitting}
-                >
-                  {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                  Finalizar Compra
-                </Button>
-              </>
+            {solicitudId !== null ? (
+              <div className="py-6 text-center space-y-4">
+                <Alert variant="default" className="bg-green-50 border-green-200">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <AlertTitle>Solicitud exitosa</AlertTitle>
+                  <AlertDescription className="mt-2">
+                    <p className="text-lg font-semibold mb-2">
+                      Tu número de solicitud es:
+                    </p>
+                    <div className="text-3xl font-bold text-green-600 py-3 px-6 rounded-lg bg-green-100 inline-block mx-auto">
+                      {solicitudId}
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-4">
+                      Guarda este número para futuras consultas sobre tu servicio.
+                    </p>
+                  </AlertDescription>
+                </Alert>
+              </div>
             ) : (
+              <div className="py-6 text-center space-y-4">
+                <Alert variant="destructive">
+                  <XCircle className="h-5 w-5" />
+                  <AlertTitle>Error en la solicitud</AlertTitle>
+                  <AlertDescription>
+                    {error}
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+
+            <AlertDialogFooter>
               <Button onClick={onClose} className="w-full">
                 Cerrar
               </Button>
-            )}
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Confirmar compra?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Estás a punto de finalizar tu compra. Esta acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelConfirmation}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSubmitOrder}>Confirmar</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
+            </AlertDialogFooter>
+          </>
+        ) : (
+          <>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirmar Servicio</AlertDialogTitle>
+              <AlertDialogDescription>
+                Revisa los detalles de tu servicio antes de finalizar.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="py-4 text-center space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Al confirmar, se procesará tu solicitud de servicio.
+              </p>
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={onClose}>
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={() => setShowConfirmDialog(true)}
+                className="gap-2"
+              >
+                Confirmar Servicio
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </>
+        )}
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };
 
