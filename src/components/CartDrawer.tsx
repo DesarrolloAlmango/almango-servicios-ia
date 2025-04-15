@@ -43,7 +43,7 @@ interface Municipality {
   name: string;
 }
 
-const getProviderAuxiliary = (location: string): string | null => {
+const getProviderAuxiliary = (location: string, otherLocation?: string): string | null => {
   if (location === "other") return "otro";
   if (location === "NoLoSe") return "NoLoSe";
   return null;
@@ -209,7 +209,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         FechaInstalacion: format(selectedDate!, "yyyy-MM-dd'T'HH:mm:ss"),
         TurnoInstalacion: getTimeSlotNumber(selectedTimeSlot),
         Comentario: data.comments || "",
-        ProveedorAuxiliar: getProviderAuxiliary(location.storeId),
+        ProveedorAuxiliar: getProviderAuxiliary(location.storeId, location.otherLocation),
         items: items.map(item => ({
           RubrosId: Number(item.serviceId),
           MedidasID: Number(item.categoryId),

@@ -29,8 +29,8 @@ export interface CheckoutData {
   items: CheckoutItem[];
 }
 
-export const getProviderAuxiliary = (storeId: string): string | null => {
-  if (storeId === "NoLoSe") return "NoLoSe";
-  if (storeId === "other") return "otro";
+export const getProviderAuxiliary = (storeId: string, otherLocation?: string): string | null => {
+  if (storeId === "unknown") return "NoLoSe";
+  if (storeId === "other" && otherLocation) return otherLocation;
   return null;
 };
