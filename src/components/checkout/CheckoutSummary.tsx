@@ -67,12 +67,16 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         throw new Error(`Error en la respuesta: ${response.status} ${response.statusText}`);
       }
 
-      // Parsea el resultado (retorna un número de solicitud)
+      // Parsea el resultado (retorna un objeto con SolicitudesID)
       const result = await response.json();
       
-      // Guarda el número de solicitud
-      setSolicitudId(result);
-      toast.success(`Solicitud enviada correctamente. Número: ${result}`);
+      // Guarda el número de solicitud (propiedad SolicitudesID)
+      if (result && typeof result.SolicitudesID !== 'undefined') {
+        setSolicitudId(result.SolicitudesID);
+        toast.success(`Solicitud enviada correctamente. Número: ${result.SolicitudesID}`);
+      } else {
+        throw new Error("Formato de respuesta inválido");
+      }
     } catch (err) {
       console.error("Error al enviar la solicitud:", err);
       setError(err instanceof Error ? err.message : "Error desconocido al procesar la solicitud");
@@ -87,7 +91,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-center">
-            {solicitudId ? (
+            {solicitudId !== null ? (
               <div className="flex items-center justify-center gap-2 text-lg text-green-600">
                 <CheckCircle className="h-6 w-6" />
                 <span>¡Solicitud Enviada!</span>
@@ -98,7 +102,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           </DialogTitle>
         </DialogHeader>
 
-        {solicitudId ? (
+        {solicitudId !== null ? (
           <div className="py-6 text-center space-y-4">
             <p className="text-lg font-semibold">
               Tu número de solicitud es:
@@ -142,7 +146,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         )}
 
         <DialogFooter className="flex-col sm:flex-row gap-2">
-          {!solicitudId ? (
+          {solicitudId === null ? (
             <>
               <Button variant="outline" className="flex-1" onClick={onClose}>
                 Cancelar
