@@ -99,6 +99,14 @@ const Servicios = () => {
   const [pendingServiceCardAction, setPendingServiceCardAction] = useState<boolean>(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState<{ serviceId: string, locationName: string } | null>(null);
+  const [titleVisible, setTitleVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setTitleVisible(true);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   const {
     data: services,
@@ -269,7 +277,7 @@ const Servicios = () => {
               </Button>
             </div>
             
-            <h1 className="text-3xl font-normal mb-12 text-center text-[#ff6900] uppercase font-display">Nuestros Servicios</h1>
+            <h1 className="text-3xl font-normal mb-12 text-center text-[#ff6900] uppercase font-display opacity-0 transition-opacity duration-500">Nuestros Servicios</h1>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
               {[...Array(7)].map((_, i) => (
@@ -312,7 +320,13 @@ const Servicios = () => {
             </Button>
           </div>
           
-          <h1 className="text-3xl font-normal mb-12 text-center text-[#ff6900] uppercase font-display">Nuestros Servicios</h1>
+          <h1 
+            className={`text-3xl font-normal mb-12 text-center text-[#ff6900] uppercase font-display transition-all duration-1000 transform ${
+              titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            }`}
+          >
+            Nuestros Servicios
+          </h1>
           
           {isError && (
             <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6 rounded-md">
