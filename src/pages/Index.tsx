@@ -4,61 +4,11 @@ import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { Button } from "@/components/ui/button";
-import ServiceCarousel from "@/components/ServiceCarousel";
-import { useServiceCards } from "@/hooks/useServiceCards";
-import { CartItem } from "@/pages/Servicios";
-import { useState } from "react";
-
 const Index = () => {
-  const { services: installationServices, isLoading: isLoadingInstallation } = useServiceCards();
-  const { services: movingServices, isLoading: isLoadingMoving } = useServiceCards("2");
-  const [cart, setCart] = useState<CartItem[]>([]);
-  
-  const addToCart = (item: CartItem) => {
-    setCart(prev => {
-      const existingItem = prev.find(i => 
-        i.serviceId === item.serviceId && 
-        i.categoryId === item.categoryId && 
-        i.productId === item.productId
-      );
-      
-      if (existingItem) {
-        return prev.map(i => 
-          i.serviceId === item.serviceId && 
-          i.categoryId === item.categoryId && 
-          i.productId === item.productId
-            ? { ...i, quantity: i.quantity + item.quantity }
-            : i
-        );
-      } else {
-        return [...prev, item];
-      }
-    });
-  };
-
   return <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow" id="inicio">
         <Hero />
-        
-        {/* Servicios de Armado e Instalación Carousel */}
-        {!isLoadingInstallation && installationServices.length > 0 && (
-          <ServiceCarousel 
-            title="Servicios de Armado e Instalación" 
-            services={installationServices}
-            addToCart={addToCart}
-          />
-        )}
-        
-        {/* Servicios de Mudanza Carousel */}
-        {!isLoadingMoving && movingServices.length > 0 && (
-          <ServiceCarousel 
-            title="Servicios de Mudanza" 
-            services={movingServices}
-            addToCart={addToCart}
-            endpointSuffix="2"
-          />
-        )}
         
         <section id="servicios" className="py-20 px-4 relative bg-gray-50">
           <div className="container mx-auto">

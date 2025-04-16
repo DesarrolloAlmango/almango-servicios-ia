@@ -15,7 +15,7 @@ interface CartItemsStepProps {
 }
 
 const CartItemsStep: React.FC<CartItemsStepProps> = ({
-  cartItems = [], // Default empty array
+  cartItems,
   updateCartItem,
   total,
   onPrevious,
@@ -39,9 +39,6 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
     }
   };
 
-  // Ensure cartItems is safe to use
-  const safeCartItems = Array.isArray(cartItems) ? cartItems : [];
-
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -50,7 +47,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
         <p className="text-muted-foreground">Revisa los servicios seleccionados</p>
       </div>
 
-      {safeCartItems.length === 0 ? (
+      {cartItems.length === 0 ? (
         <div className="flex-grow flex items-center justify-center py-8">
           <p className="text-muted-foreground text-center">
             Tu carrito está vacío
@@ -60,13 +57,13 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
         <>
           <ScrollArea className="h-[250px] pr-4">
             <div className="space-y-4">
-              {safeCartItems.map((item, index) => (
-                <div key={`${item.productId || index}-${index}`} className="flex items-center gap-4 border-b pb-4">
+              {cartItems.map(item => (
+                <div key={item.id} className="flex items-center gap-4 border-b pb-4">
                   {item.image && (
                     <div className="h-16 w-16 rounded bg-gray-100 overflow-hidden">
                       <img 
                         src={getImageSource(item.image)} 
-                        alt={item.productName} 
+                        alt={item.name} 
                         className="h-full w-full object-cover"
                         onError={(e) => {
                           // Fallback para imágenes que no cargan
@@ -77,8 +74,8 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                   )}
                   
                   <div className="flex-grow">
-                    <p className="font-medium">{item.productName}</p>
-                    <p className="text-sm text-muted-foreground">{item.serviceName} - {item.categoryName}</p>
+                    <p className="font-medium">{item.name}</p>
+                    <p className="text-sm text-muted-foreground">{item.serviceCategory}</p>
                     <p className="font-bold mt-1">${item.price.toFixed(2)}</p>
                   </div>
                   
@@ -88,7 +85,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                         variant="ghost" 
                         size="icon"
                         className="h-8 w-8 p-0"
-                        onClick={() => updateCartItem(item.productId, item.quantity - 1)}
+                        onClick={() => updateCartItem(item.id, item.quantity - 1)}
                       >
                         <Minus size={16} />
                       </Button>
@@ -97,7 +94,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                         variant="ghost" 
                         size="icon"
                         className="h-8 w-8 p-0"
-                        onClick={() => updateCartItem(item.productId, item.quantity + 1)}
+                        onClick={() => updateCartItem(item.id, item.quantity + 1)}
                       >
                         <Plus size={16} />
                       </Button>
@@ -107,7 +104,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                       variant="ghost" 
                       size="icon" 
                       className="text-red-500 h-6 w-6"
-                      onClick={() => updateCartItem(item.productId, 0)}
+                      onClick={() => updateCartItem(item.id, 0)}
                     >
                       <Trash2 size={16} />
                     </Button>
@@ -145,7 +142,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
           </Button>
           <Button 
             onClick={onNext}
-            disabled={safeCartItems.length === 0 || !termsAccepted}
+            disabled={cartItems.length === 0 || !termsAccepted}
             className="bg-primary"
           >
             Siguiente

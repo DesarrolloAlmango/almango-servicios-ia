@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CategoryCarousel from "@/components/CategoryCarousel";
@@ -206,19 +206,15 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     const itemsToAdd = products
       .filter(product => productQuantities[product.id] > 0)
       .map(product => ({
-        serviceId: serviceId || "",
-        serviceName: serviceName,
-        categoryId: category.id,
-        categoryName: category.name,
-        productId: product.id,
-        productName: product.name,
+        id: product.id,
+        name: product.name,
         price: product.price,
         quantity: productQuantities[product.id],
         image: product.image,
-        id: product.id,
-        name: product.name,
         serviceCategory: `${serviceName} - ${category.name}`,
-        purchaseLocationId: purchaseLocationId
+        serviceId: serviceId,
+        categoryId: category.id,
+        productId: product.id
       }));
 
     if (itemsToAdd.length > 0) {
@@ -234,19 +230,15 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     const itemsToAdd = products
       .filter(product => productQuantities[product.id] > 0)
       .map(product => ({
-        serviceId: serviceId || "",
-        serviceName: serviceName,
-        categoryId: category.id,
-        categoryName: category.name,
-        productId: product.id,
-        productName: product.name,
+        id: product.id,
+        name: product.name,
         price: product.price,
         quantity: productQuantities[product.id],
         image: product.image,
-        id: product.id,
-        name: product.name,
         serviceCategory: `${serviceName} - ${category.name}`,
-        purchaseLocationId: purchaseLocationId
+        serviceId: serviceId,
+        categoryId: category.id,
+        productId: product.id
       }));
 
     if (itemsToAdd.length > 0) {

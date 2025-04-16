@@ -165,8 +165,8 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
               <h4 className="font-medium">Productos seleccionados</h4>
               <ul className="text-sm space-y-1">
                 {cartItems.map(item => (
-                  <li key={item.productId} className="flex justify-between">
-                    <span>{item.productName} x{item.quantity}</span>
+                  <li key={item.id} className="flex justify-between">
+                    <span>{item.name} x{item.quantity}</span>
                     <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
                   </li>
                 ))}
