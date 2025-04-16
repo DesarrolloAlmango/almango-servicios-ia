@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -499,7 +500,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               }}
             />
           </div>
-          <div className="relative z-20 px-3 text-center w-full transition-transform duration-300 transform group-hover:translate-y-[-8px]">
+          <div className="relative z-20 px-3 text-center w-full absolute bottom-4 transition-transform duration-300 transform group-hover:translate-y-[-8px]">
             <h3 className={`${circular ? 'text-base' : 'text-xl'} font-bold text-center text-white drop-shadow-md transition-all duration-300 group-hover:text-[#ff6900] line-clamp-2`}>
               {name}
             </h3>
