@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 interface ServiceCardProps {
   id?: string;
   name: string;
-  iconComponent: LucideIcon;
+  iconComponent?: LucideIcon;
   icon?: string;
   addToCart: (item: CartItem) => void;
   externalUrl?: string;
@@ -29,6 +29,7 @@ const CircularServiceCard: React.FC<ServiceCardProps> = ({
   id, 
   name, 
   icon,
+  iconComponent,
   addToCart, 
   externalUrl,
   onBeforeCardClick,

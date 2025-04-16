@@ -52,7 +52,7 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
                   id={service.id}
                   name={service.name}
                   icon={service.icon}
-                  iconComponent={service.iconComponent || (() => null)}
+                  iconComponent={service.iconComponent}
                   addToCart={addToCart}
                   purchaseLocation={purchaseLocation}
                 />
