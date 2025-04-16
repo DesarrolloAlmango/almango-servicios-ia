@@ -362,7 +362,7 @@ const Servicios = () => {
           )}
           
           <div className="mb-12">
-            <ServiceCarousel>
+            <ServiceCarousel title="Servicios de Armado e Instalación">
               {displayedServices?.map((service, index) => {
                 const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
                 

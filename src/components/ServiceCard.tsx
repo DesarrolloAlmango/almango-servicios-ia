@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -327,7 +326,7 @@ interface ServiceCardProps {
     serviceId?: string;
   } | null;
   forceOpen?: boolean;
-  circular?: boolean; // Nueva propiedad para el estilo circular
+  circular?: boolean;
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ 
@@ -340,7 +339,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   onBeforeCardClick,
   purchaseLocation,
   forceOpen = false,
-  circular = false  // Valor por defecto: false
+  circular = false
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -481,14 +480,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     <>
       <Card 
         className={`${circular 
-          ? "aspect-square rounded-full shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 overflow-hidden group"
+          ? "w-[180px] h-[180px] aspect-square rounded-full shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 overflow-hidden group"
           : "w-[280px] h-[200px] rounded-lg shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 overflow-hidden group"
         }`}
         onClick={handleCardClick}
       >
         <CardContent className="p-0 flex flex-col items-center justify-end h-full relative">
           <div className="absolute inset-0 w-full h-full">
-            <div className={`w-full h-full ${circular ? 'bg-gradient-to-t from-black/60 to-transparent' : 'bg-gradient-to-t from-black/60 to-transparent'} absolute inset-0 z-10`} />
+            <div className={`w-full h-full ${circular ? 'bg-gradient-to-t from-black/80 to-transparent' : 'bg-gradient-to-t from-black/60 to-transparent'} absolute inset-0 z-10`} />
             <img 
               src={backgroundImage}
               alt={name}
@@ -500,8 +499,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               }}
             />
           </div>
-          <div className="relative z-20 p-6 text-center w-full transition-transform duration-300 transform group-hover:translate-y-[-8px]">
-            <h3 className="text-xl font-bold text-center text-white drop-shadow-md transition-all duration-300 group-hover:text-[#ff6900]">
+          <div className="relative z-20 p-4 text-center w-full transition-transform duration-300 transform group-hover:translate-y-[-8px]">
+            <h3 className={`${circular ? 'text-base' : 'text-xl'} font-bold text-center text-white drop-shadow-md transition-all duration-300 group-hover:text-[#ff6900] line-clamp-2`}>
               {name}
             </h3>
           </div>
