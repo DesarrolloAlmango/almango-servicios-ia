@@ -67,6 +67,13 @@ const fallbackServices: TarjetaServicio[] = [
   { id: "baby-7", name: "Cuidado Infantil", icon: "Baby" }
 ];
 
+const fallbackMudanzaServices: TarjetaServicio[] = [
+  { id: "mudz-local-1", name: "Mudanza Local", icon: "Truck" },
+  { id: "mudz-inter-2", name: "Mudanza Interestatal", icon: "Truck" },
+  { id: "mudz-corp-3", name: "Mudanza Corporativa", icon: "Package" },
+  { id: "mudz-embalaje-4", name: "Servicio de Embalaje", icon: "Package" }
+];
+
 const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
   try {
     const response = await fetch(
@@ -84,6 +91,27 @@ const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
     return parsedData;
   } catch (error) {
     console.error("Error fetching services:", error);
+    throw error;
+  }
+};
+
+const fetchTarjetasMudanza = async (): Promise<TarjetaServicio[]> => {
+  try {
+    const response = await fetch(
+      "/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios2"
+    );
+    
+    if (!response.ok) {
+      throw new Error("Error al obtener las tarjetas de servicios de mudanza");
+    }
+    
+    const data = await response.json();
+    console.log("Datos de mudanza sin procesar:", data);
+    const parsedData = JSON.parse(data.SDTTarjetasServiciosJson);
+    console.log("Datos de servicios de mudanza parseados:", parsedData);
+    return parsedData;
+  } catch (error) {
+    console.error("Error fetching mudanza services:", error);
     throw error;
   }
 };
@@ -124,7 +152,23 @@ const Servicios = () => {
     }
   });
 
+  const {
+    data: mudanzaServices,
+    isLoading: isLoadingMudanza,
+    isError: isErrorMudanza,
+  } = useQuery({
+    queryKey: ["tarjetasMudanza"],
+    queryFn: fetchTarjetasMudanza,
+    meta: {
+      onError: (error: Error) => {
+        console.error("Error en la consulta de mudanzas:", error);
+        toast.error("No se pudieron cargar los servicios de mudanza. Mostrando datos locales.");
+      }
+    }
+  });
+
   const displayedServices = isError ? fallbackServices : services;
+  const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
 
   const getPurchaseLocationForService = (serviceId: string) => {
     return purchaseLocations.find(location => location.serviceId === serviceId) || null;
@@ -254,7 +298,7 @@ const Servicios = () => {
     toast.success("Lugar de compra y productos asociados eliminados");
   };
 
-  if (isLoading) {
+  if (isLoading && isLoadingMudanza) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
         <main className="flex-grow py-8 px-4">
@@ -292,6 +336,7 @@ const Servicios = () => {
   }
 
   console.log("Servicios recibidos de la API:", displayedServices);
+  console.log("Servicios de mudanza recibidos de la API:", displayedMudanzaServices);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
@@ -372,6 +417,30 @@ const Servicios = () => {
                     id={service.id}
                     name={service.name} 
                     iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Home} 
+                    icon={!isIconKey ? service.icon : undefined}
+                    addToCart={addToCart}
+                    externalUrl={service.url}
+                    onBeforeCardClick={() => handleServiceCardClick(service.id, service.name)}
+                    purchaseLocation={getPurchaseLocationForService(service.id || "")}
+                    forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
+                    circular={true}
+                  />
+                );
+              })}
+            </ServiceCarousel>
+          </div>
+          
+          <div className="mb-12">
+            <ServiceCarousel title="Servicios de Mudanza">
+              {displayedMudanzaServices?.map((service, index) => {
+                const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
+                
+                return (
+                  <ServiceCard 
+                    key={index}
+                    id={service.id}
+                    name={service.name} 
+                    iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Truck} 
                     icon={!isIconKey ? service.icon : undefined}
                     addToCart={addToCart}
                     externalUrl={service.url}
