@@ -32,6 +32,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre es obligatorio" }),
@@ -130,6 +131,16 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     return locations[departmentId]?.[locationId] || locationId;
   };
 
+  const handleSubmit = (data: FormValues) => {
+    if (cartItems.length === 0) {
+      toast.error("No hay servicios en el carrito", {
+        description: "Debes agregar al menos un servicio para continuar."
+      });
+      return;
+    }
+    onSubmit(data);
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -181,7 +192,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       </Accordion>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -373,7 +384,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             )}
           />
 
-          <div className="flex justify-between gap-4 pt-4">
+          <div className="flex justify-between gap-4 pt-4 pb-6">
             <Button type="button" variant="outline" onClick={onPrevious}>
               Anterior
             </Button>
