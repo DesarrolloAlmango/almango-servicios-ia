@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -118,7 +119,7 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
         )}
       </div>
 
-      <div className="flex justify-between gap-4 pt-4">
+      <div className="flex justify-between gap-4 pt-4 pb-6">
         <Button variant="outline" onClick={onPrevious}>
           Anterior
         </Button>

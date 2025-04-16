@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
   Sheet,
   SheetContent,
@@ -70,6 +70,8 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   });
   const [showSummary, setShowSummary] = useState(false);
   const [checkoutData, setCheckoutData] = useState<CheckoutData[]>([]);
+  
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen && departments.length === 0) {
@@ -82,6 +84,17 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
       fetchMunicipalities(selectedDepartment);
     }
   }, [selectedDepartment]);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      setTimeout(() => {
+        contentRef.current?.scrollTo({
+          top: 200,
+          behavior: 'smooth'
+        });
+      }, 100);
+    }
+  }, [currentStep]);
 
   const fetchDepartments = async () => {
     setLoading(prev => ({...prev, departments: true}));
@@ -253,7 +266,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
             </div>
           )}
           
-          <div className="flex flex-col h-[calc(100vh-12rem)] mt-6">
+          <div ref={contentRef} className="flex flex-col h-[calc(100vh-12rem)] mt-6">
             {cartItems.length === 0 && currentStep === 0 ? (
               <div className="flex-grow flex items-center justify-center">
                 <p className="text-muted-foreground text-center">

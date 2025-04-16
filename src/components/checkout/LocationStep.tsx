@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -105,7 +106,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
         </div>
       </div>
 
-      <div className="flex justify-end pt-4 mt-4">
+      <div className="flex justify-end pt-4 pb-6 mt-4">
         <Button 
           onClick={onNext} 
           disabled={!selectedDepartment || !selectedLocation || loading.municipalities || loading.departments}

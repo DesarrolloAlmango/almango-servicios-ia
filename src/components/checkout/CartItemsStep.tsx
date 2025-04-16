@@ -136,7 +136,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
           <span className="font-bold">${total.toFixed(2)}</span>
         </div>
         
-        <div className="flex justify-between gap-4">
+        <div className="flex justify-between gap-4 pb-6">
           <Button variant="outline" onClick={onPrevious}>
             Anterior
           </Button>
