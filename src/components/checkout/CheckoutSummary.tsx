@@ -136,9 +136,14 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Diálogo persistente para mostrar resultados - Prevenir cierre al hacer clic afuera */}
+      {/* Diálogo persistente para mostrar resultados - Sin botón X para cerrar */}
       <Dialog open={showResultDialog} onOpenChange={setShowResultDialog} modal={true}>
-        <DialogContent className="max-w-md" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+        <DialogContent 
+          className="max-w-md" 
+          onPointerDownOutside={(e) => e.preventDefault()} 
+          onEscapeKeyDown={(e) => e.preventDefault()}
+          hideCloseButton={true} // Ocultar el botón X para cerrar
+        >
           <DialogHeader>
             <DialogTitle className="text-center">
               {solicitudId !== null ? (

@@ -8,7 +8,7 @@ import {
   RadioGroupItem 
 } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { User, ClipboardList, CreditCard, Banknote } from "lucide-react";
+import { User, ClipboardList, CreditCard, Banknote, AlertCircle } from "lucide-react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -125,6 +125,16 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       return;
     }
     onSubmit(data);
+  };
+
+  const handlePaymentMethodChange = (value: string) => {
+    if (value === "now") {
+      toast.warning("Método de pago no disponible", {
+        description: "Momentáneamente esta forma de pago no está disponible."
+      });
+      return;
+    }
+    form.setValue("paymentMethod", value);
   };
 
   return (
@@ -308,7 +318,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                 <FormLabel>Forma de pago</FormLabel>
                 <FormControl>
                   <RadioGroup
-                    onValueChange={field.onChange}
+                    onValueChange={handlePaymentMethodChange}
                     defaultValue={field.value}
                     className="flex flex-col space-y-1"
                   >
@@ -320,10 +330,14 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                       </Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="now" id="payment-now" />
-                      <Label htmlFor="payment-now" className="flex items-center gap-2">
+                      <RadioGroupItem value="now" id="payment-now" disabled={true} />
+                      <Label 
+                        htmlFor="payment-now" 
+                        className="flex items-center gap-2 opacity-50 cursor-not-allowed"
+                      >
                         Pagar ahora (Mercado Pago)
                         <CreditCard size={18} className="text-sky-500" />
+                        <AlertCircle size={16} className="text-amber-500" />
                       </Label>
                     </div>
                   </RadioGroup>
