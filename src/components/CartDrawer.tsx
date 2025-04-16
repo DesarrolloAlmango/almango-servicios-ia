@@ -31,6 +31,7 @@ interface CartDrawerProps {
     serviceId?: string;
     serviceName?: string;
   }[];
+  setPurchaseLocations?: (locations: any[]) => void;
 }
 
 interface Department {
@@ -55,7 +56,8 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   cartItems, 
   updateCartItem, 
   total,
-  purchaseLocations = []
+  purchaseLocations = [],
+  setPurchaseLocations
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedDepartment, setSelectedDepartment] = useState("");
@@ -250,6 +252,9 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     cartItems.forEach(item => {
       updateCartItem(item.id, 0);
     });
+    if (setPurchaseLocations) {
+      setPurchaseLocations([]);
+    }
   };
 
   const handleCheckoutClose = (success: boolean) => {

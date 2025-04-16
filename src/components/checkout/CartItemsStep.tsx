@@ -5,6 +5,7 @@ import { Trash2, Plus, Minus, ShoppingCart } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CartItem } from "@/pages/Servicios";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 
 interface CartItemsStepProps {
   cartItems: CartItem[];
@@ -37,6 +38,15 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
     } catch {
       return `data:image/png;base64,${imageString}`;
     }
+  };
+
+  // Added function to validate cart before proceeding
+  const handleNext = () => {
+    if (cartItems.length === 0) {
+      toast.error("No hay productos en el carrito. Agrega al menos un servicio para continuar.");
+      return;
+    }
+    onNext();
   };
 
   return (
@@ -142,7 +152,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
             Anterior
           </Button>
           <Button 
-            onClick={onNext}
+            onClick={handleNext}
             disabled={cartItems.length === 0 || !termsAccepted}
             className="bg-primary"
           >
