@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -326,6 +327,7 @@ interface ServiceCardProps {
     serviceId?: string;
   } | null;
   forceOpen?: boolean;
+  circular?: boolean; // Nueva propiedad para el estilo circular
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ 
@@ -337,7 +339,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   externalUrl,
   onBeforeCardClick,
   purchaseLocation,
-  forceOpen = false
+  forceOpen = false,
+  circular = false  // Valor por defecto: false
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -473,18 +476,19 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   };
 
   const backgroundImage = getCardBackground();
-  console.log("Icon data received:", icon);
-  console.log("Background image set to:", backgroundImage);
 
   return (
     <>
       <Card 
-        className="w-[280px] h-[200px] rounded-lg shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 overflow-hidden group"
+        className={`${circular 
+          ? "aspect-square rounded-full shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 overflow-hidden group"
+          : "w-[280px] h-[200px] rounded-lg shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 overflow-hidden group"
+        }`}
         onClick={handleCardClick}
       >
         <CardContent className="p-0 flex flex-col items-center justify-end h-full relative">
           <div className="absolute inset-0 w-full h-full">
-            <div className="w-full h-full bg-gradient-to-t from-black/60 to-transparent absolute inset-0 z-10" />
+            <div className={`w-full h-full ${circular ? 'bg-gradient-to-t from-black/60 to-transparent' : 'bg-gradient-to-t from-black/60 to-transparent'} absolute inset-0 z-10`} />
             <img 
               src={backgroundImage}
               alt={name}

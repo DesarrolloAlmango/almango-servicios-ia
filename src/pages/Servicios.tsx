@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "@/components/ServiceCard";
 import CartDrawer from "@/components/CartDrawer";
+import ServiceCarousel from "@/components/ServiceCarousel";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -279,10 +280,10 @@ const Servicios = () => {
             
             <h1 className="text-3xl font-normal mb-12 text-center text-[#ff6900] uppercase font-display opacity-0 transition-opacity duration-500">Nuestros Servicios</h1>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
-              {[...Array(7)].map((_, i) => (
-                <Skeleton key={i} className="h-48 w-full max-w-sm" />
-              ))}
+            <div className="flex justify-center items-center h-64">
+              <Skeleton className="h-48 w-48 rounded-full" />
+              <Skeleton className="h-48 w-48 rounded-full ml-4" />
+              <Skeleton className="h-48 w-48 rounded-full ml-4" />
             </div>
           </div>
         </main>
@@ -360,13 +361,14 @@ const Servicios = () => {
             </div>
           )}
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto max-w-6xl justify-items-center">
-            {displayedServices?.map((service, index) => {
-              const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
-              
-              return (
-                <div key={index} className="w-full max-w-[280px]">
+          <div className="mb-12">
+            <ServiceCarousel>
+              {displayedServices?.map((service, index) => {
+                const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
+                
+                return (
                   <ServiceCard 
+                    key={index}
                     id={service.id}
                     name={service.name} 
                     iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Home} 
@@ -376,10 +378,11 @@ const Servicios = () => {
                     onBeforeCardClick={() => handleServiceCardClick(service.id, service.name)}
                     purchaseLocation={getPurchaseLocationForService(service.id || "")}
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
+                    circular={true}
                   />
-                </div>
-              );
-            })}
+                );
+              })}
+            </ServiceCarousel>
           </div>
         </div>
         
