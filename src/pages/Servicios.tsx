@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
@@ -29,8 +29,12 @@ export interface CartItem {
 const Servicios = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
-  const { services: installationServices, isLoading: isLoadingInstallation } = useServiceCards();
-  const { services: movingServices, isLoading: isLoadingMoving } = useServiceCards("2");
+  const { services: installationServices = [], isLoading: isLoadingInstallation } = useServiceCards();
+  const { services: movingServices = [], isLoading: isLoadingMoving } = useServiceCards("2");
+  
+  // Add default values to prevent undefined
+  const safeInstallationServices = installationServices || [];
+  const safeMovingServices = movingServices || [];
   
   const addToCart = (item: CartItem) => {
     setCart(prev => {
@@ -107,23 +111,19 @@ const Servicios = () => {
             </div>
             
             {/* Servicios de Armado e Instalación Carousel */}
-            {!isLoadingInstallation && installationServices.length > 0 && (
-              <ServiceCarousel 
-                title="Servicios de Armado e Instalación" 
-                services={installationServices}
-                addToCart={addToCart}
-              />
-            )}
+            <ServiceCarousel 
+              title="Servicios de Armado e Instalación" 
+              services={safeInstallationServices}
+              addToCart={addToCart}
+            />
             
             {/* Servicios de Mudanza Carousel */}
-            {!isLoadingMoving && movingServices.length > 0 && (
-              <ServiceCarousel 
-                title="Servicios de Mudanza" 
-                services={movingServices}
-                addToCart={addToCart}
-                endpointSuffix="2"
-              />
-            )}
+            <ServiceCarousel 
+              title="Servicios de Mudanza" 
+              services={safeMovingServices}
+              addToCart={addToCart}
+              endpointSuffix="2"
+            />
             
             <div className="text-center mt-12">
               <Button 

@@ -27,11 +27,23 @@ interface ServiceCarouselProps {
 
 const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ 
   title, 
-  services,
+  services = [], // Provide default empty array
   addToCart,
   endpointSuffix
 }) => {
   const [purchaseLocation, setPurchaseLocation] = useState<any>(null);
+
+  // Check if services is undefined or empty
+  if (!services || services.length === 0) {
+    return (
+      <section className="py-12 px-4 bg-white">
+        <div className="container mx-auto">
+          <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center text-secondary font-display">{title}</h2>
+          <div className="text-center text-gray-500">No hay servicios disponibles</div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-12 px-4 bg-white">

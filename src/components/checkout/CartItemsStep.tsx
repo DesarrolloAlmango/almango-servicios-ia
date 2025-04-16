@@ -15,7 +15,7 @@ interface CartItemsStepProps {
 }
 
 const CartItemsStep: React.FC<CartItemsStepProps> = ({
-  cartItems,
+  cartItems = [], // Default empty array
   updateCartItem,
   total,
   onPrevious,
@@ -39,6 +39,9 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
     }
   };
 
+  // Ensure cartItems is safe to use
+  const safeCartItems = Array.isArray(cartItems) ? cartItems : [];
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -47,7 +50,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
         <p className="text-muted-foreground">Revisa los servicios seleccionados</p>
       </div>
 
-      {cartItems.length === 0 ? (
+      {safeCartItems.length === 0 ? (
         <div className="flex-grow flex items-center justify-center py-8">
           <p className="text-muted-foreground text-center">
             Tu carrito está vacío
@@ -57,8 +60,8 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
         <>
           <ScrollArea className="h-[250px] pr-4">
             <div className="space-y-4">
-              {cartItems.map((item, index) => (
-                <div key={`${item.productId}-${index}`} className="flex items-center gap-4 border-b pb-4">
+              {safeCartItems.map((item, index) => (
+                <div key={`${item.productId || index}-${index}`} className="flex items-center gap-4 border-b pb-4">
                   {item.image && (
                     <div className="h-16 w-16 rounded bg-gray-100 overflow-hidden">
                       <img 
@@ -142,7 +145,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
           </Button>
           <Button 
             onClick={onNext}
-            disabled={cartItems.length === 0 || !termsAccepted}
+            disabled={safeCartItems.length === 0 || !termsAccepted}
             className="bg-primary"
           >
             Siguiente

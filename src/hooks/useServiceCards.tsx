@@ -30,17 +30,25 @@ export const useServiceCards = (endpointSuffix: string = "") => {
         
         const data = await response.json();
         
-        const transformedServices = data.map((service: any) => ({
-          id: service.id || service.Nivel0Id,
-          name: service.name || service.Nivel0Descripcion,
-          icon: service.image || service.Imagen || "",
-        }));
-        
-        setServices(transformedServices);
+        // Make sure data is an array before mapping
+        if (Array.isArray(data)) {
+          const transformedServices = data.map((service: any) => ({
+            id: service.id || service.Nivel0Id || "",
+            name: service.name || service.Nivel0Descripcion || "Servicio",
+            icon: service.image || service.Imagen || "",
+          }));
+          
+          setServices(transformedServices);
+        } else {
+          console.error("Data is not an array:", data);
+          setServices([]);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error desconocido');
         toast.error("Error al cargar servicios");
         console.error("Error fetching services:", err);
+        // Set empty array on error to prevent undefined
+        setServices([]);
       } finally {
         setIsLoading(false);
       }
