@@ -10,6 +10,7 @@ import ServiceCarousel from "@/components/ServiceCarousel";
 import { useServiceCards } from "@/hooks/useServiceCards";
 
 export interface CartItem {
+  id?: string;
   serviceId: string;
   serviceName: string;
   categoryId: string;
@@ -19,6 +20,8 @@ export interface CartItem {
   price: number;
   quantity: number;
   image?: string;
+  name?: string;
+  serviceCategory?: string;
   purchaseLocationId?: string;
   purchaseLocationName?: string;
 }
@@ -77,7 +80,10 @@ const Servicios = () => {
   
   return (
     <div className="min-h-screen flex flex-col">
-      <Header cartItemCount={cart.length} onCartClick={() => setIsCartOpen(true)} />
+      <Header 
+        cartItemCount={cart.length} 
+        onCartClick={() => setIsCartOpen(true)} 
+      />
       
       <main className="flex-grow">
         <section className="py-12 px-4 bg-gray-50">

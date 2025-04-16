@@ -58,12 +58,12 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
           <ScrollArea className="h-[250px] pr-4">
             <div className="space-y-4">
               {cartItems.map(item => (
-                <div key={item.id} className="flex items-center gap-4 border-b pb-4">
+                <div key={item.productId} className="flex items-center gap-4 border-b pb-4">
                   {item.image && (
                     <div className="h-16 w-16 rounded bg-gray-100 overflow-hidden">
                       <img 
                         src={getImageSource(item.image)} 
-                        alt={item.name} 
+                        alt={item.productName} 
                         className="h-full w-full object-cover"
                         onError={(e) => {
                           // Fallback para imágenes que no cargan
@@ -74,8 +74,8 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                   )}
                   
                   <div className="flex-grow">
-                    <p className="font-medium">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">{item.serviceCategory}</p>
+                    <p className="font-medium">{item.productName}</p>
+                    <p className="text-sm text-muted-foreground">{item.serviceName} - {item.categoryName}</p>
                     <p className="font-bold mt-1">${item.price.toFixed(2)}</p>
                   </div>
                   
@@ -85,7 +85,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                         variant="ghost" 
                         size="icon"
                         className="h-8 w-8 p-0"
-                        onClick={() => updateCartItem(item.id, item.quantity - 1)}
+                        onClick={() => updateCartItem(item.productId, item.quantity - 1)}
                       >
                         <Minus size={16} />
                       </Button>
@@ -94,7 +94,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                         variant="ghost" 
                         size="icon"
                         className="h-8 w-8 p-0"
-                        onClick={() => updateCartItem(item.id, item.quantity + 1)}
+                        onClick={() => updateCartItem(item.productId, item.quantity + 1)}
                       >
                         <Plus size={16} />
                       </Button>
@@ -104,7 +104,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                       variant="ghost" 
                       size="icon" 
                       className="text-red-500 h-6 w-6"
-                      onClick={() => updateCartItem(item.id, 0)}
+                      onClick={() => updateCartItem(item.productId, 0)}
                     >
                       <Trash2 size={16} />
                     </Button>

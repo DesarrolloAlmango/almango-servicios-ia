@@ -204,15 +204,19 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     const itemsToAdd = products
       .filter(product => productQuantities[product.id] > 0)
       .map(product => ({
-        id: product.id,
-        name: product.name,
+        serviceId: serviceId || "",
+        serviceName: serviceName,
+        categoryId: category.id,
+        categoryName: category.name,
+        productId: product.id,
+        productName: product.name,
         price: product.price,
         quantity: productQuantities[product.id],
         image: product.image,
+        id: product.id,
+        name: product.name,
         serviceCategory: `${serviceName} - ${category.name}`,
-        serviceId: serviceId,
-        categoryId: category.id,
-        productId: product.id
+        purchaseLocationId: purchaseLocationId
       }));
 
     if (itemsToAdd.length > 0) {
@@ -228,15 +232,19 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     const itemsToAdd = products
       .filter(product => productQuantities[product.id] > 0)
       .map(product => ({
-        id: product.id,
-        name: product.name,
+        serviceId: serviceId || "",
+        serviceName: serviceName,
+        categoryId: category.id,
+        categoryName: category.name,
+        productId: product.id,
+        productName: product.name,
         price: product.price,
         quantity: productQuantities[product.id],
         image: product.image,
+        id: product.id,
+        name: product.name,
         serviceCategory: `${serviceName} - ${category.name}`,
-        serviceId: serviceId,
-        categoryId: category.id,
-        productId: product.id
+        purchaseLocationId: purchaseLocationId
       }));
 
     if (itemsToAdd.length > 0) {
