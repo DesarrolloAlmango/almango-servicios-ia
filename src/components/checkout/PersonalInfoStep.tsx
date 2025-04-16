@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,6 +63,8 @@ interface PersonalInfoStepProps {
   selectedLocation: string;
   selectedDate?: Date;
   selectedTimeSlot: string;
+  departments: Array<{ id: string; name: string; }>;
+  municipalities: Record<string, Array<{ id: string; name: string; }>>;
 }
 
 const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
@@ -73,6 +76,8 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   selectedLocation,
   selectedDate,
   selectedTimeSlot,
+  departments,
+  municipalities,
 }) => {
   const [showOrderSummary, setShowOrderSummary] = useState(false);
   
@@ -102,33 +107,14 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   };
 
   const getDepartmentName = (departmentId: string) => {
-    const departments: Record<string, string> = {
-      "1": "Montevideo",
-      "2": "Canelones",
-      "3": "Maldonado"
-    };
-    return departments[departmentId] || departmentId;
+    const department = departments.find(dept => dept.id === departmentId);
+    return department ? department.name : departmentId;
   };
 
   const getLocationName = (departmentId: string, locationId: string) => {
-    const locations: Record<string, Record<string, string>> = {
-      "1": {
-        "1-1": "Centro",
-        "1-2": "Pocitos",
-        "1-3": "Carrasco"
-      },
-      "2": {
-        "2-1": "Ciudad de la Costa",
-        "2-2": "Las Piedras",
-        "2-3": "Pando"
-      },
-      "3": {
-        "3-1": "Punta del Este",
-        "3-2": "Maldonado",
-        "3-3": "San Carlos"
-      }
-    };
-    return locations[departmentId]?.[locationId] || locationId;
+    const municipalitiesList = municipalities[departmentId] || [];
+    const municipality = municipalitiesList.find(mun => mun.id === locationId);
+    return municipality ? municipality.name : locationId;
   };
 
   const handleSubmit = (data: FormValues) => {

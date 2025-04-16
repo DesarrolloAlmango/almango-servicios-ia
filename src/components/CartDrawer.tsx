@@ -241,6 +241,25 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     setShowSummary(true);
   };
 
+  const resetCheckoutForm = () => {
+    setCurrentStep(0);
+    setSelectedDepartment("");
+    setSelectedLocation("");
+    setSelectedDate(undefined);
+    setSelectedTimeSlot("");
+    cartItems.forEach(item => {
+      updateCartItem(item.id, 0);
+    });
+  };
+
+  const handleCheckoutClose = (success: boolean) => {
+    setShowSummary(false);
+    
+    if (success) {
+      resetCheckoutForm();
+    }
+  };
+
   return (
     <>
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -322,6 +341,8 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                       selectedLocation={selectedLocation}
                       selectedDate={selectedDate}
                       selectedTimeSlot={selectedTimeSlot}
+                      departments={departments}
+                      municipalities={municipalities}
                     />
                   )}
                 </div>
@@ -333,7 +354,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
       
       <CheckoutSummary 
         isOpen={showSummary}
-        onClose={() => setShowSummary(false)}
+        onClose={handleCheckoutClose}
         data={checkoutData}
       />
     </>

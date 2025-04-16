@@ -114,7 +114,8 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
             </div>
           </ScrollArea>
 
-          <div className="flex items-start gap-2 pt-2">
+          {/* Reduced margin here (mt-2 instead of pt-2) */}
+          <div className="flex items-start gap-2 mt-2">
             <Checkbox 
               id="terms" 
               checked={termsAccepted}

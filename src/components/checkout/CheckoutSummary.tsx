@@ -25,7 +25,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 interface CheckoutSummaryProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (success: boolean) => void;
   data: CheckoutData[];
 }
 
@@ -99,14 +99,14 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
   const handleCloseResultDialog = () => {
     setShowResultDialog(false);
-    onClose();
+    onClose(solicitudId !== null);
   };
 
   return (
     <>
       <AlertDialog open={isOpen} onOpenChange={(open) => {
         if (!open && !solicitudId && !error) {
-          onClose();
+          onClose(false);
         }
       }}>
         <AlertDialogContent className="max-w-md">
@@ -117,7 +117,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={onClose}>
+            <AlertDialogCancel onClick={() => onClose(false)}>
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction 
