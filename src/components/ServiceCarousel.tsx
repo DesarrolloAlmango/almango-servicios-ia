@@ -18,6 +18,9 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
     return <div className="text-center py-8">No hay servicios disponibles</div>;
   }
 
+  // Determinar si debe centrarse (cuando hay pocos elementos)
+  const shouldCenter = children.length <= 2;
+
   return (
     <div className="w-full max-w-screen-xl mx-auto">
       {title && (
@@ -25,14 +28,17 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
       )}
       <Carousel
         opts={{
-          align: "center",
-          loop: true,
+          align: shouldCenter ? "center" : "start",
+          loop: children.length > 2,
         }}
         className="w-full"
       >
         <CarouselContent className="-ml-4 md:-ml-6">
           {children.map((child, index) => (
-            <CarouselItem key={index} className="pl-4 md:pl-6 sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
+            <CarouselItem 
+              key={index} 
+              className={`pl-4 md:pl-6 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 ${shouldCenter ? "mx-auto" : ""}`}
+            >
               <div className="flex items-center justify-center py-4">
                 {child}
               </div>
