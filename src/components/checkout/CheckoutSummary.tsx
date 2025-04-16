@@ -22,6 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { useNavigate } from "react-router-dom";
 
 interface CheckoutSummaryProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   onClose,
   data,
 }) => {
+  const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [solicitudId, setSolicitudId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -100,6 +102,8 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const handleCloseResultDialog = () => {
     setShowResultDialog(false);
     onClose(solicitudId !== null);
+    // Redirigir a la página de Servicios
+    navigate('/servicios');
   };
 
   return (
@@ -132,9 +136,9 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Diálogo persistente para mostrar resultados */}
-      <Dialog open={showResultDialog} onOpenChange={setShowResultDialog}>
-        <DialogContent className="max-w-md">
+      {/* Diálogo persistente para mostrar resultados - Prevenir cierre al hacer clic afuera */}
+      <Dialog open={showResultDialog} onOpenChange={setShowResultDialog} modal={true}>
+        <DialogContent className="max-w-md" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
           <DialogHeader>
             <DialogTitle className="text-center">
               {solicitudId !== null ? (

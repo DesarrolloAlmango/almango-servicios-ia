@@ -462,6 +462,7 @@ const Servicios = () => {
           updateCartItem={updateCartItem}
           total={getCartTotal()}
           purchaseLocations={getAllPurchaseLocations()}
+          setPurchaseLocations={setPurchaseLocations}
         />
         
         <PurchaseLocationModal 
