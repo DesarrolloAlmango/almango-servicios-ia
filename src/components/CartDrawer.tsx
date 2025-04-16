@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { 
   Sheet,
@@ -55,7 +56,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   cartItems, 
   updateCartItem, 
   total,
-  purchaseLocations = []
+  purchaseLocations = [] // Provide default empty array
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedDepartment, setSelectedDepartment] = useState("");
@@ -75,13 +76,13 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     if (isOpen && departments.length === 0) {
       fetchDepartments();
     }
-  }, [isOpen]);
+  }, [isOpen, departments.length]);
 
   useEffect(() => {
     if (selectedDepartment && !municipalities[selectedDepartment]) {
       fetchMunicipalities(selectedDepartment);
     }
-  }, [selectedDepartment]);
+  }, [selectedDepartment, municipalities]);
 
   const fetchDepartments = async () => {
     setLoading(prev => ({...prev, departments: true}));
@@ -97,8 +98,8 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
       const formattedDepartments = data.map((item: any) => ({
         id: item.DepartamentoId?.toString() || "",
         name: item.DepartamentoDepartamento?.toString() || ""
-      })).filter(dept => dept.id && dept.name)
-        .sort((a, b) => a.name.localeCompare(b.name));
+      })).filter((dept: any) => dept.id && dept.name)
+        .sort((a: any, b: any) => a.name.localeCompare(b.name));
 
       setDepartments(formattedDepartments);
     } catch (error) {
@@ -133,8 +134,8 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           id: item.DepartamentoMunicipioId?.toString() || "",
           name: item.DepartamentoMunicipioNombre?.toString() || ""
         }))
-        .filter(mun => mun.id && mun.name && mun.name !== "-")
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .filter((mun: any) => mun.id && mun.name && mun.name !== "-")
+        .sort((a: any, b: any) => a.name.localeCompare(b.name));
 
       setMunicipalities(prev => ({
         ...prev,
@@ -153,12 +154,12 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   };
 
   const getTimeSlotNumber = (timeSlot: string): string => {
-    const timeRanges = {
+    const timeRanges: Record<string, string> = {
       "08:00 - 12:00": "1",
       "12:00 - 16:00": "2",
       "16:00 - 20:00": "3"
     };
-    return timeRanges[timeSlot as keyof typeof timeRanges] || "1";
+    return timeRanges[timeSlot] || "1";
   };
 
   const handleNextStep = () => {
@@ -174,8 +175,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   };
 
   const handleSubmit = (data: any) => {
+    // Ensure purchaseLocations exists and is an array before using it
+    const safeLocations = Array.isArray(purchaseLocations) ? purchaseLocations : [];
+    
     const serviceGroups = cartItems.reduce((acc: Record<string, any[]>, item) => {
-      const location = purchaseLocations.find(loc => loc.serviceId === item.serviceId);
+      const location = safeLocations.find(loc => loc.serviceId === item.serviceId);
       if (location) {
         if (!acc[item.serviceId]) {
           acc[item.serviceId] = [];
@@ -189,7 +193,8 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     }, {});
 
     const checkoutDataArray: CheckoutData[] = Object.entries(serviceGroups).map(([serviceId, items]) => {
-      const location = items[0].location;
+      const firstItem = items[0] || {};
+      const location = firstItem.location || {};
       const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       
       const formattedData: CheckoutData = {
@@ -206,10 +211,10 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         SolicitaCotizacion: total.toString(),
         SolicitaOtroServicio: "",
         OtroServicioDetalle: "",
-        FechaInstalacion: format(selectedDate!, "yyyy-MM-dd'T'HH:mm:ss"),
+        FechaInstalacion: selectedDate ? format(selectedDate, "yyyy-MM-dd'T'HH:mm:ss") : "",
         TurnoInstalacion: getTimeSlotNumber(selectedTimeSlot),
         Comentario: data.comments || "",
-        ProveedorAuxiliar: getProviderAuxiliary(location.storeId, location.otherLocation),
+        ProveedorAuxiliar: getProviderAuxiliary(location.storeId || "", location.otherLocation),
         items: items.map(item => ({
           RubrosId: Number(item.serviceId),
           MedidasID: Number(item.categoryId),
@@ -236,7 +241,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
             <SheetTitle>Carrito de Servicios</SheetTitle>
           </SheetHeader>
           
-          {purchaseLocations.length > 0 && (
+          {purchaseLocations && purchaseLocations.length > 0 && (
             <div className="mt-4 p-3 rounded-lg border-[1px] border-blue-200 bg-blue-50">
               <h4 className="text-sm font-medium text-blue-700 mb-1">Lugares de compra registrados:</h4>
               <div className="space-y-1">
@@ -254,7 +259,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           )}
           
           <div className="flex flex-col h-[calc(100vh-12rem)] mt-6">
-            {cartItems.length === 0 && currentStep === 0 ? (
+            {(!cartItems || cartItems.length === 0) && currentStep === 0 ? (
               <div className="flex-grow flex items-center justify-center">
                 <p className="text-muted-foreground text-center">
                   Tu carrito está vacío
@@ -278,7 +283,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                     />
                   )}
                   
-                  {currentStep === 1 && (
+                  {currentStep === 1 && cartItems && (
                     <CartItemsStep 
                       cartItems={cartItems}
                       updateCartItem={updateCartItem}
@@ -299,7 +304,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                     />
                   )}
                   
-                  {currentStep === 3 && (
+                  {currentStep === 3 && cartItems && (
                     <PersonalInfoStep 
                       onPrevious={handlePreviousStep}
                       onSubmit={handleSubmit}

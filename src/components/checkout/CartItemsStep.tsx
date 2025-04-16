@@ -57,8 +57,8 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
         <>
           <ScrollArea className="h-[250px] pr-4">
             <div className="space-y-4">
-              {cartItems.map(item => (
-                <div key={item.productId} className="flex items-center gap-4 border-b pb-4">
+              {cartItems.map((item, index) => (
+                <div key={`${item.productId}-${index}`} className="flex items-center gap-4 border-b pb-4">
                   {item.image && (
                     <div className="h-16 w-16 rounded bg-gray-100 overflow-hidden">
                       <img 

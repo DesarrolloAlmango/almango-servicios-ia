@@ -77,13 +77,21 @@ const Servicios = () => {
   const clearCart = () => {
     setCart([]);
   };
+
+  const updateCartItem = (id: string, quantity: number) => {
+    setCart(prev => {
+      if (quantity <= 0) {
+        return prev.filter(item => item.productId !== id);
+      }
+      return prev.map(item => item.productId === id ? { ...item, quantity } : item);
+    });
+  };
+
+  const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   
   return (
     <div className="min-h-screen flex flex-col">
-      <Header 
-        cartItemCount={cart.length} 
-        onCartClick={() => setIsCartOpen(true)} 
-      />
+      <Header />
       
       <main className="flex-grow">
         <section className="py-12 px-4 bg-gray-50">
@@ -131,11 +139,10 @@ const Servicios = () => {
       
       <CartDrawer 
         isOpen={isCartOpen} 
-        onClose={() => setIsCartOpen(false)} 
-        cart={cart}
-        removeFromCart={removeFromCart}
-        updateQuantity={updateCartItemQuantity}
-        clearCart={clearCart}
+        setIsOpen={setIsCartOpen} 
+        cartItems={cart}
+        updateCartItem={updateCartItem}
+        total={total}
       />
       
       <Footer />
