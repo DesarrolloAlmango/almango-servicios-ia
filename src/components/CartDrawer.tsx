@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Sheet,
@@ -16,7 +17,7 @@ import { MapPin } from "lucide-react";
 import { format } from "date-fns";
 import CheckoutSummary from "./checkout/CheckoutSummary";
 import { CheckoutData } from "@/types/checkoutTypes";
-import { getTimeSlotNumber, formatLocationInfo } from "@/utils/timeUtils";
+import { getTimeSlotNumber } from "@/utils/timeUtils";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -69,6 +70,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   const [showSummary, setShowSummary] = useState(false);
   const [checkoutData, setCheckoutData] = useState<CheckoutData[]>([]);
   
+  // Create departments and municipalities state to pass to PersonalInfoStep
   const [departments, setDepartments] = useState<Department[]>([]);
   const [municipalities, setMunicipalities] = useState<Record<string, Municipality[]>>({});
   
@@ -93,8 +95,10 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     setCurrentStep((prev) => Math.max(prev - 1, 0));
   };
 
+  // Extract department and location info from purchase locations
   useEffect(() => {
     if (purchaseLocations.length > 0) {
+      // Extract unique departments from purchase locations
       const uniqueDepartments = new Map<string, Department>();
       
       purchaseLocations.forEach(location => {
@@ -108,6 +112,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
       
       setDepartments(Array.from(uniqueDepartments.values()));
       
+      // Extract municipalities (locations) organized by department
       const locationsByDepartment: Record<string, Municipality[]> = {};
       
       purchaseLocations.forEach(location => {
@@ -116,6 +121,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
             locationsByDepartment[location.departmentId] = [];
           }
           
+          // Check if location already exists in the array
           const exists = locationsByDepartment[location.departmentId].some(
             m => m.id === location.locationId
           );
@@ -150,10 +156,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
 
     const checkoutDataArray: CheckoutData[] = Object.entries(serviceGroups).map(([serviceId, items]) => {
       const location = items[0].location;
-      const serviceItems = items.map(item => ({
-        ...item,
-        serviceCategory: item.serviceCategory
-      }));
       const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       
       const formattedData: CheckoutData = {
@@ -174,15 +176,14 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         TurnoInstalacion: getTimeSlotNumber(selectedTimeSlot),
         Comentario: data.comments || "",
         ProveedorAuxiliar: getProviderAuxiliary(location.storeId, location.otherLocation),
-        items: serviceItems.map(item => ({
+        items: items.map(item => ({
           RubrosId: Number(item.serviceId),
           MedidasID: Number(item.categoryId),
           InventarioId: Number(item.productId),
           SolicitudesItemsCantidad: item.quantity,
           SolicitudItemsSR: "N",
           SolicitudItemsComision: 0,
-          SolicitudItemsComisionTipo: "P",
-          serviceCategory: item.serviceCategory
+          SolicitudItemsComisionTipo: "P"
         }))
       };
 
