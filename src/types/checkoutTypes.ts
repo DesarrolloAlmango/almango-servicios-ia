@@ -5,8 +5,9 @@ export interface CheckoutItem {
   InventarioId: number | null;
   SolicitudesItemsCantidad: number;
   SolicitudItemsSR: string;
-  SolicitudItemsComision: number;
   SolicitudItemsComisionTipo: string;
+  SolicitudItemsComision: number;
+  serviceName?: string;
 }
 
 export interface CheckoutData {
@@ -27,6 +28,7 @@ export interface CheckoutData {
   TurnoInstalacion: string;
   Comentario: string;
   ProveedorAuxiliar: string | null;
+  serviceName?: string;
   items: CheckoutItem[];
 }
 
@@ -35,4 +37,9 @@ export const getProviderAuxiliary = (storeId: string, otherLocation?: string): s
   if (storeId === "other" && otherLocation) return otherLocation;
   return null;
 };
+
+export interface ServiceRequest {
+  solicitudId: number;
+  serviceName: string;
+}
 
