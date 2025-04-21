@@ -16,7 +16,15 @@ interface Store {
 interface PurchaseLocationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectLocation: (storeId: string, storeName: string, otherLocation?: string) => void;
+  onSelectLocation: (
+    storeId: string, 
+    storeName: string, 
+    departmentId: string,
+    departmentName: string,
+    locationId: string,
+    locationName: string,
+    otherLocation?: string
+  ) => void;
   stores?: Store[];
   serviceName?: string;
 }
@@ -216,8 +224,19 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     const storeName = selectedStore === "other" 
       ? otherStore 
       : selected?.name || "";
+    
+    const selectedDepartmentObj = departments.find(dept => dept.id === selectedDepartment);
+    const selectedLocationObj = currentMunicipalities.find(mun => mun.id === selectedLocation);
 
-    onSelectLocation(selectedStore, storeName, selectedStore === "other" ? otherStore : undefined);
+    onSelectLocation(
+      selectedStore, 
+      storeName,
+      selectedDepartment,
+      selectedDepartmentObj?.name || "",
+      selectedLocation,
+      selectedLocationObj?.name || "",
+      selectedStore === "other" ? otherStore : undefined
+    );
     onClose();
   };
 

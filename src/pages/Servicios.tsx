@@ -45,6 +45,10 @@ interface PurchaseLocation {
   otherLocation?: string;
   serviceId?: string;
   serviceName?: string;
+  departmentId?: string;
+  departmentName?: string;
+  locationId?: string;
+  locationName?: string;
 }
 
 const iconComponents = {
@@ -250,14 +254,26 @@ const Servicios = () => {
     }
   };
 
-  const handleLocationSelect = (storeId: string, storeName: string, otherLocation?: string) => {
+  const handleLocationSelect = (
+    storeId: string, 
+    storeName: string, 
+    departmentId: string,
+    departmentName: string,
+    locationId: string,
+    locationName: string,
+    otherLocation?: string
+  ) => {
     if (selectedServiceId && selectedServiceName) {
       const newLocation: PurchaseLocation = { 
         storeId, 
         storeName, 
         otherLocation,
         serviceId: selectedServiceId,
-        serviceName: selectedServiceName
+        serviceName: selectedServiceName,
+        departmentId,
+        departmentName,
+        locationId,
+        locationName
       };
       
       setPurchaseLocations(prev => [...prev, newLocation]);
