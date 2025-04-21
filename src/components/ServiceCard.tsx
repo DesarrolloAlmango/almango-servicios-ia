@@ -569,5 +569,5 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     </>
   );
 };
-
+/*commit*/
 export default ServiceCard;
