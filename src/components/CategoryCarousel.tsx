@@ -74,13 +74,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
             </CarouselItem>
           ))}
         </CarouselContent>
-        {/* Flechas sólo visibles en pantallas no móviles */}
-        {!isMobile && (
-          <>
-            <CarouselPrevious className="left-0 hidden sm:flex" />
-            <CarouselNext className="right-0 hidden sm:flex" />
-          </>
-        )}
+        {/* Flechas visibles en todas las pantallas */}
+        <CarouselPrevious className="left-0 sm:flex -translate-x-4" />
+        <CarouselNext className="right-0 sm:flex translate-x-4" />
       </Carousel>
     </div>
   );
