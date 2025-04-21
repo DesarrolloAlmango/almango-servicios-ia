@@ -1,3 +1,4 @@
+
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
@@ -5,7 +6,7 @@ import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::",
+    host: "::", // Mantener esta configuración
     port: 8080,
     proxy: {
       '/api': {
@@ -13,6 +14,10 @@ export default defineConfig(({ mode }) => ({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
         secure: false,
+        // Añadir esta línea para forzar el cambio de origen
+        headers: {
+          'X-Forwarded-Host': 'localhost'
+        }
       }
     }
   },
