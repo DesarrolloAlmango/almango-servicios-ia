@@ -1,4 +1,3 @@
-
 export interface CheckoutItem {
   RubrosId: number;
   MedidasID: number | null;
@@ -7,6 +6,7 @@ export interface CheckoutItem {
   SolicitudItemsSR: string;
   SolicitudItemsComision: number;
   SolicitudItemsComisionTipo: string;
+  serviceCategory?: string; // Add the serviceCategory property as optional
 }
 
 export interface CheckoutData {
@@ -35,4 +35,3 @@ export const getProviderAuxiliary = (storeId: string, otherLocation?: string): s
   if (storeId === "other" && otherLocation) return otherLocation;
   return null;
 };
-

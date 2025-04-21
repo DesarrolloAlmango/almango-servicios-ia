@@ -119,8 +119,10 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       
       // Verificar si el ID es mayor que cero para considerarlo exitoso
       if (result && typeof result.SolicitudesID !== 'undefined' && result.SolicitudesID > 0) {
-        // Añadir el resultado exitoso
+        // Obtener la categoría del servicio de manera segura
         const serviceCategory = checkoutItem.items?.[0]?.serviceCategory || "Servicio";
+        
+        // Añadir el resultado exitoso
         setResults(prev => [...prev, { 
           solicitudId: result.SolicitudesID, 
           error: null,
@@ -142,8 +144,10 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     } catch (err) {
       console.error(`Error al procesar la solicitud ${currentItemIndex + 1}:`, err);
       
-      // Registrar el error para este ítem
+      // Obtener la categoría del servicio de manera segura
       const serviceCategory = data[currentItemIndex]?.items?.[0]?.serviceCategory || "Servicio";
+      
+      // Registrar el error para este ítem
       setResults(prev => [...prev, { 
         solicitudId: 0, 
         error: err instanceof Error ? err.message : "Error desconocido",
