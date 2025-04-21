@@ -42,6 +42,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const [otherStore, setOtherStore] = useState<string>("");
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [localStores, setLocalStores] = useState<Store[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [municipalities, setMunicipalities] = useState<Record<string, Municipality[]>>({});
   const [selectedDepartment, setSelectedDepartment] = useState("");
@@ -179,11 +180,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
 
-      setStores(validStores);
+      setLocalStores(validStores);
     } catch (error) {
       console.error("Error al obtener proveedores:", error);
       toast.warning("No se pudieron cargar los proveedores. Usando opciones básicas.");
-      setStores([]);
+      setLocalStores([]);
     } finally {
       setLoading(false);
     }
@@ -223,7 +224,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   // Combinar opciones fijas primero y luego los proveedores
   const displayedStores = [
     ...fixedStores,
-    ...(stores)
+    ...localStores
   ];
 
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
