@@ -26,11 +26,11 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
   const isMobile = useIsMobile();
   
   return (
-    <div className="py-4 sm:py-6 w-full">
+    <div className="py-4 sm:py-6 w-full max-w-full overflow-hidden">
       <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 truncate mx-auto">Selecciona una categoría</h3>
       
       <Carousel
-        className="w-full max-w-xs xs:max-w-sm sm:max-w-md md:max-w-xl lg:max-w-3xl mx-auto"
+        className="w-full max-w-full mx-auto"
         opts={{ 
           align: "center",
           loop: true
