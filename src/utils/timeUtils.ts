@@ -14,3 +14,26 @@ export const getTimeSlotNumber = (timeSlot: string): string => {
       return "1"; // Default to morning if not specified
   }
 };
+
+/**
+ * Formats location information for display
+ */
+export const formatLocationInfo = (departmentId?: string, locationId?: string, departments: any[] = [], municipalities: Record<string, any[]> = {}): string => {
+  if (!departmentId || !locationId) {
+    return "Ubicación no registrada";
+  }
+
+  const department = departments.find(d => d.id === departmentId);
+  
+  if (!department || !municipalities[departmentId]) {
+    return "Ubicación parcial";
+  }
+
+  const municipality = municipalities[departmentId].find(m => m.id === locationId);
+  
+  if (!municipality) {
+    return department.name;
+  }
+
+  return `${department.name}, ${municipality.name}`;
+};

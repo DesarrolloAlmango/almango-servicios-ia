@@ -205,16 +205,24 @@ const Servicios = () => {
   };
 
   const addToCart = (item: CartItem) => {
+    const serviceLocation = purchaseLocations.find(loc => loc.serviceId === item.serviceId);
+    
+    const itemWithLocation = serviceLocation ? {
+      ...item,
+      departmentId: serviceLocation.departmentId,
+      locationId: serviceLocation.locationId
+    } : item;
+    
     setCartItems(prevItems => {
-      const existingItem = prevItems.find(i => i.id === item.id);
+      const existingItem = prevItems.find(i => i.id === itemWithLocation.id);
       if (existingItem) {
         return prevItems.map(i => 
-          i.id === item.id 
-            ? { ...i, quantity: i.quantity + item.quantity } 
+          i.id === itemWithLocation.id 
+            ? { ...i, quantity: i.quantity + itemWithLocation.quantity } 
             : i
         );
       } else {
-        return [...prevItems, item];
+        return [...prevItems, itemWithLocation];
       }
     });
   };

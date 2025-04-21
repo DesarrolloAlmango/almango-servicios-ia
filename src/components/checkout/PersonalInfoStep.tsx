@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +8,7 @@ import {
   RadioGroupItem 
 } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { User, ClipboardList, CreditCard, Banknote, AlertCircle } from "lucide-react";
+import { User, ClipboardList, CreditCard, Banknote, AlertCircle, MapPin } from "lucide-react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -118,6 +119,18 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     return municipality ? municipality.name : locationId;
   };
 
+  const getServiceLocation = (item: CartItem) => {
+    // Si no hay ID de departamento o municipio, buscar en las purchaseLocations del item
+    if (!item.departmentId || !item.locationId) {
+      return "Ubicación no registrada";
+    }
+
+    const departmentName = getDepartmentName(item.departmentId);
+    const locationName = getLocationName(item.departmentId, item.locationId);
+    
+    return `${departmentName}, ${locationName}`;
+  };
+
   const handleSubmit = (data: FormValues) => {
     if (cartItems.length === 0) {
       toast.error("No hay servicios en el carrito", {
@@ -161,15 +174,16 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             <div className="space-y-2">
               <h4 className="font-medium">Servicios y ubicaciones</h4>
               {cartItems.map((item, index) => {
-                const serviceLocation = item.departmentId && item.locationId ? 
-                  `${getDepartmentName(item.departmentId || "")}, ${getLocationName(item.departmentId || "", item.locationId || "")}` : 
-                  "No especificada";
+                const serviceLocation = getServiceLocation(item);
                 
                 return (
                   <div key={index} className="text-sm">
-                    <p className="text-muted-foreground">
+                    <p className="text-muted-foreground flex items-start gap-1">
                       <span className="font-medium">{item.serviceCategory}: </span>
-                      <span>{serviceLocation}</span>
+                      <span className="flex items-center gap-1">
+                        <MapPin size={12} className="text-primary mt-0.5" />
+                        {serviceLocation}
+                      </span>
                     </p>
                   </div>
                 )
