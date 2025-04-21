@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { MapPin } from "lucide-react";
+import { MapPin, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Store {
@@ -21,6 +21,16 @@ interface PurchaseLocationModalProps {
   serviceName?: string;
 }
 
+interface Department {
+  id: string;
+  name: string;
+}
+
+interface Municipality {
+  id: string;
+  name: string;
+}
+
 const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   isOpen,
   onClose,
@@ -31,10 +41,17 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const [selectedStore, setSelectedStore] = useState<string>("");
   const [otherStore, setOtherStore] = useState<string>("");
   const [showOtherInput, setShowOtherInput] = useState(false);
-  const [apiStores, setApiStores] = useState<Store[]>([]);
   const [loading, setLoading] = useState(false);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [municipalities, setMunicipalities] = useState<Record<string, Municipality[]>>({});
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [loadingLocation, setLoadingLocation] = useState({
+    departments: false,
+    municipalities: false
+  });
 
-  // Opciones fijas que deben aparecer primero
+  // Fixed stores that should appear first
   const fixedStores: Store[] = [
     { id: "other", name: "Otro" },
     { id: "unknown", name: "No lo sé" }
@@ -43,12 +60,90 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       fetchProviders();
+      fetchDepartments();
       // Reset values when modal opens
       setSelectedStore("");
       setOtherStore("");
       setShowOtherInput(false);
+      setSelectedDepartment("");
+      setSelectedLocation("");
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (selectedDepartment && !municipalities[selectedDepartment]) {
+      fetchMunicipalities(selectedDepartment);
+    }
+  }, [selectedDepartment]);
+
+  const fetchDepartments = async () => {
+    setLoadingLocation(prev => ({...prev, departments: true}));
+    try {
+      const response = await fetch("/api/AlmangoXV1NETFramework/WebAPI/ObtenerDepto");
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      const formattedDepartments = data.map((item: any) => ({
+        id: item.DepartamentoId?.toString() || "",
+        name: item.DepartamentoDepartamento?.toString() || ""
+      })).filter(dept => dept.id && dept.name)
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      setDepartments(formattedDepartments);
+    } catch (error) {
+      console.error("Error fetching departments:", error);
+      toast.error("No se pudieron cargar los departamentos");
+      setDepartments([
+        { id: "1", name: "Montevideo" },
+        { id: "2", name: "Canelones" },
+        { id: "3", name: "Maldonado" }
+      ]);
+    } finally {
+      setLoadingLocation(prev => ({...prev, departments: false}));
+    }
+  };
+
+  const fetchMunicipalities = async (departmentId: string) => {
+    setLoadingLocation(prev => ({...prev, municipalities: true}));
+    setSelectedLocation("");
+    try {
+      const response = await fetch(
+        `/api/AlmangoXV1NETFramework/WebAPI/ObtenerMunicipio?DepartamentoId=${departmentId}`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      const formattedMunicipalities = data
+        .map((item: any) => ({
+          id: item.DepartamentoMunicipioId?.toString() || "",
+          name: item.DepartamentoMunicipioNombre?.toString() || ""
+        }))
+        .filter(mun => mun.id && mun.name && mun.name !== "-")
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      setMunicipalities(prev => ({
+        ...prev,
+        [departmentId]: formattedMunicipalities
+      }));
+    } catch (error) {
+      console.error("Error fetching municipalities:", error);
+      toast.error("No se pudieron cargar las localidades");
+      setMunicipalities(prev => ({
+        ...prev,
+        [departmentId]: []
+      }));
+    } finally {
+      setLoadingLocation(prev => ({...prev, municipalities: false}));
+    }
+  };
 
   const fetchProviders = async () => {
     setLoading(true);
@@ -82,23 +177,17 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
           name: item.ProveedorNombre.toString(),
           logo: item.ProveedorLogo?.toString() || ""
         }))
-        .sort((a, b) => a.name.localeCompare(b.name)); // Ordenar alfabéticamente
+        .sort((a, b) => a.name.localeCompare(b.name));
 
-      setApiStores(validStores);
+      setStores(validStores);
     } catch (error) {
       console.error("Error al obtener proveedores:", error);
       toast.warning("No se pudieron cargar los proveedores. Usando opciones básicas.");
-      setApiStores([]);
+      setStores([]);
     } finally {
       setLoading(false);
     }
   };
-
-  // Combinar opciones fijas primero y luego los proveedores de la API
-  const displayedStores = [
-    ...fixedStores,
-    ...(apiStores.length > 0 ? apiStores : stores)
-  ];
 
   const handleStoreChange = (value: string) => {
     setSelectedStore(value);
@@ -117,27 +206,30 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       return;
     }
 
+    if (!selectedDepartment || !selectedLocation) {
+      toast.error("Por favor selecciona departamento y localidad");
+      return;
+    }
+
     const selected = displayedStores.find(store => store.id === selectedStore);
     const storeName = selectedStore === "other" 
       ? otherStore 
       : selected?.name || "";
 
     onSelectLocation(selectedStore, storeName, selectedStore === "other" ? otherStore : undefined);
-  };
-
-  // Handle clean close - important for preventing double-opens
-  const handleCloseModal = () => {
-    // Reset state completely before closing
-    setSelectedStore("");
-    setOtherStore("");
-    setShowOtherInput(false);
-    
-    // Call the provided onClose prop
     onClose();
   };
 
+  // Combinar opciones fijas primero y luego los proveedores
+  const displayedStores = [
+    ...fixedStores,
+    ...(stores)
+  ];
+
+  const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
+
   return (
-    <Dialog open={isOpen} onOpenChange={handleCloseModal}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogTitle className="text-center">
           Selección de Lugar de Compra
@@ -157,7 +249,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
           )}
         </div>
 
-        <div className="space-y-4 mb-4">
+        <div className="space-y-4">
           <div className="space-y-2">
             <label className="block text-sm font-medium">
               Lugar de Compra
@@ -192,20 +284,73 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
               />
             )}
           </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium">
+              Departamento
+            </label>
+            <Select 
+              value={selectedDepartment} 
+              onValueChange={(value) => {
+                setSelectedDepartment(value);
+                setSelectedLocation("");
+              }}
+              disabled={loadingLocation.departments}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={
+                  loadingLocation.departments ? "Cargando departamentos..." : "Selecciona un departamento"
+                } />
+              </SelectTrigger>
+              <SelectContent>
+                {departments.map(dept => (
+                  <SelectItem key={dept.id} value={dept.id}>
+                    {dept.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium">
+              Localidad
+            </label>
+            <Select 
+              value={selectedLocation} 
+              onValueChange={setSelectedLocation}
+              disabled={!selectedDepartment || loadingLocation.municipalities}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={
+                  loadingLocation.municipalities ? "Cargando localidades..." : 
+                  !selectedDepartment ? "Selecciona un departamento primero" : 
+                  "Selecciona una localidad"
+                } />
+              </SelectTrigger>
+              <SelectContent>
+                {currentMunicipalities.map(municipality => (
+                  <SelectItem key={municipality.id} value={municipality.id}>
+                    {municipality.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={handleCloseModal}>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>
           <Button 
             onClick={handleConfirm}
-            disabled={loading}
+            disabled={loading || !selectedStore || (selectedStore === "other" && !otherStore.trim()) || !selectedDepartment || !selectedLocation}
             className="bg-orange-500 hover:bg-orange-600"
           >
             Confirmar
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
