@@ -512,10 +512,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent 
           className={
-            `max-w-4xl w-full max-h-[90vh] overflow-y-auto p-0
+            `max-w-[850px] w-full max-h-[90vh] overflow-y-auto p-0
             ${isShowingCategoryCarousel ? 
-              "sm:max-w-2xl w-[100%] sm:w-auto rounded-none sm:rounded-lg"
-              : ""}`
+              "sm:max-w-[850px] w-[100%] sm:w-auto rounded-none sm:rounded-lg"
+              : "max-w-4xl"}`
           }
         >
           <div className="p-4 sm:p-6">
@@ -569,5 +569,5 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     </>
   );
 };
-
+/*comit*/
 export default ServiceCard;
