@@ -76,8 +76,19 @@ const fallbackMudanzaServices: TarjetaServicio[] = [
 
 const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
   try {
-    console.log("Using fallback services due to API issues");
-    return fallbackServices;
+    const response = await fetch(
+      "/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios"
+    );
+    
+    if (!response.ok) {
+      throw new Error("Error al obtener las tarjetas de servicios");
+    }
+    
+    const data = await response.json();
+    console.log("Datos de la API sin procesar:", data);
+    const parsedData = JSON.parse(data.SDTTarjetasServiciosJson);
+    console.log("Datos de servicios parseados:", parsedData);
+    return parsedData;
   } catch (error) {
     console.error("Error fetching services:", error);
     throw error;
@@ -86,8 +97,19 @@ const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
 
 const fetchTarjetasMudanza = async (): Promise<TarjetaServicio[]> => {
   try {
-    console.log("Using fallback mudanza services due to API issues");
-    return fallbackMudanzaServices;
+    const response = await fetch(
+      "/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios2"
+    );
+    
+    if (!response.ok) {
+      throw new Error("Error al obtener las tarjetas de servicios de mudanza");
+    }
+    
+    const data = await response.json();
+    console.log("Datos de mudanza sin procesar:", data);
+    const parsedData = JSON.parse(data.SDTTarjetasServiciosJson);
+    console.log("Datos de servicios de mudanza parseados:", parsedData);
+    return parsedData;
   } catch (error) {
     console.error("Error fetching mudanza services:", error);
     throw error;
@@ -145,8 +167,8 @@ const Servicios = () => {
     }
   });
 
-  const displayedServices = services || fallbackServices;
-  const displayedMudanzaServices = mudanzaServices || fallbackMudanzaServices;
+  const displayedServices = isError ? fallbackServices : services;
+  const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
 
   const getPurchaseLocationForService = (serviceId: string) => {
     return purchaseLocations.find(location => location.serviceId === serviceId) || null;

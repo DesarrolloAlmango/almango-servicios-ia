@@ -27,8 +27,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
   
   return (
     <div className="py-4 sm:py-6 w-full">
-      <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 truncate mx-auto">Selecciona una categoría</h3>
-      
+      <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 truncate mx-auto">
+        Selecciona una categoría
+      </h3>
       <Carousel
         className="w-full max-w-xs xs:max-w-sm sm:max-w-md md:max-w-xl lg:max-w-3xl mx-auto"
         opts={{ 
@@ -36,7 +37,13 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
           loop: true
         }}
       >
-        <CarouselContent className="-ml-2 sm:-ml-4">
+        <CarouselContent
+          className={`
+            -ml-2 sm:-ml-4
+            ${isMobile ? "overflow-x-auto" : "overflow-x-hidden"} 
+            scrollbar-hide
+          `}
+        >
           {categories.map(category => (
             <CarouselItem 
               key={category.id}
@@ -44,6 +51,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
                 basis-1/2 
                 sm:basis-1/3 
                 lg:basis-1/4
+                xl:basis-1/5
+                2xl:basis-1/6
                 pl-2 sm:pl-4
               "
             >
@@ -54,12 +63,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2">
                   <AspectRatio ratio={1} className="bg-gray-100">
                     <img
-                      src={category.image || "/placeholder.svg"} 
+                      src={category.image}
                       alt={category.name}
                       className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = "/placeholder.svg";
-                      }}
                     />
                   </AspectRatio>
                 </div>
@@ -68,8 +74,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="left-0 sm:flex" />
-        <CarouselNext className="right-0 sm:flex" />
+        {/* Flechas visibles en todas las pantallas */}
+        <CarouselPrevious className="left-0 sm:flex -translate-x-4" />
+        <CarouselNext className="right-0 sm:flex translate-x-4" />
       </Carousel>
     </div>
   );
