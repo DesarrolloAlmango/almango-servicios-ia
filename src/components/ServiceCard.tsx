@@ -517,6 +517,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               "sm:max-w-2xl w-[100%] sm:w-auto rounded-none sm:rounded-lg"
               : ""}`
           }
+          style={{ width: isShowingCategoryCarousel ? 'auto' : '', maxWidth: isShowingCategoryCarousel ? '768px' : '4xl' }}
         >
           <div className="p-4 sm:p-6">
             <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4 text-center px-3 mx-auto text-orange-500 truncate">{name}</h2>
