@@ -36,7 +36,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
           loop: true
         }}
       >
-        <CarouselContent className="-ml-2 sm:-ml-4">
+        <CarouselContent className="-ml-2 sm:-ml-4 overflow-x-auto md:overflow-x-hidden">
           {categories.map(category => (
             <CarouselItem 
               key={category.id}
@@ -44,6 +44,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
                 basis-1/2 
                 sm:basis-1/3 
                 lg:basis-1/4
+                xl:basis-1/4
+                2xl:basis-1/4
                 pl-2 sm:pl-4
               "
             >
