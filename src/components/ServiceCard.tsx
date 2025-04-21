@@ -476,8 +476,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 
   const backgroundImage = getCardBackground();
 
-  const isSelectingCategory = !selectedCategory && !isLoading && !error;
-
   return (
     <>
       <Card 
@@ -510,23 +508,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       </Card>
       
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent 
-          className={
-            `max-w-4xl w-full max-h-[90vh] overflow-y-auto p-0 
-            ${isSelectingCategory ? "sm:max-w-md max-w-full w-full px-0 py-0 sm:p-6 rounded-none sm:rounded-lg" : ""}
-            `
-          }
-          style={isSelectingCategory ? {
-            width: "100vw",
-            maxWidth: "100vw",
-            padding: 0,
-            borderRadius: 0,
-            minHeight: "100svh",
-            height: "100svh",
-            boxSizing: "border-box",
-          } : {}}
-        >
-          <div className={`p-6 ${isSelectingCategory ? "sm:p-6 p-2" : ""}`}>
+        <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto p-0">
+          <div className="p-6">
             <h2 className="text-2xl font-bold mb-4 text-center uppercase text-orange-500">{name}</h2>
             
             {purchaseLocation && (
@@ -556,14 +539,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                 </Button>
               </div>
             ) : !selectedCategory ? (
-              <div className="w-full">
-                <div className="sm:rounded-lg rounded-none bg-white w-full mx-auto max-w-full overflow-x-hidden">
-                  <CategoryCarousel 
-                    categories={categories} 
-                    onSelectCategory={handleCategorySelect} 
-                  />
-                </div>
-              </div>
+              <CategoryCarousel 
+                categories={categories} 
+                onSelectCategory={handleCategorySelect} 
+              />
             ) : (
               <ProductGrid 
                 category={selectedCategory} 
@@ -576,25 +555,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               />
             )}
           </div>
-          <style>
-            {isSelectingCategory ? `
-              @media (max-width: 640px) {
-                .dialog-content { 
-                  border-radius: 0 !important;
-                  max-width: 100vw !important;
-                  padding: 0 !important;
-                }
-                .category-carousel {
-                  padding-left: 0 !important;
-                  padding-right: 0 !important;
-                  margin-left: 0 !important;
-                  margin-right: 0 !important;
-                  width: 100vw !important;
-                  max-width: 100vw !important;
-                }
-              }
-            ` : ''}
-          </style>
         </DialogContent>
       </Dialog>
     </>
