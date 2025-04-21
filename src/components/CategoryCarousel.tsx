@@ -54,9 +54,12 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2">
                   <AspectRatio ratio={1} className="bg-gray-100">
                     <img
-                      src={category.image}
+                      src={category.image || "/placeholder.svg"} 
                       alt={category.name}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder.svg";
+                      }}
                     />
                   </AspectRatio>
                 </div>
@@ -65,12 +68,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
             </CarouselItem>
           ))}
         </CarouselContent>
-        {!isMobile && (
-          <>
-            <CarouselPrevious className="left-0 hidden sm:flex" />
-            <CarouselNext className="right-0 hidden sm:flex" />
-          </>
-        )}
+        <CarouselPrevious className="left-0 sm:flex" />
+        <CarouselNext className="right-0 sm:flex" />
       </Carousel>
     </div>
   );
