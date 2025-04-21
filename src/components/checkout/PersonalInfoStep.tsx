@@ -134,11 +134,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       });
       return;
     }
-    
-    // Fix: Ensure we're only setting a valid enum value
-    if (value === "later") {
-      form.setValue("paymentMethod", value);
-    }
+    form.setValue("paymentMethod", value);
   };
 
   return (
