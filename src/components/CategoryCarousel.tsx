@@ -27,9 +27,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
   
   return (
     <div className="py-4 sm:py-6 w-full">
-      <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 truncate mx-auto">{/* Siempre centrado */}
-        Selecciona una categoría
-      </h3>
+      <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 truncate mx-auto">Selecciona una categoría</h3>
+      
       <Carousel
         className="w-full max-w-xs xs:max-w-sm sm:max-w-md md:max-w-xl lg:max-w-3xl mx-auto"
         opts={{ 
@@ -37,17 +36,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
           loop: true
         }}
       >
-        <CarouselContent
-          className={`
-            -ml-2 sm:-ml-4
-            overflow-x-auto sm:overflow-x-visible
-            scrollbar-hide
-          `}
-          style={{
-            // Evita el scroll en pantallas sm en adelante
-            WebkitOverflowScrolling: isMobile ? "touch" : "auto"
-          }}
-        >
+        <CarouselContent className="-ml-2 sm:-ml-4">
           {categories.map(category => (
             <CarouselItem 
               key={category.id}
@@ -76,7 +65,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
             </CarouselItem>
           ))}
         </CarouselContent>
-        {/* Flechas sólo visibles en pantallas no móviles */}
         {!isMobile && (
           <>
             <CarouselPrevious className="left-0 hidden sm:flex" />
@@ -89,4 +77,3 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
 };
 
 export default CategoryCarousel;
-
