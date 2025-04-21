@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Sheet,
@@ -70,7 +69,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   const [showSummary, setShowSummary] = useState(false);
   const [checkoutData, setCheckoutData] = useState<CheckoutData[]>([]);
   
-  // Create departments and municipalities state to pass to PersonalInfoStep
   const [departments, setDepartments] = useState<Department[]>([]);
   const [municipalities, setMunicipalities] = useState<Record<string, Municipality[]>>({});
   
@@ -95,10 +93,8 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     setCurrentStep((prev) => Math.max(prev - 1, 0));
   };
 
-  // Extract department and location info from purchase locations
   useEffect(() => {
     if (purchaseLocations.length > 0) {
-      // Extract unique departments from purchase locations
       const uniqueDepartments = new Map<string, Department>();
       
       purchaseLocations.forEach(location => {
@@ -112,7 +108,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
       
       setDepartments(Array.from(uniqueDepartments.values()));
       
-      // Extract municipalities (locations) organized by department
       const locationsByDepartment: Record<string, Municipality[]> = {};
       
       purchaseLocations.forEach(location => {
@@ -121,7 +116,6 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
             locationsByDepartment[location.departmentId] = [];
           }
           
-          // Check if location already exists in the array
           const exists = locationsByDepartment[location.departmentId].some(
             m => m.id === location.locationId
           );
@@ -178,12 +172,12 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         ProveedorAuxiliar: getProviderAuxiliary(location.storeId, location.otherLocation),
         items: items.map(item => ({
           RubrosId: Number(item.serviceId),
-          MedidasID: Number(item.categoryId),
-          InventarioId: Number(item.productId),
-          SolicitudesItemsCantidad: item.quantity,
-          SolicitudItemsSR: "N",
-          SolicitudItemsComision: 0,
-          SolicitudItemsComisionTipo: "P"
+          ProductoID: Number(item.categoryId),
+          DetalleId: Number(item.productId),
+          Cantidad: item.quantity,
+          SR: "N",
+          ComisionTipo: "P",
+          Comision: 0
         }))
       };
 

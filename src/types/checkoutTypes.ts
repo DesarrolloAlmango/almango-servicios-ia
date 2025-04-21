@@ -1,11 +1,12 @@
+
 export interface CheckoutItem {
   RubrosId: number;
-  MedidasID: number | null;
-  InventarioId: number | null;
-  SolicitudesItemsCantidad: number;
-  SolicitudItemsSR: string;
-  SolicitudItemsComisionTipo: string;
-  SolicitudItemsComision: number;
+  ProductoID: number | null;
+  DetalleId: number | null;
+  Cantidad: number;
+  SR: string;
+  ComisionTipo: string;
+  Comision: number;
   serviceName?: string;
 }
 
@@ -34,7 +35,7 @@ export interface CheckoutData {
 export interface ServiceRequest {
   solicitudId: number;
   serviceName: string;
-  requestData: CheckoutData;  // Add the request data to store the JSON
+  requestData: CheckoutData;
 }
 
 export const getProviderAuxiliary = (storeId: string, otherLocation?: string): string | null => {
@@ -42,3 +43,4 @@ export const getProviderAuxiliary = (storeId: string, otherLocation?: string): s
   if (storeId === "other" && otherLocation) return otherLocation;
   return null;
 };
+
