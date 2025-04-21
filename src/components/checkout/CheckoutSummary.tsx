@@ -42,6 +42,8 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const [showResultDialog, setShowResultDialog] = useState(false);
   const [processingService, setProcessingService] = useState<string | null>(null);
   const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
+  const [showDebugDialog, setShowDebugDialog] = useState(false);
+  const [selectedRequestData, setSelectedRequestData] = useState<CheckoutData | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -50,6 +52,8 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       setShowResultDialog(false);
       setProcessingService(null);
       setSelectedServiceId(null);
+      setShowDebugDialog(false);
+      setSelectedRequestData(null);
     }
   }, [isOpen]);
 
@@ -83,13 +87,13 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       setError(null);
       setServiceRequests([]);
 
-      // Procesar cada servicio secuencialmente
       for (const serviceData of data) {
         setProcessingService(serviceData.serviceName || 'Servicio');
         const solicitudId = await processServiceRequest(serviceData);
         setServiceRequests(prev => [...prev, {
           solicitudId,
-          serviceName: serviceData.serviceName || 'Servicio'
+          serviceName: serviceData.serviceName || 'Servicio',
+          requestData: serviceData
         }]);
       }
 
@@ -110,10 +114,9 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     navigate('/servicios');
   };
 
-  const handleViewServiceDetails = (solicitudId: number) => {
-    setSelectedServiceId(solicitudId);
-    // Aquí se podría implementar la lógica para mostrar los detalles de la solicitud
-    console.log(`Ver detalles de la solicitud: ${solicitudId}`);
+  const handleViewServiceDetails = (request: ServiceRequest) => {
+    setSelectedRequestData(request.requestData);
+    setShowDebugDialog(true);
   };
 
   return (
@@ -199,7 +202,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                           variant="outline"
                           size="sm"
                           className="ml-2"
-                          onClick={() => handleViewServiceDetails(request.solicitudId)}
+                          onClick={() => handleViewServiceDetails(request)}
                         >
                           <Search className="h-4 w-4 mr-1" />
                           Ver detalle
@@ -229,6 +232,22 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
             <Button onClick={handleCloseResultDialog} className="w-full">
               Cerrar
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDebugDialog} onOpenChange={setShowDebugDialog}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalle de la Solicitud</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            <pre className="bg-slate-100 p-4 rounded-lg overflow-x-auto">
+              {JSON.stringify(selectedRequestData, null, 2)}
+            </pre>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setShowDebugDialog(false)}>Cerrar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

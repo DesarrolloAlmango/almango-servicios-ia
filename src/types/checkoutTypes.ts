@@ -1,4 +1,3 @@
-
 export interface CheckoutItem {
   RubrosId: number;
   MedidasID: number | null;
@@ -32,14 +31,14 @@ export interface CheckoutData {
   items: CheckoutItem[];
 }
 
+export interface ServiceRequest {
+  solicitudId: number;
+  serviceName: string;
+  requestData: CheckoutData;  // Add the request data to store the JSON
+}
+
 export const getProviderAuxiliary = (storeId: string, otherLocation?: string): string | null => {
   if (storeId === "unknown") return "No lo sé";
   if (storeId === "other" && otherLocation) return otherLocation;
   return null;
 };
-
-export interface ServiceRequest {
-  solicitudId: number;
-  serviceName: string;
-}
-
