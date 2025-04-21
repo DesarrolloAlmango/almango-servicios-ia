@@ -173,11 +173,13 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         items: items.map(item => ({
           RubrosId: Number(item.serviceId),
           ProductoID: Number(item.categoryId),
-          DetalleId: Number(item.productId),
+          DetalleID: Number(item.productId),
           Cantidad: item.quantity,
+          Precio: Number(item.price.toFixed(2)),
           SR: "N",
+          Comision: 0,
           ComisionTipo: "P",
-          Comision: 0
+          PrecioFinal: Number((item.price * item.quantity).toFixed(2))
         }))
       };
 

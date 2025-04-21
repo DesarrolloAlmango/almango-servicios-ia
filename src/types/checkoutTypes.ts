@@ -1,12 +1,13 @@
-
 export interface CheckoutItem {
   RubrosId: number;
   ProductoID: number | null;
-  DetalleId: number | null;
+  DetalleID: number | null;
   Cantidad: number;
+  Precio: number;
   SR: string;
-  ComisionTipo: string;
   Comision: number;
+  ComisionTipo: string;
+  PrecioFinal: number;
   serviceName?: string;
 }
 
@@ -43,4 +44,3 @@ export const getProviderAuxiliary = (storeId: string, otherLocation?: string): s
   if (storeId === "other" && otherLocation) return otherLocation;
   return null;
 };
-
