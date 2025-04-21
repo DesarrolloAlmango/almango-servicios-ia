@@ -35,7 +35,18 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
       >
         <CarouselContent>
           {categories.map(category => (
-            <CarouselItem key={category.id} className="md:basis-1/3 lg:basis-1/4">
+            <CarouselItem 
+              key={category.id}
+              className="
+                basis-1/2 
+                sm:basis-1/3 
+                lg:basis-1/4
+                max-w-[200px]
+                sm:max-w-[none]
+                px-2
+              "
+              // En pantallas pequeñas se verán 2 categorías (basis-1/2)
+            >
               <div 
                 className="cursor-pointer hover:scale-105 transition-transform"
                 onClick={() => onSelectCategory(category)}

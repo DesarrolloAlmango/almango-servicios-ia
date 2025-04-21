@@ -476,6 +476,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 
   const backgroundImage = getCardBackground();
 
+  const isShowingCategoryCarousel = !selectedCategory && !isLoading && !error;
+
   return (
     <>
       <Card 
@@ -508,8 +510,15 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       </Card>
       
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-4xl w-full max-h-[90vh] overflow-y-auto p-0">
-          <div className="p-6">
+        <DialogContent 
+          className={
+            `max-w-4xl w-full max-h-[90vh] overflow-y-auto p-0
+            ${isShowingCategoryCarousel ? 
+              "sm:p-0 p-1 !max-w-full sm:!max-w-2xl !w-screen sm:!w-full sm:rounded-lg rounded-none"
+              : ""}`
+          }
+        >
+          <div className="p-6 sm:p-6 px-2">
             <h2 className="text-2xl font-bold mb-4 text-center uppercase text-orange-500">{name}</h2>
             
             {purchaseLocation && (
