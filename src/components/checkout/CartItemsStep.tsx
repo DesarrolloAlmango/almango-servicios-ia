@@ -1,160 +1,87 @@
-
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { Trash2, Plus, Minus, ShoppingCart } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { CartItem } from "@/pages/Servicios";
-import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
 
-interface CartItemsStepProps {
+export interface CartItemsStepProps {
   cartItems: CartItem[];
   updateCartItem: (id: string, quantity: number) => void;
   total: number;
-  onPrevious: () => void;
   onNext: () => void;
+  onPrevious: () => void;
 }
 
-const CartItemsStep: React.FC<CartItemsStepProps> = ({
-  cartItems,
-  updateCartItem,
-  total,
-  onPrevious,
+const CartItemsStep: React.FC<CartItemsStepProps> = ({ 
+  cartItems, 
+  updateCartItem, 
+  total, 
   onNext,
+  onPrevious
 }) => {
-  const [termsAccepted, setTermsAccepted] = useState(false);
-
-  // Función para procesar la imagen del producto
-  const getImageSource = (imageString?: string) => {
-    if (!imageString) return null;
-    
-    if (imageString.startsWith('data:image')) {
-      return imageString;
-    }
-    
-    try {
-      new URL(imageString);
-      return imageString;
-    } catch {
-      return `data:image/png;base64,${imageString}`;
-    }
+  const handleIncreaseQuantity = (id: string, currentQuantity: number) => {
+    updateCartItem(id, currentQuantity + 1);
   };
 
-  // Added function to validate cart before proceeding
-  const handleNext = () => {
-    if (cartItems.length === 0) {
-      toast.error("No hay productos en el carrito. Agrega al menos un servicio para continuar.");
-      return;
-    }
-    onNext();
+  const handleDecreaseQuantity = (id: string, currentQuantity: number) => {
+    updateCartItem(id, currentQuantity - 1);
   };
 
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <ShoppingCart className="h-12 w-12 mx-auto text-primary mb-2" />
-        <h3 className="text-xl font-semibold">Servicios</h3>
-        <p className="text-muted-foreground">Revisa los servicios seleccionados</p>
+        <h3 className="text-xl font-semibold">Resumen de Servicios</h3>
+        <p className="text-muted-foreground">Revisa y confirma tus servicios seleccionados</p>
       </div>
 
       {cartItems.length === 0 ? (
-        <div className="flex-grow flex items-center justify-center py-8">
-          <p className="text-muted-foreground text-center">
-            Tu carrito está vacío
-          </p>
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">No hay servicios en el carrito</p>
         </div>
       ) : (
-        <>
-          <ScrollArea className="h-[250px] pr-4">
-            <div className="space-y-4">
-              {cartItems.map(item => (
-                <div key={item.id} className="flex items-center gap-4 border-b pb-4">
-                  {item.image && (
-                    <div className="h-16 w-16 rounded bg-gray-100 overflow-hidden">
-                      <img 
-                        src={getImageSource(item.image)} 
-                        alt={item.name} 
-                        className="h-full w-full object-cover"
-                        onError={(e) => {
-                          // Fallback para imágenes que no cargan
-                          (e.target as HTMLImageElement).src = '/placeholder.svg';
-                        }}
-                      />
-                    </div>
-                  )}
-                  
-                  <div className="flex-grow">
-                    <p className="font-medium">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">{item.serviceCategory}</p>
-                    <p className="font-bold mt-1">${item.price.toFixed(2)}</p>
-                  </div>
-                  
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="flex items-center border rounded-md">
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        className="h-8 w-8 p-0"
-                        onClick={() => updateCartItem(item.id, item.quantity - 1)}
-                      >
-                        <Minus size={16} />
-                      </Button>
-                      <span className="w-8 text-center">{item.quantity}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        className="h-8 w-8 p-0"
-                        onClick={() => updateCartItem(item.id, item.quantity + 1)}
-                      >
-                        <Plus size={16} />
-                      </Button>
-                    </div>
-                    
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="text-red-500 h-6 w-6"
-                      onClick={() => updateCartItem(item.id, 0)}
-                    >
-                      <Trash2 size={16} />
-                    </Button>
-                  </div>
+        <div className="space-y-4">
+          {cartItems.map((item) => (
+            <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex-1">
+                <h4 className="font-medium">{item.name}</h4>
+                <p className="text-sm text-muted-foreground">{item.serviceCategory}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="bg-white rounded-md border flex items-center">
+                  <button 
+                    className="px-2 py-1 text-lg"
+                    onClick={() => handleDecreaseQuantity(item.id, item.quantity)}
+                  >
+                    -
+                  </button>
+                  <span className="px-3 py-1">{item.quantity}</span>
+                  <button 
+                    className="px-2 py-1 text-lg"
+                    onClick={() => handleIncreaseQuantity(item.id, item.quantity)}
+                  >
+                    +
+                  </button>
                 </div>
-              ))}
+                <span className="font-medium min-w-[70px] text-right">${(item.price * item.quantity).toFixed(2)}</span>
+              </div>
             </div>
-          </ScrollArea>
+          ))}
 
-          {/* Reduced margin here (mt-2 instead of pt-2) */}
-          <div className="flex items-start gap-2 mt-2">
-            <Checkbox 
-              id="terms" 
-              checked={termsAccepted}
-              onCheckedChange={(checked) => setTermsAccepted(checked === true)}
-            />
-            <label 
-              htmlFor="terms" 
-              className="text-sm text-gray-600 cursor-pointer"
-            >
-              Acepto los <a href="#" className="text-primary underline">Términos y Condiciones</a> del servicio
-            </label>
+          <div className="flex justify-between p-4 bg-orange-50 rounded-lg text-orange-800 font-medium">
+            <span>Total</span>
+            <span>${total.toFixed(2)}</span>
           </div>
-        </>
+        </div>
       )}
 
-      <div className="pt-4 border-t">
-        <div className="flex justify-between mb-4">
-          <span className="font-medium">Total</span>
-          <span className="font-bold">${total.toFixed(2)}</span>
-        </div>
-        
-        <div className="flex justify-between gap-4 pb-6">
-          <Button variant="outline" onClick={onPrevious}>
-            Anterior
-          </Button>
+      <div className="flex justify-between pt-4">
+        {/* If you want to add a button to go back to shopping, uncomment this: */}
+        {/* <Button type="button" variant="outline" onClick={onPrevious}>
+          Seguir comprando
+        </Button> */}
+
+        <div className="ml-auto">
           <Button 
-            onClick={handleNext}
-            disabled={cartItems.length === 0 || !termsAccepted}
-            className="bg-primary"
+            onClick={onNext} 
+            disabled={cartItems.length === 0}
           >
             Siguiente
           </Button>

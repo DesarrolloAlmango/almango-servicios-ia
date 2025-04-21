@@ -203,6 +203,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   };
 
   const handleAddAllToCart = () => {
+    const purchaseLocation = getPurchaseLocationForService(serviceId || "");
+    
     const itemsToAdd = products
       .filter(product => productQuantities[product.id] > 0)
       .map(product => ({
@@ -214,7 +216,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         serviceCategory: `${serviceName} - ${category.name}`,
         serviceId: serviceId,
         categoryId: category.id,
-        productId: product.id
+        productId: product.id,
+        departmentId: purchaseLocation?.departmentId,
+        locationId: purchaseLocation?.locationId
       }));
 
     if (itemsToAdd.length > 0) {
@@ -227,6 +231,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   };
   
   const handleContractNow = () => {
+    const purchaseLocation = getPurchaseLocationForService(serviceId || "");
+    
     const itemsToAdd = products
       .filter(product => productQuantities[product.id] > 0)
       .map(product => ({
@@ -238,7 +244,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         serviceCategory: `${serviceName} - ${category.name}`,
         serviceId: serviceId,
         categoryId: category.id,
-        productId: product.id
+        productId: product.id,
+        departmentId: purchaseLocation?.departmentId,
+        locationId: purchaseLocation?.locationId
       }));
 
     if (itemsToAdd.length > 0) {
@@ -569,5 +577,5 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     </>
   );
 };
-/*comit*/
+
 export default ServiceCard;

@@ -30,6 +30,8 @@ export interface CartItem {
   serviceId?: string;
   categoryId: string;
   productId: string;
+  departmentId?: string;
+  locationId?: string;
 }
 
 interface TarjetaServicio {
@@ -312,6 +314,33 @@ const Servicios = () => {
     setShowDeleteConfirmation(false);
     setLocationToDelete(null);
     toast.success("Lugar de compra y productos asociados eliminados");
+  };
+
+  const handleContractNow = () => {
+    const purchaseLocation = getPurchaseLocationForService(serviceId || "");
+    const itemsToAdd = products
+      .filter(product => productQuantities[product.id] > 0)
+      .map(product => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: productQuantities[product.id],
+        image: product.image,
+        serviceCategory: `${serviceName} - ${category.name}`,
+        serviceId: serviceId,
+        categoryId: category.id,
+        productId: product.id,
+        departmentId: purchaseLocation?.departmentId,
+        locationId: purchaseLocation?.locationId
+      }));
+
+    if (itemsToAdd.length > 0) {
+      itemsToAdd.forEach(item => addToCart(item));
+      closeDialog();
+      navigate('/servicios', { state: { openCart: true } });
+    } else {
+      toast.error("Seleccione al menos un producto");
+    }
   };
 
   if (isLoading && isLoadingMudanza) {

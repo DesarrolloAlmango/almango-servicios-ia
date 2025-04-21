@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Sheet,
@@ -16,6 +17,7 @@ import { MapPin } from "lucide-react";
 import { format } from "date-fns";
 import CheckoutSummary from "./checkout/CheckoutSummary";
 import { CheckoutData } from "@/types/checkoutTypes";
+import { getTimeSlotNumber } from "@/utils/timeUtils";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -68,6 +70,10 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   const [showSummary, setShowSummary] = useState(false);
   const [checkoutData, setCheckoutData] = useState<CheckoutData[]>([]);
   
+  // Create departments and municipalities state to pass to PersonalInfoStep
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [municipalities, setMunicipalities] = useState<Record<string, Municipality[]>>({});
+  
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -88,6 +94,50 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   const handlePreviousStep = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 0));
   };
+
+  // Extract department and location info from purchase locations
+  useEffect(() => {
+    if (purchaseLocations.length > 0) {
+      // Extract unique departments from purchase locations
+      const uniqueDepartments = new Map<string, Department>();
+      
+      purchaseLocations.forEach(location => {
+        if (location.departmentId && location.departmentName) {
+          uniqueDepartments.set(location.departmentId, {
+            id: location.departmentId,
+            name: location.departmentName
+          });
+        }
+      });
+      
+      setDepartments(Array.from(uniqueDepartments.values()));
+      
+      // Extract municipalities (locations) organized by department
+      const locationsByDepartment: Record<string, Municipality[]> = {};
+      
+      purchaseLocations.forEach(location => {
+        if (location.departmentId && location.locationId && location.locationName) {
+          if (!locationsByDepartment[location.departmentId]) {
+            locationsByDepartment[location.departmentId] = [];
+          }
+          
+          // Check if location already exists in the array
+          const exists = locationsByDepartment[location.departmentId].some(
+            m => m.id === location.locationId
+          );
+          
+          if (!exists) {
+            locationsByDepartment[location.departmentId].push({
+              id: location.locationId,
+              name: location.locationName
+            });
+          }
+        }
+      });
+      
+      setMunicipalities(locationsByDepartment);
+    }
+  }, [purchaseLocations]);
 
   const handleSubmit = (data: any) => {
     const serviceGroups = cartItems.reduce((acc: Record<string, any[]>, item) => {
@@ -210,6 +260,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                       updateCartItem={updateCartItem}
                       total={total}
                       onNext={handleNextStep}
+                      onPrevious={handlePreviousStep}
                     />
                   )}
                   
@@ -232,6 +283,10 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                       total={total}
                       selectedDate={selectedDate}
                       selectedTimeSlot={selectedTimeSlot}
+                      selectedDepartment=""
+                      selectedLocation=""
+                      departments={departments}
+                      municipalities={municipalities}
                     />
                   )}
                 </div>

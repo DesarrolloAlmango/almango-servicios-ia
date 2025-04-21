@@ -76,8 +76,8 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   selectedLocation,
   selectedDate,
   selectedTimeSlot,
-  departments,
-  municipalities,
+  departments = [], // Provide default empty arrays to prevent undefined errors
+  municipalities = {},
 }) => {
   const [showOrderSummary, setShowOrderSummary] = useState(false);
   
@@ -107,11 +107,15 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   };
 
   const getDepartmentName = (departmentId: string) => {
+    // Safely check if departments exists before calling find
+    if (!departments || departments.length === 0) return departmentId;
     const department = departments.find(dept => dept.id === departmentId);
     return department ? department.name : departmentId;
   };
 
   const getLocationName = (departmentId: string, locationId: string) => {
+    // Safely check if municipalities and the specific department exists
+    if (!municipalities || !municipalities[departmentId]) return locationId;
     const municipalitiesList = municipalities[departmentId] || [];
     const municipality = municipalitiesList.find(mun => mun.id === locationId);
     return municipality ? municipality.name : locationId;
@@ -159,10 +163,21 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
           </AccordionTrigger>
           <AccordionContent className="px-4 py-2 space-y-4">
             <div className="space-y-2">
-              <h4 className="font-medium">Ubicación</h4>
-              <p className="text-sm text-muted-foreground">
-                {getDepartmentName(selectedDepartment)}, {getLocationName(selectedDepartment, selectedLocation)}
-              </p>
+              <h4 className="font-medium">Servicios y ubicaciones</h4>
+              {cartItems.map((item, index) => {
+                const serviceLocation = item.serviceId ? 
+                  `${getDepartmentName(item.departmentId || "")}, ${getLocationName(item.departmentId || "", item.locationId || "")}` : 
+                  "No especificada";
+                
+                return (
+                  <div key={index} className="text-sm">
+                    <p className="text-muted-foreground">
+                      <span className="font-medium">{item.serviceCategory}: </span>
+                      <span>{serviceLocation}</span>
+                    </p>
+                  </div>
+                )
+              })}
             </div>
             
             <div className="space-y-2">
