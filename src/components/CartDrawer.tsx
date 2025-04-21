@@ -232,9 +232,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                     <span className="text-blue-700 font-medium">{location.serviceName}: </span>
                     <span className="text-blue-600 ml-1">
                       {location.storeId === "other" ? location.otherLocation : location.storeName}
-                      <span className="text-blue-400 ml-1">
-                        ({location.departmentName}, {location.locationName})
-                      </span>
+                      {location.departmentName && location.locationName && (
+                        <span className="text-blue-400 ml-1">
+                          ({location.departmentName}, {location.locationName})
+                        </span>
+                      )}
                     </span>
                   </div>
                 ))}
@@ -285,8 +287,8 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                       selectedTimeSlot={selectedTimeSlot}
                       selectedDepartment=""
                       selectedLocation=""
-                      departments={departments}
-                      municipalities={municipalities}
+                      departments={departments || []}
+                      municipalities={municipalities || {}}
                     />
                   )}
                 </div>

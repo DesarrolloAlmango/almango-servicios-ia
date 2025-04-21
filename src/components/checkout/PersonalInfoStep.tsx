@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,7 +75,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   selectedLocation,
   selectedDate,
   selectedTimeSlot,
-  departments = [], // Provide default empty arrays to prevent undefined errors
+  departments = [],
   municipalities = {},
 }) => {
   const [showOrderSummary, setShowOrderSummary] = useState(false);
@@ -107,14 +106,12 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   };
 
   const getDepartmentName = (departmentId: string) => {
-    // Safely check if departments exists before calling find
-    if (!departments || departments.length === 0) return departmentId;
+    if (!departments || !Array.isArray(departments) || departments.length === 0) return departmentId;
     const department = departments.find(dept => dept.id === departmentId);
     return department ? department.name : departmentId;
   };
 
   const getLocationName = (departmentId: string, locationId: string) => {
-    // Safely check if municipalities and the specific department exists
     if (!municipalities || !municipalities[departmentId]) return locationId;
     const municipalitiesList = municipalities[departmentId] || [];
     const municipality = municipalitiesList.find(mun => mun.id === locationId);
@@ -139,7 +136,6 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       return;
     }
     
-    // Fix: Ensure we're only setting a valid enum value
     if (value === "later") {
       form.setValue("paymentMethod", value);
     }
@@ -165,7 +161,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             <div className="space-y-2">
               <h4 className="font-medium">Servicios y ubicaciones</h4>
               {cartItems.map((item, index) => {
-                const serviceLocation = item.serviceId ? 
+                const serviceLocation = item.departmentId && item.locationId ? 
                   `${getDepartmentName(item.departmentId || "")}, ${getLocationName(item.departmentId || "", item.locationId || "")}` : 
                   "No especificada";
                 

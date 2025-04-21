@@ -3,8 +3,7 @@ import React from "react";
 import { 
   ShoppingCart, 
   Clock, 
-  User, 
-  Check 
+  User
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

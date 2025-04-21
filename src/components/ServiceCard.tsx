@@ -8,6 +8,7 @@ import { CartItem } from "@/pages/Servicios";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { LucideIcon } from "lucide-react";
+import { Check } from "lucide-react";
 
 interface Category {
   id: string;
@@ -128,6 +129,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingPrices, setIsLoadingPrices] = useState(true);
 
+  const getPurchaseLocationForService = (serviceId: string) => {
+    return null;
+  };
+
   const fetchUpdatedPrice = async (product: Product): Promise<number> => {
     if (!purchaseLocationId || !serviceId || !category.id) {
       return product.defaultPrice || product.price;
@@ -203,7 +208,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   };
 
   const handleAddAllToCart = () => {
-    const purchaseLocation = getPurchaseLocationForService(serviceId || "");
+    const purchaseLocation = { departmentId: undefined, locationId: undefined };
     
     const itemsToAdd = products
       .filter(product => productQuantities[product.id] > 0)
@@ -231,7 +236,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   };
   
   const handleContractNow = () => {
-    const purchaseLocation = getPurchaseLocationForService(serviceId || "");
+    const purchaseLocation = { departmentId: undefined, locationId: undefined };
     
     const itemsToAdd = products
       .filter(product => productQuantities[product.id] > 0)
@@ -332,6 +337,8 @@ interface ServiceCardProps {
     storeName: string;
     otherLocation?: string;
     serviceId?: string;
+    departmentId?: string;
+    locationId?: string;
   } | null;
   forceOpen?: boolean;
   circular?: boolean;
