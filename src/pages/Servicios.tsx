@@ -437,7 +437,7 @@ const Servicios = () => {
                 return (
                   <div 
                     key={index}
-                    className="sm:first:ml-[calc(50%-120px)] xs:first:ml-[calc(50%-120px)] first:ml-[calc(50%-120px)] sm:not-first:-ml-2 xs:not-first:-ml-2 not-first:-ml-4"
+                    className="sm:first:ml-[calc(50%-120px)] xs:first:ml-[calc(50%-120px)] first:ml-[calc(50%-120px)] sm:not-first:-ml-6 xs:not-first:-ml-6 not-first:-ml-6"
                   >
                     <ServiceCard 
                       id={service.id}
@@ -450,7 +450,6 @@ const Servicios = () => {
                       purchaseLocation={getPurchaseLocationForService(service.id || "")}
                       forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
                       circular={true}
-                      size="xs:w-24 xs:h-24 sm:w-24 sm:h-24 w-32 h-32"
                     />
                   </div>
                 );
@@ -466,7 +465,7 @@ const Servicios = () => {
                 return (
                   <div 
                     key={index}
-                    className="sm:first:ml-[calc(50%-120px)] xs:first:ml-[calc(50%-120px)] first:ml-[calc(50%-120px)] sm:not-first:-ml-2 xs:not-first:-ml-2 not-first:-ml-4"
+                    className="sm:first:ml-[calc(50%-120px)] xs:first:ml-[calc(50%-120px)] first:ml-[calc(50%-120px)] sm:not-first:-ml-6 xs:not-first:-ml-6 not-first:-ml-6"
                   >
                     <ServiceCard 
                       id={service.id}
@@ -479,7 +478,6 @@ const Servicios = () => {
                       purchaseLocation={getPurchaseLocationForService(service.id || "")}
                       forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
                       circular={true}
-                      size="xs:w-24 xs:h-24 sm:w-24 sm:h-24 w-32 h-32"
                     />
                   </div>
                 );
