@@ -32,6 +32,14 @@ interface CheckoutSummaryProps {
   data: CheckoutData[];
 }
 
+const getServiceName = (checkoutData: CheckoutData): string => {
+  if (checkoutData.Level1 && checkoutData.Level1.length > 0) {
+    const rubroId = checkoutData.Level1[0].RubrosId;
+    return `Servicio #${rubroId}`;
+  }
+  return "Servicio";
+};
+
 const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   isOpen,
   onClose,
@@ -90,11 +98,12 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       setServiceRequests([]);
 
       for (const serviceData of data) {
-        setProcessingService(serviceData.serviceName || 'Servicio');
+        const serviceName = getServiceName(serviceData);
+        setProcessingService(serviceName);
         const solicitudId = await processServiceRequest(serviceData);
         setServiceRequests(prev => [...prev, {
           solicitudId,
-          serviceName: serviceData.serviceName || 'Servicio',
+          serviceName,
           requestData: serviceData
         }]);
       }
