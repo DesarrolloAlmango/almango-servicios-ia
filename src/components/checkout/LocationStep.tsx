@@ -39,7 +39,9 @@ const LocationStep: React.FC<LocationStepProps> = ({
     setSelectedLocation("");
   };
 
-  const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
+  const currentMunicipalities = selectedDepartment && municipalities[selectedDepartment] 
+    ? municipalities[selectedDepartment] || [] 
+    : [];
 
   return (
     <div className="space-y-6">
@@ -96,11 +98,21 @@ const LocationStep: React.FC<LocationStepProps> = ({
               } />
             </SelectTrigger>
             <SelectContent>
-              {currentMunicipalities.map(municipality => (
-                <SelectItem key={municipality.id} value={municipality.id}>
-                  {municipality.name}
-                </SelectItem>
-              ))}
+              {currentMunicipalities && currentMunicipalities.length > 0 ? (
+                currentMunicipalities.map(municipality => (
+                  <SelectItem key={municipality.id} value={municipality.id}>
+                    {municipality.name}
+                  </SelectItem>
+                ))
+              ) : (
+                <div className="flex items-center justify-center p-4 text-sm text-muted-foreground">
+                  {loading.municipalities ? (
+                    <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Cargando...</>
+                  ) : (
+                    "No hay localidades disponibles"
+                  )}
+                </div>
+              )}
             </SelectContent>
           </Select>
         </div>

@@ -273,6 +273,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       <DialogContent className="sm:max-w-md">
         <div className="text-center mb-6">
           <MapPin className="h-12 w-12 mx-auto text-orange-500 mb-2" />
+          <DialogTitle className="text-lg font-medium">¿Dónde realizaste la compra?</DialogTitle>
           {serviceName && (
             <p className="text-muted-foreground text-sm mt-1">
               Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
