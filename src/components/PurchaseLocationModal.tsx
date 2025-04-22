@@ -268,26 +268,23 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
-        <DialogTitle className="text-center">
-          Selección de Lugar de Compra
-        </DialogTitle>
-        
-        <DialogDescription className="text-center">
-          Necesitamos esta información para brindarte un mejor servicio
-        </DialogDescription>
-        
         <div className="text-center mb-6">
           <MapPin className="h-12 w-12 mx-auto text-orange-500 mb-2" />
-          <h3 className="text-xl font-semibold">¿Dónde realizaste la compra?</h3>
-          {serviceName && (
-            <p className="text-muted-foreground text-sm mt-1">
-              Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
-            </p>
-          )}
+          <DialogDescription className="text-center">
+            Necesitamos esta información para brindarte un mejor servicio
+          </DialogDescription>
         </div>
-
+        
         <div className="space-y-4">
           <div className="space-y-2">
+            <h3 className="text-lg font-semibold">
+              ¿Dónde realizaste la compra?
+            </h3>
+            {serviceName && (
+              <p className="text-muted-foreground text-sm">
+                Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
+              </p>
+            )}
             <label className="block text-sm font-medium">
               Lugar de Compra
             </label>
@@ -347,57 +344,62 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             )}
           </div>
 
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">
-              Departamento
-            </label>
-            <Select 
-              value={selectedDepartment} 
-              onValueChange={(value) => {
-                setSelectedDepartment(value);
-                setSelectedLocation("");
-              }}
-              disabled={loadingLocation.departments}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={
-                  loadingLocation.departments ? "Cargando departamentos..." : "Selecciona un departamento"
-                } />
-              </SelectTrigger>
-              <SelectContent>
-                {departments.map(dept => (
-                  <SelectItem key={dept.id} value={dept.id}>
-                    {dept.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <div className="space-y-4 pt-4">
+            <h3 className="text-lg font-semibold">
+              ¿Dónde vamos a realizar el servicio?
+            </h3>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium">
+                Departamento
+              </label>
+              <Select 
+                value={selectedDepartment} 
+                onValueChange={(value) => {
+                  setSelectedDepartment(value);
+                  setSelectedLocation("");
+                }}
+                disabled={loadingLocation.departments}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={
+                    loadingLocation.departments ? "Cargando departamentos..." : "Selecciona un departamento"
+                  } />
+                </SelectTrigger>
+                <SelectContent>
+                  {departments.map(dept => (
+                    <SelectItem key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">
-              Localidad
-            </label>
-            <Select 
-              value={selectedLocation} 
-              onValueChange={setSelectedLocation}
-              disabled={!selectedDepartment || loadingLocation.municipalities}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder={
-                  loadingLocation.municipalities ? "Cargando localidades..." : 
-                  !selectedDepartment ? "Selecciona un departamento primero" : 
-                  "Selecciona una localidad"
-                } />
-              </SelectTrigger>
-              <SelectContent>
-                {currentMunicipalities.map(municipality => (
-                  <SelectItem key={municipality.id} value={municipality.id}>
-                    {municipality.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="space-y-2">
+              <label className="block text-sm font-medium">
+                Localidad
+              </label>
+              <Select 
+                value={selectedLocation} 
+                onValueChange={setSelectedLocation}
+                disabled={!selectedDepartment || loadingLocation.municipalities}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={
+                    loadingLocation.municipalities ? "Cargando localidades..." : 
+                    !selectedDepartment ? "Selecciona un departamento primero" : 
+                    "Selecciona una localidad"
+                  } />
+                </SelectTrigger>
+                <SelectContent>
+                  {currentMunicipalities.map(municipality => (
+                    <SelectItem key={municipality.id} value={municipality.id}>
+                      {municipality.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
