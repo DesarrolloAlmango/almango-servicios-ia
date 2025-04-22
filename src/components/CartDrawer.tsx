@@ -175,9 +175,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           ProductoID: Number(item.categoryId),
           DetalleID: Number(item.productId),
           Cantidad: item.quantity,
+          Precio: Number(item.price.toFixed(2)),
           SR: "N",
           Comision: 0,
-          ComisionTipo: "P"
+          ComisionTipo: "P",
+          PrecioFinal: Number((item.price * item.quantity).toFixed(2))
         }))
       };
 
