@@ -264,9 +264,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     ...((localStores && localStores.length > 0) ? localStores.slice(0, 5) : [])
   ];
 
-  const currentMunicipalities = selectedDepartment ? 
-    (municipalities[selectedDepartment] || []) : 
-    [];
+  const currentMunicipalities = selectedDepartment && municipalities[selectedDepartment] 
+    ? municipalities[selectedDepartment] 
+    : [];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -293,7 +293,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   disabled={loading}
                 >
                   {selectedStore
-                    ? displayedStores.find((store) => store.id === selectedStore)?.name
+                    ? displayedStores.find((store) => store.id === selectedStore)?.name || "Selecciona un comercio"
                     : loading ? "Cargando..." : "Selecciona un comercio"}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -388,11 +388,20 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                     } />
                   </SelectTrigger>
                   <SelectContent>
-                    {currentMunicipalities.map(municipality => (
-                      <SelectItem key={municipality.id} value={municipality.id}>
-                        {municipality.name}
-                      </SelectItem>
-                    ))}
+                    {currentMunicipalities && currentMunicipalities.length > 0 ? (
+                      currentMunicipalities.map(municipality => (
+                        <SelectItem key={municipality.id} value={municipality.id}>
+                          {municipality.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <div className="px-2 py-4 text-center text-sm text-muted-foreground">
+                        {loadingLocation.municipalities ? 
+                          "Cargando..." : 
+                          "No hay localidades disponibles"
+                        }
+                      </div>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
