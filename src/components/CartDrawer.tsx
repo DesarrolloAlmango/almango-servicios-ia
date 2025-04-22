@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Sheet,
@@ -15,7 +16,7 @@ import PersonalInfoStep from "@/components/checkout/PersonalInfoStep";
 import { MapPin } from "lucide-react";
 import { format } from "date-fns";
 import CheckoutSummary from "./checkout/CheckoutSummary";
-import { CheckoutData } from "@/types/checkoutTypes";
+import { CheckoutData, getProviderAuxiliary } from "@/types/checkoutTypes";
 import { getTimeSlotNumber } from "@/utils/timeUtils";
 
 interface CartDrawerProps {
@@ -181,7 +182,8 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           Comision: 0,
           ComisionTipo: "P",
           PrecioFinal: Number((item.price * item.quantity).toFixed(2))
-        }))
+        })),
+        serviceName: location.serviceName || `Servicio ${serviceId}` // Add serviceName to the checkout data
       };
 
       return formattedData;
