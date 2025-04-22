@@ -1,19 +1,10 @@
-
 import React, { useState, useEffect, useMemo } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { MapPin, Loader2, Search } from "lucide-react";
+import { MapPin, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import {
-  Command,
-  CommandInput,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-} from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface Store {
   id: string;
@@ -84,7 +75,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       setShowOtherInput(false);
       setSelectedDepartment("");
       setSelectedLocation("");
-      setStoreSearch("");
     }
   }, [isOpen]);
 
@@ -166,12 +156,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const fetchProviders = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/AlmangoXV1NETFramework/WebAPI/ObtenerProveedor", {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-        },
-      });
+      const response = await fetch("/api/AlmangoXV1NETFramework/WebAPI/ObtenerProveedor");
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -195,7 +180,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
           name: item.ProveedorNombre.toString(),
           logo: item.ProveedorLogo?.toString() || ""
         }))
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .slice(0, 5);
 
       setLocalStores(validStores);
     } catch (error) {
@@ -211,7 +197,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     setSelectedStore(value);
     setShowOtherInput(value === "other");
     if (value !== "other") setOtherStore("");
-    setOpenStoreSelect(false);
   };
 
   const handleConfirm = () => {
@@ -251,19 +236,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   };
 
   const displayedStores = useMemo(() => {
-    const result = [...fixedStores];
-    
-    if (storeSearch) {
-      const filteredStores = localStores.filter(store =>
-        store.name.toLowerCase().includes(storeSearch.toLowerCase())
-      );
-      result.push(...filteredStores);
-    } else {
-      result.push(...localStores.slice(0, 4));
-    }
-    
-    return result;
-  }, [localStores, storeSearch]);
+    return [...fixedStores, ...localStores];
+  }, [localStores]);
 
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
 
@@ -290,51 +264,26 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             <label className="block text-sm font-medium">
               Lugar de Compra
             </label>
-            <Popover open={openStoreSelect} onOpenChange={setOpenStoreSelect}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={openStoreSelect}
-                  className="w-full justify-between"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <span className="text-muted-foreground">Cargando...</span>
-                  ) : selectedStore ? (
-                    displayedStores.find(store => store.id === selectedStore)?.name
-                  ) : (
-                    "Selecciona un comercio"
-                  )}
-                  <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
-                <Command>
-                  <CommandInput
-                    placeholder="Buscar comercio..."
-                    className="h-9"
-                    value={storeSearch}
-                    onValueChange={setStoreSearch}
-                  />
-                  <CommandEmpty>No se encontraron comercios</CommandEmpty>
-                  <CommandGroup>
-                    {displayedStores.map(store => (
-                      <CommandItem
-                        key={store.id}
-                        value={store.id}
-                        onSelect={() => handleStoreChange(store.id)}
-                        className={
-                          fixedStores.some(f => f.id === store.id) ? "font-semibold" : ""
-                        }
-                      >
-                        {store.name}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            <Select 
+              value={selectedStore} 
+              onValueChange={handleStoreChange}
+              disabled={loading}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={loading ? "Cargando..." : "Selecciona un comercio"} />
+              </SelectTrigger>
+              <SelectContent>
+                {displayedStores.map(store => (
+                  <SelectItem 
+                    key={store.id} 
+                    value={store.id}
+                    className={fixedStores.some(f => f.id === store.id) ? "font-semibold" : ""}
+                  >
+                    {store.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
             {showOtherInput && (
               <Input
