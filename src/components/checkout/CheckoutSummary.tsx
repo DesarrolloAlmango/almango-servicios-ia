@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Loader2, Search } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, Eye } from "lucide-react";
 import { CheckoutData, ServiceRequest } from "@/types/checkoutTypes";
 import { 
   Dialog,
@@ -23,6 +23,9 @@ import {
 } from "@/components/ui/dialog";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useNavigate } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { format } from "date-fns";
+import { Separator } from "@/components/ui/separator";
 
 interface CheckoutSummaryProps {
   isOpen: boolean;
@@ -42,7 +45,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const [showResultDialog, setShowResultDialog] = useState(false);
   const [processingService, setProcessingService] = useState<string | null>(null);
   const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
-  const [showDebugDialog, setShowDebugDialog] = useState(false);
+  const [showDetailDialog, setShowDetailDialog] = useState(false);
   const [selectedRequestData, setSelectedRequestData] = useState<CheckoutData | null>(null);
 
   useEffect(() => {
@@ -52,7 +55,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       setShowResultDialog(false);
       setProcessingService(null);
       setSelectedServiceId(null);
-      setShowDebugDialog(false);
+      setShowDetailDialog(false);
       setSelectedRequestData(null);
     }
   }, [isOpen]);
@@ -116,7 +119,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
   const handleViewServiceDetails = (request: ServiceRequest) => {
     setSelectedRequestData(request.requestData);
-    setShowDebugDialog(true);
+    setShowDetailDialog(true);
   };
 
   return (
@@ -193,25 +196,19 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                         className="flex items-center justify-between p-3 rounded-lg bg-green-100"
                       >
                         <div className="text-left">
-                          <span className="text-sm text-green-700">{request.serviceName}</span>
-                          <div className="text-xl font-bold text-green-600">
+                          <div 
+                            className="text-xl font-bold text-green-600 cursor-pointer hover:text-green-700 transition-colors flex items-center gap-2"
+                            onClick={() => handleViewServiceDetails(request)}
+                          >
                             #{request.solicitudId}
+                            <Eye className="h-4 w-4" />
                           </div>
                         </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="ml-2"
-                          onClick={() => handleViewServiceDetails(request)}
-                        >
-                          <Search className="h-4 w-4 mr-1" />
-                          Ver detalle
-                        </Button>
                       </div>
                     ))}
                   </div>
                   <p className="text-sm text-muted-foreground mt-4">
-                    Guarda estos números para futuras consultas sobre tus servicios.
+                    Haz clic en el número de solicitud para ver los detalles.
                   </p>
                 </AlertDescription>
               </Alert>
@@ -236,18 +233,105 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showDebugDialog} onOpenChange={setShowDebugDialog}>
+      <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Detalle de la Solicitud</DialogTitle>
           </DialogHeader>
-          <div className="mt-4">
-            <pre className="bg-slate-100 p-4 rounded-lg overflow-x-auto">
-              {JSON.stringify(selectedRequestData, null, 2)}
-            </pre>
-          </div>
+          
+          {selectedRequestData && (
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Información Personal</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Nombre</p>
+                      <p className="text-lg">{selectedRequestData.Nombre}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Teléfono</p>
+                      <p className="text-lg">{selectedRequestData.Telefono}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Email</p>
+                    <p className="text-lg">{selectedRequestData.Mail || "No especificado"}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Dirección</p>
+                    <p className="text-lg">{selectedRequestData.Direccion}</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Detalles de la Instalación</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Fecha</p>
+                      <p className="text-lg">
+                        {format(new Date(selectedRequestData.FechaInstalacion), "dd/MM/yyyy")}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Turno</p>
+                      <p className="text-lg">{selectedRequestData.TurnoInstalacion}</p>
+                    </div>
+                  </div>
+                  {selectedRequestData.Comentario && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Comentarios</p>
+                      <p className="text-lg">{selectedRequestData.Comentario}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Servicios Solicitados</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {selectedRequestData.Level1.map((item, index) => (
+                      <div key={index} className="p-4 rounded-lg bg-slate-50">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">ID del Servicio</p>
+                            <p className="text-lg">{item.RubrosId}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">Cantidad</p>
+                            <p className="text-lg">{item.Cantidad}</p>
+                          </div>
+                        </div>
+                        <Separator className="my-4" />
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">Precio Unitario</p>
+                            <p className="text-lg">${item.Precio}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-muted-foreground">Precio Final</p>
+                            <p className="text-lg">${item.PrecioFinal}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           <DialogFooter>
-            <Button onClick={() => setShowDebugDialog(false)}>Cerrar</Button>
+            <Button onClick={() => setShowDetailDialog(false)}>Cerrar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
