@@ -437,7 +437,7 @@ const Servicios = () => {
                 return (
                   <div 
                     key={index}
-                    className="sm:first:ml-[calc(50%-120px)] xs:first:ml-[calc(50%-120px)] first:ml-[calc(50%-120px)] sm:not-first:-ml-6 xs:not-first:-ml-6 not-first:-ml-6"
+                    className="sm:first:ml-[calc(50%-120px)] xs:first:ml-[calc(50%-120px)] first:ml-[calc(50%-120px)] sm:not-first:-ml-2 xs:not-first:-ml-2 not-first:-ml-4"
                   >
                     <ServiceCard 
                       id={service.id}
