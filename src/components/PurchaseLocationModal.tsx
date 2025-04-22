@@ -3,10 +3,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter } from "@/compon
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { MapPin, Loader2, Search } from "lucide-react";
+import { MapPin, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Store {
   id: string;
@@ -52,7 +50,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [loading, setLoading] = useState(false);
   const [localStores, setLocalStores] = useState<Store[]>([]);
-  const [storeSearch, setStoreSearch] = useState("");
   const [departments, setDepartments] = useState<Department[]>([]);
   const [municipalities, setMunicipalities] = useState<Record<string, Municipality[]>>({});
   const [selectedDepartment, setSelectedDepartment] = useState("");
@@ -62,6 +59,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     municipalities: false
   });
   const [openStoreSelect, setOpenStoreSelect] = useState(false);
+  const [storeSearch, setStoreSearch] = useState("");
 
   const fixedStores: Store[] = [
     { id: "other", name: "Otro" },
@@ -77,7 +75,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       setShowOtherInput(false);
       setSelectedDepartment("");
       setSelectedLocation("");
-      setStoreSearch("");
     }
   }, [isOpen]);
 
@@ -183,7 +180,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
           name: item.ProveedorNombre.toString(),
           logo: item.ProveedorLogo?.toString() || ""
         }))
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .slice(0, 5);
 
       setLocalStores(validStores);
     } catch (error) {
@@ -195,7 +193,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     }
   };
 
-  const handleStoreSelect = (value: string) => {
+  const handleStoreChange = (value: string) => {
     setSelectedStore(value);
     setShowOtherInput(value === "other");
     if (value !== "other") setOtherStore("");
@@ -217,7 +215,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       return;
     }
 
-    const selected = [...fixedStores, ...localStores].find(store => store.id === selectedStore);
+    const selected = displayedStores.find(store => store.id === selectedStore);
     const storeName = selectedStore === "other" 
       ? otherStore 
       : selected?.name || "";
@@ -243,22 +241,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
 
-  const filteredStores = useMemo(() => {
-    const searchTerm = storeSearch.toLowerCase().trim();
-    
-    const fixedResults = [...fixedStores];
-    
-    if (searchTerm) {
-      const apiResults = localStores.filter(store => 
-        store.name.toLowerCase().includes(searchTerm)
-      ).slice(0, 5);
-      
-      return [...fixedResults, ...apiResults];
-    }
-    
-    return [...fixedResults, ...localStores.slice(0, 5)];
-  }, [storeSearch, localStores]);
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
@@ -279,40 +261,29 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                 Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
               </p>
             )}
-            
-            <div className="relative">
-              <Command className="rounded-lg border shadow-md">
-                <CommandInput 
-                  placeholder="Buscar comercio..."
-                  value={storeSearch}
-                  onValueChange={setStoreSearch}
-                  disabled={loading}
-                />
-                <CommandList>
-                  <ScrollArea className="h-[200px]">
-                    <CommandEmpty>No se encontraron comercios</CommandEmpty>
-                    <CommandGroup>
-                      {loading ? (
-                        <div className="flex items-center justify-center p-4">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        </div>
-                      ) : (
-                        filteredStores.map((store) => (
-                          <CommandItem
-                            key={store.id}
-                            value={store.id}
-                            onSelect={handleStoreSelect}
-                            className="cursor-pointer"
-                          >
-                            {store.name}
-                          </CommandItem>
-                        ))
-                      )}
-                    </CommandGroup>
-                  </ScrollArea>
-                </CommandList>
-              </Command>
-            </div>
+            <label className="block text-sm font-medium">
+              Lugar de Compra
+            </label>
+            <Select 
+              value={selectedStore} 
+              onValueChange={handleStoreChange}
+              disabled={loading}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={loading ? "Cargando..." : "Selecciona un comercio"} />
+              </SelectTrigger>
+              <SelectContent>
+                {displayedStores.map(store => (
+                  <SelectItem 
+                    key={store.id} 
+                    value={store.id}
+                    className={fixedStores.some(f => f.id === store.id) ? "font-semibold" : ""}
+                  >
+                    {store.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
             {showOtherInput && (
               <Input
