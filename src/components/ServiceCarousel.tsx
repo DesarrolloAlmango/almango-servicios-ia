@@ -1,3 +1,4 @@
+
 import React from "react";
 import { 
   Carousel,
@@ -28,16 +29,18 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
         opts={{
           align: shouldCenter ? "center" : "start",
           loop: children.length > 2,
-          containScroll: "trimSnaps"
+          containScroll: "trimSnaps",
+          dragFree: true,  // Allow free scrolling
+          spacing: 20       // Set a fixed spacing of 20px between items
         }}
         className="w-full relative"
       >
-        <CarouselContent className="-ml-0.5 sm:-ml-0.5"> {/* Reducción extrema */}
+        <CarouselContent className="gap-[20px]"> {/* Explicit gap between items */}
           {children.map((child, index) => (
             <CarouselItem 
               key={index} 
-              className={`pl-0.5 sm:pl-0.5  /* Reducción extrema */
-                basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 
+              className={`pl-0 
+                basis-[calc(85%-20px)] sm:basis-[calc(50%-20px)] md:basis-[calc(33.333%-20px)] lg:basis-[calc(25%-20px)] 
                 ${shouldCenter ? "mx-auto" : ""}`}
             >
               <div className="flex items-center justify-center py-4">
