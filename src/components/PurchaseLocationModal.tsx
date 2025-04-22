@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -18,13 +17,6 @@ import { Input } from "@/components/ui/input";
 import { MapPin, Loader2, Check, ChevronsUpDown } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
 
 interface Store {
   id: string;
@@ -80,7 +72,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   });
   const [open, setOpen] = useState(false);
 
-  // Define fixed stores outside of the component to avoid recreation on every render
   const fixedStores: Store[] = [
     { id: "other", name: "Otro" },
     { id: "unknown", name: "No lo sé" }
@@ -118,8 +109,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       const formattedDepartments = data.map((item: any) => ({
         id: item.DepartamentoId?.toString() || "",
         name: item.DepartamentoDepartamento?.toString() || ""
-      })).filter((dept: any) => dept.id && dept.name)
-        .sort((a: any, b: any) => a.name.localeCompare(b.name));
+      })).filter(dept => dept.id && dept.name)
+        .sort((a, b) => a.name.localeCompare(b.name));
 
       setDepartments(formattedDepartments);
     } catch (error) {
@@ -154,8 +145,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
           id: item.DepartamentoMunicipioId?.toString() || "",
           name: item.DepartamentoMunicipioNombre?.toString() || ""
         }))
-        .filter((mun: any) => mun.id && mun.name && mun.name !== "-")
-        .sort((a: any, b: any) => a.name.localeCompare(b.name));
+        .filter(mun => mun.id && mun.name && mun.name !== "-")
+        .sort((a, b) => a.name.localeCompare(b.name));
 
       setMunicipalities(prev => ({
         ...prev,
@@ -242,7 +233,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     const selected = displayedStores.find(store => store.id === selectedStore);
     const storeName = selectedStore === "other" 
       ? otherStore 
-      : (selected?.name || "");
+      : selected?.name || "";
     
     const selectedDepartmentObj = departments.find(dept => dept.id === selectedDepartment);
     const selectedLocationObj = currentMunicipalities.find(mun => mun.id === selectedLocation);
@@ -259,22 +250,18 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     onClose();
   };
 
-  // Make sure we always have an array of displayedStores, even if empty
   const displayedStores = [
     ...fixedStores,
-    ...((localStores && localStores.length > 0) ? localStores.slice(0, 5) : [])
+    ...localStores.slice(0, 5)
   ];
 
-  const currentMunicipalities = selectedDepartment && municipalities[selectedDepartment] 
-    ? municipalities[selectedDepartment] || []
-    : [];
+  const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <div className="text-center mb-6">
           <MapPin className="h-12 w-12 mx-auto text-orange-500 mb-2" />
-          <DialogTitle className="text-lg font-medium">¿Dónde realizaste la compra?</DialogTitle>
           {serviceName && (
             <p className="text-muted-foreground text-sm mt-1">
               Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
@@ -295,53 +282,40 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   disabled={loading}
                 >
                   {selectedStore
-                    ? displayedStores.find((store) => store.id === selectedStore)?.name || "Selecciona un comercio"
+                    ? displayedStores.find((store) => store.id === selectedStore)?.name
                     : loading ? "Cargando..." : "Selecciona un comercio"}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-full p-0">
-                {Array.isArray(displayedStores) && displayedStores.length > 0 ? (
-                  <Command>
-                    <CommandInput placeholder="Buscar comercio..." />
-                    <CommandEmpty>No se encontraron resultados.</CommandEmpty>
-                    <CommandGroup>
-                      {displayedStores.map((store) => (
-                        <CommandItem
-                          key={store.id}
-                          value={store.id}
-                          onSelect={(currentValue) => {
-                            handleStoreChange(currentValue);
-                            setOpen(false);
-                          }}
+                <Command>
+                  <CommandInput placeholder="Buscar comercio..." />
+                  <CommandEmpty>No se encontraron resultados.</CommandEmpty>
+                  <CommandGroup>
+                    {displayedStores.map((store) => (
+                      <CommandItem
+                        key={store.id}
+                        value={store.id}
+                        onSelect={(currentValue) => {
+                          handleStoreChange(currentValue);
+                          setOpen(false);
+                        }}
+                        className={cn(
+                          "cursor-pointer",
+                          fixedStores.some(f => f.id === store.id) ? "font-semibold" : ""
+                        )}
+                      >
+                        <Check
                           className={cn(
-                            "cursor-pointer",
-                            fixedStores.some(f => f.id === store.id) ? "font-semibold" : ""
+                            "mr-2 h-4 w-4",
+                            selectedStore === store.id ? "opacity-100" : "opacity-0"
                           )}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectedStore === store.id ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                          {store.name}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                ) : (
-                  <div className="p-4 text-center text-sm text-muted-foreground">
-                    {loading ? (
-                      <div className="flex items-center justify-center">
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        <span>Cargando comercios...</span>
-                      </div>
-                    ) : (
-                      "No hay comercios disponibles"
-                    )}
-                  </div>
-                )}
+                        />
+                        {store.name}
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Command>
               </PopoverContent>
             </Popover>
 
@@ -377,20 +351,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                     } />
                   </SelectTrigger>
                   <SelectContent>
-                    {Array.isArray(departments) && departments.length > 0 ? (
-                      departments.map(dept => (
-                        <SelectItem key={dept.id} value={dept.id}>
-                          {dept.name}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <div className="px-2 py-4 text-center text-sm text-muted-foreground">
-                        {loadingLocation.departments ? 
-                          "Cargando..." : 
-                          "No hay departamentos disponibles"
-                        }
-                      </div>
-                    )}
+                    {departments.map(dept => (
+                      <SelectItem key={dept.id} value={dept.id}>
+                        {dept.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -412,20 +377,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                     } />
                   </SelectTrigger>
                   <SelectContent>
-                    {Array.isArray(currentMunicipalities) && currentMunicipalities.length > 0 ? (
-                      currentMunicipalities.map(municipality => (
-                        <SelectItem key={municipality.id} value={municipality.id}>
-                          {municipality.name}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <div className="px-2 py-4 text-center text-sm text-muted-foreground">
-                        {loadingLocation.municipalities ? 
-                          "Cargando..." : 
-                          "No hay localidades disponibles"
-                        }
-                      </div>
-                    )}
+                    {currentMunicipalities.map(municipality => (
+                      <SelectItem key={municipality.id} value={municipality.id}>
+                        {municipality.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
