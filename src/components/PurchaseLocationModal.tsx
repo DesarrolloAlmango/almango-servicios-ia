@@ -205,16 +205,26 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   };
 
   const handleStoreChange = (value: string) => {
+    const selectedStoreObj = [...fixedStores, ...localStores].find(store => store.id === value);
     setSelectedStore(value);
     setShowOtherInput(value === "other");
-    if (value !== "other") {
-      const selectedStore = [...fixedStores, ...localStores].find(store => store.id === value);
-      setSearchQuery(selectedStore?.name || "");
+    
+    // Actualizar el searchQuery con el nombre del store seleccionado
+    if (selectedStoreObj) {
+      setSearchQuery(selectedStoreObj.name);
     }
+    
     setIsStoreDropdownOpen(false);
   };
 
   const handleInputClick = () => {
+    // Si ya hay una selección, limpiarla al hacer clic nuevamente
+    if (selectedStore) {
+      setSelectedStore("");
+      setSearchQuery("");
+      setShowOtherInput(false);
+      setOtherStore("");
+    }
     setIsStoreDropdownOpen(true);
   };
 
@@ -222,6 +232,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     setSearchQuery(e.target.value);
     if (e.target.value === "") {
       setSelectedStore("");
+      setShowOtherInput(false);
     }
     setIsStoreDropdownOpen(true);
   };
@@ -328,8 +339,20 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   onChange={handleInputChange}
                   onClick={handleInputClick}
                   onBlur={handleInputBlur}
-                  className="pr-8 text-xs" // Cambiado a text-xs para tamaño más pequeño
+                  className="pr-8 text-xs"
                 />
+                {selectedStore && (
+                  <X 
+                    className="h-4 w-4 absolute right-7 text-muted-foreground cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedStore("");
+                      setSearchQuery("");
+                      setShowOtherInput(false);
+                      setOtherStore("");
+                    }}
+                  />
+                )}
                 <ChevronDown className="h-4 w-4 absolute right-3 text-muted-foreground" />
               </div>
               
