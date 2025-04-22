@@ -70,11 +70,17 @@ const LocationStep: React.FC<LocationStepProps> = ({
                   <Loader2 className="h-4 w-4 animate-spin" />
                 </div>
               ) : (
-                departments.map(dept => (
-                  <SelectItem key={dept.id} value={dept.id}>
-                    {dept.name}
-                  </SelectItem>
-                ))
+                Array.isArray(departments) && departments.length > 0 ? (
+                  departments.map(dept => (
+                    <SelectItem key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="p-2 text-center text-sm text-muted-foreground">
+                    No hay departamentos disponibles
+                  </div>
+                )
               )}
             </SelectContent>
           </Select>
@@ -98,7 +104,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
               } />
             </SelectTrigger>
             <SelectContent>
-              {currentMunicipalities && currentMunicipalities.length > 0 ? (
+              {Array.isArray(currentMunicipalities) && currentMunicipalities.length > 0 ? (
                 currentMunicipalities.map(municipality => (
                   <SelectItem key={municipality.id} value={municipality.id}>
                     {municipality.name}
