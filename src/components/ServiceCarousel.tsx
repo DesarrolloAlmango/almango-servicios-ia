@@ -21,7 +21,16 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
   const shouldCenter = children.length <= 2;
 
   return (
-    <div className="w-full max-w-screen-xl mx-auto">
+    <div
+      className={`
+        w-full
+        max-w-screen-xl
+        mx-auto
+        px-1
+        xs:max-w-[99vw] xs:px-0
+        sm:max-w-[99vw] sm:px-0
+      `}
+    >
       {title && (
         <h2 className="text-2xl font-semibold text-center mb-6 text-[#ff6900]">{title}</h2>
       )}
@@ -30,21 +39,34 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
           align: shouldCenter ? "center" : "start",
           loop: children.length > 2,
           containScroll: "trimSnaps",
-          dragFree: true,  // Allow free scrolling
+          dragFree: true,
         }}
         className="w-full relative"
       >
-        <CarouselContent className="gap-4 xs:gap-[20px] sm:gap-4 md:gap-4 lg:gap-4"> {/* Explicit gap between items */}
+        <CarouselContent
+          className={`
+            gap-4
+            xs:gap-[20px] sm:gap-[20px]
+            md:gap-4 lg:gap-4
+          `}
+        >
           {children.map((child, index) => (
-            <CarouselItem 
-              key={index} 
-              className={`pl-0 
-                basis-[calc(85%-20px)] xs:basis-[calc(50%-20px)] sm:basis-[calc(50%-20px)] md:basis-[calc(33.333%-20px)] lg:basis-[calc(25%-20px)] 
-                ${shouldCenter ? "mx-auto" : ""}`}
+            <CarouselItem
+              key={index}
+              className={`
+                pl-0
+                basis-[calc(85%-20px)]
+                xs:basis-[calc(90vw-20px)] sm:basis-[calc(90vw-20px)]
+                md:basis-[calc(33.333%-20px)] lg:basis-[calc(25%-20px)]
+                ${shouldCenter ? "mx-auto" : ""}
+                ${
+                  index === 0
+                    ? "xs:ml-[calc(50vw-45vw)] sm:ml-[calc(50vw-45vw)]"
+                    : ""
+                }
+              `}
             >
-              <div className="flex items-center justify-center py-4">
-                {child}
-              </div>
+              <div className="flex items-center justify-center py-4">{child}</div>
             </CarouselItem>
           ))}
         </CarouselContent>
@@ -58,3 +80,4 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
 };
 
 export default ServiceCarousel;
+
