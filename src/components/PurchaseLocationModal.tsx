@@ -117,8 +117,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       const formattedDepartments = data.map((item: any) => ({
         id: item.DepartamentoId?.toString() || "",
         name: item.DepartamentoDepartamento?.toString() || ""
-      })).filter(dept => dept.id && dept.name)
-        .sort((a, b) => a.name.localeCompare(b.name));
+      })).filter((dept: any) => dept.id && dept.name)
+        .sort((a: any, b: any) => a.name.localeCompare(b.name));
 
       setDepartments(formattedDepartments);
     } catch (error) {
@@ -153,8 +153,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
           id: item.DepartamentoMunicipioId?.toString() || "",
           name: item.DepartamentoMunicipioNombre?.toString() || ""
         }))
-        .filter(mun => mun.id && mun.name && mun.name !== "-")
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .filter((mun: any) => mun.id && mun.name && mun.name !== "-")
+        .sort((a: any, b: any) => a.name.localeCompare(b.name));
 
       setMunicipalities(prev => ({
         ...prev,
@@ -258,12 +258,15 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     onClose();
   };
 
+  // Make sure we always have an array of displayedStores, even if empty
   const displayedStores = [
     ...fixedStores,
-    ...localStores.slice(0, 5)
+    ...((localStores && localStores.length > 0) ? localStores.slice(0, 5) : [])
   ];
 
-  const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
+  const currentMunicipalities = selectedDepartment ? 
+    (municipalities[selectedDepartment] || []) : 
+    [];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -300,7 +303,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   <CommandInput placeholder="Buscar comercio..." />
                   <CommandEmpty>No se encontraron resultados.</CommandEmpty>
                   <CommandGroup>
-                    {displayedStores.map((store) => (
+                    {displayedStores && displayedStores.map((store) => (
                       <CommandItem
                         key={store.id}
                         value={store.id}
