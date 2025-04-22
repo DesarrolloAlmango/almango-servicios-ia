@@ -31,16 +31,15 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
           loop: children.length > 2,
           containScroll: "trimSnaps",
           dragFree: true,  // Allow free scrolling
-          // The spacing option is not supported directly in the type definition
         }}
         className="w-full relative"
       >
-        <CarouselContent className="gap-[20px]"> {/* Explicit gap between items */}
+        <CarouselContent className="gap-4 xs:gap-[20px] sm:gap-4 md:gap-4 lg:gap-4"> {/* Explicit gap between items */}
           {children.map((child, index) => (
             <CarouselItem 
               key={index} 
               className={`pl-0 
-                basis-[calc(85%-20px)] sm:basis-[calc(50%-20px)] md:basis-[calc(33.333%-20px)] lg:basis-[calc(25%-20px)] 
+                basis-[calc(85%-20px)] xs:basis-[calc(50%-20px)] sm:basis-[calc(50%-20px)] md:basis-[calc(33.333%-20px)] lg:basis-[calc(25%-20px)] 
                 ${shouldCenter ? "mx-auto" : ""}`}
             >
               <div className="flex items-center justify-center py-4">
