@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { MapPin, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Store {
   id: string;
@@ -250,11 +251,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     if (searchTerm) {
       const apiResults = localStores.filter(store => 
         store.name.toLowerCase().includes(searchTerm)
-      );
+      ).slice(0, 5);
       
-      const limitedApiResults = apiResults.slice(0, 5);
-      
-      return [...fixedResults, ...limitedApiResults];
+      return [...fixedResults, ...apiResults];
     }
     
     return [...fixedResults, ...localStores.slice(0, 5)];
@@ -290,25 +289,27 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   disabled={loading}
                 />
                 <CommandList>
-                  <CommandEmpty>No se encontraron comercios</CommandEmpty>
-                  <CommandGroup>
-                    {loading ? (
-                      <div className="flex items-center justify-center p-4">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      </div>
-                    ) : (
-                      filteredStores.map((store) => (
-                        <CommandItem
-                          key={store.id}
-                          value={store.id}
-                          onSelect={handleStoreSelect}
-                          className="cursor-pointer"
-                        >
-                          {store.name}
-                        </CommandItem>
-                      ))
-                    )}
-                  </CommandGroup>
+                  <ScrollArea className="h-[200px]">
+                    <CommandEmpty>No se encontraron comercios</CommandEmpty>
+                    <CommandGroup>
+                      {loading ? (
+                        <div className="flex items-center justify-center p-4">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        </div>
+                      ) : (
+                        filteredStores.map((store) => (
+                          <CommandItem
+                            key={store.id}
+                            value={store.id}
+                            onSelect={handleStoreSelect}
+                            className="cursor-pointer"
+                          >
+                            {store.name}
+                          </CommandItem>
+                        ))
+                      )}
+                    </CommandGroup>
+                  </ScrollArea>
                 </CommandList>
               </Command>
             </div>
