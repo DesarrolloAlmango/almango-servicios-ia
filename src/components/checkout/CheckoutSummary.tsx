@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   AlertDialog,
@@ -120,6 +119,17 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const handleViewServiceDetails = (request: ServiceRequest) => {
     setSelectedRequestData(request.requestData);
     setShowDetailDialog(true);
+  };
+
+  const getTurnoLabel = (turno: string) => {
+    switch (turno.toLowerCase()) {
+      case "am":
+        return "Mañana (8:00 - 12:00)";
+      case "pm":
+        return "Tarde (13:00 - 17:00)";
+      default:
+        return turno;
+    }
   };
 
   return (
@@ -281,7 +291,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                     </div>
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Turno</p>
-                      <p className="text-lg">{selectedRequestData.TurnoInstalacion}</p>
+                      <p className="text-lg">{getTurnoLabel(selectedRequestData.TurnoInstalacion)}</p>
                     </div>
                   </div>
                   {selectedRequestData.Comentario && (
@@ -303,24 +313,18 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                       <div key={index} className="p-4 rounded-lg bg-slate-50">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <p className="text-sm font-medium text-muted-foreground">ID del Servicio</p>
-                            <p className="text-lg">{item.RubrosId}</p>
-                          </div>
-                          <div>
                             <p className="text-sm font-medium text-muted-foreground">Cantidad</p>
                             <p className="text-lg">{item.Cantidad}</p>
                           </div>
-                        </div>
-                        <Separator className="my-4" />
-                        <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <p className="text-sm font-medium text-muted-foreground">Precio Unitario</p>
+                            <p className="text-sm font-medium text-muted-foreground">Precio</p>
                             <p className="text-lg">${item.Precio}</p>
                           </div>
-                          <div>
-                            <p className="text-sm font-medium text-muted-foreground">Precio Final</p>
-                            <p className="text-lg">${item.PrecioFinal}</p>
-                          </div>
+                        </div>
+                        <Separator className="my-4" />
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground">Precio Final</p>
+                          <p className="text-lg">${item.PrecioFinal}</p>
                         </div>
                       </div>
                     ))}

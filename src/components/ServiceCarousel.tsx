@@ -30,14 +30,17 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
         opts={{
           align: shouldCenter ? "center" : "start",
           loop: children.length > 2,
+          containScroll: "trimSnaps"
         }}
-        className="w-full"
+        className="w-full relative"
       >
-        <CarouselContent className="-ml-4 md:-ml-6">
+        <CarouselContent className="-ml-2 sm:-ml-4">
           {children.map((child, index) => (
             <CarouselItem 
               key={index} 
-              className={`pl-4 md:pl-6 sm:basis-1/2 md:basis-1/3 lg:basis-1/4 ${shouldCenter ? "mx-auto" : ""}`}
+              className={`pl-2 sm:pl-4 
+                basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 
+                ${shouldCenter ? "mx-auto" : ""}`}
             >
               <div className="flex items-center justify-center py-4">
                 {child}
