@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -243,12 +242,23 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
 
-  const filteredStores = [
-    ...fixedStores,
-    ...localStores.filter(store => 
-      store.name.toLowerCase().includes(storeSearch.toLowerCase())
-    )
-  ];
+  const filteredStores = useMemo(() => {
+    const searchTerm = storeSearch.toLowerCase().trim();
+    
+    const fixedResults = [...fixedStores];
+    
+    if (searchTerm) {
+      const apiResults = localStores.filter(store => 
+        store.name.toLowerCase().includes(searchTerm)
+      );
+      
+      const limitedApiResults = apiResults.slice(0, 5);
+      
+      return [...fixedResults, ...limitedApiResults];
+    }
+    
+    return [...fixedResults, ...localStores.slice(0, 5)];
+  }, [storeSearch, localStores]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
