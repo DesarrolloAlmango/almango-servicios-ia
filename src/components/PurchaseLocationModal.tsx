@@ -62,6 +62,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const fixedStores: Store[] = [
     { id: "other", name: "Otro" },
@@ -177,13 +178,14 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       }
 
       const data = await response.json();
-      console.log("API providers response:", data);
 
-      if (!Array.isArray(data)) {
+      let storesData = Array.isArray(data) ? data : data.result || data.data || [];
+      
+      if (!Array.isArray(storesData)) {
         throw new Error("Formato de datos inválido");
       }
 
-      const validStores = data
+      const validStores = storesData
         .filter((item: any) => item.ProveedorID && item.ProveedorNombre)
         .map((item: any) => ({
           id: item.ProveedorID.toString(),
@@ -192,7 +194,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
 
-      console.log("Processed stores:", validStores);
       setLocalStores(validStores);
     } catch (error) {
       console.error("Error al obtener proveedores:", error);
@@ -207,8 +208,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     setSelectedStore(value);
     setShowOtherInput(value === "other");
     if (value !== "other") {
-      setSearchQuery("");
-      const selectedStore = displayedStores.find(store => store.id === value);
+      const selectedStore = [...fixedStores, ...localStores].find(store => store.id === value);
       setSearchQuery(selectedStore?.name || "");
     }
     setIsStoreDropdownOpen(false);
@@ -226,16 +226,23 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     setIsStoreDropdownOpen(true);
   };
 
-  const handleInputBlur = () => {
-    // Pequeño retraso para permitir la selección del ítem antes de cerrar
+  const handleInputBlur = (e: React.FocusEvent) => {
+    // Verificar si el blur fue causado por hacer clic en el ScrollArea
+    if (scrollAreaRef.current && scrollAreaRef.current.contains(e.relatedTarget as Node)) {
+      return;
+    }
     setTimeout(() => {
       setIsStoreDropdownOpen(false);
     }, 200);
   };
 
+  const handleScrollAreaMouseDown = (e: React.MouseEvent) => {
+    // Prevenir el blur cuando se interactúa con el ScrollArea
+    e.preventDefault();
+  };
+
   const handleConfirm = () => {
     if (!selectedStore && searchQuery) {
-      // Si el usuario escribió algo pero no seleccionó, usar "Otro"
       setSelectedStore("other");
       setOtherStore(searchQuery);
       setShowOtherInput(true);
@@ -258,7 +265,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
     const storeName = selectedStore === "other" 
       ? otherStore || searchQuery 
-      : displayedStores.find(store => store.id === selectedStore)?.name || "";
+      : [...fixedStores, ...localStores].find(store => store.id === selectedStore)?.name || "";
     
     const selectedDepartmentObj = departments.find(dept => dept.id === selectedDepartment);
     const selectedLocationObj = currentMunicipalities.find(mun => mun.id === selectedLocation);
@@ -321,32 +328,37 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   onChange={handleInputChange}
                   onClick={handleInputClick}
                   onBlur={handleInputBlur}
-                  className="pr-8"
+                  className="pr-8 text-xs" // Cambiado a text-xs para tamaño más pequeño
                 />
                 <ChevronDown className="h-4 w-4 absolute right-3 text-muted-foreground" />
               </div>
               
               {isStoreDropdownOpen && (
                 <div className="absolute z-50 w-full mt-1 rounded-md border bg-popover shadow-lg">
-                  <ScrollArea className="h-[200px] rounded-md">
+                  <ScrollArea 
+                    ref={scrollAreaRef}
+                    className="h-[200px] rounded-md"
+                    onMouseDown={handleScrollAreaMouseDown}
+                  >
                     {loading ? (
                       <div className="flex items-center justify-center p-4">
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        <span>Cargando opciones...</span>
+                        <span className="text-xs">Cargando opciones...</span>
                       </div>
                     ) : filteredStores.length > 0 ? (
-                      filteredStores.map(store => (
+                      filteredStores.map((store, index) => (
                         <div
                           key={store.id}
-                          className="px-4 py-2 hover:bg-accent hover:text-accent-foreground cursor-pointer"
-                          onMouseDown={(e) => e.preventDefault()} // Evitar que el blur se active antes del click
+                          className={`px-4 py-2 hover:bg-accent hover:text-accent-foreground cursor-pointer uppercase text-xs
+                                    ${index < 2 ? 'font-bold' : ''}`}
+                          onMouseDown={(e) => e.preventDefault()}
                           onClick={() => handleStoreChange(store.id)}
                         >
                           {store.name}
                         </div>
                       ))
                     ) : (
-                      <div className="px-4 py-2 text-muted-foreground">
+                      <div className="px-4 py-2 text-muted-foreground text-xs">
                         No se encontraron resultados
                       </div>
                     )}
@@ -360,7 +372,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                 placeholder="Nombre del comercio"
                 value={otherStore}
                 onChange={(e) => setOtherStore(e.target.value)}
-                className="mt-2"
+                className="mt-2 text-xs"
               />
             )}
           </div>
