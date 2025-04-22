@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { MapPin, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Store {
   id: string;
@@ -273,15 +274,25 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                 <SelectValue placeholder={loading ? "Cargando..." : "Selecciona un comercio"} />
               </SelectTrigger>
               <SelectContent>
-                {displayedStores.map(store => (
-                  <SelectItem 
-                    key={store.id} 
-                    value={store.id}
-                    className={fixedStores.some(f => f.id === store.id) ? "font-semibold" : ""}
-                  >
-                    {store.name}
-                  </SelectItem>
-                ))}
+                <ScrollArea className="h-[200px]">
+                  {fixedStores.map(store => (
+                    <SelectItem 
+                      key={store.id} 
+                      value={store.id}
+                      className="font-semibold"
+                    >
+                      {store.name}
+                    </SelectItem>
+                  ))}
+                  {localStores.map(store => (
+                    <SelectItem 
+                      key={store.id} 
+                      value={store.id}
+                    >
+                      {store.name}
+                    </SelectItem>
+                  ))}
+                </ScrollArea>
               </SelectContent>
             </Select>
 
