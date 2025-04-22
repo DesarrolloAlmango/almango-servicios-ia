@@ -19,6 +19,7 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
   }
 
   const shouldCenter = children.length <= 2;
+  const onlyOne = children.length === 1;
 
   return (
     <div
@@ -46,8 +47,11 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
         <CarouselContent
           className={`
             gap-4
-            xs:gap-[20px] sm:gap-[20px]
+            xs:gap-[10px] sm:gap-[12px] 
             md:gap-4 lg:gap-4
+            flex
+            justify-center
+            ${onlyOne ? 'xs:!justify-center sm:!justify-center !justify-center' : ''}
           `}
         >
           {children.map((child, index) => (
@@ -55,14 +59,16 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
               key={index}
               className={`
                 pl-0
-                basis-[calc(85%-20px)]
-                xs:basis-[calc(90vw-20px)] sm:basis-[calc(90vw-20px)]
-                md:basis-[calc(33.333%-20px)] lg:basis-[calc(25%-20px)]
+                basis-[calc(85%-16px)]
+                xs:basis-[calc(92vw-10px)] sm:basis-[calc(92vw-12px)]
+                md:basis-[calc(33.333%-16px)] lg:basis-[calc(25%-16px)]
                 ${shouldCenter ? "mx-auto" : ""}
                 ${
-                  index === 0
-                    ? "xs:ml-[calc(50vw-45vw)] sm:ml-[calc(50vw-45vw)]"
-                    : ""
+                  onlyOne
+                    ? "xs:ml-0 sm:ml-0 ml-0"
+                    : index === 0
+                      ? "xs:ml-[calc(50vw-46vw)] sm:ml-[calc(50vw-46vw)]"
+                      : ""
                 }
               `}
             >
