@@ -1,10 +1,9 @@
-
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { MapPin, Loader2 } from "lucide-react";
+import { MapPin, Loader2, ChevronDown, X } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -60,6 +59,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     departments: false,
     municipalities: false
   });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const fixedStores: Store[] = [
     { id: "other", name: "Otro" },
@@ -75,8 +77,15 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       setShowOtherInput(false);
       setSelectedDepartment("");
       setSelectedLocation("");
+      setSearchQuery("");
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    if (isStoreDropdownOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isStoreDropdownOpen]);
 
   useEffect(() => {
     if (selectedDepartment && !municipalities[selectedDepartment]) {
@@ -197,16 +206,47 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const handleStoreChange = (value: string) => {
     setSelectedStore(value);
     setShowOtherInput(value === "other");
-    if (value !== "other") setOtherStore("");
+    if (value !== "other") {
+      setSearchQuery("");
+      const selectedStore = displayedStores.find(store => store.id === value);
+      setSearchQuery(selectedStore?.name || "");
+    }
+    setIsStoreDropdownOpen(false);
+  };
+
+  const handleInputClick = () => {
+    setIsStoreDropdownOpen(true);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    if (e.target.value === "") {
+      setSelectedStore("");
+    }
+    setIsStoreDropdownOpen(true);
+  };
+
+  const handleInputBlur = () => {
+    // Pequeño retraso para permitir la selección del ítem antes de cerrar
+    setTimeout(() => {
+      setIsStoreDropdownOpen(false);
+    }, 200);
   };
 
   const handleConfirm = () => {
-    if (!selectedStore) {
-      toast.error("Por favor selecciona un lugar de compra");
+    if (!selectedStore && searchQuery) {
+      // Si el usuario escribió algo pero no seleccionó, usar "Otro"
+      setSelectedStore("other");
+      setOtherStore(searchQuery);
+      setShowOtherInput(true);
+    }
+
+    if (!selectedStore && !searchQuery) {
+      toast.error("Por favor selecciona o escribe un lugar de compra");
       return;
     }
 
-    if (selectedStore === "other" && !otherStore.trim()) {
+    if (selectedStore === "other" && !otherStore.trim() && !searchQuery.trim()) {
       toast.error("Por favor ingresa el nombre del comercio");
       return;
     }
@@ -216,22 +256,21 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       return;
     }
 
-    const selected = displayedStores.find(store => store.id === selectedStore);
     const storeName = selectedStore === "other" 
-      ? otherStore 
-      : selected?.name || "";
+      ? otherStore || searchQuery 
+      : displayedStores.find(store => store.id === selectedStore)?.name || "";
     
     const selectedDepartmentObj = departments.find(dept => dept.id === selectedDepartment);
     const selectedLocationObj = currentMunicipalities.find(mun => mun.id === selectedLocation);
 
     onSelectLocation(
-      selectedStore, 
+      selectedStore || "other", 
       storeName,
       selectedDepartment,
       selectedDepartmentObj?.name || "",
       selectedLocation,
       selectedLocationObj?.name || "",
-      selectedStore === "other" ? otherStore : undefined
+      selectedStore === "other" ? otherStore || searchQuery : undefined
     );
     onClose();
   };
@@ -239,6 +278,13 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const displayedStores = useMemo(() => {
     return [...fixedStores, ...localStores];
   }, [localStores]);
+
+  const filteredStores = useMemo(() => {
+    if (!searchQuery) return displayedStores;
+    return displayedStores.filter(store => 
+      store.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [displayedStores, searchQuery]);
 
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
 
@@ -265,49 +311,49 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             <label className="block text-sm font-medium">
               Lugar de Compra
             </label>
-            <Select 
-              value={selectedStore} 
-              onValueChange={handleStoreChange}
-              disabled={loading}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={loading ? "Cargando..." : "Selecciona un comercio"} />
-              </SelectTrigger>
-              <SelectContent>
-                <ScrollArea className="h-[200px]">
-                  {fixedStores.map(store => (
-                    <SelectItem 
-                      key={store.id} 
-                      value={store.id}
-                      className="font-semibold"
-                    >
-                      {store.name}
-                    </SelectItem>
-                  ))}
-                  {localStores.length > 0 ? (
-                    localStores.map(store => (
-                      <SelectItem 
-                        key={store.id} 
-                        value={store.id}
-                      >
-                        {store.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    loading ? (
-                      <div className="py-2 px-2 text-center">
-                        <Loader2 className="h-4 w-4 animate-spin mx-auto" />
-                        <p className="text-xs text-muted-foreground mt-1">Cargando opciones...</p>
+            
+            <div className="relative">
+              <div className="flex items-center relative">
+                <Input
+                  ref={inputRef}
+                  placeholder={loading ? "Cargando..." : "Buscar o seleccionar comercio"}
+                  value={searchQuery}
+                  onChange={handleInputChange}
+                  onClick={handleInputClick}
+                  onBlur={handleInputBlur}
+                  className="pr-8"
+                />
+                <ChevronDown className="h-4 w-4 absolute right-3 text-muted-foreground" />
+              </div>
+              
+              {isStoreDropdownOpen && (
+                <div className="absolute z-50 w-full mt-1 rounded-md border bg-popover shadow-lg">
+                  <ScrollArea className="h-[200px] rounded-md">
+                    {loading ? (
+                      <div className="flex items-center justify-center p-4">
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        <span>Cargando opciones...</span>
                       </div>
+                    ) : filteredStores.length > 0 ? (
+                      filteredStores.map(store => (
+                        <div
+                          key={store.id}
+                          className="px-4 py-2 hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                          onMouseDown={(e) => e.preventDefault()} // Evitar que el blur se active antes del click
+                          onClick={() => handleStoreChange(store.id)}
+                        >
+                          {store.name}
+                        </div>
+                      ))
                     ) : (
-                      <div className="py-2 px-2 text-center">
-                        <p className="text-xs text-muted-foreground">No hay opciones adicionales</p>
+                      <div className="px-4 py-2 text-muted-foreground">
+                        No se encontraron resultados
                       </div>
-                    )
-                  )}
-                </ScrollArea>
-              </SelectContent>
-            </Select>
+                    )}
+                  </ScrollArea>
+                </div>
+              )}
+            </div>
 
             {showOtherInput && (
               <Input
@@ -386,7 +432,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
           </Button>
           <Button 
             onClick={handleConfirm}
-            disabled={loading || !selectedStore || (selectedStore === "other" && !otherStore.trim()) || !selectedDepartment || !selectedLocation}
+            disabled={loading || (!selectedStore && !searchQuery) || (selectedStore === "other" && !otherStore.trim() && !searchQuery.trim()) || !selectedDepartment || !selectedLocation}
             className="bg-orange-500 hover:bg-orange-600"
           >
             Confirmar
