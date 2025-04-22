@@ -241,7 +241,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     const selected = displayedStores.find(store => store.id === selectedStore);
     const storeName = selectedStore === "other" 
       ? otherStore 
-      : selected?.name || "";
+      : (selected?.name || "");
     
     const selectedDepartmentObj = departments.find(dept => dept.id === selectedDepartment);
     const selectedLocationObj = currentMunicipalities.find(mun => mun.id === selectedLocation);
@@ -303,7 +303,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   <CommandInput placeholder="Buscar comercio..." />
                   <CommandEmpty>No se encontraron resultados.</CommandEmpty>
                   <CommandGroup>
-                    {displayedStores && displayedStores.map((store) => (
+                    {displayedStores.map((store) => (
                       <CommandItem
                         key={store.id}
                         value={store.id}
