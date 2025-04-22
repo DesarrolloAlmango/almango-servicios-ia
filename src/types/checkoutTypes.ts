@@ -3,11 +3,9 @@ export interface CheckoutItem {
   ProductoID: number | null;
   DetalleID: number | null;
   Cantidad: number;
-  Precio: number;
   SR: string;
   Comision: number;
   ComisionTipo: string;
-  PrecioFinal: number;
   serviceName?: string;
 }
 
