@@ -31,7 +31,6 @@ export interface CheckoutData {
   ConfirmarCondicionesUso: string;
   ProveedorAuxiliar: string | null;
   Level1: CheckoutItem[];
-  serviceName?: string; // Adding the missing property
 }
 
 export interface ServiceRequest {

@@ -181,8 +181,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           Comision: 0,
           ComisionTipo: "P",
           PrecioFinal: Number((item.price * item.quantity).toFixed(2))
-        })),
-        serviceName: location.serviceName || 'Servicio'
+        }))
       };
 
       return formattedData;
