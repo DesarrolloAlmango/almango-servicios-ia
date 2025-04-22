@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Sheet,
@@ -48,12 +47,6 @@ interface Municipality {
   id: string;
   name: string;
 }
-
-const getProviderAuxiliary = (location: string, otherLocation?: string): string | null => {
-  if (location === "other") return "otro";
-  if (location === "NoLoSe") return "NoLoSe";
-  return null;
-};
 
 const CartDrawer: React.FC<CartDrawerProps> = ({ 
   isOpen, 
