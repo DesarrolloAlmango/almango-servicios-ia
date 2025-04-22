@@ -211,6 +211,12 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const handleInputClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsStoreDropdownOpen(!isStoreDropdownOpen);
+    // Enfocar el input y abrir el teclado en móviles
+    setTimeout(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 100);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -322,10 +328,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   onClick={handleInputClick}
                   onBlur={handleInputBlur}
                   className="pr-8 text-xs"
-                  readOnly // Previene el zoom en dispositivos móviles
-                  onFocus={(e) => {
-                    // Previene el zoom manteniendo el tamaño de fuente
-                    e.target.style.fontSize = '16px';
+                  onTouchStart={(e) => {
+                    // Forzar el foco en dispositivos táctiles
+                    e.currentTarget.focus();
                   }}
                 />
                 <ChevronDown className="h-4 w-4 absolute right-3 text-muted-foreground" />
@@ -371,10 +376,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                 value={otherStore}
                 onChange={(e) => setOtherStore(e.target.value)}
                 className="mt-2 text-xs"
-                readOnly // Previene el zoom en dispositivos móviles
-                onFocus={(e) => {
-                  // Previene el zoom manteniendo el tamaño de fuente
-                  e.target.style.fontSize = '16px';
+                onTouchStart={(e) => {
+                  // Forzar el foco en dispositivos táctiles
+                  e.currentTarget.focus();
                 }}
               />
             )}
