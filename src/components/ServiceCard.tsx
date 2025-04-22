@@ -342,6 +342,7 @@ interface ServiceCardProps {
   } | null;
   forceOpen?: boolean;
   circular?: boolean;
+  size?: string;
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ 
@@ -354,7 +355,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   onBeforeCardClick,
   purchaseLocation,
   forceOpen = false,
-  circular = false
+  circular = false,
+  size
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -497,7 +499,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     <>
       <Card 
         className={`${circular 
-          ? "w-[220px] h-[220px] aspect-square rounded-full shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 overflow-hidden group"
+          ? `${size || "w-[220px] h-[220px]"} aspect-square rounded-full shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 overflow-hidden group`
           : "w-[280px] h-[200px] rounded-lg shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 overflow-hidden group"
         }`}
         onClick={handleCardClick}
