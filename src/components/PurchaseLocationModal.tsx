@@ -83,6 +83,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       setShowOtherInput(false);
       setSelectedDepartment("");
       setSelectedLocation("");
+      setStoreSearch("");
     }
   }, [isOpen]);
 
@@ -248,19 +249,19 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     onClose();
   };
 
-  const displayedStores = React.useMemo(() => {
-    const allStores = [...fixedStores];
+  const displayedStores = useMemo(() => {
+    const result = [...fixedStores];
     
     if (storeSearch) {
       const filteredStores = localStores.filter(store =>
         store.name.toLowerCase().includes(storeSearch.toLowerCase())
       );
-      allStores.push(...filteredStores);
+      result.push(...filteredStores);
     } else {
-      allStores.push(...localStores.slice(0, 4));
+      result.push(...localStores.slice(0, 4));
     }
     
-    return allStores;
+    return result;
   }, [localStores, storeSearch]);
 
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
