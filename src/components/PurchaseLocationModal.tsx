@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -59,8 +60,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     departments: false,
     municipalities: false
   });
-  const [openStoreSelect, setOpenStoreSelect] = useState(false);
-  const [storeSearch, setStoreSearch] = useState("");
 
   const fixedStores: Store[] = [
     { id: "other", name: "Otro" },
@@ -169,6 +168,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       }
 
       const data = await response.json();
+      console.log("API providers response:", data);
 
       if (!Array.isArray(data)) {
         throw new Error("Formato de datos inválido");
@@ -181,9 +181,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
           name: item.ProveedorNombre.toString(),
           logo: item.ProveedorLogo?.toString() || ""
         }))
-        .sort((a, b) => a.name.localeCompare(b.name))
-        .slice(0, 5);
+        .sort((a, b) => a.name.localeCompare(b.name));
 
+      console.log("Processed stores:", validStores);
       setLocalStores(validStores);
     } catch (error) {
       console.error("Error al obtener proveedores:", error);
@@ -284,14 +284,27 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                       {store.name}
                     </SelectItem>
                   ))}
-                  {localStores.map(store => (
-                    <SelectItem 
-                      key={store.id} 
-                      value={store.id}
-                    >
-                      {store.name}
-                    </SelectItem>
-                  ))}
+                  {localStores.length > 0 ? (
+                    localStores.map(store => (
+                      <SelectItem 
+                        key={store.id} 
+                        value={store.id}
+                      >
+                        {store.name}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    loading ? (
+                      <div className="py-2 px-2 text-center">
+                        <Loader2 className="h-4 w-4 animate-spin mx-auto" />
+                        <p className="text-xs text-muted-foreground mt-1">Cargando opciones...</p>
+                      </div>
+                    ) : (
+                      <div className="py-2 px-2 text-center">
+                        <p className="text-xs text-muted-foreground">No hay opciones adicionales</p>
+                      </div>
+                    )
+                  )}
                 </ScrollArea>
               </SelectContent>
             </Select>
@@ -354,11 +367,13 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   } />
                 </SelectTrigger>
                 <SelectContent>
-                  {currentMunicipalities.map(municipality => (
-                    <SelectItem key={municipality.id} value={municipality.id}>
-                      {municipality.name}
-                    </SelectItem>
-                  ))}
+                  <ScrollArea className="h-[200px]">
+                    {currentMunicipalities.map(municipality => (
+                      <SelectItem key={municipality.id} value={municipality.id}>
+                        {municipality.name}
+                      </SelectItem>
+                    ))}
+                  </ScrollArea>
                 </SelectContent>
               </Select>
             </div>
