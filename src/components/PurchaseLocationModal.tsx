@@ -83,12 +83,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   }, [isOpen]);
 
   useEffect(() => {
-    if (isStoreDropdownOpen && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isStoreDropdownOpen]);
-
-  useEffect(() => {
     if (selectedDepartment && !municipalities[selectedDepartment]) {
       fetchMunicipalities(selectedDepartment);
     }
@@ -214,8 +208,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     setIsStoreDropdownOpen(false);
   };
 
-  const handleInputClick = () => {
-    setIsStoreDropdownOpen(true);
+  const handleInputClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsStoreDropdownOpen(!isStoreDropdownOpen);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -227,7 +222,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   };
 
   const handleInputBlur = (e: React.FocusEvent) => {
-    // Verificar si el blur fue causado por hacer clic en el ScrollArea
     if (scrollAreaRef.current && scrollAreaRef.current.contains(e.relatedTarget as Node)) {
       return;
     }
@@ -237,7 +231,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   };
 
   const handleScrollAreaMouseDown = (e: React.MouseEvent) => {
-    // Prevenir el blur cuando se interactúa con el ScrollArea
     e.preventDefault();
   };
 
@@ -328,7 +321,12 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   onChange={handleInputChange}
                   onClick={handleInputClick}
                   onBlur={handleInputBlur}
-                  className="pr-8 text-xs" // Cambiado a text-xs para tamaño más pequeño
+                  className="pr-8 text-xs"
+                  readOnly // Previene el zoom en dispositivos móviles
+                  onFocus={(e) => {
+                    // Previene el zoom manteniendo el tamaño de fuente
+                    e.target.style.fontSize = '16px';
+                  }}
                 />
                 <ChevronDown className="h-4 w-4 absolute right-3 text-muted-foreground" />
               </div>
@@ -373,6 +371,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                 value={otherStore}
                 onChange={(e) => setOtherStore(e.target.value)}
                 className="mt-2 text-xs"
+                readOnly // Previene el zoom en dispositivos móviles
+                onFocus={(e) => {
+                  // Previene el zoom manteniendo el tamaño de fuente
+                  e.target.style.fontSize = '16px';
+                }}
               />
             )}
           </div>
