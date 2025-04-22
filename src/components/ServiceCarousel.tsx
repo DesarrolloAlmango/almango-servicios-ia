@@ -31,7 +31,7 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
           loop: children.length > 2,
           containScroll: "trimSnaps",
           dragFree: true,  // Allow free scrolling
-          spacing: 20       // Set a fixed spacing of 20px between items
+          // The spacing option is not supported directly in the type definition
         }}
         className="w-full relative"
       >
