@@ -169,8 +169,9 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         FechaInstalacion: format(selectedDate!, "yyyy-MM-dd'T'HH:mm:ss"),
         TurnoInstalacion: getTimeSlotNumber(selectedTimeSlot),
         Comentario: data.comments || "",
+        ConfirmarCondicionesUso: "S",
         ProveedorAuxiliar: getProviderAuxiliary(location.storeId, location.otherLocation),
-        items: items.map(item => ({
+        Level1: items.map(item => ({
           RubrosId: Number(item.serviceId),
           ProductoID: Number(item.categoryId),
           DetalleID: Number(item.productId),

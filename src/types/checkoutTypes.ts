@@ -1,3 +1,4 @@
+
 export interface CheckoutItem {
   RubrosId: number;
   ProductoID: number | null;
@@ -8,7 +9,6 @@ export interface CheckoutItem {
   Comision: number;
   ComisionTipo: string;
   PrecioFinal: number;
-  serviceName?: string;
 }
 
 export interface CheckoutData {
@@ -28,9 +28,9 @@ export interface CheckoutData {
   FechaInstalacion: string;
   TurnoInstalacion: string;
   Comentario: string;
+  ConfirmarCondicionesUso: string;
   ProveedorAuxiliar: string | null;
-  serviceName?: string;
-  items: CheckoutItem[];
+  Level1: CheckoutItem[];
 }
 
 export interface ServiceRequest {
