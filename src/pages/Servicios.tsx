@@ -47,10 +47,10 @@ interface PurchaseLocation {
   otherLocation?: string;
   serviceId?: string;
   serviceName?: string;
-  departmentId?: string;
-  departmentName?: string;
-  locationId?: string;
-  locationName?: string;
+  departmentId: string;
+  departmentName: string;
+  locationId: string;
+  locationName: string;
 }
 
 const iconComponents = {
@@ -361,9 +361,6 @@ const Servicios = () => {
     );
   }
 
-  console.log("Servicios recibidos de la API:", displayedServices);
-  console.log("Servicios de mudanza recibidos de la API:", displayedMudanzaServices);
-
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
       <main className="flex-grow py-8 px-4">
@@ -438,19 +435,23 @@ const Servicios = () => {
                 const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
                 
                 return (
-                  <ServiceCard 
+                  <div 
                     key={index}
-                    id={service.id}
-                    name={service.name} 
-                    iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Home} 
-                    icon={!isIconKey ? service.icon : undefined}
-                    addToCart={addToCart}
-                    externalUrl={service.url}
-                    onBeforeCardClick={() => handleServiceCardClick(service.id, service.name)}
-                    purchaseLocation={getPurchaseLocationForService(service.id || "")}
-                    forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
-                    circular={true}
-                  />
+                    className="sm:first:ml-[calc(50%-120px)] xs:first:ml-[calc(50%-120px)] first:ml-[calc(50%-120px)] sm:not-first:-ml-6 xs:not-first:-ml-6 not-first:-ml-6"
+                  >
+                    <ServiceCard 
+                      id={service.id}
+                      name={service.name} 
+                      iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Home} 
+                      icon={!isIconKey ? service.icon : undefined}
+                      addToCart={addToCart}
+                      externalUrl={service.url}
+                      onBeforeCardClick={() => handleServiceCardClick(service.id, service.name)}
+                      purchaseLocation={getPurchaseLocationForService(service.id || "")}
+                      forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
+                      circular={true}
+                    />
+                  </div>
                 );
               })}
             </ServiceCarousel>
@@ -462,19 +463,23 @@ const Servicios = () => {
                 const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
                 
                 return (
-                  <ServiceCard 
+                  <div 
                     key={index}
-                    id={service.id}
-                    name={service.name} 
-                    iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Truck} 
-                    icon={!isIconKey ? service.icon : undefined}
-                    addToCart={addToCart}
-                    externalUrl={service.url}
-                    onBeforeCardClick={() => handleServiceCardClick(service.id, service.name)}
-                    purchaseLocation={getPurchaseLocationForService(service.id || "")}
-                    forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
-                    circular={true}
-                  />
+                    className="sm:first:ml-[calc(50%-120px)] xs:first:ml-[calc(50%-120px)] first:ml-[calc(50%-120px)] sm:not-first:-ml-6 xs:not-first:-ml-6 not-first:-ml-6"
+                  >
+                    <ServiceCard 
+                      id={service.id}
+                      name={service.name} 
+                      iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Truck} 
+                      icon={!isIconKey ? service.icon : undefined}
+                      addToCart={addToCart}
+                      externalUrl={service.url}
+                      onBeforeCardClick={() => handleServiceCardClick(service.id, service.name)}
+                      purchaseLocation={getPurchaseLocationForService(service.id || "")}
+                      forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
+                      circular={true}
+                    />
+                  </div>
                 );
               })}
             </ServiceCarousel>
@@ -531,28 +536,6 @@ const Servicios = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <style>
-        {`
-        @media (min-width: 640px) and (max-width: 1023px) {
-          .grid-cols-2 > div:nth-child(odd):last-child {
-            grid-column: 1 / span 2;
-            justify-self: center;
-          }
-        }
-        
-        @media (min-width: 1024px) {
-          .grid-cols-3 > div:nth-last-child(1):nth-child(3n-1),
-          .grid-cols-3 > div:nth-last-child(2):nth-child(3n-1) {
-            margin-left: calc(100% / 3);
-          }
-          
-          .grid-cols-3 > div:nth-last-child(1):nth-child(3n-2) {
-            margin-left: calc(100% / 3);
-          }
-        }
-        `}
-      </style>
     </div>
   );
 };

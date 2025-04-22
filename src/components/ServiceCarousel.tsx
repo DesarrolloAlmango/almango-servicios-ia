@@ -1,4 +1,3 @@
-
 import React from "react";
 import { 
   Carousel,
@@ -18,7 +17,6 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
     return <div className="text-center py-8">No hay servicios disponibles</div>;
   }
 
-  // Determinar si debe centrarse (cuando hay pocos elementos)
   const shouldCenter = children.length <= 2;
 
   return (
@@ -34,11 +32,11 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
         }}
         className="w-full relative"
       >
-        <CarouselContent className="-ml-2 sm:-ml-4">
+        <CarouselContent className="-ml-0.5 sm:-ml-0.5"> {/* Reducción extrema */}
           {children.map((child, index) => (
             <CarouselItem 
               key={index} 
-              className={`pl-2 sm:pl-4 
+              className={`pl-0.5 sm:pl-0.5  /* Reducción extrema */
                 basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 
                 ${shouldCenter ? "mx-auto" : ""}`}
             >
