@@ -1,22 +1,11 @@
+
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandInput,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { MapPin, Loader2, Check, ChevronsUpDown } from "lucide-react";
+import { MapPin, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 
 interface Store {
   id: string;
@@ -70,8 +59,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     departments: false,
     municipalities: false
   });
-  const [open, setOpen] = useState(false);
 
+  // Fixed stores that should appear first
   const fixedStores: Store[] = [
     { id: "other", name: "Otro" },
     { id: "unknown", name: "No lo sé" }
@@ -81,6 +70,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     if (isOpen) {
       fetchProviders();
       fetchDepartments();
+      // Reset values when modal opens
       setSelectedStore("");
       setOtherStore("");
       setShowOtherInput(false);
@@ -250,9 +240,10 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     onClose();
   };
 
+  // Combinar opciones fijas primero y luego los proveedores
   const displayedStores = [
     ...fixedStores,
-    ...localStores.slice(0, 5)
+    ...localStores
   ];
 
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
@@ -260,64 +251,49 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
+        <DialogTitle className="text-center">
+          Selección de Lugar de Compra
+        </DialogTitle>
+        
+        <DialogDescription className="text-center">
+          Necesitamos esta información para brindarte un mejor servicio
+        </DialogDescription>
+        
         <div className="text-center mb-6">
           <MapPin className="h-12 w-12 mx-auto text-orange-500 mb-2" />
+          <h3 className="text-xl font-semibold">¿Dónde realizaste la compra?</h3>
           {serviceName && (
             <p className="text-muted-foreground text-sm mt-1">
               Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
             </p>
           )}
         </div>
-        
-        <div className="space-y-6">
+
+        <div className="space-y-4">
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold">Selección del Lugar de Compra</h3>
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={open}
-                  className="w-full justify-between"
-                  disabled={loading}
-                >
-                  {selectedStore
-                    ? displayedStores.find((store) => store.id === selectedStore)?.name
-                    : loading ? "Cargando..." : "Selecciona un comercio"}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-full p-0">
-                <Command>
-                  <CommandInput placeholder="Buscar comercio..." />
-                  <CommandEmpty>No se encontraron resultados.</CommandEmpty>
-                  <CommandGroup>
-                    {displayedStores.map((store) => (
-                      <CommandItem
-                        key={store.id}
-                        value={store.id}
-                        onSelect={(currentValue) => {
-                          handleStoreChange(currentValue);
-                          setOpen(false);
-                        }}
-                        className={cn(
-                          "cursor-pointer",
-                          fixedStores.some(f => f.id === store.id) ? "font-semibold" : ""
-                        )}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            selectedStore === store.id ? "opacity-100" : "opacity-0"
-                          )}
-                        />
-                        {store.name}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </Command>
-              </PopoverContent>
-            </Popover>
+            <label className="block text-sm font-medium">
+              Lugar de Compra
+            </label>
+            <Select
+              value={selectedStore}
+              onValueChange={handleStoreChange}
+              disabled={loading}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={loading ? "Cargando..." : "Selecciona un comercio"} />
+              </SelectTrigger>
+              <SelectContent>
+                {displayedStores.map(store => (
+                  <SelectItem 
+                    key={store.id} 
+                    value={store.id}
+                    className={fixedStores.some(f => f.id === store.id) ? "font-semibold" : ""}
+                  >
+                    {store.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
             {showOtherInput && (
               <Input
@@ -330,62 +306,56 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-lg font-semibold">¿Dónde vamos a realizar el servicio?</h3>
-            
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Departamento
-                </label>
-                <Select 
-                  value={selectedDepartment} 
-                  onValueChange={(value) => {
-                    setSelectedDepartment(value);
-                    setSelectedLocation("");
-                  }}
-                  disabled={loadingLocation.departments}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={
-                      loadingLocation.departments ? "Cargando departamentos..." : "Selecciona un departamento"
-                    } />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {departments.map(dept => (
-                      <SelectItem key={dept.id} value={dept.id}>
-                        {dept.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <label className="block text-sm font-medium">
+              Departamento
+            </label>
+            <Select 
+              value={selectedDepartment} 
+              onValueChange={(value) => {
+                setSelectedDepartment(value);
+                setSelectedLocation("");
+              }}
+              disabled={loadingLocation.departments}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={
+                  loadingLocation.departments ? "Cargando departamentos..." : "Selecciona un departamento"
+                } />
+              </SelectTrigger>
+              <SelectContent>
+                {departments.map(dept => (
+                  <SelectItem key={dept.id} value={dept.id}>
+                    {dept.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">
-                  Localidad
-                </label>
-                <Select 
-                  value={selectedLocation} 
-                  onValueChange={setSelectedLocation}
-                  disabled={!selectedDepartment || loadingLocation.municipalities}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder={
-                      loadingLocation.municipalities ? "Cargando localidades..." : 
-                      !selectedDepartment ? "Selecciona un departamento primero" : 
-                      "Selecciona una localidad"
-                    } />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {currentMunicipalities.map(municipality => (
-                      <SelectItem key={municipality.id} value={municipality.id}>
-                        {municipality.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+          <div className="space-y-2">
+            <label className="block text-sm font-medium">
+              Localidad
+            </label>
+            <Select 
+              value={selectedLocation} 
+              onValueChange={setSelectedLocation}
+              disabled={!selectedDepartment || loadingLocation.municipalities}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder={
+                  loadingLocation.municipalities ? "Cargando localidades..." : 
+                  !selectedDepartment ? "Selecciona un departamento primero" : 
+                  "Selecciona una localidad"
+                } />
+              </SelectTrigger>
+              <SelectContent>
+                {currentMunicipalities.map(municipality => (
+                  <SelectItem key={municipality.id} value={municipality.id}>
+                    {municipality.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
