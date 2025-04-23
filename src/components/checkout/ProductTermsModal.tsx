@@ -33,7 +33,7 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
       
       try {
         const response = await fetch(
-          `/api/AlmangoXV1NETFramework/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`
+          `http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`
         );
         
         if (!response.ok) {
@@ -42,7 +42,6 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
         
         const data = await response.text();
         setTermsContent(data);
-        console.log("Términos y condiciones obtenidos:", data);
       } catch (error) {
         console.error("Error fetching terms:", error);
         setError("No se pudieron cargar los términos y condiciones");
