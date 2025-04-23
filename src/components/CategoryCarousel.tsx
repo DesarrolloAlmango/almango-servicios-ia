@@ -24,6 +24,19 @@ interface CategoryCarouselProps {
 
 const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelectCategory }) => {
   const isMobile = useIsMobile();
+
+  const getImageSource = (imageStr: string) => {
+    if (!imageStr) return null;
+    if (imageStr.startsWith('data:image')) {
+      return imageStr;
+    }
+    try {
+      new URL(imageStr);
+      return imageStr;
+    } catch {
+      return `data:image/png;base64,${imageStr}`;
+    }
+  };
   
   return (
     <div className="py-4 sm:py-6 w-full">
@@ -53,11 +66,21 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
               >
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2">
                   <AspectRatio ratio={1} className="bg-gray-100">
-                    <img
-                      src={category.image}
-                      alt={category.name}
-                      className="w-full h-full object-cover"
-                    />
+                    {getImageSource(category.image) ? (
+                      <img
+                        src={getImageSource(category.image)}
+                        alt={category.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          console.error("Error loading category image:", category.image);
+                          e.currentTarget.src = "/placeholder.svg";
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-500 text-xs">Sin imagen</span>
+                      </div>
+                    )}
                   </AspectRatio>
                 </div>
                 <p className="text-center text-sm sm:text-base font-medium mt-1 sm:mt-2 line-clamp-2 px-1">{category.name}</p>
