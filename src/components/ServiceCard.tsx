@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -10,7 +11,6 @@ import { useNavigate } from "react-router-dom";
 import { LucideIcon } from "lucide-react";
 import { Check } from "lucide-react";
 import { ShoppingCart } from "lucide-react";
-import LocationStep from "@/components/checkout/LocationStep";
 
 interface Category {
   id: string;
@@ -150,23 +150,13 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   };
 
   const fetchUpdatedPrice = async (product: Product): Promise<number> => {
-    if (!serviceId || !category.id) {
-      return product.defaultPrice || product.price;
-    }
-
-    const urlParams = new URLSearchParams(window.location.pathname);
-    const pathParts = window.location.pathname.split('/');
-    const commerceIdFromUrl = pathParts[pathParts.indexOf('servicios') + 2];
-    
-    const proveedorId = commerceIdFromUrl || purchaseLocationId;
-
-    if (!proveedorId) {
+    if (!purchaseLocationId || !serviceId || !category.id) {
       return product.defaultPrice || product.price;
     }
 
     try {
       const response = await fetch(
-        `/api/AlmangoXV1NETFramework/WebAPI/ObtenerPrecio?Proveedorid=${proveedorId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`
+        `/api/AlmangoXV1NETFramework/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`
       );
       
       if (!response.ok) {
@@ -202,15 +192,18 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         
         setProducts(productsWithPrices);
         
+        // Initialize product quantities from cart items first
         const initialQuantities: Record<string, number> = {};
         
         productsWithPrices.forEach(product => {
+          // Find if this product exists in the cart already
           const cartItem = currentCartItems.find(item => 
             item.productId === product.id && 
             item.categoryId === category.id &&
             item.serviceId === serviceId
           );
           
+          // Set initial quantity from cart if it exists, otherwise 0
           initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
         });
         
@@ -220,6 +213,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         toast.error("Error al cargar precios de productos");
         setProducts(category.products.map(p => ({ ...p, defaultPrice: p.price })));
         
+        // Even on error, initialize quantities from cart
         const initialQuantities: Record<string, number> = {};
         category.products.forEach(product => {
           const cartItem = currentCartItems.find(item => 
@@ -430,92 +424,39 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
-  const [showLocationStep, setShowLocationStep] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("");
-  const [departments, setDepartments] = useState<Array<{ id: string; name: string }>>([]);
-  const [municipalities, setMunicipalities] = useState<Record<string, Array<{ id: string; name: string }>>>({});
-  const [loadingLocations, setLoadingLocations] = useState({
-    departments: false,
-    municipalities: false
-  });
-
-  const pathParts = window.location.pathname.split('/');
-  const commerceIdFromUrl = pathParts[pathParts.indexOf('servicios') + 2];
-
+  
   useEffect(() => {
-    if (commerceIdFromUrl && selectedDepartment) {
-      fetchMunicipalities(selectedDepartment);
+    if (forceOpen && id) {
+      setIsDialogOpen(true);
+      fetchCategories(id);
     }
-  }, [selectedDepartment, commerceIdFromUrl]);
-
-  const fetchDepartments = async () => {
-    setLoadingLocations(prev => ({ ...prev, departments: true }));
-    try {
-      const response = await fetch('/api/AlmangoXV1NETFramework/WebAPI/ObtenerDepto');
-      if (!response.ok) throw new Error('Error al obtener departamentos');
-      const data = await response.json();
-      
-      const formattedDepartments = data.map((dept: any) => ({
-        id: dept.DepartamentoId,
-        name: dept.DepartamentoDepartamento
-      }));
-      
-      setDepartments(formattedDepartments);
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error('Error al cargar departamentos');
-    } finally {
-      setLoadingLocations(prev => ({ ...prev, departments: false }));
-    }
-  };
-
-  const fetchMunicipalities = async (departmentId: string) => {
-    setLoadingLocations(prev => ({ ...prev, municipalities: true }));
-    try {
-      const response = await fetch(`/api/AlmangoXV1NETFramework/WebAPI/ObtenerMunicipio?DepartamentoId=${departmentId}`);
-      if (!response.ok) throw new Error('Error al obtener municipios');
-      const data = await response.json();
-      
-      const formattedMunicipalities = data.map((muni: any) => ({
-        id: muni.DepartamentoMunicipioId,
-        name: muni.DepartamentoMunicipioNombre
-      }));
-      
-      setMunicipalities(prev => ({
-        ...prev,
-        [departmentId]: formattedMunicipalities
-      }));
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error('Error al cargar municipios');
-    } finally {
-      setLoadingLocations(prev => ({ ...prev, municipalities: false }));
-    }
-  };
+  }, [forceOpen, id]);
 
   const fetchCategories = async (serviceId: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetCategories?serviceId=${serviceId}`);
+      const response = await fetch(`/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel1?Nivel0=${serviceId}`);
       
       if (!response.ok) {
-        throw new Error("Error al obtener categorías");
+        throw new Error(`Error al cargar categorías: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log("Categorías recibidas:", data);
       
-      if (data.length === 0) {
-        setError("No hay categorías disponibles para este servicio");
-      } else {
-        setCategories(data);
-      }
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      setError("Error al cargar categorías. Por favor intenta nuevamente.");
+      const transformedCategories = data.map((category: any) => ({
+        id: category.id || category.Nivel1Id,
+        name: category.name || category.Nivel1Descripcion,
+        image: category.image || category.Imagen || "",
+        products: []
+      }));
+      
+      setCategories(transformedCategories);
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error desconocido');
       toast.error("Error al cargar categorías");
+      console.error("Error fetching categories:", err);
     } finally {
       setIsLoading(false);
     }
@@ -523,43 +464,41 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 
   const fetchProducts = async (serviceId: string, categoryId: string) => {
     setIsLoading(true);
-    setError(null);
     try {
-      const response = await fetch(`/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetProducts?serviceId=${serviceId}&categoryId=${categoryId}`);
+      const response = await fetch(
+        `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`
+      );
       
       if (!response.ok) {
-        throw new Error("Error al obtener productos");
+        throw new Error(`Error al cargar productos: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log("Productos recibidos:", data);
       
-      if (data.products?.length === 0) {
-        setError("No hay productos disponibles para esta categoría");
-        setSelectedCategory(null);
-      } else {
-        const categoryWithProducts = {
-          ...categories.find(cat => cat.id === categoryId) || { name: "Categoría", image: "" },
-          id: categoryId,
-          products: data.products || []
-        };
-        setSelectedCategory(categoryWithProducts);
+      const transformedProducts = data.map((product: any) => ({
+        id: product.id || product.Nivel2Id,
+        name: product.name || product.Nivel2Descripcion,
+        price: product.price ? parseFloat(product.price) : (product.Precio ? parseFloat(product.Precio) : 0),
+        image: product.image || product.Imagen || "",
+        category: categoryId
+      }));
+      
+      setCategories(prev => prev.map(cat => 
+        cat.id === categoryId ? { ...cat, products: transformedProducts } : cat
+      ));
+      
+      const updatedCategory = categories.find(cat => cat.id === categoryId);
+      if (updatedCategory) {
+        setSelectedCategory({ ...updatedCategory, products: transformedProducts });
       }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      setError("Error al cargar productos. Por favor intenta nuevamente.");
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al cargar productos');
       toast.error("Error al cargar productos");
+      console.error("Error fetching products:", err);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleLocationSelect = () => {
-    const departmentName = departments.find(d => d.id === selectedDepartment)?.name || '';
-    const municipalityName = municipalities[selectedDepartment]?.find(m => m.id === selectedLocation)?.name || '';
-    
-    setShowLocationStep(false);
-    handleCategorySelect(selectedCategory!);
   };
 
   const handleCardClick = () => {
@@ -575,20 +514,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       }
       
       setIsDialogOpen(true);
-      
-      if (commerceIdFromUrl) {
-        setShowLocationStep(true);
-        fetchDepartments();
-      } else {
-        if (id) {
-          fetchCategories(id);
-        }
+      if (id) {
+        fetchCategories(id);
       }
     }
   };
-
+  
   const handleCategorySelect = (category: Category) => {
-    if (category.products && category.products.length > 0) {
+    if (category.products.length > 0) {
       setSelectedCategory(category);
     } else if (id) {
       fetchProducts(id, category.id);
@@ -618,15 +551,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   };
 
   const backgroundImage = getCardBackground();
-  
-  const handleFinishLocationStep = () => {
-    if (selectedDepartment && selectedLocation && id) {
-      setShowLocationStep(false);
-      fetchCategories(id);
-    }
-  };
 
-  const isShowingCategoryCarousel = !selectedCategory && !isLoading && !error && !showLocationStep;
+  const isShowingCategoryCarousel = !selectedCategory && !isLoading && !error;
 
   return (
     <>
@@ -668,14 +594,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               : "max-w-4xl"}`
           }
         >
-          {!showLocationStep && (
-            <DialogTitle className="text-xl sm:text-2xl font-bold text-center px-3 mx-auto text-orange-500 truncate mt-4">
-              {name}
-            </DialogTitle>
-          )}
-          
           <div className="p-4 sm:p-6">
-            {purchaseLocation && !showLocationStep && (
+            <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4 text-center px-3 mx-auto text-orange-500 truncate">{name}</h2>
+            
+            {purchaseLocation && (
               <div className="mb-4 bg-blue-50 p-3 rounded-lg border border-blue-200 text-sm">
                 <span className="font-medium text-blue-700">Lugar de compra: </span>
                 <span className="text-blue-600">
@@ -686,52 +608,37 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               </div>
             )}
             
-            {showLocationStep ? (
-              <LocationStep
-                selectedDepartment={selectedDepartment}
-                setSelectedDepartment={setSelectedDepartment}
-                selectedLocation={selectedLocation}
-                setSelectedLocation={setSelectedLocation}
-                onNext={handleFinishLocationStep}
-                departments={departments}
-                municipalities={municipalities}
-                loading={loadingLocations}
+            {isLoading ? (
+              <div className="flex justify-center items-center h-40">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+              </div>
+            ) : error ? (
+              <div className="bg-red-50 p-4 rounded-md border border-red-200 text-red-700">
+                <p className="font-medium">Error: {error}</p>
+                <Button 
+                  variant="outline" 
+                  className="mt-2"
+                  onClick={() => id && fetchCategories(id)}
+                >
+                  Reintentar
+                </Button>
+              </div>
+            ) : !selectedCategory ? (
+              <CategoryCarousel 
+                categories={categories} 
+                onSelectCategory={handleCategorySelect} 
               />
             ) : (
-              <>
-                {isLoading ? (
-                  <div className="flex justify-center items-center h-40">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-                  </div>
-                ) : error ? (
-                  <div className="bg-red-50 p-4 rounded-md border border-red-200 text-red-700">
-                    <p className="font-medium">Error: {error}</p>
-                    <Button 
-                      variant="outline" 
-                      className="mt-2"
-                      onClick={() => id && fetchCategories(id)}
-                    >
-                      Reintentar
-                    </Button>
-                  </div>
-                ) : !selectedCategory ? (
-                  <CategoryCarousel 
-                    categories={categories} 
-                    onSelectCategory={handleCategorySelect} 
-                  />
-                ) : (
-                  <ProductGrid 
-                    category={selectedCategory} 
-                    addToCart={addToCart}
-                    onBack={() => setSelectedCategory(null)}
-                    serviceName={name}
-                    closeDialog={() => setIsDialogOpen(false)}
-                    serviceId={id}
-                    purchaseLocationId={commerceIdFromUrl || purchaseLocationId}
-                    currentCartItems={currentCartItems}
-                  />
-                )}
-              </>
+              <ProductGrid 
+                category={selectedCategory} 
+                addToCart={addToCart}
+                onBack={() => setSelectedCategory(null)}
+                serviceName={name}
+                closeDialog={() => setIsDialogOpen(false)}
+                serviceId={id}
+                purchaseLocationId={purchaseLocationId}
+                currentCartItems={currentCartItems}
+              />
             )}
           </div>
         </DialogContent>

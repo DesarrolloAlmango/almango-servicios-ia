@@ -43,9 +43,10 @@ const LocationStep: React.FC<LocationStepProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-4">
+      <div className="text-center mb-6">
         <MapPin className="h-12 w-12 mx-auto text-primary mb-2" />
-        <h3 className="text-xl font-semibold">¿Dónde vamos a realizar el servicio?</h3>
+        <h3 className="text-xl font-semibold">Lugar de Servicio</h3>
+        <p className="text-muted-foreground">Selecciona la ubicación donde necesitas el servicio</p>
       </div>
 
       <div className="space-y-4">
@@ -90,6 +91,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
               <SelectValue placeholder={
                 loading.municipalities ? "Cargando localidades..." : 
                 !selectedDepartment ? "Selecciona un departamento primero" : 
+                currentMunicipalities.length === 0 ? "No hay localidades disponibles" :
                 "Selecciona una localidad"
               } />
             </SelectTrigger>
@@ -104,7 +106,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
         </div>
       </div>
 
-      <div className="flex justify-end pt-4">
+      <div className="flex justify-end pt-4 pb-6 mt-4">
         <Button 
           onClick={onNext} 
           disabled={!selectedDepartment || !selectedLocation || loading.municipalities || loading.departments}
