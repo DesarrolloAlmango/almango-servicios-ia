@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -10,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { LucideIcon } from "lucide-react";
 import { Check } from "lucide-react";
 import { ShoppingCart } from "lucide-react";
+import LocationStep from "@/components/checkout/LocationStep";
 
 interface Category {
   id: string;
@@ -481,6 +483,66 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     }
   };
 
+  const fetchCategories = async (serviceId: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetCategories?serviceId=${serviceId}`);
+      
+      if (!response.ok) {
+        throw new Error("Error al obtener categorías");
+      }
+      
+      const data = await response.json();
+      console.log("Categorías recibidas:", data);
+      
+      if (data.length === 0) {
+        setError("No hay categorías disponibles para este servicio");
+      } else {
+        setCategories(data);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      setError("Error al cargar categorías. Por favor intenta nuevamente.");
+      toast.error("Error al cargar categorías");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchProducts = async (serviceId: string, categoryId: string) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetProducts?serviceId=${serviceId}&categoryId=${categoryId}`);
+      
+      if (!response.ok) {
+        throw new Error("Error al obtener productos");
+      }
+      
+      const data = await response.json();
+      console.log("Productos recibidos:", data);
+      
+      if (data.products?.length === 0) {
+        setError("No hay productos disponibles para esta categoría");
+        setSelectedCategory(null);
+      } else {
+        const categoryWithProducts = {
+          ...categories.find(cat => cat.id === categoryId) || { name: "Categoría", image: "" },
+          id: categoryId,
+          products: data.products || []
+        };
+        setSelectedCategory(categoryWithProducts);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      setError("Error al cargar productos. Por favor intenta nuevamente.");
+      toast.error("Error al cargar productos");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleLocationSelect = () => {
     const departmentName = departments.find(d => d.id === selectedDepartment)?.name || '';
     const municipalityName = municipalities[selectedDepartment]?.find(m => m.id === selectedLocation)?.name || '';
@@ -503,19 +565,21 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       
       setIsDialogOpen(true);
       
+      // Si hay un ID de comercio en la URL, mostramos el paso de ubicación primero
       if (commerceIdFromUrl) {
         setShowLocationStep(true);
         fetchDepartments();
-      }
-      
-      if (id) {
-        fetchCategories(id);
+      } else {
+        // Si no hay ID de comercio, mostramos directamente las categorías
+        if (id) {
+          fetchCategories(id);
+        }
       }
     }
   };
 
   const handleCategorySelect = (category: Category) => {
-    if (category.products.length > 0) {
+    if (category.products && category.products.length > 0) {
       setSelectedCategory(category);
     } else if (id) {
       fetchProducts(id, category.id);
@@ -545,8 +609,15 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   };
 
   const backgroundImage = getCardBackground();
+  
+  const handleFinishLocationStep = () => {
+    if (selectedDepartment && selectedLocation && id) {
+      setShowLocationStep(false);
+      fetchCategories(id);
+    }
+  };
 
-  const isShowingCategoryCarousel = !selectedCategory && !isLoading && !error;
+  const isShowingCategoryCarousel = !selectedCategory && !isLoading && !error && !showLocationStep;
 
   return (
     <>
@@ -588,9 +659,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               : "max-w-4xl"}`
           }
         >
+          <DialogTitle className="text-xl sm:text-2xl font-bold text-center px-3 mx-auto text-orange-500 truncate mt-4">
+            {name}
+          </DialogTitle>
+          
           <div className="p-4 sm:p-6">
-            <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4 text-center px-3 mx-auto text-orange-500 truncate">{name}</h2>
-            
             {purchaseLocation && (
               <div className="mb-4 bg-blue-50 p-3 rounded-lg border border-blue-200 text-sm">
                 <span className="font-medium text-blue-700">Lugar de compra: </span>
@@ -602,17 +675,24 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               </div>
             )}
             
-            {commerceIdFromUrl && showLocationStep ? (
-              <LocationStep
-                selectedDepartment={selectedDepartment}
-                setSelectedDepartment={setSelectedDepartment}
-                selectedLocation={selectedLocation}
-                setSelectedLocation={setSelectedLocation}
-                onNext={handleLocationSelect}
-                departments={departments}
-                municipalities={municipalities}
-                loading={loadingLocations}
-              />
+            {showLocationStep ? (
+              <div className="space-y-6">
+                <div className="text-center mb-2">
+                  <h3 className="text-lg font-semibold">¿Dónde vamos a realizar el servicio?</h3>
+                  <p className="text-muted-foreground">Selecciona la ubicación donde necesitas el servicio</p>
+                </div>
+                
+                <LocationStep
+                  selectedDepartment={selectedDepartment}
+                  setSelectedDepartment={setSelectedDepartment}
+                  selectedLocation={selectedLocation}
+                  setSelectedLocation={setSelectedLocation}
+                  onNext={handleFinishLocationStep}
+                  departments={departments}
+                  municipalities={municipalities}
+                  loading={loadingLocations}
+                />
+              </div>
             ) : (
               <>
                 {isLoading ? (
@@ -643,7 +723,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                     serviceName={name}
                     closeDialog={() => setIsDialogOpen(false)}
                     serviceId={id}
-                    purchaseLocationId={purchaseLocationId}
+                    purchaseLocationId={commerceIdFromUrl || purchaseLocationId}
                     currentCartItems={currentCartItems}
                   />
                 )}
