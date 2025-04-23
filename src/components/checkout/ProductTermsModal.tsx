@@ -42,6 +42,7 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
         
         const data = await response.text();
         setTermsContent(data);
+        console.log("Términos y condiciones obtenidos:", data);
       } catch (error) {
         console.error("Error fetching terms:", error);
         setError("No se pudieron cargar los términos y condiciones");
