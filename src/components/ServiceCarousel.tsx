@@ -28,8 +28,8 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
         max-w-screen-xl
         mx-auto
         px-1
-        xs:max-w-[99vw] xs:px-0
-        sm:max-w-[99vw] sm:px-0
+        xs:max-w-[100vw] xs:px-0
+        sm:max-w-[100vw] sm:px-0
       `}
     >
       {title && (
@@ -60,14 +60,14 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
               className={`
                 pl-0
                 basis-[calc(85%-16px)]
-                xs:basis-[calc(92vw-10px)] sm:basis-[calc(92vw-12px)]
+                xs:basis-[calc(90vw-10px)] sm:basis-[calc(90vw-12px)]
                 md:basis-[calc(33.333%-16px)] lg:basis-[calc(25%-16px)]
                 ${shouldCenter ? "mx-auto" : ""}
                 ${
                   onlyOne
                     ? "xs:ml-0 sm:ml-0 ml-0"
                     : index === 0
-                      ? "xs:ml-[calc(50vw-46vw)] sm:ml-[calc(50vw-46vw)]"
+                      ? "xs:ml-[calc(50vw-45vw)] sm:ml-[calc(50vw-45vw)]"
                       : ""
                 }
               `}
@@ -86,4 +86,3 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
 };
 
 export default ServiceCarousel;
-
