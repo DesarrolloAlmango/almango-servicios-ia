@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLocation } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ArrowLeft } from "lucide-react";
@@ -140,6 +139,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   currentCartItems
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [productQuantities, setProductQuantities] = useState<Record<string, number>>({});
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingPrices, setIsLoadingPrices] = useState(true);
@@ -192,18 +192,15 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         
         setProducts(productsWithPrices);
         
-        // Initialize product quantities from cart items first
         const initialQuantities: Record<string, number> = {};
         
         productsWithPrices.forEach(product => {
-          // Find if this product exists in the cart already
           const cartItem = currentCartItems.find(item => 
             item.productId === product.id && 
             item.categoryId === category.id &&
             item.serviceId === serviceId
           );
           
-          // Set initial quantity from cart if it exists, otherwise 0
           initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
         });
         
@@ -213,7 +210,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         toast.error("Error al cargar precios de productos");
         setProducts(category.products.map(p => ({ ...p, defaultPrice: p.price })));
         
-        // Even on error, initialize quantities from cart
         const initialQuantities: Record<string, number> = {};
         category.products.forEach(product => {
           const cartItem = currentCartItems.find(item => 
@@ -292,13 +288,14 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         locationId: purchaseLocation?.locationId
       }));
 
-    itemsToAdd.forEach(item => {
-      addToCart(item);
-      setCartAnimating(prev => ({ ...prev, [item.productId]: true }));
-      setTimeout(() => {
-        setCartAnimating(prev => ({ ...prev, [item.productId]: false }));
-      }, 700);
-    });
+    if (itemsToAdd.length > 0) {
+      itemsToAdd.forEach(item => addToCart(item));
+      closeDialog();
+      const currentPath = location.pathname;
+      navigate(currentPath, { state: { openCart: true } });
+    } else {
+      toast.error("Seleccione al menos un producto");
+    }
   };
 
   const handleContractNow = () => {
@@ -323,7 +320,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     if (itemsToAdd.length > 0) {
       itemsToAdd.forEach(item => addToCart(item));
       closeDialog();
-      navigate('/servicios', { state: { openCart: true } });
+      const currentPath = location.pathname;
+      navigate(currentPath, { state: { openCart: true } });
     } else {
       toast.error("Seleccione al menos un producto");
     }
