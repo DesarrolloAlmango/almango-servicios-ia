@@ -34,6 +34,9 @@ interface ProductCardProps {
   onIncrease: () => void;
   onDecrease: () => void;
   animating: boolean;
+  purchaseLocationId?: string;
+  serviceId?: string;
+  categoryId?: string;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ 
@@ -41,7 +44,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
   quantity,
   onIncrease,
   onDecrease,
-  animating
+  animating,
+  purchaseLocationId,
+  serviceId,
+  categoryId
 }) => {
   const [imageError, setImageError] = useState(false);
 
@@ -59,6 +65,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   const imageSource = getImageSource();
+  const debugEndpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${categoryId}&Nivel2=${product.id}`;
 
   return (
     <Card className="overflow-hidden h-full flex flex-col relative">
@@ -114,6 +121,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <span className="font-bold">
             ${product.price.toLocaleString('es-UY', { maximumFractionDigits: 0 })}
           </span>
+        </div>
+        <div className="mt-2 text-xs text-blue-600 font-mono break-all">
+          <p>Endpoint: {debugEndpoint}</p>
         </div>
       </CardContent>
     </Card>
@@ -368,6 +378,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
                 onIncrease={() => increaseQuantity(product.id)}
                 onDecrease={() => decreaseQuantity(product.id)}
                 animating={!!cartAnimating[product.id]}
+                purchaseLocationId={purchaseLocationId}
+                serviceId={serviceId}
+                categoryId={category.id}
               />
             ))}
           </div>
