@@ -18,20 +18,11 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
     return <div className="text-center py-8">No hay servicios disponibles</div>;
   }
 
+  // Determinar si debe centrarse (cuando hay pocos elementos)
   const shouldCenter = children.length <= 2;
-  const onlyOne = children.length === 1;
 
   return (
-    <div
-      className={`
-        w-full
-        max-w-screen-xl
-        mx-auto
-        px-1
-        xs:max-w-[100vw] xs:px-0
-        sm:max-w-[100vw] sm:px-0
-      `}
-    >
+    <div className="w-full max-w-screen-xl mx-auto">
       {title && (
         <h2 className="text-2xl font-semibold text-center mb-6 text-[#ff6900]">{title}</h2>
       )}
@@ -39,40 +30,21 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({ children, title }) =>
         opts={{
           align: shouldCenter ? "center" : "start",
           loop: children.length > 2,
-          containScroll: "trimSnaps",
-          dragFree: true,
+          containScroll: "trimSnaps"
         }}
         className="w-full relative"
       >
-        <CarouselContent
-          className={`
-            gap-4
-            xs:gap-[10px] sm:gap-[12px] 
-            md:gap-4 lg:gap-4
-            flex
-            justify-center
-            ${onlyOne ? 'xs:!justify-center sm:!justify-center !justify-center' : ''}
-          `}
-        >
+        <CarouselContent className="-ml-2 sm:-ml-4">
           {children.map((child, index) => (
-            <CarouselItem
-              key={index}
-              className={`
-                pl-0
-                basis-[calc(85%-16px)]
-                xs:basis-[calc(90vw-10px)] sm:basis-[calc(90vw-12px)]
-                md:basis-[calc(33.333%-16px)] lg:basis-[calc(25%-16px)]
-                ${shouldCenter ? "mx-auto" : ""}
-                ${
-                  onlyOne
-                    ? "xs:ml-0 sm:ml-0 ml-0"
-                    : index === 0
-                      ? "xs:ml-[calc(50vw-45vw)] sm:ml-[calc(50vw-45vw)]"
-                      : ""
-                }
-              `}
+            <CarouselItem 
+              key={index} 
+              className={`pl-2 sm:pl-4 
+                basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 
+                ${shouldCenter ? "mx-auto" : ""}`}
             >
-              <div className="flex items-center justify-center py-4">{child}</div>
+              <div className="flex items-center justify-center py-4">
+                {child}
+              </div>
             </CarouselItem>
           ))}
         </CarouselContent>
