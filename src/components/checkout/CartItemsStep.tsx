@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "@/pages/Servicios";
+import ProductTermsModal from "./ProductTermsModal";
 
 export interface CartItemsStepProps {
   cartItems: CartItem[];
@@ -10,6 +11,11 @@ export interface CartItemsStepProps {
   onPrevious: () => void;
 }
 
+interface SelectedTerms {
+  textosId: string | null;
+  productName: string;
+}
+
 const CartItemsStep: React.FC<CartItemsStepProps> = ({ 
   cartItems, 
   updateCartItem, 
@@ -17,6 +23,8 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
   onNext,
   onPrevious
 }) => {
+  const [selectedTerms, setSelectedTerms] = useState<SelectedTerms | null>(null);
+  
   const handleIncreaseQuantity = (id: string, currentQuantity: number) => {
     updateCartItem(id, currentQuantity + 1);
   };
@@ -43,6 +51,14 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
               <div className="flex-1">
                 <h4 className="font-medium">{item.name}</h4>
                 <p className="text-sm text-muted-foreground">{item.serviceCategory}</p>
+                {item.textosId && (
+                  <button
+                    onClick={() => setSelectedTerms({ textosId: item.textosId || null, productName: item.name })}
+                    className="text-sm text-orange-500 hover:text-orange-600 mt-1 underline"
+                  >
+                    Ver términos y condiciones
+                  </button>
+                )}
               </div>
               <div className="flex items-center gap-3">
                 <div className="bg-white rounded-md border flex items-center">
@@ -73,11 +89,6 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
       )}
 
       <div className="flex justify-between pt-4">
-        {/* If you want to add a button to go back to shopping, uncomment this: */}
-        {/* <Button type="button" variant="outline" onClick={onPrevious}>
-          Seguir comprando
-        </Button> */}
-
         <div className="ml-auto">
           <Button 
             onClick={onNext} 
@@ -87,6 +98,15 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
           </Button>
         </div>
       </div>
+
+      {selectedTerms && (
+        <ProductTermsModal
+          isOpen={!!selectedTerms}
+          onClose={() => setSelectedTerms(null)}
+          textosId={selectedTerms.textosId}
+          productName={selectedTerms.productName}
+        />
+      )}
     </div>
   );
 };
