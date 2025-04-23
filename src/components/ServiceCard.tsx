@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useLocation } from "react";
+import React, { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom"; // Correct import for useLocation and useNavigate
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ArrowLeft } from "lucide-react";
@@ -6,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import CategoryCarousel from "@/components/CategoryCarousel";
 import { CartItem } from "@/pages/Servicios";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
 import { LucideIcon } from "lucide-react";
 import { Check } from "lucide-react";
 import { ShoppingCart } from "lucide-react";
