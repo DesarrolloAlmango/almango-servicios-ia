@@ -33,7 +33,7 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
       
       try {
         const response = await fetch(
-          `http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`
+          `/api/AlmangoXV1NETFramework/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`
         );
         
         if (!response.ok) {

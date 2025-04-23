@@ -52,14 +52,12 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
               <div className="flex-1">
                 <h4 className="font-medium">{item.name}</h4>
                 <p className="text-sm text-muted-foreground">{item.serviceCategory}</p>
-                {item.textosId && (
-                  <button
-                    onClick={() => setSelectedTerms({ textosId: item.textosId || null, productName: item.name })}
-                    className="text-sm text-orange-500 hover:text-orange-600 mt-1 underline"
-                  >
-                    Ver términos y condiciones
-                  </button>
-                )}
+                <button
+                  onClick={() => setSelectedTerms({ textosId: item.textosId || null, productName: item.name })}
+                  className="text-sm text-orange-500 hover:text-orange-600 mt-1 underline"
+                >
+                  Ver términos y condiciones
+                </button>
               </div>
               <div className="flex items-center gap-3">
                 <div className="bg-white rounded-md border flex items-center">
