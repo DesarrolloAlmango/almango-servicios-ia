@@ -429,81 +429,64 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
-  
-  useEffect(() => {
-    if (forceOpen && id) {
-      setIsDialogOpen(true);
-      fetchCategories(id);
-    }
-  }, [forceOpen, id]);
+  const [showLocationStep, setShowLocationStep] = useState(false);
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [departments, setDepartments] = useState<Array<{ id: string; name: string }>>([]);
+  const [municipalities, setMunicipalities] = useState<Record<string, Array<{ id: string; name: string }>>>({});
+  const [loadingLocations, setLoadingLocations] = useState({
+    departments: false,
+    municipalities: false
+  });
 
-  const fetchCategories = async (serviceId: string) => {
-    setIsLoading(true);
-    setError(null);
+  const pathParts = window.location.pathname.split('/');
+  const commerceIdFromUrl = pathParts[pathParts.indexOf('servicios') + 2];
+
+  useEffect(() => {
+    if (commerceIdFromUrl && selectedDepartment) {
+      fetchMunicipalities(selectedDepartment);
+    }
+  }, [selectedDepartment, commerceIdFromUrl]);
+
+  const fetchDepartments = async () => {
+    setLoadingLocations(prev => ({ ...prev, departments: true }));
     try {
-      const response = await fetch(`/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel1?Nivel0=${serviceId}`);
-      
-      if (!response.ok) {
-        throw new Error(`Error al cargar categorías: ${response.status}`);
-      }
-      
+      const response = await fetch('/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetDepartments');
+      if (!response.ok) throw new Error('Error al obtener departamentos');
       const data = await response.json();
-      
-      const transformedCategories = data.map((category: any) => ({
-        id: category.id || category.Nivel1Id,
-        name: category.name || category.Nivel1Descripcion,
-        image: category.image || category.Imagen || "",
-        products: []
-      }));
-      
-      setCategories(transformedCategories);
-      
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
-      toast.error("Error al cargar categorías");
-      console.error("Error fetching categories:", err);
+      setDepartments(data);
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Error al cargar departamentos');
     } finally {
-      setIsLoading(false);
+      setLoadingLocations(prev => ({ ...prev, departments: false }));
     }
   };
 
-  const fetchProducts = async (serviceId: string, categoryId: string) => {
-    setIsLoading(true);
+  const fetchMunicipalities = async (departmentId: string) => {
+    setLoadingLocations(prev => ({ ...prev, municipalities: true }));
     try {
-      const response = await fetch(
-        `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`
-      );
-      
-      if (!response.ok) {
-        throw new Error(`Error al cargar productos: ${response.status}`);
-      }
-      
+      const response = await fetch(`/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetMunicipalities?departmentId=${departmentId}`);
+      if (!response.ok) throw new Error('Error al obtener municipios');
       const data = await response.json();
-      
-      const transformedProducts = data.map((product: any) => ({
-        id: product.id || product.Nivel2Id,
-        name: product.name || product.Nivel2Descripcion,
-        price: product.price ? parseFloat(product.price) : (product.Precio ? parseFloat(product.Precio) : 0),
-        image: product.image || product.Imagen || "",
-        category: categoryId
+      setMunicipalities(prev => ({
+        ...prev,
+        [departmentId]: data
       }));
-      
-      setCategories(prev => prev.map(cat => 
-        cat.id === categoryId ? { ...cat, products: transformedProducts } : cat
-      ));
-      
-      const updatedCategory = categories.find(cat => cat.id === categoryId);
-      if (updatedCategory) {
-        setSelectedCategory({ ...updatedCategory, products: transformedProducts });
-      }
-      
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar productos');
-      toast.error("Error al cargar productos");
-      console.error("Error fetching products:", err);
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error('Error al cargar municipios');
     } finally {
-      setIsLoading(false);
+      setLoadingLocations(prev => ({ ...prev, municipalities: false }));
     }
+  };
+
+  const handleLocationSelect = () => {
+    const departmentName = departments.find(d => d.id === selectedDepartment)?.name || '';
+    const municipalityName = municipalities[selectedDepartment]?.find(m => m.id === selectedLocation)?.name || '';
+    
+    setShowLocationStep(false);
+    handleCategorySelect(selectedCategory!);
   };
 
   const handleCardClick = () => {
@@ -519,12 +502,18 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       }
       
       setIsDialogOpen(true);
+      
+      if (commerceIdFromUrl) {
+        setShowLocationStep(true);
+        fetchDepartments();
+      }
+      
       if (id) {
         fetchCategories(id);
       }
     }
   };
-  
+
   const handleCategorySelect = (category: Category) => {
     if (category.products.length > 0) {
       setSelectedCategory(category);
@@ -613,37 +602,52 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               </div>
             )}
             
-            {isLoading ? (
-              <div className="flex justify-center items-center h-40">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-              </div>
-            ) : error ? (
-              <div className="bg-red-50 p-4 rounded-md border border-red-200 text-red-700">
-                <p className="font-medium">Error: {error}</p>
-                <Button 
-                  variant="outline" 
-                  className="mt-2"
-                  onClick={() => id && fetchCategories(id)}
-                >
-                  Reintentar
-                </Button>
-              </div>
-            ) : !selectedCategory ? (
-              <CategoryCarousel 
-                categories={categories} 
-                onSelectCategory={handleCategorySelect} 
+            {commerceIdFromUrl && showLocationStep ? (
+              <LocationStep
+                selectedDepartment={selectedDepartment}
+                setSelectedDepartment={setSelectedDepartment}
+                selectedLocation={selectedLocation}
+                setSelectedLocation={setSelectedLocation}
+                onNext={handleLocationSelect}
+                departments={departments}
+                municipalities={municipalities}
+                loading={loadingLocations}
               />
             ) : (
-              <ProductGrid 
-                category={selectedCategory} 
-                addToCart={addToCart}
-                onBack={() => setSelectedCategory(null)}
-                serviceName={name}
-                closeDialog={() => setIsDialogOpen(false)}
-                serviceId={id}
-                purchaseLocationId={purchaseLocationId}
-                currentCartItems={currentCartItems}
-              />
+              <>
+                {isLoading ? (
+                  <div className="flex justify-center items-center h-40">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+                  </div>
+                ) : error ? (
+                  <div className="bg-red-50 p-4 rounded-md border border-red-200 text-red-700">
+                    <p className="font-medium">Error: {error}</p>
+                    <Button 
+                      variant="outline" 
+                      className="mt-2"
+                      onClick={() => id && fetchCategories(id)}
+                    >
+                      Reintentar
+                    </Button>
+                  </div>
+                ) : !selectedCategory ? (
+                  <CategoryCarousel 
+                    categories={categories} 
+                    onSelectCategory={handleCategorySelect} 
+                  />
+                ) : (
+                  <ProductGrid 
+                    category={selectedCategory} 
+                    addToCart={addToCart}
+                    onBack={() => setSelectedCategory(null)}
+                    serviceName={name}
+                    closeDialog={() => setIsDialogOpen(false)}
+                    serviceId={id}
+                    purchaseLocationId={purchaseLocationId}
+                    currentCartItems={currentCartItems}
+                  />
+                )}
+              </>
             )}
           </div>
         </DialogContent>
