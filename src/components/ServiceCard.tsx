@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -125,6 +126,7 @@ interface ProductGridProps {
   closeDialog: () => void;
   serviceId?: string;
   purchaseLocationId?: string;
+  currentCartItems: CartItem[];
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({ 
@@ -134,7 +136,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   serviceName,
   closeDialog,
   serviceId,
-  purchaseLocationId
+  purchaseLocationId,
+  currentCartItems
 }) => {
   const navigate = useNavigate();
   const [productQuantities, setProductQuantities] = useState<Record<string, number>>({});
@@ -188,23 +191,47 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         );
         
         setProducts(productsWithPrices);
-        setProductQuantities(
-          Object.fromEntries(productsWithPrices.map(product => [product.id, 0]))
-        );
+        
+        // Initialize product quantities from cart items first
+        const initialQuantities: Record<string, number> = {};
+        
+        productsWithPrices.forEach(product => {
+          // Find if this product exists in the cart already
+          const cartItem = currentCartItems.find(item => 
+            item.productId === product.id && 
+            item.categoryId === category.id &&
+            item.serviceId === serviceId
+          );
+          
+          // Set initial quantity from cart if it exists, otherwise 0
+          initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
+        });
+        
+        setProductQuantities(initialQuantities);
       } catch (error) {
         console.error("Error al cargar precios:", error);
         toast.error("Error al cargar precios de productos");
         setProducts(category.products.map(p => ({ ...p, defaultPrice: p.price })));
-        setProductQuantities(
-          Object.fromEntries(category.products.map(product => [product.id, 0]))
-        );
+        
+        // Even on error, initialize quantities from cart
+        const initialQuantities: Record<string, number> = {};
+        category.products.forEach(product => {
+          const cartItem = currentCartItems.find(item => 
+            item.productId === product.id && 
+            item.categoryId === category.id &&
+            item.serviceId === serviceId
+          );
+          initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
+        });
+        
+        setProductQuantities(initialQuantities);
       } finally {
         setIsLoadingPrices(false);
       }
     };
 
     loadProductsWithPrices();
-  }, [category, purchaseLocationId, serviceId]);
+  }, [category, purchaseLocationId, serviceId, currentCartItems]);
 
   const updateCart = (productId: string, newQuantity: number) => {
     const product = products.find(p => p.id === productId);
@@ -272,10 +299,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         setCartAnimating(prev => ({ ...prev, [item.productId]: false }));
       }, 700);
     });
-
-    if (itemsToAdd.length > 0) {
-      toast.success("Productos agregados al carrito");
-    }
   };
 
   const handleContractNow = () => {
@@ -378,6 +401,7 @@ interface ServiceCardProps {
   } | null;
   forceOpen?: boolean;
   circular?: boolean;
+  currentCartItems: CartItem[];
 }
 
 const ServiceCard: React.FC<ServiceCardProps> = ({ 
@@ -390,7 +414,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   onBeforeCardClick,
   purchaseLocation,
   forceOpen = false,
-  circular = false
+  circular = false,
+  currentCartItems = []
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -612,6 +637,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                 closeDialog={() => setIsDialogOpen(false)}
                 serviceId={id}
                 purchaseLocationId={purchaseLocationId}
+                currentCartItems={currentCartItems}
               />
             )}
           </div>

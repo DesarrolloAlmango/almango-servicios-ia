@@ -214,16 +214,17 @@ const Servicios = () => {
     } : item;
     
     setCartItems(prevItems => {
-      const existingItem = prevItems.find(i => i.id === itemWithLocation.id);
-      if (existingItem) {
-        return prevItems.map(i => 
-          i.id === itemWithLocation.id 
-            ? { ...i, quantity: i.quantity + itemWithLocation.quantity } 
-            : i
-        );
-      } else {
-        return [...prevItems, itemWithLocation];
+      const filteredItems = prevItems.filter(i => 
+        !(i.serviceId === itemWithLocation.serviceId && 
+          i.categoryId === itemWithLocation.categoryId && 
+          i.productId === itemWithLocation.productId)
+      );
+      
+      if (itemWithLocation.quantity > 0) {
+        return [...filteredItems, itemWithLocation];
       }
+      
+      return filteredItems;
     });
   };
 
@@ -363,6 +364,7 @@ const Servicios = () => {
 
   console.log("Servicios recibidos de la API:", displayedServices);
   console.log("Servicios de mudanza recibidos de la API:", displayedMudanzaServices);
+  console.log("Productos en el carrito:", cartItems);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
@@ -450,6 +452,7 @@ const Servicios = () => {
                     purchaseLocation={getPurchaseLocationForService(service.id || "")}
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
                     circular={true}
+                    currentCartItems={cartItems}
                   />
                 );
               })}
@@ -474,6 +477,7 @@ const Servicios = () => {
                     purchaseLocation={getPurchaseLocationForService(service.id || "")}
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
                     circular={true}
+                    currentCartItems={cartItems}
                   />
                 );
               })}
