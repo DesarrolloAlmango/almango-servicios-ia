@@ -477,5 +477,5 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     </div>
   );
 };
-
+/**/
 export default PersonalInfoStep;

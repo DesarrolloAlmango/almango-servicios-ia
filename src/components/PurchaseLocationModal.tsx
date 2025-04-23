@@ -529,5 +529,5 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     </Dialog>
   );
 };
-
+/**/
 export default PurchaseLocationModal;
