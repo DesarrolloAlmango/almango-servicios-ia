@@ -27,11 +27,6 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
   const [termsContent, setTermsContent] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [debugInfo, setDebugInfo] = useState<{
-    sentId: string | null;
-    responseStatus: string;
-    responseLength: number;
-  } | null>(null);
 
   React.useEffect(() => {
     const fetchTerms = async () => {
@@ -39,33 +34,21 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
       
       setIsLoading(true);
       setError(null);
-      setDebugInfo(null);
       
       try {
         if (!textosId) {
           throw new Error("No se ha encontrado ID de términos para este producto");
         }
         
-        const sentId = textosId;
-        
         const response = await fetch(
           `/api/AlmangoXV1NETFramework/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`
         );
         
-        const responseStatus = `${response.status} ${response.statusText}`;
-        
         if (!response.ok) {
-          throw new Error(`Error al obtener términos y condiciones: ${responseStatus}`);
+          throw new Error(`Error al obtener términos y condiciones: ${response.status}`);
         }
         
         const data: TermsResponse = await response.json();
-        const responseLength = data.Texto.length;
-        
-        setDebugInfo({
-          sentId,
-          responseStatus,
-          responseLength
-        });
         
         // Decodificar las secuencias Unicode y establecer el HTML
         const decodedContent = data.Texto
@@ -90,20 +73,10 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold text-orange-500">
-            Términos y Condiciones - {productName}
+            Términos y Condiciones
           </DialogTitle>
+          <p className="text-sm text-gray-500 mt-1">{productName}</p>
         </DialogHeader>
-        
-        {debugInfo && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <h4 className="font-medium text-blue-700">Información de Debug:</h4>
-            <ul className="text-sm text-blue-600 mt-1">
-              <li>ID enviado: <span className="font-mono">{debugInfo.sentId || "null"}</span></li>
-              <li>Estado de la respuesta: <span className="font-mono">{debugInfo.responseStatus}</span></li>
-              <li>Longitud de la respuesta: <span className="font-mono">{debugInfo.responseLength} caracteres</span></li>
-            </ul>
-          </div>
-        )}
         
         <div className="mt-4">
           {isLoading ? (
