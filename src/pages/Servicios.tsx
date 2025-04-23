@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "@/components/ServiceCard";
 import CartDrawer from "@/components/CartDrawer";
@@ -125,6 +125,8 @@ const fetchTarjetasMudanza = async (): Promise<TarjetaServicio[]> => {
 const Servicios = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { commerceId } = useParams();
+  const [storeName, setStoreName] = useState<string>("");
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
@@ -172,6 +174,45 @@ const Servicios = () => {
       }
     }
   });
+
+  useEffect(() => {
+    const fetchStoreName = async () => {
+      if (commerceId) {
+        try {
+          const response = await fetch(
+            `/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetStoreDetails?storeId=${commerceId}`
+          );
+          
+          if (!response.ok) {
+            throw new Error("Error al obtener los detalles del comercio");
+          }
+          
+          const data = await response.json();
+          const storeDetails = JSON.parse(data.StoreDetailsJson);
+          setStoreName(storeDetails.name);
+          
+          // Set initial purchase location for all services
+          if (services) {
+            const initialLocations = services.map(service => ({
+              storeId: commerceId,
+              storeName: storeDetails.name,
+              serviceId: service.id,
+              serviceName: service.name,
+              departmentId: storeDetails.departmentId,
+              departmentName: storeDetails.departmentName,
+              locationId: storeDetails.locationId,
+              locationName: storeDetails.locationName
+            }));
+            setPurchaseLocations(initialLocations);
+          }
+        } catch (error) {
+          console.error("Error fetching store details:", error);
+        }
+      }
+    };
+
+    fetchStoreName();
+  }, [commerceId, services]);
 
   const displayedServices = isError ? fallbackServices : services;
   const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
@@ -249,6 +290,11 @@ const Servicios = () => {
   const handleServiceCardClick = (serviceId: string | undefined, serviceName: string) => {
     if (!serviceId) return false;
     
+    if (commerceId) {
+      // If commerceId exists, always return true to allow card expansion
+      return true;
+    }
+    
     if (isLocationModalOpen) {
       return false;
     }
@@ -296,6 +342,9 @@ const Servicios = () => {
   };
 
   const clearPurchaseLocation = (serviceId: string) => {
+    // If commerceId exists, don't allow location removal
+    if (commerceId) return;
+    
     const location = purchaseLocations.find(loc => loc.serviceId === serviceId);
     if (!location) return;
 
@@ -410,7 +459,17 @@ const Servicios = () => {
             </div>
           )}
           
-          {purchaseLocations.length > 0 && (
+          {commerceId && storeName && (
+            <div className="mb-6 bg-blue-50 p-3 rounded-lg border border-blue-200">
+              <h3 className="font-medium text-blue-700 mb-2">Lugar de compra fijo:</h3>
+              <div className="flex items-center gap-2">
+                <MapPin className="text-blue-500" size={16} />
+                <span className="text-blue-600">{storeName}</span>
+              </div>
+            </div>
+          )}
+          
+          {!commerceId && purchaseLocations.length > 0 && (
             <div className="mb-6 bg-blue-50 p-3 rounded-lg border border-blue-200">
               <h3 className="font-medium text-blue-700 mb-2">Lugares de compra registrados:</h3>
               <div className="flex flex-wrap gap-2">
@@ -495,17 +554,19 @@ const Servicios = () => {
           setPurchaseLocations={setPurchaseLocations}
         />
         
-        <PurchaseLocationModal 
-          isOpen={isLocationModalOpen}
-          onClose={() => {
-            setIsLocationModalOpen(false);
-            if (pendingServiceCardAction) {
-              setPendingServiceCardAction(false);
-            }
-          }}
-          onSelectLocation={handleLocationSelect}
-          serviceName={selectedServiceName || undefined}
-        />
+        {!commerceId && (
+          <PurchaseLocationModal 
+            isOpen={isLocationModalOpen}
+            onClose={() => {
+              setIsLocationModalOpen(false);
+              if (pendingServiceCardAction) {
+                setPendingServiceCardAction(false);
+              }
+            }}
+            onSelectLocation={handleLocationSelect}
+            serviceName={selectedServiceName || undefined}
+          />
+        )}
       </main>
 
       <AlertDialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>
