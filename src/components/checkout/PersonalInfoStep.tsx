@@ -33,6 +33,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { toast } from "sonner";
+import { GeneralTermsModal } from "@/components/ui/general-terms-modal";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre es obligatorio" }),
@@ -79,6 +80,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   municipalities = {},
 }) => {
   const [showOrderSummary, setShowOrderSummary] = useState(false);
+  const [showGeneralTerms, setShowGeneralTerms] = useState(false);
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -419,21 +421,12 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                 <div className="space-y-1 leading-none">
                   <FormLabel htmlFor="terms" className="text-sm font-normal">
                     Acepto los{" "}
-                    <HoverCard>
-                      <HoverCardTrigger asChild>
-                        <span className="text-primary hover:underline cursor-pointer">
-                          términos y condiciones
-                        </span>
-                      </HoverCardTrigger>
-                      <HoverCardContent className="text-xs">
-                        <p>Al contratar nuestros servicios, aceptas nuestros términos y condiciones, que incluyen:</p>
-                        <ul className="list-disc pl-4 mt-2 space-y-1">
-                          <li>Política de cancelación</li>
-                          <li>Política de privacidad</li>
-                          <li>Condiciones de servicio</li>
-                        </ul>
-                      </HoverCardContent>
-                    </HoverCard>
+                    <span 
+                      className="text-primary hover:underline cursor-pointer"
+                      onClick={() => setShowGeneralTerms(true)}
+                    >
+                      términos y condiciones
+                    </span>
                   </FormLabel>
                   <FormMessage />
                 </div>
@@ -451,6 +444,11 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
           </div>
         </form>
       </Form>
+
+      <GeneralTermsModal 
+        isOpen={showGeneralTerms}
+        onClose={() => setShowGeneralTerms(false)}
+      />
     </div>
   );
 };
