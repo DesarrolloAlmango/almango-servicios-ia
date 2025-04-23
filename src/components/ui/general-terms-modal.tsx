@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -27,7 +26,6 @@ export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
   const fetchTerms = async () => {
     setLoading(true);
     try {
-      // Using the same API endpoint as ProductTermsModal but with fixed ID 1
       const textosId = 1; // Fixed ID as required
       const response = await fetch(
         `/api/AlmangoXV1NETFramework/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`
@@ -38,9 +36,10 @@ export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
       }
       
       const data = await response.json();
-      if (data && data.textos && data.textos.length > 0) {
-        // Decode HTML entities if needed
-        const decodedText = decodeHTMLEntities(data.textos[0].texto || "");
+      
+      // Accedemos directamente a data.Texto en lugar de data.textos[0].texto
+      if (data && data.Texto) {
+        const decodedText = decodeHTMLEntities(data.Texto);
         setTerms(decodedText);
       } else {
         setTerms("No se encontraron términos y condiciones.");
@@ -56,7 +55,6 @@ export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
     }
   };
 
-  // Helper function to decode HTML entities
   const decodeHTMLEntities = (text: string) => {
     const textarea = document.createElement("textarea");
     textarea.innerHTML = text;
