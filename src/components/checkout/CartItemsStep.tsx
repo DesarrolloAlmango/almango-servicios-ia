@@ -58,6 +58,10 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                 >
                   Ver Condiciones
                 </button>
+                {/* Añadimos aquí información de depuración para ver el textosId en el carrito */}
+                <div className="mt-1 text-xs text-blue-600 font-mono">
+                  ID: {item.textosId || "null"}
+                </div>
               </div>
               <div className="flex items-center gap-3">
                 <div className="bg-white rounded-md border flex items-center">

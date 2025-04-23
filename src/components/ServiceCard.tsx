@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom"; // Correct import for useLocation and useNavigate
 import { Card, CardContent } from "@/components/ui/card";
@@ -255,7 +254,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       categoryId: category.id,
       productId: product.id,
       departmentId: purchaseLocation?.departmentId,
-      locationId: purchaseLocation?.locationId
+      locationId: purchaseLocation?.locationId,
+      textosId: product.textosId
     });
 
     setCartAnimating(prev => ({ ...prev, [productId]: true }));
@@ -295,7 +295,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         categoryId: category.id,
         productId: product.id,
         departmentId: purchaseLocation?.departmentId,
-        locationId: purchaseLocation?.locationId
+        locationId: purchaseLocation?.locationId,
+        textosId: product.textosId
       }));
 
     if (itemsToAdd.length > 0) {
@@ -324,7 +325,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         categoryId: category.id,
         productId: product.id,
         departmentId: purchaseLocation?.departmentId,
-        locationId: purchaseLocation?.locationId
+        locationId: purchaseLocation?.locationId,
+        textosId: product.textosId
       }));
 
     if (itemsToAdd.length > 0) {
