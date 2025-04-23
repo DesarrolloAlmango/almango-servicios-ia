@@ -22,6 +22,11 @@ interface LocationStepProps {
     departments: boolean;
     municipalities: boolean;
   };
+  title?: string;
+  description?: string;
+  buttonText?: string;
+  showStoreSection?: boolean;
+  storeName?: string;
 }
 
 const LocationStep: React.FC<LocationStepProps> = ({
@@ -32,7 +37,12 @@ const LocationStep: React.FC<LocationStepProps> = ({
   onNext,
   departments,
   municipalities,
-  loading
+  loading,
+  title = "Lugar de Servicio",
+  description = "Selecciona la ubicación donde necesitas el servicio",
+  buttonText = "Siguiente",
+  showStoreSection = false,
+  storeName
 }) => {
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartment(value);
@@ -45,9 +55,16 @@ const LocationStep: React.FC<LocationStepProps> = ({
     <div className="space-y-6">
       <div className="text-center mb-6">
         <MapPin className="h-12 w-12 mx-auto text-primary mb-2" />
-        <h3 className="text-xl font-semibold">Lugar de Servicio</h3>
-        <p className="text-muted-foreground">Selecciona la ubicación donde necesitas el servicio</p>
+        <h3 className="text-xl font-semibold">{title}</h3>
+        <p className="text-muted-foreground">{description}</p>
       </div>
+
+      {showStoreSection && storeName && (
+        <div className="mb-4 p-3 rounded-md bg-blue-50 border border-blue-200">
+          <h4 className="font-medium text-blue-700 mb-1">Lugar de compra:</h4>
+          <p className="text-blue-600">{storeName}</p>
+        </div>
+      )}
 
       <div className="space-y-4">
         <div className="space-y-2">
@@ -112,7 +129,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
           disabled={!selectedDepartment || !selectedLocation || loading.municipalities || loading.departments}
           className="bg-primary hover:bg-primary-dark"
         >
-          Siguiente
+          {buttonText}
         </Button>
       </div>
     </div>

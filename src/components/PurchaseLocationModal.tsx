@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { MapPin, Loader2, ChevronDown, X } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import LocationStep from "@/components/checkout/LocationStep";
 
 interface Store {
   id: string;
@@ -27,6 +29,8 @@ interface PurchaseLocationModalProps {
   ) => void;
   stores?: Store[];
   serviceName?: string;
+  commerceId?: string;
+  commerceName?: string;
 }
 
 interface Department {
@@ -44,7 +48,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   onClose,
   onSelectLocation,
   stores = [],
-  serviceName
+  serviceName,
+  commerceId,
+  commerceName
 }) => {
   const [selectedStore, setSelectedStore] = useState<string>("");
   const [otherStore, setOtherStore] = useState<string>("");
@@ -71,16 +77,18 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      fetchProviders();
+      if (!commerceId) {
+        fetchProviders();
+      }
       fetchDepartments();
-      setSelectedStore("");
+      setSelectedStore(commerceId || "");
       setOtherStore("");
       setShowOtherInput(false);
       setSelectedDepartment("");
       setSelectedLocation("");
-      setSearchQuery("");
+      setSearchQuery(commerceName || "");
     }
-  }, [isOpen]);
+  }, [isOpen, commerceId, commerceName]);
 
   useEffect(() => {
     if (isStoreDropdownOpen && inputRef.current) {
@@ -253,20 +261,22 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   };
 
   const handleConfirm = () => {
-    if (!selectedStore && searchQuery) {
-      setSelectedStore("other");
-      setOtherStore(searchQuery);
-      setShowOtherInput(true);
-    }
-
-    if (!selectedStore && !searchQuery) {
-      toast.error("Por favor selecciona o escribe un lugar de compra");
-      return;
-    }
-
-    if (selectedStore === "other" && !otherStore.trim() && !searchQuery.trim()) {
-      toast.error("Por favor ingresa el nombre del comercio");
-      return;
+    if (!commerceId) {
+      if (!selectedStore && searchQuery) {
+        setSelectedStore("other");
+        setOtherStore(searchQuery);
+        setShowOtherInput(true);
+      }
+  
+      if (!selectedStore && !searchQuery) {
+        toast.error("Por favor selecciona o escribe un lugar de compra");
+        return;
+      }
+  
+      if (selectedStore === "other" && !otherStore.trim() && !searchQuery.trim()) {
+        toast.error("Por favor ingresa el nombre del comercio");
+        return;
+      }
     }
 
     if (!selectedDepartment || !selectedLocation) {
@@ -274,15 +284,18 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       return;
     }
 
-    const storeName = selectedStore === "other" 
-      ? otherStore || searchQuery 
-      : [...fixedStores, ...localStores].find(store => store.id === selectedStore)?.name || "";
+    const storeId = commerceId || selectedStore || "other";
+    const storeName = commerceId ? 
+      commerceName || "Comercio seleccionado" :
+      selectedStore === "other" ? 
+        otherStore || searchQuery : 
+        [...fixedStores, ...localStores].find(store => store.id === selectedStore)?.name || "";
     
     const selectedDepartmentObj = departments.find(dept => dept.id === selectedDepartment);
     const selectedLocationObj = currentMunicipalities.find(mun => mun.id === selectedLocation);
 
     onSelectLocation(
-      selectedStore || "other", 
+      storeId, 
       storeName,
       selectedDepartment,
       selectedDepartmentObj?.name || "",
@@ -316,163 +329,185 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
           </DialogDescription>
         </div>
         
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <h3 className="text-lg font-semibold">
-              ¿Dónde realizaste la compra?
-            </h3>
-            {serviceName && (
-              <p className="text-muted-foreground text-sm">
-                Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
-              </p>
-            )}
-            <label className="block text-sm font-medium">
-              Lugar de Compra
-            </label>
-            
-            <div className="relative">
-              <div className="flex items-center relative">
-                <Input
-                  ref={inputRef}
-                  placeholder={loading ? "Cargando..." : "Buscar o seleccionar comercio"}
-                  value={searchQuery}
-                  onChange={handleInputChange}
-                  onClick={handleInputClick}
-                  onBlur={handleInputBlur}
-                  className="pr-8 text-xs"
-                />
-                {selectedStore && (
-                  <X 
-                    className="h-4 w-4 absolute right-7 text-muted-foreground cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedStore("");
-                      setSearchQuery("");
-                      setShowOtherInput(false);
-                      setOtherStore("");
-                    }}
-                  />
-                )}
-                <ChevronDown className="h-4 w-4 absolute right-3 text-muted-foreground" />
-              </div>
+        {commerceId ? (
+          // Si tenemos un commerceId, mostramos solo la selección de departamento y localidad
+          <LocationStep
+            selectedDepartment={selectedDepartment}
+            setSelectedDepartment={setSelectedDepartment}
+            selectedLocation={selectedLocation}
+            setSelectedLocation={setSelectedLocation}
+            onNext={handleConfirm}
+            departments={departments}
+            municipalities={municipalities}
+            loading={loadingLocation}
+            title="¿Dónde vamos a realizar el servicio?"
+            description="Selecciona la ubicación donde necesitas el servicio"
+            buttonText="Confirmar"
+            showStoreSection={true}
+            storeName={commerceName || "Comercio seleccionado"}
+          />
+        ) : (
+          // Si no tenemos commerceId, mostramos el flujo completo
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <h3 className="text-lg font-semibold">
+                ¿Dónde realizaste la compra?
+              </h3>
+              {serviceName && (
+                <p className="text-muted-foreground text-sm">
+                  Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
+                </p>
+              )}
+              <label className="block text-sm font-medium">
+                Lugar de Compra
+              </label>
               
-              {isStoreDropdownOpen && (
-                <div className="absolute z-50 w-full mt-1 rounded-md border bg-popover shadow-lg">
-                  <ScrollArea 
-                    ref={scrollAreaRef}
-                    className="h-[200px] rounded-md"
-                    onMouseDown={handleScrollAreaMouseDown}
-                  >
-                    {loading ? (
-                      <div className="flex items-center justify-center p-4">
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        <span className="text-xs">Cargando opciones...</span>
-                      </div>
-                    ) : filteredStores.length > 0 ? (
-                      filteredStores.map((store, index) => (
-                        <div
-                          key={store.id}
-                          className={`px-4 py-2 hover:bg-accent hover:text-accent-foreground cursor-pointer uppercase text-xs
-                                    ${index < 2 ? 'font-bold' : ''}`}
-                          onMouseDown={(e) => e.preventDefault()}
-                          onClick={() => handleStoreChange(store.id)}
-                        >
-                          {store.name}
-                        </div>
-                      ))
-                    ) : (
-                      <div className="px-4 py-2 text-muted-foreground text-xs">
-                        No se encontraron resultados
-                      </div>
-                    )}
-                  </ScrollArea>
+              <div className="relative">
+                <div className="flex items-center relative">
+                  <Input
+                    ref={inputRef}
+                    placeholder={loading ? "Cargando..." : "Buscar o seleccionar comercio"}
+                    value={searchQuery}
+                    onChange={handleInputChange}
+                    onClick={handleInputClick}
+                    onBlur={handleInputBlur}
+                    className="pr-8 text-xs"
+                  />
+                  {selectedStore && (
+                    <X 
+                      className="h-4 w-4 absolute right-7 text-muted-foreground cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedStore("");
+                        setSearchQuery("");
+                        setShowOtherInput(false);
+                        setOtherStore("");
+                      }}
+                    />
+                  )}
+                  <ChevronDown className="h-4 w-4 absolute right-3 text-muted-foreground" />
                 </div>
+                
+                {isStoreDropdownOpen && (
+                  <div className="absolute z-50 w-full mt-1 rounded-md border bg-popover shadow-lg">
+                    <ScrollArea 
+                      ref={scrollAreaRef}
+                      className="h-[200px] rounded-md"
+                      onMouseDown={handleScrollAreaMouseDown}
+                    >
+                      {loading ? (
+                        <div className="flex items-center justify-center p-4">
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          <span className="text-xs">Cargando opciones...</span>
+                        </div>
+                      ) : filteredStores.length > 0 ? (
+                        filteredStores.map((store, index) => (
+                          <div
+                            key={store.id}
+                            className={`px-4 py-2 hover:bg-accent hover:text-accent-foreground cursor-pointer uppercase text-xs
+                                      ${index < 2 ? 'font-bold' : ''}`}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => handleStoreChange(store.id)}
+                          >
+                            {store.name}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="px-4 py-2 text-muted-foreground text-xs">
+                          No se encontraron resultados
+                        </div>
+                      )}
+                    </ScrollArea>
+                  </div>
+                )}
+              </div>
+
+              {showOtherInput && (
+                <Input
+                  placeholder="Nombre del comercio"
+                  value={otherStore}
+                  onChange={(e) => setOtherStore(e.target.value)}
+                  className="mt-2 text-xs"
+                />
               )}
             </div>
 
-            {showOtherInput && (
-              <Input
-                placeholder="Nombre del comercio"
-                value={otherStore}
-                onChange={(e) => setOtherStore(e.target.value)}
-                className="mt-2 text-xs"
-              />
-            )}
-          </div>
-
-          <div className="space-y-4 pt-4">
-            <h3 className="text-lg font-semibold">
-              ¿Dónde vamos a realizar el servicio?
-            </h3>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">
-                Departamento
-              </label>
-              <Select 
-                value={selectedDepartment} 
-                onValueChange={(value) => {
-                  setSelectedDepartment(value);
-                  setSelectedLocation("");
-                }}
-                disabled={loadingLocation.departments}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={
-                    loadingLocation.departments ? "Cargando departamentos..." : "Selecciona un departamento"
-                  } />
-                </SelectTrigger>
-                <SelectContent>
-                  {departments.map(dept => (
-                    <SelectItem key={dept.id} value={dept.id}>
-                      {dept.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">
-                Localidad
-              </label>
-              <Select 
-                value={selectedLocation} 
-                onValueChange={setSelectedLocation}
-                disabled={!selectedDepartment || loadingLocation.municipalities}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={
-                    loadingLocation.municipalities ? "Cargando localidades..." : 
-                    !selectedDepartment ? "Selecciona un departamento primero" : 
-                    "Selecciona una localidad"
-                  } />
-                </SelectTrigger>
-                <SelectContent>
-                  <ScrollArea className="h-[200px]">
-                    {currentMunicipalities.map(municipality => (
-                      <SelectItem key={municipality.id} value={municipality.id}>
-                        {municipality.name}
+            <div className="space-y-4 pt-4">
+              <h3 className="text-lg font-semibold">
+                ¿Dónde vamos a realizar el servicio?
+              </h3>
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">
+                  Departamento
+                </label>
+                <Select 
+                  value={selectedDepartment} 
+                  onValueChange={(value) => {
+                    setSelectedDepartment(value);
+                    setSelectedLocation("");
+                  }}
+                  disabled={loadingLocation.departments}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={
+                      loadingLocation.departments ? "Cargando departamentos..." : "Selecciona un departamento"
+                    } />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {departments.map(dept => (
+                      <SelectItem key={dept.id} value={dept.id}>
+                        {dept.name}
                       </SelectItem>
                     ))}
-                  </ScrollArea>
-                </SelectContent>
-              </Select>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">
+                  Localidad
+                </label>
+                <Select 
+                  value={selectedLocation} 
+                  onValueChange={setSelectedLocation}
+                  disabled={!selectedDepartment || loadingLocation.municipalities}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={
+                      loadingLocation.municipalities ? "Cargando localidades..." : 
+                      !selectedDepartment ? "Selecciona un departamento primero" : 
+                      "Selecciona una localidad"
+                    } />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <ScrollArea className="h-[200px]">
+                      {currentMunicipalities.map(municipality => (
+                        <SelectItem key={municipality.id} value={municipality.id}>
+                          {municipality.name}
+                        </SelectItem>
+                      ))}
+                    </ScrollArea>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button 
-            onClick={handleConfirm}
-            disabled={loading || (!selectedStore && !searchQuery) || (selectedStore === "other" && !otherStore.trim() && !searchQuery.trim()) || !selectedDepartment || !selectedLocation}
-            className="bg-orange-500 hover:bg-orange-600"
-          >
-            Confirmar
-          </Button>
-        </DialogFooter>
+        {!commerceId && (
+          <DialogFooter>
+            <Button variant="outline" onClick={onClose}>
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleConfirm}
+              disabled={loading || (!selectedStore && !searchQuery) || (selectedStore === "other" && !otherStore.trim() && !searchQuery.trim()) || !selectedDepartment || !selectedLocation}
+              className="bg-orange-500 hover:bg-orange-600"
+            >
+              Confirmar
+            </Button>
+          </DialogFooter>
+        )}
       </DialogContent>
     </Dialog>
   );

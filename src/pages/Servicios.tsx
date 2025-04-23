@@ -291,8 +291,20 @@ const Servicios = () => {
     if (!serviceId) return false;
     
     if (commerceId) {
-      // If commerceId exists, always return true to allow card expansion
-      return true;
+      // En lugar de retornar true directamente, debemos verificar
+      // si ya tenemos información de ubicación para este servicio
+      const existingLocation = purchaseLocations.find(loc => 
+        loc.serviceId === serviceId && loc.departmentId && loc.locationId
+      );
+      
+      if (existingLocation) {
+        return true;
+      } else {
+        setSelectedServiceId(serviceId);
+        setSelectedServiceName(serviceName);
+        setIsLocationModalOpen(true);
+        return false;
+      }
     }
     
     if (isLocationModalOpen) {
@@ -333,9 +345,27 @@ const Servicios = () => {
         locationName
       };
       
-      setPurchaseLocations(prev => [...prev, newLocation]);
+      // Actualizar o agregar la ubicación
+      setPurchaseLocations(prev => {
+        const existingIndex = prev.findIndex(loc => loc.serviceId === selectedServiceId);
+        
+        if (existingIndex >= 0) {
+          const updated = [...prev];
+          updated[existingIndex] = {
+            ...updated[existingIndex],
+            departmentId,
+            departmentName,
+            locationId,
+            locationName
+          };
+          return updated;
+        } else {
+          return [...prev, newLocation];
+        }
+      });
+      
       setIsLocationModalOpen(false);
-      toast.success(`Lugar de compra registrado para ${selectedServiceName}`);
+      toast.success(`Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName}`);
       
       setPendingServiceCardAction(true);
     }
@@ -554,19 +584,19 @@ const Servicios = () => {
           setPurchaseLocations={setPurchaseLocations}
         />
         
-        {!commerceId && (
-          <PurchaseLocationModal 
-            isOpen={isLocationModalOpen}
-            onClose={() => {
-              setIsLocationModalOpen(false);
-              if (pendingServiceCardAction) {
-                setPendingServiceCardAction(false);
-              }
-            }}
-            onSelectLocation={handleLocationSelect}
-            serviceName={selectedServiceName || undefined}
-          />
-        )}
+        <PurchaseLocationModal 
+          isOpen={isLocationModalOpen}
+          onClose={() => {
+            setIsLocationModalOpen(false);
+            if (pendingServiceCardAction) {
+              setPendingServiceCardAction(false);
+            }
+          }}
+          onSelectLocation={handleLocationSelect}
+          serviceName={selectedServiceName || undefined}
+          commerceId={commerceId}
+          commerceName={storeName}
+        />
       </main>
 
       <AlertDialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>
