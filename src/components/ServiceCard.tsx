@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -150,13 +149,23 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   };
 
   const fetchUpdatedPrice = async (product: Product): Promise<number> => {
-    if (!purchaseLocationId || !serviceId || !category.id) {
+    if (!serviceId || !category.id) {
+      return product.defaultPrice || product.price;
+    }
+
+    const urlParams = new URLSearchParams(window.location.pathname);
+    const pathParts = window.location.pathname.split('/');
+    const commerceIdFromUrl = pathParts[pathParts.indexOf('servicios') + 2];
+    
+    const proveedorId = commerceIdFromUrl || purchaseLocationId;
+
+    if (!proveedorId) {
       return product.defaultPrice || product.price;
     }
 
     try {
       const response = await fetch(
-        `/api/AlmangoXV1NETFramework/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`
+        `/api/AlmangoXV1NETFramework/WebAPI/ObtenerPrecio?Proveedorid=${proveedorId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`
       );
       
       if (!response.ok) {
@@ -192,18 +201,15 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         
         setProducts(productsWithPrices);
         
-        // Initialize product quantities from cart items first
         const initialQuantities: Record<string, number> = {};
         
         productsWithPrices.forEach(product => {
-          // Find if this product exists in the cart already
           const cartItem = currentCartItems.find(item => 
             item.productId === product.id && 
             item.categoryId === category.id &&
             item.serviceId === serviceId
           );
           
-          // Set initial quantity from cart if it exists, otherwise 0
           initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
         });
         
@@ -213,7 +219,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         toast.error("Error al cargar precios de productos");
         setProducts(category.products.map(p => ({ ...p, defaultPrice: p.price })));
         
-        // Even on error, initialize quantities from cart
         const initialQuantities: Record<string, number> = {};
         category.products.forEach(product => {
           const cartItem = currentCartItems.find(item => 
