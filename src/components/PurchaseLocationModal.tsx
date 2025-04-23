@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -217,7 +216,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     setSelectedStore(value);
     setShowOtherInput(value === "other");
     
-    // Actualizar el searchQuery con el nombre del store seleccionado
     if (selectedStoreObj) {
       setSearchQuery(selectedStoreObj.name);
     }
@@ -226,7 +224,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   };
 
   const handleInputClick = () => {
-    // Si ya hay una selección, limpiarla al hacer clic nuevamente
     if (selectedStore) {
       setSelectedStore("");
       setSearchQuery("");
@@ -246,7 +243,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   };
 
   const handleInputBlur = (e: React.FocusEvent) => {
-    // Verificar si el blur fue causado por hacer clic en el ScrollArea
     if (scrollAreaRef.current && scrollAreaRef.current.contains(e.relatedTarget as Node)) {
       return;
     }
@@ -256,7 +252,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   };
 
   const handleScrollAreaMouseDown = (e: React.MouseEvent) => {
-    // Prevenir el blur cuando se interactúa con el ScrollArea
     e.preventDefault();
   };
 
@@ -273,7 +268,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         return;
       }
   
-      if (selectedStore === "other" && !otherStore.trim() && !searchQuery.trim()) {
+      if (selectedStore === "other" && !otherStore.trim()) {
         toast.error("Por favor ingresa el nombre del comercio");
         return;
       }
@@ -306,6 +301,23 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     onClose();
   };
 
+  // Función para verificar si el formulario es válido
+  const isFormValid = useMemo(() => {
+    // Si hay un commerceId, solo necesitamos departamento y localidad
+    if (commerceId) {
+      return selectedDepartment && selectedLocation;
+    }
+    
+    // Si no hay commerceId, validamos según la selección
+    if (!selectedStore && !searchQuery) return false;
+    
+    // Si se seleccionó "Otro", validamos que haya texto en otherStore
+    if (selectedStore === "other" && !otherStore.trim()) return false;
+    
+    // Validamos siempre departamento y localidad
+    return selectedDepartment && selectedLocation;
+  }, [commerceId, selectedStore, searchQuery, otherStore, selectedDepartment, selectedLocation]);
+
   const displayedStores = useMemo(() => {
     return [...fixedStores, ...localStores];
   }, [localStores]);
@@ -332,7 +344,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         )}
         
         {commerceId ? (
-          // Si hay un commerceId, mostramos solo la selección de departamento y localidad
           <LocationStep
             selectedDepartment={selectedDepartment}
             setSelectedDepartment={setSelectedDepartment}
@@ -349,7 +360,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             storeName={commerceName || "Comercio seleccionado"}
           />
         ) : (
-          // Si no hay commerceId, mostramos el flujo completo
           <div className="space-y-4">
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">
@@ -361,7 +371,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                 </p>
               )}
               <label className="block text-sm font-medium">
-                Lugar de Compra
+                Lugar de Compra *
               </label>
               
               <div className="relative">
@@ -425,12 +435,17 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
               </div>
 
               {showOtherInput && (
-                <Input
-                  placeholder="Nombre del comercio"
-                  value={otherStore}
-                  onChange={(e) => setOtherStore(e.target.value)}
-                  className="mt-2 text-xs"
-                />
+                <div className="mt-2">
+                  <label className="block text-sm font-medium">
+                    Nombre del comercio *
+                  </label>
+                  <Input
+                    placeholder="Ingresa el nombre del comercio"
+                    value={otherStore}
+                    onChange={(e) => setOtherStore(e.target.value)}
+                    className="text-xs"
+                  />
+                </div>
               )}
             </div>
 
@@ -440,7 +455,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
               </h3>
               <div className="space-y-2">
                 <label className="block text-sm font-medium">
-                  Departamento
+                  Departamento *
                 </label>
                 <Select 
                   value={selectedDepartment} 
@@ -467,7 +482,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
               <div className="space-y-2">
                 <label className="block text-sm font-medium">
-                  Localidad
+                  Localidad *
                 </label>
                 <Select 
                   value={selectedLocation} 
@@ -503,11 +518,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             </Button>
             <Button 
               onClick={handleConfirm}
-              disabled={loading || 
-                (!selectedStore && !searchQuery) || 
-                (selectedStore === "other" && !otherStore.trim() && !searchQuery.trim()) || 
-                !selectedDepartment || 
-                !selectedLocation}
+              disabled={!isFormValid || loading}
               className="bg-orange-500 hover:bg-orange-600"
             >
               Confirmar
