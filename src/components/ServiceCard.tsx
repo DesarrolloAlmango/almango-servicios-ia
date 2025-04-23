@@ -87,7 +87,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <div className="bg-white rounded-full p-1 shadow-md flex items-center">
             <button 
               className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary"
-              onClick={(e) => { e.stopPropagation(); onDecrease(); }}
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                onDecrease(); 
+                if (quantity > 1) onAdd(); 
+              }}
             >
               -
             </button>
@@ -96,7 +100,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </span>
             <button 
               className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary"
-              onClick={(e) => { e.stopPropagation(); onIncrease(); }}
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                onIncrease(); 
+                onAdd(); 
+              }}
             >
               +
             </button>
@@ -107,17 +115,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <h4 className="font-medium mb-1 line-clamp-2">{product.name}</h4>
         <div className="flex justify-between items-center mt-2">
           <span className="font-bold">${product.price.toFixed(2)}</span>
-          <Button
-            size="sm"
-            className="ml-2 bg-orange-500 hover:bg-orange-600 text-white px-3 py-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              onAdd();
-            }}
-          >
-            <ShoppingCart size={18} className="mr-1" />
-            Agregar al carrito
-          </Button>
         </div>
       </CardContent>
     </Card>
