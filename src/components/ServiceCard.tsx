@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom"; // Correct import for useLocation and useNavigate
 import { Card, CardContent } from "@/components/ui/card";
@@ -112,6 +113,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <h4 className="font-medium mb-1 line-clamp-2">{product.name}</h4>
         <div className="flex justify-between items-center mt-2">
           <span className="font-bold">${product.price.toFixed(2)}</span>
+        </div>
+        
+        {/* Información de debug del TextosId */}
+        <div className="mt-2 pt-2 border-t text-xs text-blue-600 font-mono">
+          <div className="bg-blue-50 p-1 rounded">
+            <span className="font-medium">TextosId: </span> 
+            {product.textosId ? product.textosId : "null"}
+          </div>
         </div>
       </CardContent>
     </Card>
