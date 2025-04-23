@@ -55,10 +55,11 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                 <button
                   onClick={() => setSelectedTerms({ textosId: item.textosId || null, productName: item.name })}
                   className="text-sm text-orange-500 hover:text-orange-600 mt-1"
+                  disabled={!item.textosId}
                 >
                   Ver Condiciones
                 </button>
-                {/* Añadimos aquí información de depuración para ver el textosId en el carrito */}
+                {/* Información de depuración para ver el textosId en el carrito */}
                 <div className="mt-1 text-xs text-blue-600 font-mono">
                   ID: {item.textosId || "null"}
                 </div>

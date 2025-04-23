@@ -45,8 +45,9 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
         // Guardamos el ID que estamos enviando para debug
         const sentId = textosId;
         
+        // Usamos /api/ como proxy en lugar de llamar directamente a la URL externa
         const response = await fetch(
-          `http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`
+          `/api/AlmangoXV1NETFramework/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`
         );
         
         const responseStatus = `${response.status} ${response.statusText}`;
