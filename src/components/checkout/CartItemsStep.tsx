@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "@/pages/Servicios";
 import ProductTermsModal from "./ProductTermsModal";
@@ -27,6 +27,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
 }) => {
   const [selectedTerms, setSelectedTerms] = useState<SelectedTerms | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const nextButtonRef = useRef<HTMLDivElement>(null);
   
   const handleIncreaseQuantity = (id: string, currentQuantity: number) => {
     updateCartItem(id, currentQuantity + 1);
@@ -34,6 +35,20 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
 
   const handleDecreaseQuantity = (id: string, currentQuantity: number) => {
     updateCartItem(id, currentQuantity - 1);
+  };
+
+  const handleTermsAcceptance = (checked: boolean) => {
+    setTermsAccepted(checked);
+    
+    if (checked && nextButtonRef.current) {
+      // Scroll suave hacia abajo al botón siguiente
+      setTimeout(() => {
+        nextButtonRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'end'
+        });
+      }, 100);
+    }
   };
 
   return (
@@ -97,7 +112,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
           <Checkbox 
             id="terms" 
             checked={termsAccepted}
-            onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+            onCheckedChange={handleTermsAcceptance}
           />
           <div className="grid gap-1.5 leading-none">
             <Label
@@ -110,7 +125,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
         </div>
       )}
 
-      <div className="flex justify-between pt-4 mb-8">
+      <div className="flex justify-between pt-4 mb-8" ref={nextButtonRef}>
         <div className="ml-auto">
           <Button 
             onClick={onNext} 
