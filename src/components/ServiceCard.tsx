@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { LucideIcon } from "lucide-react";
 import { Check } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 
 interface Category {
   id: string;
@@ -31,23 +32,25 @@ interface ProductCardProps {
   quantity: number;
   onIncrease: () => void;
   onDecrease: () => void;
+  onAdd: () => void;
+  animating: boolean;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ 
   product, 
   quantity,
   onIncrease,
-  onDecrease
+  onDecrease,
+  onAdd,
+  animating
 }) => {
   const [imageError, setImageError] = useState(false);
 
   const getImageSource = () => {
     if (!product.image) return null;
-    
     if (product.image.startsWith('data:image')) {
       return product.image;
     }
-    
     try {
       new URL(product.image);
       return product.image;
@@ -59,7 +62,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const imageSource = getImageSource();
 
   return (
-    <Card className="overflow-hidden h-full flex flex-col">
+    <Card className="overflow-hidden h-full flex flex-col relative">
       <div className="relative h-40 bg-gray-100 flex items-center justify-center">
         {imageSource && !imageError ? (
           <img 
@@ -73,7 +76,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <span className="text-gray-500 text-sm">Imagen no disponible</span>
           </div>
         )}
-        
+        {animating && (
+          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+            <div className="animate-bounce scale-[2.2] bg-white bg-opacity-80 rounded-full shadow-lg flex items-center justify-center duration-500 p-2">
+              <ShoppingCart size={32} className="text-orange-500" />
+            </div>
+          </div>
+        )}
         <div className="absolute inset-0 flex items-center justify-center bg-black/20">
           <div className="bg-white rounded-full p-1 shadow-md flex items-center">
             <button 
@@ -94,11 +103,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>
         </div>
       </div>
-      
       <CardContent className="p-4 flex-grow">
         <h4 className="font-medium mb-1 line-clamp-2">{product.name}</h4>
         <div className="flex justify-between items-center mt-2">
           <span className="font-bold">${product.price.toFixed(2)}</span>
+          <Button
+            size="sm"
+            className="ml-2 bg-orange-500 hover:bg-orange-600 text-white px-3 py-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAdd();
+            }}
+          >
+            <ShoppingCart size={18} className="mr-1" />
+            Agregar al carrito
+          </Button>
         </div>
       </CardContent>
     </Card>
@@ -128,6 +147,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [productQuantities, setProductQuantities] = useState<Record<string, number>>({});
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoadingPrices, setIsLoadingPrices] = useState(true);
+  const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
 
   const getPurchaseLocationForService = (serviceId: string) => {
     return null;
@@ -207,9 +227,34 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }));
   };
 
+  const handleAddSingleToCart = (product: Product) => {
+    const purchaseLocation = { departmentId: undefined, locationId: undefined };
+    if ((productQuantities[product.id] || 0) > 0) {
+      addToCart({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: productQuantities[product.id],
+        image: product.image,
+        serviceCategory: `${serviceName} - ${category.name}`,
+        serviceId: serviceId,
+        categoryId: category.id,
+        productId: product.id,
+        departmentId: purchaseLocation?.departmentId,
+        locationId: purchaseLocation?.locationId
+      });
+      setCartAnimating(prev => ({ ...prev, [product.id]: true }));
+      setTimeout(() => {
+        setCartAnimating(prev => ({ ...prev, [product.id]: false }));
+      }, 700);
+      toast.success("Producto agregado al carrito");
+    } else {
+      toast.error("Seleccione al menos una unidad");
+    }
+  };
+
   const handleAddAllToCart = () => {
     const purchaseLocation = { departmentId: undefined, locationId: undefined };
-
     const itemsToAdd = products
       .filter(product => productQuantities[product.id] > 0)
       .map(product => ({
@@ -227,13 +272,19 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       }));
 
     if (itemsToAdd.length > 0) {
-      itemsToAdd.forEach(item => addToCart(item));
+      itemsToAdd.forEach(item => {
+        addToCart(item);
+        setCartAnimating(prev => ({ ...prev, [item.productId]: true }));
+        setTimeout(() => {
+          setCartAnimating(prev => ({ ...prev, [item.productId]: false }));
+        }, 700);
+      });
       toast.success("Productos agregados al carrito");
     } else {
       toast.error("Seleccione al menos un producto");
     }
   };
-  
+
   const handleContractNow = () => {
     const purchaseLocation = { departmentId: undefined, locationId: undefined };
     
@@ -296,6 +347,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
                 quantity={productQuantities[product.id] || 0}
                 onIncrease={() => increaseQuantity(product.id)}
                 onDecrease={() => decreaseQuantity(product.id)}
+                animating={!!cartAnimating[product.id]}
+                onAdd={() => handleAddSingleToCart(product)}
               />
             ))}
           </div>
