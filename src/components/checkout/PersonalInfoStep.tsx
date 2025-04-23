@@ -160,11 +160,15 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     onSubmit(data);
   };
 
+  const showPaymentWarning = () => {
+    toast.warning("Método de pago no disponible", {
+      description: "Momentáneamente esta forma de pago no está disponible."
+    });
+  };
+
   const handlePaymentMethodChange = (value: string) => {
     if (value === "now") {
-      toast.warning("Método de pago no disponible", {
-        description: "Momentáneamente esta forma de pago no está disponible."
-      });
+      showPaymentWarning();
       return;
     }
     
@@ -387,14 +391,33 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                       </Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="now" id="payment-now" disabled={true} />
+                      <RadioGroupItem 
+                        value="now" 
+                        id="payment-now" 
+                        disabled={true}
+                        onClick={showPaymentWarning}
+                      />
                       <Label 
                         htmlFor="payment-now" 
-                        className="flex items-center gap-2 opacity-50 cursor-not-allowed"
+                        className="flex items-center gap-2 opacity-50"
                       >
                         Pagar ahora (Mercado Pago)
                         <CreditCard size={18} className="text-sky-500" />
-                        <AlertCircle size={16} className="text-amber-500" />
+                        <HoverCard>
+                          <HoverCardTrigger asChild>
+                            <AlertCircle 
+                              size={16} 
+                              className="text-amber-500 cursor-pointer" 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                showPaymentWarning();
+                              }}
+                            />
+                          </HoverCardTrigger>
+                          <HoverCardContent className="text-xs">
+                            <p>Esta opción de pago no está disponible temporalmente. Por favor, selecciona otra forma de pago.</p>
+                          </HoverCardContent>
+                        </HoverCard>
                       </Label>
                     </div>
                   </RadioGroup>

@@ -30,6 +30,13 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const timeSlotsRef = useRef<HTMLDivElement>(null);
 
+  // Establecer la fecha actual como seleccionada por defecto
+  useEffect(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    setSelectedDate(today);
+  }, []);
+
   useEffect(() => {
     if (!selectedDate) return;
     
@@ -70,8 +77,8 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    // Deshabilitar domingos, fechas pasadas y el día actual
-    return date.getDay() === 0 || isBefore(date, today) || isToday(date);
+    // Deshabilitar domingos y fechas pasadas (permitir el día actual)
+    return date.getDay() === 0 || isBefore(date, today);
   };
 
   return (
@@ -93,35 +100,35 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
               disabled={disabledDays}
               locale={es}
               className="rounded-md border"
-              fromDate={addDays(new Date(), 1)} // Comienza desde mañana
+              fromDate={new Date()} // Comienza desde hoy
               toDate={addDays(new Date(), 60)}
             />
           </div>
         </div>
 
-        {selectedDate && availableTimeSlots.length > 0 && (
+        {selectedDate && (
           <div ref={timeSlotsRef}>
             <h4 className="font-medium mb-2">Elige un horario</h4>
-            <RadioGroup 
-              value={selectedTimeSlot} 
-              onValueChange={setSelectedTimeSlot}
-              className="grid grid-cols-1 md:grid-cols-3 gap-2"
-            >
-              {availableTimeSlots.map((slot) => (
-                <div key={slot} className="flex items-center space-x-2">
-                  <RadioGroupItem value={slot} id={`slot-${slot}`} />
-                  <Label htmlFor={`slot-${slot}`} className="cursor-pointer">
-                    {slot}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </div>
-        )}
-
-        {selectedDate && availableTimeSlots.length === 0 && (
-          <div className="text-center py-4 text-red-500">
-            No hay horarios disponibles para la fecha seleccionada. Por favor, elige otro día.
+            {availableTimeSlots.length > 0 ? (
+              <RadioGroup 
+                value={selectedTimeSlot} 
+                onValueChange={setSelectedTimeSlot}
+                className="grid grid-cols-1 md:grid-cols-3 gap-2"
+              >
+                {availableTimeSlots.map((slot) => (
+                  <div key={slot} className="flex items-center space-x-2">
+                    <RadioGroupItem value={slot} id={`slot-${slot}`} />
+                    <Label htmlFor={`slot-${slot}`} className="cursor-pointer">
+                      {slot}
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            ) : (
+              <div className="text-center py-4 text-red-500">
+                No hay horarios disponibles para la fecha seleccionada. Por favor, elige otro día.
+              </div>
+            )}
           </div>
         )}
       </div>

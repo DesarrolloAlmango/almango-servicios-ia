@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom"; // Correct import for useLocation and useNavigate
+import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ArrowLeft } from "lucide-react";
@@ -25,7 +25,7 @@ interface Product {
   image: string;
   category: string;
   defaultPrice?: number;
-  textosId?: string; // Nuevo campo para almacenar el ID de textos
+  textosId?: string;
 }
 
 interface ProductCardProps {
@@ -345,6 +345,35 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   };
 
+  const handleAddAnotherService = () => {
+    const purchaseLocation = { departmentId: undefined, locationId: undefined };
+    
+    const itemsToAdd = products
+      .filter(product => productQuantities[product.id] > 0)
+      .map(product => ({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: productQuantities[product.id],
+        image: product.image,
+        serviceCategory: `${serviceName} - ${category.name}`,
+        serviceId: serviceId,
+        categoryId: category.id,
+        productId: product.id,
+        departmentId: purchaseLocation?.departmentId,
+        locationId: purchaseLocation?.locationId,
+        textosId: product.textosId
+      }));
+
+    if (itemsToAdd.length > 0) {
+      itemsToAdd.forEach(item => addToCart(item));
+      closeDialog();
+      navigate('/servicios');
+    } else {
+      toast.error("Seleccione al menos un producto");
+    }
+  };
+
   const hasSelectedProducts = Object.values(productQuantities).some(qty => qty > 0);
 
   return (
@@ -388,6 +417,13 @@ const ProductGrid: React.FC<ProductGridProps> = ({
           </div>
           {hasSelectedProducts && (
             <div className="flex justify-center gap-4 mt-8 sticky bottom-4 bg-white p-4 rounded-lg shadow-md">
+              <Button 
+                onClick={handleAddAnotherService}
+                variant="outline"
+                className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600"
+              >
+                Agregar otro servicio
+              </Button>
               <Button 
                 onClick={handleContractNow}
                 className="bg-orange-500 hover:bg-orange-600 text-white"
