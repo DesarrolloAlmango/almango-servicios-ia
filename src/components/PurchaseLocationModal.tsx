@@ -322,15 +322,17 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
-        <div className="text-center mb-6">
-          <MapPin className="h-12 w-12 mx-auto text-orange-500 mb-2" />
-          <DialogDescription className="text-center">
-            Necesitamos esta información para brindarte un mejor servicio
-          </DialogDescription>
-        </div>
+        {!commerceId && (
+          <div className="text-center mb-6">
+            <MapPin className="h-12 w-12 mx-auto text-orange-500 mb-2" />
+            <DialogDescription className="text-center">
+              Necesitamos esta información para brindarte un mejor servicio
+            </DialogDescription>
+          </div>
+        )}
         
         {commerceId ? (
-          // Si tenemos un commerceId, mostramos solo la selección de departamento y localidad
+          // Si hay un commerceId, mostramos solo la selección de departamento y localidad
           <LocationStep
             selectedDepartment={selectedDepartment}
             setSelectedDepartment={setSelectedDepartment}
@@ -347,7 +349,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             storeName={commerceName || "Comercio seleccionado"}
           />
         ) : (
-          // Si no tenemos commerceId, mostramos el flujo completo
+          // Si no hay commerceId, mostramos el flujo completo
           <div className="space-y-4">
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">
@@ -501,7 +503,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             </Button>
             <Button 
               onClick={handleConfirm}
-              disabled={loading || (!selectedStore && !searchQuery) || (selectedStore === "other" && !otherStore.trim() && !searchQuery.trim()) || !selectedDepartment || !selectedLocation}
+              disabled={loading || 
+                (!selectedStore && !searchQuery) || 
+                (selectedStore === "other" && !otherStore.trim() && !searchQuery.trim()) || 
+                !selectedDepartment || 
+                !selectedLocation}
               className="bg-orange-500 hover:bg-orange-600"
             >
               Confirmar
