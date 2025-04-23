@@ -14,6 +14,10 @@ interface ProductTermsModalProps {
   productName: string;
 }
 
+interface TermsResponse {
+  Texto: string;
+}
+
 const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
   isOpen,
   onClose,
@@ -42,10 +46,8 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
           throw new Error("No se ha encontrado ID de términos para este producto");
         }
         
-        // Guardamos el ID que estamos enviando para debug
         const sentId = textosId;
         
-        // Usamos /api/ como proxy en lugar de llamar directamente a la URL externa
         const response = await fetch(
           `/api/AlmangoXV1NETFramework/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`
         );
@@ -56,8 +58,8 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
           throw new Error(`Error al obtener términos y condiciones: ${responseStatus}`);
         }
         
-        const data = await response.text();
-        const responseLength = data.length;
+        const data: TermsResponse = await response.json();
+        const responseLength = data.Texto.length;
         
         setDebugInfo({
           sentId,
@@ -65,7 +67,13 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
           responseLength
         });
         
-        setTermsContent(data);
+        // Decodificar las secuencias Unicode y establecer el HTML
+        const decodedContent = data.Texto
+          .replace(/\\u000a/g, '\n')  // Convertir \u000a a saltos de línea
+          .replace(/\\"/g, '"')       // Convertir \" a "
+          .replace(/\\/g, '');        // Eliminar barras invertidas restantes
+        
+        setTermsContent(decodedContent);
       } catch (error) {
         console.error("Error fetching terms:", error);
         setError(`No se pudieron cargar los términos y condiciones: ${error instanceof Error ? error.message : 'Error desconocido'}`);
@@ -86,7 +94,6 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
           </DialogTitle>
         </DialogHeader>
         
-        {/* Información de Debug */}
         {debugInfo && (
           <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <h4 className="font-medium text-blue-700">Información de Debug:</h4>
@@ -107,7 +114,7 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
             <div className="text-red-500 text-center py-4">{error}</div>
           ) : (
             <div 
-              className="prose prose-sm max-w-none"
+              className="prose prose-sm max-w-none prose-headings:text-orange-500 prose-strong:text-orange-500"
               dangerouslySetInnerHTML={{ __html: termsContent }} 
             />
           )}
@@ -118,3 +125,4 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
 };
 
 export default ProductTermsModal;
+
