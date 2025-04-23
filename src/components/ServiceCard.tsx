@@ -268,17 +268,16 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         locationId: purchaseLocation?.locationId
       }));
 
+    itemsToAdd.forEach(item => {
+      addToCart(item);
+      setCartAnimating(prev => ({ ...prev, [item.productId]: true }));
+      setTimeout(() => {
+        setCartAnimating(prev => ({ ...prev, [item.productId]: false }));
+      }, 700);
+    });
+
     if (itemsToAdd.length > 0) {
-      itemsToAdd.forEach(item => {
-        addToCart(item);
-        setCartAnimating(prev => ({ ...prev, [item.productId]: true }));
-        setTimeout(() => {
-          setCartAnimating(prev => ({ ...prev, [item.productId]: false }));
-        }, 700);
-      });
       toast.success("Productos agregados al carrito");
-    } else {
-      toast.error("Seleccione al menos un producto");
     }
   };
 
