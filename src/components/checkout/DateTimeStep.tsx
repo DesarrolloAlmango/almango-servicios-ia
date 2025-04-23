@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { 
@@ -29,8 +28,8 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
   onNext,
 }) => {
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+  const timeSlotsRef = useRef<HTMLDivElement>(null);
 
-  // Esta función determina qué franjas horarias están disponibles según el día
   useEffect(() => {
     if (!selectedDate) return;
     
@@ -55,6 +54,14 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
     // Resetear la selección si no está disponible en el nuevo día
     if (selectedTimeSlot && !availableTimeSlots.includes(selectedTimeSlot)) {
       setSelectedTimeSlot("");
+    }
+  }, [selectedDate]);
+
+  useEffect(() => {
+    if (selectedDate && timeSlotsRef.current) {
+      setTimeout(() => {
+        timeSlotsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     }
   }, [selectedDate]);
 
@@ -93,7 +100,7 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
         </div>
 
         {selectedDate && availableTimeSlots.length > 0 && (
-          <div>
+          <div ref={timeSlotsRef}>
             <h4 className="font-medium mb-2">Elige un horario</h4>
             <RadioGroup 
               value={selectedTimeSlot} 

@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "@/pages/Servicios";
 import ProductTermsModal from "./ProductTermsModal";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 export interface CartItemsStepProps {
   cartItems: CartItem[];
@@ -24,6 +26,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
   onPrevious
 }) => {
   const [selectedTerms, setSelectedTerms] = useState<SelectedTerms | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   
   const handleIncreaseQuantity = (id: string, currentQuantity: number) => {
     updateCartItem(id, currentQuantity + 1);
@@ -89,11 +92,29 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
         </div>
       )}
 
-      <div className="flex justify-between pt-4">
+      {cartItems.length > 0 && (
+        <div className="flex items-start space-x-2">
+          <Checkbox 
+            id="terms" 
+            checked={termsAccepted}
+            onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+          />
+          <div className="grid gap-1.5 leading-none">
+            <Label
+              htmlFor="terms"
+              className="text-sm text-muted-foreground"
+            >
+              Acepto los términos y condiciones de todos los servicios seleccionados
+            </Label>
+          </div>
+        </div>
+      )}
+
+      <div className="flex justify-between pt-4 mb-8">
         <div className="ml-auto">
           <Button 
             onClick={onNext} 
-            disabled={cartItems.length === 0}
+            disabled={cartItems.length === 0 || !termsAccepted}
           >
             Siguiente
           </Button>

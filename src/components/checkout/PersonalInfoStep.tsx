@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -120,7 +119,6 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   };
 
   const getServiceLocation = (item: CartItem) => {
-    // Si no hay ID de departamento o municipio, buscar en las purchaseLocations del item
     if (!item.departmentId || !item.locationId) {
       return "Ubicación no registrada";
     }
@@ -128,6 +126,27 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     const departmentName = getDepartmentName(item.departmentId);
     const locationName = getLocationName(item.departmentId, item.locationId);
     
+    return `${departmentName}, ${locationName}`;
+  };
+
+  const groupServicesByLocation = (items: CartItem[]) => {
+    return items.reduce((acc: { [key: string]: CartItem[] }, item) => {
+      const locationKey = item.departmentId && item.locationId ? 
+        `${item.departmentId}-${item.locationId}` : 
+        'no-location';
+      
+      if (!acc[locationKey]) {
+        acc[locationKey] = [];
+      }
+      
+      acc[locationKey].push(item);
+      return acc;
+    }, {});
+  };
+
+  const getLocationLabel = (departmentId: string, locationId: string) => {
+    const departmentName = getDepartmentName(departmentId);
+    const locationName = getLocationName(departmentId, locationId);
     return `${departmentName}, ${locationName}`;
   };
 
@@ -173,20 +192,29 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
           <AccordionContent className="px-4 py-2 space-y-4">
             <div className="space-y-2">
               <h4 className="font-medium">Servicios y ubicaciones</h4>
-              {cartItems.map((item, index) => {
-                const serviceLocation = getServiceLocation(item);
-                
+              {Object.entries(groupServicesByLocation(cartItems)).map(([locationKey, items], index) => {
+                const [departmentId, locationId] = locationKey.split('-');
+                const locationLabel = locationKey !== 'no-location' ? 
+                  getLocationLabel(departmentId, locationId) : 
+                  'Ubicación no especificada';
+
                 return (
                   <div key={index} className="text-sm">
-                    <p className="text-muted-foreground flex items-start gap-1">
-                      <span className="font-medium">{item.serviceCategory}: </span>
-                      <span className="flex items-center gap-1">
-                        <MapPin size={12} className="text-primary mt-0.5" />
-                        {serviceLocation}
-                      </span>
-                    </p>
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin size={12} className="text-primary" />
+                      <span className="font-medium">{locationLabel}</span>
+                    </div>
+                    <div className="pl-4 border-l-2 border-gray-100 space-y-1">
+                      {items.map(item => (
+                        <div key={item.id} className="text-sm">
+                          <span className="text-muted-foreground">
+                            {item.serviceCategory}: {item.name} x{item.quantity}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                )
+                );
               })}
             </div>
             
