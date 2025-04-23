@@ -209,7 +209,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   const handleAddAllToCart = () => {
     const purchaseLocation = { departmentId: undefined, locationId: undefined };
-    
+
     const itemsToAdd = products
       .filter(product => productQuantities[product.id] > 0)
       .map(product => ({
@@ -229,7 +229,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     if (itemsToAdd.length > 0) {
       itemsToAdd.forEach(item => addToCart(item));
       toast.success("Productos agregados al carrito");
-      closeDialog();
     } else {
       toast.error("Seleccione al menos un producto");
     }
