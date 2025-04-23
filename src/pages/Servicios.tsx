@@ -25,13 +25,14 @@ export interface CartItem {
   name: string;
   price: number;
   quantity: number;
-  image?: string;
+  image: string;
   serviceCategory: string;
   serviceId?: string;
-  categoryId: string;
-  productId: string;
+  categoryId?: string;
+  productId?: string;
   departmentId?: string;
   locationId?: string;
+  textosId?: string | null; // Add the textosId property
 }
 
 interface TarjetaServicio {
