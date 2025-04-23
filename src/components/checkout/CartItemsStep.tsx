@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "@/pages/Servicios";
@@ -59,10 +58,6 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                 >
                   Ver Condiciones
                 </button>
-                {/* Información de depuración para ver el textosId en el carrito */}
-                <div className="mt-1 text-xs text-blue-600 font-mono">
-                  ID: {item.textosId || "null"}
-                </div>
               </div>
               <div className="flex items-center gap-3">
                 <div className="bg-white rounded-md border flex items-center">
@@ -80,14 +75,16 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                     +
                   </button>
                 </div>
-                <span className="font-medium min-w-[70px] text-right">${(item.price * item.quantity).toFixed(2)}</span>
+                <span className="font-medium min-w-[70px] text-right">
+                  ${(item.price * item.quantity).toLocaleString('es-UY', { maximumFractionDigits: 0 })}
+                </span>
               </div>
             </div>
           ))}
 
           <div className="flex justify-between p-4 bg-orange-50 rounded-lg text-orange-800 font-medium">
             <span>Total</span>
-            <span>${total.toFixed(2)}</span>
+            <span>${total.toLocaleString('es-UY', { maximumFractionDigits: 0 })}</span>
           </div>
         </div>
       )}

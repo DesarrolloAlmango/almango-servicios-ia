@@ -111,7 +111,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <CardContent className="p-4 flex-grow">
         <h4 className="font-medium mb-1 line-clamp-2">{product.name}</h4>
         <div className="flex justify-between items-center mt-2">
-          <span className="font-bold">${product.price.toFixed(2)}</span>
+          <span className="font-bold">
+            ${product.price.toLocaleString('es-UY', { maximumFractionDigits: 0 })}
+          </span>
         </div>
       </CardContent>
     </Card>
