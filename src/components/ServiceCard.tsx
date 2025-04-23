@@ -32,7 +32,6 @@ interface ProductCardProps {
   quantity: number;
   onIncrease: () => void;
   onDecrease: () => void;
-  onAdd: () => void;
   animating: boolean;
 }
 
@@ -41,7 +40,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
   quantity,
   onIncrease,
   onDecrease,
-  onAdd,
   animating
 }) => {
   const [imageError, setImageError] = useState(false);
@@ -90,7 +88,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
               onClick={(e) => { 
                 e.stopPropagation(); 
                 onDecrease(); 
-                if (quantity > 1) onAdd(); 
               }}
             >
               -
@@ -103,7 +100,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
               onClick={(e) => { 
                 e.stopPropagation(); 
                 onIncrease(); 
-                onAdd(); 
               }}
             >
               +
@@ -210,44 +206,45 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     loadProductsWithPrices();
   }, [category, purchaseLocationId, serviceId]);
 
+  const updateCart = (productId: string, newQuantity: number) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    const purchaseLocation = { departmentId: undefined, locationId: undefined };
+
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: newQuantity,
+      image: product.image,
+      serviceCategory: `${serviceName} - ${category.name}`,
+      serviceId: serviceId,
+      categoryId: category.id,
+      productId: product.id,
+      departmentId: purchaseLocation?.departmentId,
+      locationId: purchaseLocation?.locationId
+    });
+
+    setCartAnimating(prev => ({ ...prev, [productId]: true }));
+    setTimeout(() => {
+      setCartAnimating(prev => ({ ...prev, [productId]: false }));
+    }, 700);
+  };
+
   const increaseQuantity = (productId: string) => {
-    setProductQuantities(prev => ({
-      ...prev,
-      [productId]: (prev[productId] || 0) + 1
-    }));
+    setProductQuantities(prev => {
+      const newValue = (prev[productId] || 0) + 1;
+      setTimeout(() => updateCart(productId, newValue), 0);
+      return { ...prev, [productId]: newValue };
+    });
   };
 
   const decreaseQuantity = (productId: string) => {
-    setProductQuantities(prev => ({
-      ...prev,
-      [productId]: Math.max(0, (prev[productId] || 0) - 1)
-    }));
-  };
-
-  const handleAddSingleToCart = (product: Product) => {
-    const purchaseLocation = { departmentId: undefined, locationId: undefined };
-    if ((productQuantities[product.id] || 0) > 0) {
-      addToCart({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        quantity: productQuantities[product.id],
-        image: product.image,
-        serviceCategory: `${serviceName} - ${category.name}`,
-        serviceId: serviceId,
-        categoryId: category.id,
-        productId: product.id,
-        departmentId: purchaseLocation?.departmentId,
-        locationId: purchaseLocation?.locationId
-      });
-      setCartAnimating(prev => ({ ...prev, [product.id]: true }));
-      setTimeout(() => {
-        setCartAnimating(prev => ({ ...prev, [product.id]: false }));
-      }, 700);
-      toast.success("Producto agregado al carrito");
-    } else {
-      toast.error("Seleccione al menos una unidad");
-    }
+    setProductQuantities(prev => {
+      const newValue = Math.max(0, (prev[productId] || 0) - 1);
+      setTimeout(() => updateCart(productId, newValue), 0);
+      return { ...prev, [productId]: newValue };
+    });
   };
 
   const handleAddAllToCart = () => {
@@ -344,20 +341,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
                 onIncrease={() => increaseQuantity(product.id)}
                 onDecrease={() => decreaseQuantity(product.id)}
                 animating={!!cartAnimating[product.id]}
-                onAdd={() => handleAddSingleToCart(product)}
               />
             ))}
           </div>
-
           {hasSelectedProducts && (
             <div className="flex justify-center gap-4 mt-8 sticky bottom-4 bg-white p-4 rounded-lg shadow-md">
-              <Button 
-                variant="outline"
-                onClick={handleAddAllToCart}
-                className="bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-              >
-                Agregar al carrito
-              </Button>
               <Button 
                 onClick={handleContractNow}
                 className="bg-orange-500 hover:bg-orange-600 text-white"
