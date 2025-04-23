@@ -26,12 +26,16 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
 
   React.useEffect(() => {
     const fetchTerms = async () => {
-      if (!textosId || !isOpen) return;
+      if (!isOpen) return;
       
       setIsLoading(true);
       setError(null);
       
       try {
+        if (!textosId) {
+          throw new Error("No se ha encontrado ID de términos para este producto");
+        }
+        
         const response = await fetch(
           `http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`
         );
