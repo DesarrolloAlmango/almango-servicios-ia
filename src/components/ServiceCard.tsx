@@ -25,6 +25,7 @@ interface Product {
   image: string;
   category: string;
   defaultPrice?: number;
+  textosId?: string; // Nuevo campo para almacenar el ID de textos
 }
 
 interface ProductCardProps {
@@ -478,7 +479,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         name: product.name || product.Nivel2Descripcion,
         price: product.price ? parseFloat(product.price) : (product.Precio ? parseFloat(product.Precio) : 0),
         image: product.image || product.Imagen || "",
-        category: categoryId
+        category: categoryId,
+        textosId: product.TextosId || null
       }));
       
       setCategories(prev => prev.map(cat => 
