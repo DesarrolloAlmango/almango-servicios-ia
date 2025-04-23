@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -453,10 +452,16 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const fetchDepartments = async () => {
     setLoadingLocations(prev => ({ ...prev, departments: true }));
     try {
-      const response = await fetch('/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetDepartments');
+      const response = await fetch('/api/AlmangoXV1NETFramework/WebAPI/ObtenerDepto');
       if (!response.ok) throw new Error('Error al obtener departamentos');
       const data = await response.json();
-      setDepartments(data);
+      
+      const formattedDepartments = data.map((dept: any) => ({
+        id: dept.DepartamentoId,
+        name: dept.DepartamentoDepartamento
+      }));
+      
+      setDepartments(formattedDepartments);
     } catch (error) {
       console.error('Error:', error);
       toast.error('Error al cargar departamentos');
@@ -468,12 +473,18 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const fetchMunicipalities = async (departmentId: string) => {
     setLoadingLocations(prev => ({ ...prev, municipalities: true }));
     try {
-      const response = await fetch(`/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetMunicipalities?departmentId=${departmentId}`);
+      const response = await fetch(`/api/AlmangoXV1NETFramework/WebAPI/ObtenerMunicipio?DepartamentoId=${departmentId}`);
       if (!response.ok) throw new Error('Error al obtener municipios');
       const data = await response.json();
+      
+      const formattedMunicipalities = data.map((muni: any) => ({
+        id: muni.DepartamentoMunicipioId,
+        name: muni.DepartamentoMunicipioNombre
+      }));
+      
       setMunicipalities(prev => ({
         ...prev,
-        [departmentId]: data
+        [departmentId]: formattedMunicipalities
       }));
     } catch (error) {
       console.error('Error:', error);
@@ -565,12 +576,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       
       setIsDialogOpen(true);
       
-      // Si hay un ID de comercio en la URL, mostramos el paso de ubicación primero
       if (commerceIdFromUrl) {
         setShowLocationStep(true);
         fetchDepartments();
       } else {
-        // Si no hay ID de comercio, mostramos directamente las categorías
         if (id) {
           fetchCategories(id);
         }
@@ -659,12 +668,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               : "max-w-4xl"}`
           }
         >
-          <DialogTitle className="text-xl sm:text-2xl font-bold text-center px-3 mx-auto text-orange-500 truncate mt-4">
-            {name}
-          </DialogTitle>
+          {!showLocationStep && (
+            <DialogTitle className="text-xl sm:text-2xl font-bold text-center px-3 mx-auto text-orange-500 truncate mt-4">
+              {name}
+            </DialogTitle>
+          )}
           
           <div className="p-4 sm:p-6">
-            {purchaseLocation && (
+            {purchaseLocation && !showLocationStep && (
               <div className="mb-4 bg-blue-50 p-3 rounded-lg border border-blue-200 text-sm">
                 <span className="font-medium text-blue-700">Lugar de compra: </span>
                 <span className="text-blue-600">
@@ -676,23 +687,16 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
             )}
             
             {showLocationStep ? (
-              <div className="space-y-6">
-                <div className="text-center mb-2">
-                  <h3 className="text-lg font-semibold">¿Dónde vamos a realizar el servicio?</h3>
-                  <p className="text-muted-foreground">Selecciona la ubicación donde necesitas el servicio</p>
-                </div>
-                
-                <LocationStep
-                  selectedDepartment={selectedDepartment}
-                  setSelectedDepartment={setSelectedDepartment}
-                  selectedLocation={selectedLocation}
-                  setSelectedLocation={setSelectedLocation}
-                  onNext={handleFinishLocationStep}
-                  departments={departments}
-                  municipalities={municipalities}
-                  loading={loadingLocations}
-                />
-              </div>
+              <LocationStep
+                selectedDepartment={selectedDepartment}
+                setSelectedDepartment={setSelectedDepartment}
+                selectedLocation={selectedLocation}
+                setSelectedLocation={setSelectedLocation}
+                onNext={handleFinishLocationStep}
+                departments={departments}
+                municipalities={municipalities}
+                loading={loadingLocations}
+              />
             ) : (
               <>
                 {isLoading ? (
