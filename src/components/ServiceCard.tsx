@@ -498,11 +498,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     setIsLoading(true);
     setError(null);
     try {
-      const effectiveCommerceId = commerceIdFromUrl || 
-        (purchaseLocation ? purchaseLocation.storeId : undefined);
-      
-      console.log("Fetching categories with serviceId:", serviceId, "and commerceId:", effectiveCommerceId);
-      
       const response = await fetch(`/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetCategories?serviceId=${serviceId}`);
       
       if (!response.ok) {
@@ -530,11 +525,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     setIsLoading(true);
     setError(null);
     try {
-      const effectiveCommerceId = commerceIdFromUrl || 
-        (purchaseLocation ? purchaseLocation.storeId : undefined);
-      
-      console.log("Fetching products with serviceId:", serviceId, "categoryId:", categoryId, "and commerceId:", effectiveCommerceId);
-      
       const response = await fetch(`/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetProducts?serviceId=${serviceId}&categoryId=${categoryId}`);
       
       if (!response.ok) {
@@ -564,11 +554,12 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     }
   };
 
-  const handleFinishLocationStep = () => {
-    if (selectedDepartment && selectedLocation && id) {
-      setShowLocationStep(false);
-      fetchCategories(id);
-    }
+  const handleLocationSelect = () => {
+    const departmentName = departments.find(d => d.id === selectedDepartment)?.name || '';
+    const municipalityName = municipalities[selectedDepartment]?.find(m => m.id === selectedLocation)?.name || '';
+    
+    setShowLocationStep(false);
+    handleCategorySelect(selectedCategory!);
   };
 
   const handleCardClick = () => {
@@ -604,7 +595,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     }
   };
 
-  const purchaseLocationId = purchaseLocation ? purchaseLocation.storeId : commerceIdFromUrl;
+  const purchaseLocationId = purchaseLocation ? purchaseLocation.storeId : undefined;
 
   const getCardBackground = () => {
     if (icon) {
@@ -628,6 +619,13 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 
   const backgroundImage = getCardBackground();
   
+  const handleFinishLocationStep = () => {
+    if (selectedDepartment && selectedLocation && id) {
+      setShowLocationStep(false);
+      fetchCategories(id);
+    }
+  };
+
   const isShowingCategoryCarousel = !selectedCategory && !isLoading && !error && !showLocationStep;
 
   return (
