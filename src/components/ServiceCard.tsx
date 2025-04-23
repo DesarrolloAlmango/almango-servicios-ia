@@ -503,11 +503,17 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       
       console.log("Fetching categories with serviceId:", serviceId, "and commerceId:", effectiveCommerceId);
       
-      let url = `/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetCategories?serviceId=${serviceId}`;
+      let url = `/api/AlmangoXV1NETFramework/WebAPI/GetTipoCategoria?ServicioId=${serviceId}`;
       
       if (effectiveCommerceId && effectiveCommerceId !== "other") {
-        url += `&commerceId=${effectiveCommerceId}`;
+        url += `&ProveedorId=${effectiveCommerceId}`;
       }
+      
+      if (!commerceIdFromUrl && selectedDepartment && selectedLocation) {
+        url += `&DepartamentoId=${selectedDepartment}&MunicipioId=${selectedLocation}`;
+      }
+      
+      console.log("Requesting categories URL:", url);
       
       const response = await fetch(url);
       
@@ -518,10 +524,17 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       const data = await response.json();
       console.log("Categorías recibidas:", data);
       
-      if (data.length === 0) {
-        setError("No hay categorías disponibles para este servicio");
+      if (Array.isArray(data) && data.length > 0) {
+        const formattedCategories = data.map((cat: any) => ({
+          id: cat.TipoCategoriaId,
+          name: cat.TipoCategoriaNombre,
+          image: cat.TipoCategoriaImagen || "",
+          products: []
+        }));
+        
+        setCategories(formattedCategories);
       } else {
-        setCategories(data);
+        setError("No hay categorías disponibles para este servicio");
       }
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -541,11 +554,17 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       
       console.log("Fetching products with serviceId:", serviceId, "categoryId:", categoryId, "and commerceId:", effectiveCommerceId);
       
-      let url = `/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetProducts?serviceId=${serviceId}&categoryId=${categoryId}`;
+      let url = `/api/AlmangoXV1NETFramework/WebAPI/GetProductoServicio?ServicioId=${serviceId}&TipoCategoriaId=${categoryId}`;
       
       if (effectiveCommerceId && effectiveCommerceId !== "other") {
-        url += `&commerceId=${effectiveCommerceId}`;
+        url += `&ProveedorId=${effectiveCommerceId}`;
       }
+      
+      if (!commerceIdFromUrl && selectedDepartment && selectedLocation) {
+        url += `&DepartamentoId=${selectedDepartment}&MunicipioId=${selectedLocation}`;
+      }
+      
+      console.log("Requesting products URL:", url);
       
       const response = await fetch(url);
       
@@ -556,16 +575,25 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       const data = await response.json();
       console.log("Productos recibidos:", data);
       
-      if (data.products?.length === 0) {
-        setError("No hay productos disponibles para esta categoría");
-        setSelectedCategory(null);
-      } else {
+      if (Array.isArray(data) && data.length > 0) {
+        const products = data.map((prod: any) => ({
+          id: prod.ProductoServicioId,
+          name: prod.ProductoServicioNombre,
+          price: parseFloat(prod.ProductoServicioPrecio) || 0,
+          image: prod.ProductoServicioImagen || "",
+          category: categoryId
+        }));
+        
         const categoryWithProducts = {
           ...categories.find(cat => cat.id === categoryId) || { name: "Categoría", image: "" },
           id: categoryId,
-          products: data.products || []
+          products: products
         };
+        
         setSelectedCategory(categoryWithProducts);
+      } else {
+        setError("No hay productos disponibles para esta categoría");
+        setSelectedCategory(null);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
