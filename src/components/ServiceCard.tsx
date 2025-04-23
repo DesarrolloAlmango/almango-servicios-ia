@@ -65,7 +65,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   const imageSource = getImageSource();
-  const debugEndpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${categoryId}&Nivel2=${product.id}`;
 
   return (
     <Card className="overflow-hidden h-full flex flex-col relative">
@@ -118,12 +117,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <CardContent className="p-4 flex-grow">
         <h4 className="font-medium mb-1 line-clamp-2">{product.name}</h4>
         <div className="flex justify-between items-center mt-2">
-          <span className="font-bold">
-            ${product.price.toLocaleString('es-UY', { maximumFractionDigits: 0 })}
-          </span>
-        </div>
-        <div className="mt-2 text-xs text-blue-600 font-mono break-all">
-          <p>Endpoint: {debugEndpoint}</p>
+          {product.price !== undefined ? (
+            <span className="font-bold">
+              ${product.price.toLocaleString('es-UY', { maximumFractionDigits: 0 })}
+            </span>
+          ) : (
+            <div className="animate-pulse flex space-x-2">
+              <div className="h-5 w-20 bg-gray-200 rounded"></div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
