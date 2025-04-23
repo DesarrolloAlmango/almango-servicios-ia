@@ -503,7 +503,13 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       
       console.log("Fetching categories with serviceId:", serviceId, "and commerceId:", effectiveCommerceId);
       
-      const response = await fetch(`/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetCategories?serviceId=${serviceId}`);
+      let url = `/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetCategories?serviceId=${serviceId}`;
+      
+      if (effectiveCommerceId && effectiveCommerceId !== "other") {
+        url += `&commerceId=${effectiveCommerceId}`;
+      }
+      
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error("Error al obtener categorías");
@@ -535,7 +541,13 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       
       console.log("Fetching products with serviceId:", serviceId, "categoryId:", categoryId, "and commerceId:", effectiveCommerceId);
       
-      const response = await fetch(`/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetProducts?serviceId=${serviceId}&categoryId=${categoryId}`);
+      let url = `/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetProducts?serviceId=${serviceId}&categoryId=${categoryId}`;
+      
+      if (effectiveCommerceId && effectiveCommerceId !== "other") {
+        url += `&commerceId=${effectiveCommerceId}`;
+      }
+      
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error("Error al obtener productos");
