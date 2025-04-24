@@ -7,18 +7,18 @@ interface MercadoPagoPaymentProps {
 
 const MercadoPagoPayment = ({ onPaymentClick }: MercadoPagoPaymentProps) => {
   return (
-    <div className="flex flex-col items-center gap-6 py-4">
+    <div className="flex flex-col items-center gap-2">
       <img 
         src="/lovable-uploads/3ce91ecb-3dd1-4068-90d7-049af06355d8.png"
         alt="Mercado Pago"
-        className="h-12 w-auto"
+        className="h-36 w-auto"
       />
-      <Button 
+      <button 
         onClick={onPaymentClick}
-        className="bg-[#009ee3] hover:bg-[#008ed0] text-white font-medium px-6"
+        className="text-[#009ee3] hover:text-[#008ed0] underline text-sm font-medium"
       >
-        Pagar con Mercado Pago
-      </Button>
+        Iniciar pago
+      </button>
     </div>
   );
 };
