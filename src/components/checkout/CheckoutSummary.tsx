@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +26,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Separator } from "@/components/ui/separator";
+import { useToast } from "@/hooks/use-toast";
 
 interface CheckoutSummaryProps {
   isOpen: boolean;
@@ -38,6 +40,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   data,
 }) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
   const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +52,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState<string>("");
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const paymentLinkRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -105,7 +109,12 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         if (serviceData.MetodoPagosID === 4) {
           setIsRedirecting(true);
           setTimeout(() => {
-            handlePaymentLink(solicitudId);
+            // Instead of directly using window.open, we'll use the hidden anchor reference
+            if (paymentLinkRef.current) {
+              const paymentUrl = `http://109.199.100.16:80/PasarelaPagos.NetEnvironment/procesarpago.aspx?S${solicitudId}`;
+              paymentLinkRef.current.href = paymentUrl;
+              paymentLinkRef.current.click();
+            }
             setIsRedirecting(false);
           }, 4000);
         }
@@ -145,11 +154,25 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   };
 
   const handlePaymentLink = (solicitudId: number) => {
-    window.open(`http://109.199.100.16:80/PasarelaPagos.NetEnvironment/procesarpago.aspx?S${solicitudId}`, '_blank');
+    const paymentUrl = `http://109.199.100.16:80/PasarelaPagos.NetEnvironment/procesarpago.aspx?S${solicitudId}`;
+    // Use the hidden anchor reference
+    if (paymentLinkRef.current) {
+      paymentLinkRef.current.href = paymentUrl;
+      paymentLinkRef.current.click();
+    }
   };
 
   return (
     <>
+      {/* Hidden anchor element for opening links in a new tab */}
+      <a 
+        ref={paymentLinkRef} 
+        href="about:blank" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        style={{ display: 'none' }}
+      />
+
       <AlertDialog open={isOpen} onOpenChange={(open) => {
         if (!open && !serviceRequests.length && !error) {
           onClose(false);
@@ -437,3 +460,4 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 };
 
 export default CheckoutSummary;
+
