@@ -46,6 +46,8 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
   const [showDetailDialog, setShowDetailDialog] = useState(false);
   const [selectedRequestData, setSelectedRequestData] = useState<CheckoutData | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState<string>("");
 
   useEffect(() => {
     if (!isOpen) {
@@ -56,6 +58,8 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       setSelectedServiceId(null);
       setShowDetailDialog(false);
       setSelectedRequestData(null);
+      setShowPaymentModal(false);
+      setPaymentUrl("");
     }
   }, [isOpen]);
 
@@ -97,9 +101,16 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           serviceName: serviceData.serviceName || 'Servicio',
           requestData: serviceData
         }]);
+
+        if (serviceData.MetodoPagosID === 4) { // Mercado Pago
+          setPaymentUrl(`http://109.199.100.16:80/PasarelaPagos.NetEnvironment/procesarpago.aspx?S${solicitudId}`);
+          setShowPaymentModal(true);
+        }
       }
 
-      setShowResultDialog(true);
+      if (!data.some(service => service.MetodoPagosID === 4)) {
+        setShowResultDialog(true);
+      }
     } catch (err) {
       console.error("Error al enviar la solicitud:", err);
       setError(err instanceof Error ? err.message : "Error desconocido al procesar la solicitud");
@@ -336,6 +347,42 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
           <DialogFooter>
             <Button onClick={() => setShowDetailDialog(false)}>Cerrar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog 
+        open={showPaymentModal} 
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowPaymentModal(false);
+            onClose(true);
+          }
+        }}
+      >
+        <DialogContent className="max-w-3xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>Procesar Pago</DialogTitle>
+            <DialogDescription>
+              Se abrirá la página de Mercado Pago para completar tu pago.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex justify-center p-4">
+            <iframe 
+              src={paymentUrl}
+              className="w-full h-[600px] border-0"
+              title="Mercado Pago"
+            />
+          </div>
+
+          <DialogFooter>
+            <Button onClick={() => {
+              setShowPaymentModal(false);
+              onClose(true);
+            }}>
+              Cerrar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
