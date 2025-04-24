@@ -48,6 +48,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const [selectedRequestData, setSelectedRequestData] = useState<CheckoutData | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState<string>("");
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
@@ -58,8 +59,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       setSelectedServiceId(null);
       setShowDetailDialog(false);
       setSelectedRequestData(null);
-      setShowPaymentModal(false);
-      setPaymentUrl("");
+      setIsRedirecting(false);
     }
   }, [isOpen]);
 
@@ -102,15 +102,16 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           requestData: serviceData
         }]);
 
-        if (serviceData.MetodoPagosID === 4) { // Mercado Pago
-          setPaymentUrl(`http://109.199.100.16:80/PasarelaPagos.NetEnvironment/procesarpago.aspx?S${solicitudId}`);
-          setShowPaymentModal(true);
+        if (serviceData.MetodoPagosID === 4) {
+          setIsRedirecting(true);
+          setTimeout(() => {
+            window.open(`http://109.199.100.16:80/PasarelaPagos.NetEnvironment/procesarpago.aspx?S${solicitudId}`, '_blank');
+            setIsRedirecting(false);
+          }, 2000);
         }
       }
 
-      if (!data.some(service => service.MetodoPagosID === 4)) {
-        setShowResultDialog(true);
-      }
+      setShowResultDialog(true);
     } catch (err) {
       console.error("Error al enviar la solicitud:", err);
       setError(err instanceof Error ? err.message : "Error desconocido al procesar la solicitud");
@@ -188,9 +189,18 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           <DialogHeader>
             <DialogTitle className="text-center">
               {serviceRequests.length > 0 ? (
-                <div className="flex items-center justify-center gap-2 text-lg text-green-600">
-                  <CheckCircle className="h-6 w-6" />
-                  <span>¡Servicios Confirmados!</span>
+                <div className="flex items-center justify-center gap-2 text-lg">
+                  {isRedirecting ? (
+                    <Loader2 className="h-6 w-6 animate-spin text-yellow-600" />
+                  ) : (
+                    <CheckCircle className="h-6 w-6 text-yellow-600" />
+                  )}
+                  <span className="text-yellow-600">
+                    {isRedirecting ? 
+                      "Redireccionando a Mercado Pago..." : 
+                      "¡Servicios Confirmados! (Pendiente de Pago)"
+                    }
+                  </span>
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-2 text-lg text-red-600">
@@ -203,9 +213,9 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
           {serviceRequests.length > 0 ? (
             <div className="py-6 text-center space-y-4">
-              <Alert variant="default" className="bg-green-50 border-green-200">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-                <AlertTitle>Solicitudes exitosas</AlertTitle>
+              <Alert variant="default" className="bg-yellow-50 border-yellow-200">
+                <CheckCircle className="h-5 w-5 text-yellow-600" />
+                <AlertTitle>Solicitudes pendientes de pago</AlertTitle>
                 <AlertDescription className="mt-2">
                   <p className="text-lg font-semibold mb-2">
                     Números de solicitud:
@@ -214,11 +224,11 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                     {serviceRequests.map((request, index) => (
                       <div 
                         key={index}
-                        className="flex items-center justify-between p-3 rounded-lg bg-green-100"
+                        className="flex items-center justify-between p-3 rounded-lg bg-yellow-100"
                       >
                         <div className="text-left">
                           <div 
-                            className="text-xl font-bold text-green-600 cursor-pointer hover:text-green-700 transition-colors flex items-center gap-2"
+                            className="text-xl font-bold text-yellow-600 cursor-pointer hover:text-yellow-700 transition-colors flex items-center gap-2"
                             onClick={() => handleViewServiceDetails(request)}
                           >
                             #{request.solicitudId}
