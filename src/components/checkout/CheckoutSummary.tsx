@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
@@ -27,6 +26,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import MercadoPagoPayment from "./MercadoPagoPayment";
 
 interface CheckoutSummaryProps {
   isOpen: boolean;
@@ -108,15 +108,11 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
         if (serviceData.MetodoPagosID === 4) {
           setIsRedirecting(true);
-          setTimeout(() => {
-            // Instead of directly using window.open, we'll use the hidden anchor reference
-            if (paymentLinkRef.current) {
-              const paymentUrl = `http://109.199.100.16:80/PasarelaPagos.NetEnvironment/procesarpago.aspx?S${solicitudId}`;
-              paymentLinkRef.current.href = paymentUrl;
-              paymentLinkRef.current.click();
-            }
-            setIsRedirecting(false);
-          }, 4000);
+          toast({
+            title: "Pago Pendiente",
+            description: "Por favor, haz clic en el botón de Mercado Pago para continuar con tu pago.",
+            duration: 5000,
+          });
         }
       }
 
@@ -155,7 +151,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
   const handlePaymentLink = (solicitudId: number) => {
     const paymentUrl = `http://109.199.100.16:80/PasarelaPagos.NetEnvironment/procesarpago.aspx?S${solicitudId}`;
-    // Use the hidden anchor reference
     if (paymentLinkRef.current) {
       paymentLinkRef.current.href = paymentUrl;
       paymentLinkRef.current.click();
@@ -164,7 +159,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
   return (
     <>
-      {/* Hidden anchor element for opening links in a new tab */}
       <a 
         ref={paymentLinkRef} 
         href="about:blank" 
@@ -217,16 +211,9 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
             <DialogTitle className="text-center">
               {serviceRequests.length > 0 ? (
                 <div className="flex items-center justify-center gap-2 text-lg">
-                  {isRedirecting ? (
-                    <Loader2 className="h-6 w-6 animate-spin text-yellow-600" />
-                  ) : (
-                    <CheckCircle className="h-6 w-6 text-yellow-600" />
-                  )}
+                  <CheckCircle className="h-6 w-6 text-yellow-600" />
                   <span className="text-yellow-600">
-                    {isRedirecting ? 
-                      "Redireccionando a Mercado Pago..." : 
-                      "¡Servicios Confirmados! (Pendiente de Pago)"
-                    }
+                    Servicios Confirmados! (Pendiente de Pago)
                   </span>
                 </div>
               ) : (
@@ -265,11 +252,16 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                       </div>
                     ))}
                   </div>
-                  <p className="text-sm text-muted-foreground mt-4">
-                    Haz clic en el número de solicitud para ver los detalles.
-                  </p>
                 </AlertDescription>
               </Alert>
+              <MercadoPagoPayment 
+                onPaymentClick={() => {
+                  const firstRequest = serviceRequests[0];
+                  if (firstRequest) {
+                    handlePaymentLink(firstRequest.solicitudId);
+                  }
+                }} 
+              />
             </div>
           ) : (
             <div className="py-6 text-center space-y-4">
@@ -283,39 +275,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
             </div>
           )}
 
-          <DialogFooter className="flex flex-col space-y-3">
-            {serviceRequests.length > 0 && (
-              <button
-                onClick={() => {
-                  const firstRequest = serviceRequests[0];
-                  if (firstRequest) {
-                    handlePaymentLink(firstRequest.solicitudId);
-                  }
-                }}
-                className="flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 transition-colors w-full"
-              >
-                <svg
-                  className="h-6 w-6"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0z"
-                    fill="currentColor"
-                  />
-                  <path
-                    d="M17.625 7.875h-2.25v6.75h-6.75v2.25c0 .621.504 1.125 1.125 1.125h4.5l3.375 3.375v-3.375h1.125c.621 0 1.125-.504 1.125-1.125v-7.875c0-.621-.504-1.125-1.125-1.125z"
-                    fill="#ffffff"
-                  />
-                  <path
-                    d="M13.5 6.75h-7.875c-.621 0-1.125.504-1.125 1.125v7.875c0 .621.504 1.125 1.125 1.125h1.125v3.375l3.375-3.375h4.5c.621 0 1.125-.504 1.125-1.125v-7.875c0-.621-.504-1.125-1.125-1.125z"
-                    fill="#ffffff"
-                  />
-                </svg>
-                Intentar pagar nuevamente
-              </button>
-            )}
+          <DialogFooter>
             <Button onClick={handleCloseResultDialog} className="w-full">
               Cerrar
             </Button>
@@ -460,4 +420,3 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 };
 
 export default CheckoutSummary;
-
