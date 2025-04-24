@@ -7,7 +7,7 @@ import {
   RadioGroupItem 
 } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { User, ClipboardList, CreditCard, Banknote, AlertCircle, MapPin } from "lucide-react";
+import { User, ClipboardList, CreditCard, Banknote, MapPin } from "lucide-react";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CartItem } from "@/pages/Servicios";
-import { 
+import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
@@ -169,7 +169,9 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   };
 
   const handlePaymentMethodChange = (value: string) => {
-    form.setValue("paymentMethod", value);
+    if (value === "later" || value === "now") {
+      form.setValue("paymentMethod", value);
+    }
   };
 
   const handleOpenTermsModal = () => {
