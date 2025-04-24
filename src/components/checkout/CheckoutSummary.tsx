@@ -219,73 +219,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
             <div className="py-6 text-center space-y-4">
               <Alert variant="default" className="bg-yellow-50 border-yellow-200">
                 <CheckCircle className="h-5 w-5 text-yellow-600" />
-                <AlertTitle className="flex items-center justify-between">
-                  <span>Solicitudes pendientes de pago</span>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-8 w-8 border-yellow-200 hover:bg-yellow-100"
-                      onClick={() => {
-                        const firstRequest = serviceRequests[0];
-                        if (firstRequest) {
-                          handlePaymentLink(firstRequest.solicitudId);
-                        }
-                      }}
-                    >
-                      <svg
-                        className="h-5 w-5 text-yellow-600"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0z"
-                          fill="currentColor"
-                        />
-                        <path
-                          d="M17.625 7.875h-2.25v6.75h-6.75v2.25c0 .621.504 1.125 1.125 1.125h4.5l3.375 3.375v-3.375h1.125c.621 0 1.125-.504 1.125-1.125v-7.875c0-.621-.504-1.125-1.125-1.125z"
-                          fill="#ffffff"
-                        />
-                        <path
-                          d="M13.5 6.75h-7.875c-.621 0-1.125.504-1.125 1.125v7.875c0 .621.504 1.125 1.125 1.125h1.125v3.375l3.375-3.375h4.5c.621 0 1.125-.504 1.125-1.125v-7.875c0-.621-.504-1.125-1.125-1.125z"
-                          fill="#ffffff"
-                        />
-                      </svg>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-8 w-8 border-blue-200 hover:bg-blue-100"
-                      onClick={() => {
-                        const firstRequest = serviceRequests[0];
-                        if (firstRequest) {
-                          handlePaymentLink(firstRequest.solicitudId);
-                        }
-                      }}
-                    >
-                      <svg
-                        className="h-5 w-5 text-blue-600"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0z"
-                          fill="currentColor"
-                        />
-                        <path
-                          d="M17.625 7.875h-2.25v6.75h-6.75v2.25c0 .621.504 1.125 1.125 1.125h4.5l3.375 3.375v-3.375h1.125c.621 0 1.125-.504 1.125-1.125v-7.875c0-.621-.504-1.125-1.125-1.125z"
-                          fill="#ffffff"
-                        />
-                        <path
-                          d="M13.5 6.75h-7.875c-.621 0-1.125.504-1.125 1.125v7.875c0 .621.504 1.125 1.125 1.125h1.125v3.375l3.375-3.375h4.5c.621 0 1.125-.504 1.125-1.125v-7.875c0-.621-.504-1.125-1.125-1.125z"
-                          fill="#ffffff"
-                        />
-                      </svg>
-                    </Button>
-                  </div>
-                </AlertTitle>
+                <AlertTitle>Solicitudes pendientes de pago</AlertTitle>
                 <AlertDescription className="mt-2">
                   <p className="text-lg font-semibold mb-2">
                     Números de solicitud:
@@ -326,7 +260,39 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
             </div>
           )}
 
-          <DialogFooter>
+          <DialogFooter className="flex flex-col space-y-3">
+            {serviceRequests.length > 0 && (
+              <button
+                onClick={() => {
+                  const firstRequest = serviceRequests[0];
+                  if (firstRequest) {
+                    handlePaymentLink(firstRequest.solicitudId);
+                  }
+                }}
+                className="flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 transition-colors w-full"
+              >
+                <svg
+                  className="h-6 w-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M17.625 7.875h-2.25v6.75h-6.75v2.25c0 .621.504 1.125 1.125 1.125h4.5l3.375 3.375v-3.375h1.125c.621 0 1.125-.504 1.125-1.125v-7.875c0-.621-.504-1.125-1.125-1.125z"
+                    fill="#ffffff"
+                  />
+                  <path
+                    d="M13.5 6.75h-7.875c-.621 0-1.125.504-1.125 1.125v7.875c0 .621.504 1.125 1.125 1.125h1.125v3.375l3.375-3.375h4.5c.621 0 1.125-.504 1.125-1.125v-7.875c0-.621-.504-1.125-1.125-1.125z"
+                    fill="#ffffff"
+                  />
+                </svg>
+                Intentar pagar nuevamente
+              </button>
+            )}
             <Button onClick={handleCloseResultDialog} className="w-full">
               Cerrar
             </Button>
