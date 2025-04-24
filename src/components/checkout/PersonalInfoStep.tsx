@@ -169,14 +169,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   };
 
   const handlePaymentMethodChange = (value: string) => {
-    if (value === "now") {
-      showPaymentWarning();
-      return;
-    }
-    
-    if (value === "later") {
-      form.setValue("paymentMethod", value);
-    }
+    form.setValue("paymentMethod", value);
   };
 
   const handleOpenTermsModal = () => {
@@ -399,31 +392,14 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem 
                         value="now" 
-                        id="payment-now" 
-                        disabled={true}
-                        onClick={showPaymentWarning}
+                        id="payment-now"
                       />
                       <Label 
                         htmlFor="payment-now" 
-                        className="flex items-center gap-2 opacity-50"
+                        className="flex items-center gap-2"
                       >
                         Pagar ahora (Mercado Pago)
                         <CreditCard size={18} className="text-sky-500" />
-                        <HoverCard>
-                          <HoverCardTrigger asChild>
-                            <AlertCircle 
-                              size={16} 
-                              className="text-amber-500 cursor-pointer" 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                showPaymentWarning();
-                              }}
-                            />
-                          </HoverCardTrigger>
-                          <HoverCardContent className="text-xs">
-                            <p>Esta opción de pago no está disponible temporalmente. Por favor, selecciona otra forma de pago.</p>
-                          </HoverCardContent>
-                        </HoverCard>
                       </Label>
                     </div>
                   </RadioGroup>
