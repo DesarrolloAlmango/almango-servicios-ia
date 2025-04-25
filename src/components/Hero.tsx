@@ -41,7 +41,7 @@ const Hero = () => {
           href="https://app.almango.com.uy/wwpbaseobjects.login.aspx" 
           target="_blank" 
           rel="noopener noreferrer" 
-          className="flex items-center translate-x-0 animate-bounce-in transition-all duration-300 hover:translate-x-[-20px] cursor-pointer bg-[#008be1] text-white py-2 pl-3 pr-4 rounded-l-md group"
+          className="flex items-center translate-x-0 animate-bounce-in transition-all duration-300 hover:translate-x-[-20px] cursor-pointer bg-[#008be1] text-white py-2 pl-3 pr-4 rounded-l-md"
         >
           <UserRound size={20} className="mr-2" />
           <span className="font-medium">LOGIN</span>
@@ -50,7 +50,7 @@ const Hero = () => {
           href="https://almango.com.uy/altas/" 
           target="_blank" 
           rel="noopener noreferrer" 
-          className="flex items-center translate-x-0 animate-bounce-in transition-all duration-300 hover:translate-x-[-20px] cursor-pointer bg-[#ff6900] text-white py-2 pl-3 pr-4 rounded-l-md group" 
+          className="flex items-center translate-x-0 animate-bounce-in transition-all duration-300 hover:translate-x-[-20px] cursor-pointer bg-[#ff6900] text-white py-2 pl-3 pr-4 rounded-l-md" 
           style={{ animationDelay: '0.3s' }}
         >
           <UserRoundPlus size={20} className="mr-2" />
