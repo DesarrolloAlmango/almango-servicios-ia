@@ -1,3 +1,4 @@
+
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -36,11 +37,11 @@ const Hero = () => {
 
       {/* Login and Register strips */}
       <div className="absolute right-0 top-1/4 flex flex-col gap-2 z-20">
-        <div className="flex items-center transition-all duration-300 hover:-translate-x-2 cursor-pointer bg-[#008be1] text-white py-2 pl-3 pr-4 rounded-l-md">
+        <div className="flex items-center translate-x-full animate-slide-in-right transition-all duration-300 hover:-translate-x-2 cursor-pointer bg-[#008be1] text-white py-2 pl-3 pr-4 rounded-l-md">
           <UserRound size={20} className="mr-2" />
           <span className="font-medium">LOGIN</span>
         </div>
-        <div className="flex items-center transition-all duration-300 hover:-translate-x-2 cursor-pointer bg-[#ff6900] text-white py-2 pl-3 pr-4 rounded-l-md">
+        <div className="flex items-center translate-x-full animate-slide-in-right transition-all duration-300 hover:-translate-x-2 cursor-pointer bg-[#ff6900] text-white py-2 pl-3 pr-4 rounded-l-md" style={{ animationDelay: '0.2s' }}>
           <UserRoundPlus size={20} className="mr-2" />
           <span className="font-medium">REGISTRO</span>
         </div>
