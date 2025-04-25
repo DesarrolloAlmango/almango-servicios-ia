@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
@@ -27,6 +28,8 @@ import { format } from "date-fns";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import MercadoPagoPayment from "./MercadoPagoPayment";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { formatTimeSlot } from "@/utils/timeUtils";
 
 interface CheckoutSummaryProps {
   isOpen: boolean;
@@ -138,15 +141,19 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     setShowDetailDialog(true);
   };
 
-  const getTurnoLabel = (turno: string) => {
-    switch (turno.toLowerCase()) {
-      case "am":
-        return "Mañana (8:00 - 12:00)";
-      case "pm":
-        return "Tarde (13:00 - 17:00)";
+  const getFormaDePago = (metodoPagoId: number): string => {
+    switch(metodoPagoId) {
+      case 1:
+        return "Pago al profesional";
+      case 4:
+        return "Mercado Pago";
       default:
-        return turno;
+        return `Método de pago ${metodoPagoId}`;
     }
+  };
+
+  const calcularTotal = (items: any[]): number => {
+    return items.reduce((total, item) => total + item.PrecioFinal, 0);
   };
 
   const handlePaymentLink = (solicitudId: number) => {
@@ -331,8 +338,16 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                     </div>
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Turno</p>
-                      <p className="text-lg">{getTurnoLabel(selectedRequestData.TurnoInstalacion)}</p>
+                      <p className="text-lg">{formatTimeSlot(selectedRequestData.TurnoInstalacion)}</p>
                     </div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Ubicación</p>
+                    <p className="text-lg">
+                      {selectedRequestData.DepartamentoId && selectedRequestData.MunicipioId ? 
+                        `Departamento ${selectedRequestData.DepartamentoId}, Localidad ${selectedRequestData.MunicipioId}` : 
+                        "No especificada"}
+                    </p>
                   </div>
                   {selectedRequestData.Comentario && (
                     <div>
@@ -348,27 +363,36 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                   <CardTitle>Servicios Solicitados</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    {selectedRequestData.Level1.map((item, index) => (
-                      <div key={index} className="p-4 rounded-lg bg-slate-50">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-sm font-medium text-muted-foreground">Cantidad</p>
-                            <p className="text-lg">{item.Cantidad}</p>
-                          </div>
-                          <div>
-                            <p className="text-sm font-medium text-muted-foreground">Precio</p>
-                            <p className="text-lg">${item.Precio}</p>
-                          </div>
-                        </div>
-                        <Separator className="my-4" />
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">Precio Final</p>
-                          <p className="text-lg">${item.PrecioFinal}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Descripción</TableHead>
+                        <TableHead className="text-center">Cantidad</TableHead>
+                        <TableHead className="text-right">Precio</TableHead>
+                        <TableHead className="text-right">Subtotal</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {selectedRequestData.Level1.map((item, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">Servicio #{item.RubrosId}-{item.ProductoID}-{item.DetalleID}</TableCell>
+                          <TableCell className="text-center">{item.Cantidad}</TableCell>
+                          <TableCell className="text-right">${item.Precio.toFixed(2)}</TableCell>
+                          <TableCell className="text-right">${item.PrecioFinal.toFixed(2)}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                    <TableFooter>
+                      <TableRow>
+                        <TableCell colSpan={3} className="text-right">Total</TableCell>
+                        <TableCell className="text-right">${calcularTotal(selectedRequestData.Level1).toFixed(2)}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell colSpan={3} className="text-right">Forma de pago</TableCell>
+                        <TableCell className="text-right">{getFormaDePago(selectedRequestData.MetodoPagosID)}</TableCell>
+                      </TableRow>
+                    </TableFooter>
+                  </Table>
                 </CardContent>
               </Card>
             </div>

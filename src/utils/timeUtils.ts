@@ -1,4 +1,5 @@
 
+
 /**
  * Converts a readable time slot string to a numeric format for the API
  */
@@ -37,3 +38,20 @@ export const formatLocationInfo = (departmentId?: string, locationId?: string, d
 
   return `${department.name}, ${municipality.name}`;
 };
+
+/**
+ * Converts a numeric time slot code to a readable time range
+ */
+export const formatTimeSlot = (turno: string): string => {
+  switch (turno) {
+    case "1":
+      return "Mañana (8:00 - 12:00)";
+    case "2":
+      return "Tarde (13:00 - 17:00)";
+    case "3":
+      return "Noche (18:00 - 21:00)";
+    default:
+      return `Turno ${turno}`;
+  }
+};
+
