@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
@@ -377,17 +376,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                       <p className="text-lg">{formatTimeSlot(selectedRequestData.TurnoInstalacion)}</p>
                     </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Ubicación</p>
-                    <p className="text-lg">
-                      {formatLocationInfo(
-                        selectedRequestData.DepartamentoId?.toString(),
-                        selectedRequestData.MunicipioId?.toString(),
-                        departments,
-                        municipalities
-                      )}
-                    </p>
-                  </div>
                   {selectedRequestData.Comentario && (
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Comentarios</p>
@@ -415,7 +403,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                       {selectedRequestData.Level1.map((item, index) => (
                         <TableRow key={index}>
                           <TableCell className="font-medium">
-                            {selectedRequestData.serviceName}
+                            {item.DetalleNombre || selectedRequestData.serviceName}
                             {formatLocationInfo(
                               selectedRequestData.DepartamentoId?.toString(),
                               selectedRequestData.MunicipioId?.toString(),
