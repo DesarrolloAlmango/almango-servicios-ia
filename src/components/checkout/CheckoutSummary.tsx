@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
@@ -56,6 +55,8 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const [paymentUrl, setPaymentUrl] = useState<string>("");
   const [isRedirecting, setIsRedirecting] = useState(false);
   const paymentLinkRef = useRef<HTMLAnchorElement>(null);
+  const [departments, setDepartments] = useState<Array<{id: string, name: string}>>([]);
+  const [municipalities, setMunicipalities] = useState<Record<string, Array<{id: string, name: string}>>>({});
 
   useEffect(() => {
     if (!isOpen) {
@@ -109,7 +110,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           requestData: serviceData
         }]);
 
-        // Only set isRedirecting for Mercado Pago payments (id 4)
         if (serviceData.MetodoPagosID === 4) {
           setIsRedirecting(true);
           toast({
@@ -165,11 +165,9 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     }
   };
 
-  // Check if all requests have payment method 1 (pay later)
   const allPayLater = serviceRequests.length > 0 && 
     serviceRequests.every(req => req.requestData.MetodoPagosID === 1);
 
-  // Check if all requests have payment method 4 (Mercado Pago)
   const allMercadoPago = serviceRequests.length > 0 && 
     serviceRequests.every(req => req.requestData.MetodoPagosID === 4);
 
