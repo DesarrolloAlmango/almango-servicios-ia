@@ -29,7 +29,7 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import MercadoPagoPayment from "./MercadoPagoPayment";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { formatTimeSlot } from "@/utils/timeUtils";
+import { formatTimeSlot, formatLocationInfo } from "@/utils/timeUtils";
 
 interface CheckoutSummaryProps {
   isOpen: boolean;
@@ -109,6 +109,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           requestData: serviceData
         }]);
 
+        // Only set isRedirecting for Mercado Pago payments (id 4)
         if (serviceData.MetodoPagosID === 4) {
           setIsRedirecting(true);
           toast({
@@ -164,6 +165,14 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     }
   };
 
+  // Check if all requests have payment method 1 (pay later)
+  const allPayLater = serviceRequests.length > 0 && 
+    serviceRequests.every(req => req.requestData.MetodoPagosID === 1);
+
+  // Check if all requests have payment method 4 (Mercado Pago)
+  const allMercadoPago = serviceRequests.length > 0 && 
+    serviceRequests.every(req => req.requestData.MetodoPagosID === 4);
+
   return (
     <>
       <a 
@@ -218,10 +227,21 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
             <DialogTitle className="text-center">
               {serviceRequests.length > 0 ? (
                 <div className="flex items-center justify-center gap-2 text-lg">
-                  <CheckCircle className="h-6 w-6 text-yellow-600" />
-                  <span className="text-yellow-600">
-                    Servicios Confirmados! (Pendiente de Pago)
-                  </span>
+                  {allMercadoPago ? (
+                    <>
+                      <CheckCircle className="h-6 w-6 text-yellow-600" />
+                      <span className="text-yellow-600">
+                        Servicios Confirmados! (Pendiente de Pago)
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="h-6 w-6 text-green-600" />
+                      <span className="text-green-600">
+                        Servicios Confirmados!
+                      </span>
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-2 text-lg text-red-600">
@@ -234,9 +254,20 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
           {serviceRequests.length > 0 ? (
             <div className="py-6 text-center space-y-4">
-              <Alert variant="default" className="bg-yellow-50 border-yellow-200">
-                <CheckCircle className="h-5 w-5 text-yellow-600" />
-                <AlertTitle>Solicitudes pendientes de pago</AlertTitle>
+              <Alert 
+                variant="default" 
+                className={allMercadoPago ? 
+                  "bg-yellow-50 border-yellow-200" : 
+                  "bg-green-50 border-green-200"
+                }
+              >
+                <CheckCircle className={`h-5 w-5 ${allMercadoPago ? "text-yellow-600" : "text-green-600"}`} />
+                <AlertTitle>
+                  {allMercadoPago ? 
+                    "Solicitudes pendientes de pago" : 
+                    "Solicitudes confirmadas"
+                  }
+                </AlertTitle>
                 <AlertDescription className="mt-2">
                   <p className="text-lg font-semibold mb-2">
                     Números de solicitud:
@@ -245,11 +276,15 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                     {serviceRequests.map((request, index) => (
                       <div 
                         key={index}
-                        className="flex items-center justify-between p-3 rounded-lg bg-yellow-100"
+                        className={`flex items-center justify-between p-3 rounded-lg ${
+                          allMercadoPago ? "bg-yellow-100" : "bg-green-100"
+                        }`}
                       >
                         <div className="text-left">
                           <div 
-                            className="text-xl font-bold text-yellow-600 cursor-pointer hover:text-yellow-700 transition-colors flex items-center gap-2"
+                            className={`text-xl font-bold cursor-pointer hover:text-opacity-80 transition-colors flex items-center gap-2 ${
+                              allMercadoPago ? "text-yellow-600 hover:text-yellow-700" : "text-green-600 hover:text-green-700"
+                            }`}
                             onClick={() => handleViewServiceDetails(request)}
                           >
                             #{request.solicitudId}
@@ -261,14 +296,16 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                   </div>
                 </AlertDescription>
               </Alert>
-              <MercadoPagoPayment 
-                onPaymentClick={() => {
-                  const firstRequest = serviceRequests[0];
-                  if (firstRequest) {
-                    handlePaymentLink(firstRequest.solicitudId);
-                  }
-                }} 
-              />
+              {allMercadoPago && (
+                <MercadoPagoPayment 
+                  onPaymentClick={() => {
+                    const firstRequest = serviceRequests[0];
+                    if (firstRequest) {
+                      handlePaymentLink(firstRequest.solicitudId);
+                    }
+                  }} 
+                />
+              )}
             </div>
           ) : (
             <div className="py-6 text-center space-y-4">
@@ -344,9 +381,12 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Ubicación</p>
                     <p className="text-lg">
-                      {selectedRequestData.DepartamentoId && selectedRequestData.MunicipioId ? 
-                        `Departamento ${selectedRequestData.DepartamentoId}, Localidad ${selectedRequestData.MunicipioId}` : 
-                        "No especificada"}
+                      {formatLocationInfo(
+                        selectedRequestData.DepartamentoId?.toString(),
+                        selectedRequestData.MunicipioId?.toString(),
+                        departments,
+                        municipalities
+                      )}
                     </p>
                   </div>
                   {selectedRequestData.Comentario && (

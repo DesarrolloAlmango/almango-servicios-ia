@@ -1,5 +1,4 @@
 
-
 /**
  * Converts a readable time slot string to a numeric format for the API
  */
@@ -54,4 +53,3 @@ export const formatTimeSlot = (turno: string): string => {
       return `Turno ${turno}`;
   }
 };
-
