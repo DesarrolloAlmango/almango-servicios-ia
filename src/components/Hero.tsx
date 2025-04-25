@@ -1,3 +1,4 @@
+
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -40,20 +41,20 @@ const Hero = () => {
           href="https://app.almango.com.uy/wwpbaseobjects.login.aspx" 
           target="_blank" 
           rel="noopener noreferrer" 
-          className="flex items-center translate-x-0 animate-bounce-in transition-all duration-300 hover:translate-x-[-20px] cursor-pointer bg-[#008be1] text-white py-2 pl-3 pr-4 rounded-l-md group hover:shadow-lg"
+          className="flex items-center animate-bounce-in transition-all duration-300 cursor-pointer bg-[#008be1] hover:bg-[#0079c4] text-white py-2 pl-3 pr-4 rounded-l-md group hover:shadow-lg hover:rotate-[-2deg]"
         >
-          <UserRound size={20} className="mr-2 group-hover:scale-110 transition-transform" />
-          <span className="font-medium">LOGIN</span>
+          <UserRound size={20} className="mr-2 group-hover:animate-[spin_1s_ease-in-out]" />
+          <span className="font-medium group-hover:animate-pulse">LOGIN</span>
         </a>
         <a 
           href="https://almango.com.uy/altas/" 
           target="_blank" 
           rel="noopener noreferrer" 
-          className="flex items-center translate-x-0 animate-bounce-in transition-all duration-300 hover:translate-x-[-20px] cursor-pointer bg-[#ff6900] text-white py-2 pl-3 pr-4 rounded-l-md group hover:shadow-lg" 
+          className="flex items-center animate-bounce-in transition-all duration-300 cursor-pointer bg-[#ff6900] hover:bg-[#e65f00] text-white py-2 pl-3 pr-4 rounded-l-md group hover:shadow-lg hover:scale-110" 
           style={{ animationDelay: '0.3s' }}
         >
-          <UserRoundPlus size={20} className="mr-2 group-hover:scale-110 transition-transform" />
-          <span className="font-medium">REGISTRO</span>
+          <UserRoundPlus size={20} className="mr-2 group-hover:scale-125 transition-transform" />
+          <span className="font-medium group-hover:tracking-wider transition-all">REGISTRO</span>
         </a>
       </div>
 
