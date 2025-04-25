@@ -1,4 +1,3 @@
-
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -41,19 +40,19 @@ const Hero = () => {
           href="https://app.almango.com.uy/wwpbaseobjects.login.aspx" 
           target="_blank" 
           rel="noopener noreferrer" 
-          className="flex items-center translate-x-0 animate-bounce-in transition-all duration-300 hover:translate-x-[-20px] cursor-pointer bg-[#008be1] text-white py-2 pl-3 pr-4 rounded-l-md"
+          className="flex items-center translate-x-0 animate-bounce-in transition-all duration-300 hover:translate-x-[-20px] cursor-pointer bg-[#008be1] text-white py-2 pl-3 pr-4 rounded-l-md group hover:shadow-lg"
         >
-          <UserRound size={20} className="mr-2" />
+          <UserRound size={20} className="mr-2 group-hover:scale-110 transition-transform" />
           <span className="font-medium">LOGIN</span>
         </a>
         <a 
           href="https://almango.com.uy/altas/" 
           target="_blank" 
           rel="noopener noreferrer" 
-          className="flex items-center translate-x-0 animate-bounce-in transition-all duration-300 hover:translate-x-[-20px] cursor-pointer bg-[#ff6900] text-white py-2 pl-3 pr-4 rounded-l-md" 
+          className="flex items-center translate-x-0 animate-bounce-in transition-all duration-300 hover:translate-x-[-20px] cursor-pointer bg-[#ff6900] text-white py-2 pl-3 pr-4 rounded-l-md group hover:shadow-lg" 
           style={{ animationDelay: '0.3s' }}
         >
-          <UserRoundPlus size={20} className="mr-2" />
+          <UserRoundPlus size={20} className="mr-2 group-hover:scale-110 transition-transform" />
           <span className="font-medium">REGISTRO</span>
         </a>
       </div>
