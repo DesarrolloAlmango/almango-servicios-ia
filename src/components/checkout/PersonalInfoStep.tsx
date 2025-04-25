@@ -1,5 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { 
+  RadioGroup, 
+  RadioGroupItem 
+} from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { User, ClipboardList, CreditCard, Banknote, MapPin } from "lucide-react";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -8,71 +19,70 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { Checkbox } from "@/components/ui/checkbox";
+import { CartItem } from "@/pages/Servicios";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { toast } from "sonner";
-import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import MercadoPagoIcon from "@/components/ui/mercado-pago-icon";
+import { GeneralTermsModal } from "@/components/ui/general-terms-modal";
+
+const formSchema = z.object({
+  name: z.string().min(2, { message: "El nombre es obligatorio" }),
+  phone: z.string().min(8, { message: "El teléfono debe tener al menos 8 dígitos" }),
+  email: z.string().email({ message: "Email inválido" }),
+  street: z.string().min(2, { message: "La calle es obligatoria" }),
+  number: z.string().min(1, { message: "El número es obligatorio" }),
+  corner: z.string().optional(),
+  apartment: z.string().optional(),
+  comments: z.string().optional(),
+  paymentMethod: z.enum(["later", "now"], {
+    required_error: "Selecciona un método de pago",
+  }),
+  termsAccepted: z.literal(true, {
+    errorMap: () => ({ message: "Debes aceptar los términos y condiciones" }),
+  }),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 interface PersonalInfoStepProps {
   onPrevious: () => void;
-  onSubmit: (data: any) => void;
-  cartItems: any[];
+  onSubmit: (data: FormValues) => void;
+  cartItems: CartItem[];
   total: number;
-  selectedDate: Date | undefined;
-  selectedTimeSlot: string;
   selectedDepartment: string;
   selectedLocation: string;
-  departments: { id: string; name: string }[];
-  municipalities: Record<string, { id: string; name: string }[]>;
+  selectedDate?: Date;
+  selectedTimeSlot: string;
+  departments: Array<{ id: string; name: string; }>;
+  municipalities: Record<string, Array<{ id: string; name: string; }>>;
 }
 
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "El nombre debe tener al menos 2 caracteres.",
-  }),
-  phone: z.string().min(8, {
-    message: "El teléfono debe tener al menos 8 caracteres.",
-  }),
-  email: z.string().email({
-    message: "Por favor, introduce un email válido.",
-  }).optional().or(z.literal("")),
-  street: z.string().min(2, {
-    message: "La calle debe tener al menos 2 caracteres.",
-  }),
-  number: z.string().min(1, {
-    message: "El número debe tener al menos 1 caracter.",
-  }),
-  apartment: z.string().optional().or(z.literal("")),
-  corner: z.string().optional().or(z.literal("")),
-  paymentMethod: z.enum(["now", "later"], {
-    required_error: "Debes seleccionar un método de pago.",
-  }),
-  comments: z.string().optional().or(z.literal("")),
-  department: z.string().optional(),
-  municipality: z.string().optional(),
-});
-
-const PersonalInfoStep = ({ 
-  onPrevious, 
-  onSubmit, 
-  cartItems, 
-  total, 
-  selectedDate, 
-  selectedTimeSlot,
+const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
+  onPrevious,
+  onSubmit,
+  cartItems,
+  total,
   selectedDepartment,
   selectedLocation,
-  departments,
-  municipalities
-}: PersonalInfoStepProps) => {
-  const nextButtonRef = React.useRef<HTMLDivElement>(null);
-
-  const form = useForm<z.infer<typeof formSchema>>({
+  selectedDate,
+  selectedTimeSlot,
+  departments = [],
+  municipalities = {},
+}) => {
+  const [showOrderSummary, setShowOrderSummary] = useState(false);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -80,151 +90,264 @@ const PersonalInfoStep = ({
       email: "",
       street: "",
       number: "",
-      apartment: "",
       corner: "",
-      paymentMethod: "now",
+      apartment: "",
       comments: "",
-      department: selectedDepartment || "",
-      municipality: selectedLocation || "",
+      paymentMethod: "later",
+      termsAccepted: undefined as any,
     },
   });
 
-  const { isValid } = form.formState;
+  const formatDate = (date?: Date) => {
+    if (!date) return "No seleccionada";
+    return new Intl.DateTimeFormat('es-UY', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(date);
+  };
 
-  const submitData = (values: z.infer<typeof formSchema>) => {
-    if (!selectedDate) {
-      toast.error("Por favor, selecciona una fecha.");
-      return;
+  const getDepartmentName = (departmentId: string) => {
+    if (!departments || !Array.isArray(departments) || departments.length === 0) return departmentId;
+    const department = departments.find(dept => dept.id === departmentId);
+    return department ? department.name : departmentId;
+  };
+
+  const getLocationName = (departmentId: string, locationId: string) => {
+    if (!municipalities || !municipalities[departmentId]) return locationId;
+    const municipalitiesList = municipalities[departmentId] || [];
+    const municipality = municipalitiesList.find(mun => mun.id === locationId);
+    return municipality ? municipality.name : locationId;
+  };
+
+  const getServiceLocation = (item: CartItem) => {
+    if (!item.departmentId || !item.locationId) {
+      return "Ubicación no registrada";
     }
 
-    if (!selectedTimeSlot) {
-      toast.error("Por favor, selecciona un horario.");
-      return;
-    }
+    const departmentName = getDepartmentName(item.departmentId);
+    const locationName = getLocationName(item.departmentId, item.locationId);
+    
+    return `${departmentName}, ${locationName}`;
+  };
 
-    const formattedDate = format(selectedDate, "dd 'de' MMMM 'de' yyyy", { locale: es });
-    const formattedTime = selectedTimeSlot;
-
-    const confirmMessage = `
-      Confirmar datos:
-      Fecha: ${formattedDate}
-      Hora: ${formattedTime}
-      Total: $${total.toLocaleString('es-UY', { maximumFractionDigits: 0 })}
+  const groupServicesByLocation = (items: CartItem[]) => {
+    return items.reduce((acc: { [key: string]: CartItem[] }, item) => {
+      const locationKey = item.departmentId && item.locationId ? 
+        `${item.departmentId}-${item.locationId}` : 
+        'no-location';
       
-      ¿Deseas confirmar la solicitud?
-    `;
+      if (!acc[locationKey]) {
+        acc[locationKey] = [];
+      }
+      
+      acc[locationKey].push(item);
+      return acc;
+    }, {});
+  };
 
-    if (window.confirm(confirmMessage)) {
-      onSubmit(values);
-    } else {
-      toast.warning("Solicitud cancelada.");
+  const getLocationLabel = (departmentId: string, locationId: string) => {
+    const departmentName = getDepartmentName(departmentId);
+    const locationName = getLocationName(departmentId, locationId);
+    return `${departmentName}, ${locationName}`;
+  };
+
+  const handleSubmit = (data: FormValues) => {
+    if (cartItems.length === 0) {
+      toast.error("No hay servicios en el carrito", {
+        description: "Debes agregar al menos un servicio para continuar."
+      });
+      return;
     }
+    onSubmit(data);
+  };
+
+  const showPaymentWarning = () => {
+    toast.warning("Método de pago no disponible", {
+      description: "Momentáneamente esta forma de pago no está disponible."
+    });
+  };
+
+  const handlePaymentMethodChange = (value: string) => {
+    if (value === "later" || value === "now") {
+      form.setValue("paymentMethod", value);
+    }
+  };
+
+  const handleOpenTermsModal = () => {
+    setIsTermsModalOpen(true);
   };
 
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
-        <h3 className="text-xl font-semibold">Información Personal</h3>
-        <p className="text-muted-foreground">
-          Completa tus datos para finalizar la compra
-        </p>
+        <User className="h-12 w-12 mx-auto text-primary mb-2" />
+        <h3 className="text-xl font-semibold">Datos Personales</h3>
+        <p className="text-muted-foreground">Completa tus datos para finalizar</p>
       </div>
 
+      <Accordion type="single" collapsible className="mb-6 border rounded-md">
+        <AccordionItem value="order-summary">
+          <AccordionTrigger className="px-4 py-2">
+            <div className="flex items-center gap-2">
+              <ClipboardList size={18} />
+              <span>Ver resumen del pedido</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="px-4 py-2 space-y-4">
+            <div className="space-y-2">
+              <h4 className="font-medium">Servicios y ubicaciones</h4>
+              {Object.entries(groupServicesByLocation(cartItems)).map(([locationKey, items], index) => {
+                const [departmentId, locationId] = locationKey.split('-');
+                const locationLabel = locationKey !== 'no-location' ? 
+                  getLocationLabel(departmentId, locationId) : 
+                  'Ubicación no especificada';
+
+                return (
+                  <div key={index} className="text-sm">
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin size={12} className="text-primary" />
+                      <span className="font-medium">{locationLabel}</span>
+                    </div>
+                    <div className="pl-4 border-l-2 border-gray-100 space-y-1">
+                      {items.map(item => (
+                        <div key={item.id} className="text-sm">
+                          <span className="text-muted-foreground">
+                            {item.serviceCategory}: {item.name} x{item.quantity}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            <div className="space-y-2">
+              <h4 className="font-medium">Fecha y hora</h4>
+              <p className="text-sm text-muted-foreground">
+                {formatDate(selectedDate)} - {selectedTimeSlot || "No seleccionada"}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="font-medium">Productos seleccionados</h4>
+              <ul className="text-sm space-y-1">
+                {cartItems.map(item => (
+                  <li key={item.id} className="flex justify-between">
+                    <span>{item.name} x{item.quantity}</span>
+                    <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="flex justify-between font-medium pt-2 border-t mt-2">
+                <span>Total</span>
+                <span>${total.toFixed(2)}</span>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(submitData)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nombre Completo</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ingresa tu nombre" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Teléfono</FormLabel>
-                <FormControl>
-                  <Input placeholder="Ingresa tu teléfono" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Nombre completo</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Nombre y apellido" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Teléfono</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Teléfono de contacto" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <FormField
             control={form.control}
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email (opcional)</FormLabel>
+                <FormLabel>Correo electrónico</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Ingresa tu email"
-                    {...field}
-                    type="email"
-                  />
+                  <Input placeholder="tu@email.com" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <div className="flex gap-4">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="street"
               render={({ field }) => (
-                <FormItem className="w-1/2">
+                <FormItem>
                   <FormLabel>Calle</FormLabel>
                   <FormControl>
-                    <Input placeholder="Calle" {...field} />
+                    <Input placeholder="Nombre de la calle" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            
             <FormField
               control={form.control}
               name="number"
               render={({ field }) => (
-                <FormItem className="w-1/2">
+                <FormItem>
                   <FormLabel>Número</FormLabel>
                   <FormControl>
-                    <Input placeholder="Número" {...field} />
+                    <Input placeholder="Número de puerta" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
           </div>
-          <div className="flex gap-4">
-            <FormField
-              control={form.control}
-              name="apartment"
-              render={({ field }) => (
-                <FormItem className="w-1/2">
-                  <FormLabel>Apartamento (opcional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Apartamento" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="corner"
               render={({ field }) => (
-                <FormItem className="w-1/2">
-                  <FormLabel>Esquina (opcional)</FormLabel>
+                <FormItem>
+                  <FormLabel>Esquina</FormLabel>
                   <FormControl>
-                    <Input placeholder="Esquina" {...field} />
+                    <Input placeholder="Esquina (opcional)" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="apartment"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Apartamento</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Apto (opcional)" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -232,100 +355,16 @@ const PersonalInfoStep = ({
             />
           </div>
 
-          {departments.length > 0 && municipalities && (
-            <>
-              <FormField
-                control={form.control}
-                name="department"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Departamento</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona un departamento" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {departments.map((department) => (
-                          <SelectItem key={department.id} value={department.id}>
-                            {department.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {form.getValues("department") && municipalities[form.getValues("department")] && (
-                <FormField
-                  control={form.control}
-                  name="municipality"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Municipio</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona un municipio" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {municipalities[form.getValues("department")].map((municipality) => (
-                            <SelectItem key={municipality.id} value={municipality.id}>
-                              {municipality.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-            </>
-          )}
-
-          <FormField
-            control={form.control}
-            name="paymentMethod"
-            render={({ field }) => (
-              <FormItem className="space-y-3">
-                <FormLabel>Método de Pago</FormLabel>
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  className="flex flex-col space-y-1"
-                >
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="now" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Pagar ahora</FormLabel>
-                  </FormItem>
-                  <FormItem className="flex items-center space-x-3 space-y-0">
-                    <FormControl>
-                      <RadioGroupItem value="later" />
-                    </FormControl>
-                    <FormLabel className="font-normal">Pagar al finalizar el servicio</FormLabel>
-                  </FormItem>
-                </RadioGroup>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <FormField
             control={form.control}
             name="comments"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Comentarios (opcional)</FormLabel>
+                <FormLabel>Comentarios adicionales</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Ingresa tus comentarios"
-                    {...field}
+                  <Textarea 
+                    placeholder="Instrucciones adicionales para el técnico" 
+                    {...field} 
                   />
                 </FormControl>
                 <FormMessage />
@@ -333,26 +372,91 @@ const PersonalInfoStep = ({
             )}
           />
 
-          <div className="flex justify-between pt-4 mb-8" ref={nextButtonRef}>
-            <Button 
-              variant="outline"
-              onClick={onPrevious} 
-              className="mr-4"
-            >
+          <FormField
+            control={form.control}
+            name="paymentMethod"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel>Forma de pago</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={handlePaymentMethodChange}
+                    defaultValue={field.value}
+                    className="flex flex-col space-y-1"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="later" id="payment-later" />
+                      <Label htmlFor="payment-later" className="flex items-center gap-2">
+                        Pagar después (directo al profesional)
+                        <Banknote size={18} className="text-green-500" />
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem 
+                        value="now" 
+                        id="payment-now"
+                      />
+                      <Label 
+                        htmlFor="payment-now" 
+                        className="flex items-center gap-2"
+                      >
+                        Pagar ahora (Mercado Pago)
+                        <CreditCard size={18} className="text-sky-500" />
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="termsAccepted"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0 pt-2">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    id="terms"
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel htmlFor="terms" className="text-sm font-normal">
+                    Acepto los{" "}
+                    <span 
+                      className="text-primary hover:underline cursor-pointer"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handleOpenTermsModal();
+                      }}
+                    >
+                      términos y condiciones
+                    </span>
+                  </FormLabel>
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+
+          <div className="flex justify-between gap-4 pt-4 pb-6">
+            <Button type="button" variant="outline" onClick={onPrevious}>
               Anterior
             </Button>
-            <div className="flex items-center gap-2">
-              <MercadoPagoIcon className="w-16 h-16" />
-              <Button 
-                onClick={form.handleSubmit(submitData)} 
-                disabled={!isValid}
-              >
-                Pagar ahora
-              </Button>
-            </div>
+            <Button type="submit" className="bg-primary">
+              Contratar Servicio
+            </Button>
           </div>
         </form>
       </Form>
+      
+      <GeneralTermsModal 
+        isOpen={isTermsModalOpen} 
+        onClose={() => setIsTermsModalOpen(false)} 
+      />
     </div>
   );
 };

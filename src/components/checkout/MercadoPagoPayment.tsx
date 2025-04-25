@@ -17,7 +17,7 @@ const MercadoPagoPayment = ({ onPaymentClick }: MercadoPagoPaymentProps) => {
         onClick={onPaymentClick}
         className="text-[#009ee3] hover:text-[#008ed0] underline text-sm font-medium"
       >
-        IR A PAGAR
+        Iniciar pago
       </button>
     </div>
   );
