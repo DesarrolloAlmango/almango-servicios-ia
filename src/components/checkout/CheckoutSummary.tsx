@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
@@ -413,7 +414,24 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                     <TableBody>
                       {selectedRequestData.Level1.map((item, index) => (
                         <TableRow key={index}>
-                          <TableCell className="font-medium">Servicio #{item.RubrosId}-{item.ProductoID}-{item.DetalleID}</TableCell>
+                          <TableCell className="font-medium">
+                            {selectedRequestData.serviceName}
+                            {formatLocationInfo(
+                              selectedRequestData.DepartamentoId?.toString(),
+                              selectedRequestData.MunicipioId?.toString(),
+                              departments,
+                              municipalities
+                            ) && (
+                              <div className="text-sm text-muted-foreground">
+                                Ubicación: {formatLocationInfo(
+                                  selectedRequestData.DepartamentoId?.toString(),
+                                  selectedRequestData.MunicipioId?.toString(),
+                                  departments,
+                                  municipalities
+                                )}
+                              </div>
+                            )}
+                          </TableCell>
                           <TableCell className="text-center">{item.Cantidad}</TableCell>
                           <TableCell className="text-right">${item.Precio.toFixed(2)}</TableCell>
                           <TableCell className="text-right">${item.PrecioFinal.toFixed(2)}</TableCell>

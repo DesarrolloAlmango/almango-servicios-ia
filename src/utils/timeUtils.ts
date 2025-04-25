@@ -1,4 +1,3 @@
-
 /**
  * Converts a readable time slot string to a numeric format for the API
  */
@@ -19,20 +18,15 @@ export const getTimeSlotNumber = (timeSlot: string): string => {
  * Formats location information for display
  */
 export const formatLocationInfo = (departmentId?: string, locationId?: string, departments: any[] = [], municipalities: Record<string, any[]> = {}): string => {
-  if (!departmentId || !locationId) {
-    return "Ubicación no registrada";
+  if (!departmentId || !locationId || !departments || !municipalities[departmentId]) {
+    return "";
   }
 
   const department = departments.find(d => d.id === departmentId);
-  
-  if (!department || !municipalities[departmentId]) {
-    return "Ubicación parcial";
-  }
-
   const municipality = municipalities[departmentId].find(m => m.id === locationId);
   
-  if (!municipality) {
-    return department.name;
+  if (!department || !municipality) {
+    return "";
   }
 
   return `${department.name}, ${municipality.name}`;
