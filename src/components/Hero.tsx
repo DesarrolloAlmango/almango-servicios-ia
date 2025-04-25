@@ -1,4 +1,3 @@
-
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -36,7 +35,7 @@ const Hero = () => {
       </div>
 
       {/* Login and Register strips */}
-      <div className="absolute right-0 top-1/4 flex flex-col gap-2 z-20">
+      <div className="absolute right-0 md:top-1/4 top-[15%] flex flex-col gap-2 z-20">
         {/* Login strip with completely isolated hover effects */}
         <div className="login-strip animate-bounce-in">
           <a 
