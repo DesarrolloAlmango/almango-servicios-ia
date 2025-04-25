@@ -403,7 +403,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                       {selectedRequestData.Level1.map((item, index) => (
                         <TableRow key={index}>
                           <TableCell className="font-medium">
-                            {item.DetalleNombre || selectedRequestData.serviceName}
+                            {selectedRequestData.serviceName}
                             {formatLocationInfo(
                               selectedRequestData.DepartamentoId?.toString(),
                               selectedRequestData.MunicipioId?.toString(),
