@@ -9,6 +9,7 @@ export interface CheckoutItem {
   Comision: number;
   ComisionTipo: string;
   PrecioFinal: number;
+  productoNombre?: string; // Add product name field
 }
 
 export interface CheckoutData {
@@ -31,7 +32,7 @@ export interface CheckoutData {
   ConfirmarCondicionesUso: string;
   ProveedorAuxiliar: string | null;
   Level1: CheckoutItem[];
-  serviceName?: string; // Adding the serviceName property as optional
+  serviceName?: string; // Service category name
 }
 
 export interface ServiceRequest {

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { 
   Sheet,
@@ -174,9 +175,10 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           SR: "N",
           Comision: 0,
           ComisionTipo: "P",
-          PrecioFinal: Number((item.price * item.quantity).toFixed(2))
+          PrecioFinal: Number((item.price * item.quantity).toFixed(2)),
+          productoNombre: item.name // Add the product name to the checkout item
         })),
-        serviceName: location.serviceName || `Servicio ${serviceId}` // Add serviceName to the checkout data
+        serviceName: location.serviceName || `Servicio ${serviceId}` // This is the service category name
       };
 
       return formattedData;
