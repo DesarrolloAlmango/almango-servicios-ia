@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Loader2, Eye } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, Eye, Code } from "lucide-react";
 import { CheckoutData, ServiceRequest } from "@/types/checkoutTypes";
 import { 
   Dialog,
@@ -58,6 +58,11 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const paymentLinkRef = useRef<HTMLAnchorElement>(null);
   const [departments, setDepartments] = useState<Array<{id: string, name: string}>>([]);
   const [municipalities, setMunicipalities] = useState<Record<string, Array<{id: string, name: string}>>>({});
+  
+  // New states for debug dialogs
+  const [showDebugDialog, setShowDebugDialog] = useState(false);
+  const [debugData, setDebugData] = useState<any>(null);
+  const [debugTitle, setDebugTitle] = useState<string>("");
 
   useEffect(() => {
     if (!isOpen) {
@@ -102,14 +107,19 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       setError(null);
       setServiceRequests([]);
 
+      const processedRequests = [];
+
       for (const serviceData of data) {
         setProcessingService(serviceData.serviceName || 'Servicio');
         const solicitudId = await processServiceRequest(serviceData);
-        setServiceRequests(prev => [...prev, {
+        
+        const requestInfo = {
           solicitudId,
           serviceName: serviceData.serviceName || 'Servicio',
           requestData: serviceData
-        }]);
+        };
+        
+        processedRequests.push(requestInfo);
 
         if (serviceData.MetodoPagosID === 4) {
           setIsRedirecting(true);
@@ -121,6 +131,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         }
       }
 
+      setServiceRequests(processedRequests);
       setShowResultDialog(true);
     } catch (err) {
       console.error("Error al enviar la solicitud:", err);
@@ -141,6 +152,13 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const handleViewServiceDetails = (request: ServiceRequest) => {
     setSelectedRequestData(request.requestData);
     setShowDetailDialog(true);
+  };
+
+  // New function to handle viewing debug data
+  const handleViewDebugData = (data: any, title: string) => {
+    setDebugData(data);
+    setDebugTitle(title);
+    setShowDebugDialog(true);
   };
 
   const getFormaDePago = (metodoPagoId: number): string => {
@@ -290,20 +308,60 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                             <Eye className="h-4 w-4" />
                           </div>
                         </div>
+                        {/* Debug button for viewing JSON request data */}
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="flex items-center gap-1"
+                          onClick={() => handleViewDebugData(
+                            request.requestData, 
+                            `JSON Solicitud #${request.solicitudId}`
+                          )}
+                        >
+                          <Code className="h-4 w-4" />
+                          Debug
+                        </Button>
                       </div>
                     ))}
                   </div>
                 </AlertDescription>
               </Alert>
               {allMercadoPago && (
-                <MercadoPagoPayment 
-                  onPaymentClick={() => {
-                    const firstRequest = serviceRequests[0];
-                    if (firstRequest) {
-                      handlePaymentLink(firstRequest.solicitudId);
-                    }
-                  }} 
-                />
+                <div className="space-y-4">
+                  <MercadoPagoPayment 
+                    onPaymentClick={() => {
+                      const firstRequest = serviceRequests[0];
+                      if (firstRequest) {
+                        handlePaymentLink(firstRequest.solicitudId);
+                      }
+                    }} 
+                  />
+                  
+                  {/* Debug button for MercadoPago payment URL */}
+                  {serviceRequests.length > 0 && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="flex items-center gap-1 mx-auto"
+                      onClick={() => {
+                        const firstRequest = serviceRequests[0];
+                        if (firstRequest) {
+                          const paymentUrl = `http://109.199.100.16:80/PasarelaPagos.NetEnvironment/procesarpago.aspx?S${firstRequest.solicitudId}`;
+                          handleViewDebugData(
+                            { 
+                              url: paymentUrl,
+                              solicitudId: firstRequest.solicitudId 
+                            }, 
+                            "URL Mercado Pago"
+                          );
+                        }
+                      }}
+                    >
+                      <Code className="h-4 w-4" />
+                      Debug MP URL
+                    </Button>
+                  )}
+                </div>
               )}
             </div>
           ) : (
@@ -440,11 +498,73 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                   </Table>
                 </CardContent>
               </Card>
+
+              {/* Debug button for viewing JSON data */}
+              <div className="flex justify-end">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="flex items-center gap-1"
+                  onClick={() => handleViewDebugData(selectedRequestData, "JSON Detalle Solicitud")}
+                >
+                  <Code className="h-4 w-4" />
+                  Ver JSON
+                </Button>
+              </div>
             </div>
           )}
 
           <DialogFooter>
             <Button onClick={() => setShowDetailDialog(false)}>Cerrar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Debug Dialog */}
+      <Dialog open={showDebugDialog} onOpenChange={setShowDebugDialog}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{debugTitle}</DialogTitle>
+            <DialogDescription>
+              Datos JSON enviados a la API
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="bg-slate-800 text-green-400 p-4 rounded-md overflow-auto max-h-[60vh]">
+            <pre className="text-sm whitespace-pre-wrap break-words">
+              {debugData ? JSON.stringify(debugData, null, 2) : "No hay datos disponibles"}
+            </pre>
+          </div>
+
+          <DialogFooter>
+            <Button 
+              onClick={() => {
+                if (debugData) {
+                  navigator.clipboard.writeText(JSON.stringify(debugData, null, 2))
+                    .then(() => {
+                      toast({
+                        title: "Copiado al portapapeles",
+                        description: "Los datos JSON se han copiado con éxito",
+                      });
+                    })
+                    .catch(err => {
+                      console.error("Error al copiar", err);
+                      toast({
+                        title: "Error",
+                        description: "No se pudo copiar al portapapeles",
+                        variant: "destructive",
+                      });
+                    });
+                }
+              }}
+              variant="outline"
+              className="mr-2"
+            >
+              Copiar
+            </Button>
+            <Button onClick={() => setShowDebugDialog(false)}>
+              Cerrar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
