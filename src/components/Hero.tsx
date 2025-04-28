@@ -48,7 +48,7 @@ const Hero = () => {
             <div className="icon-container mr-2">
               <UserRoundPlus size={20} className="hover:scale-125 transition-transform" />
             </div>
-            <span className="font-medium hover:scale-125 transition-transform">REGISTRO</span>
+            <span className="font-medium hover:animate-pulse">REGISTRO</span>
           </a>
         </div>
       </div>
