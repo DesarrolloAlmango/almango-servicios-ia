@@ -14,10 +14,13 @@ export default defineConfig(({ mode }) => ({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
         secure: false,
-        // Añadir esta línea para forzar el cambio de origen
-        headers: {
-          'X-Forwarded-Host': 'localhost',
-          'Origin': 'http://109.199.100.16'
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            // Establecer encabezados necesarios para evitar problemas de CORS
+            proxyReq.setHeader('X-Forwarded-Host', 'localhost');
+            proxyReq.setHeader('Origin', 'http://109.199.100.16');
+            proxyReq.setHeader('Referer', 'http://109.199.100.16/');
+          });
         }
       }
     }

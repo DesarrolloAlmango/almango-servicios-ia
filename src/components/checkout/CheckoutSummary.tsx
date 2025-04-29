@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
@@ -172,7 +171,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           duration: 2000,
         });
         
-        const checkUrl = `http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ConsultarPagoPendiente?Solicitudesid=${request.solicitudId}`;
+        const checkUrl = `/api/AlmangoXV1NETFramework/WebAPI/ConsultarPagoPendiente?Solicitudesid=${request.solicitudId}`;
         console.log(`URL de verificación: ${checkUrl}`);
         
         try {
