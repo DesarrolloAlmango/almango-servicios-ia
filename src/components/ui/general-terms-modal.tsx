@@ -1,12 +1,16 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, X } from "lucide-react";
 import { toast } from "sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface GeneralTermsModalProps {
   isOpen: boolean;
@@ -16,6 +20,7 @@ interface GeneralTermsModalProps {
 export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
   const [terms, setTerms] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (isOpen) {
@@ -80,6 +85,19 @@ export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
             className="prose prose-sm max-w-none mt-2" 
             dangerouslySetInnerHTML={{ __html: terms }}
           />
+        )}
+        
+        {isMobile && (
+          <DialogFooter className="mt-4">
+            <Button 
+              onClick={onClose} 
+              className="w-full"
+              variant="outline"
+            >
+              <X className="mr-2 h-4 w-4" />
+              Cerrar
+            </Button>
+          </DialogFooter>
         )}
       </DialogContent>
     </Dialog>
