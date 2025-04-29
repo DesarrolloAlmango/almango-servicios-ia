@@ -101,7 +101,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     if (showResultDialog && hasPendingMercadoPagoPayments && !paymentCheckIntervalRef.current) {
       paymentCheckIntervalRef.current = window.setInterval(() => {
         checkPendingPayments();
-      }, 5000);
+      }, 3000); // Changed to check every 3 seconds
     }
 
     return () => {
@@ -135,7 +135,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           const result = await response.json();
           console.log(`Payment status for request ${request.solicitudId}:`, result);
           
-          // Updated to check for the actual response format {"Pagado":"S"}
+          // Check if result.Pagado === "S"
           if (result && result.Pagado === "S") {
             setPaymentStatusChecked(prev => ({
               ...prev,
@@ -286,12 +286,17 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     serviceRequests.every(req => req.requestData.MetodoPagosID === 1);
 
   const allMercadoPago = serviceRequests.length > 0 && 
-    serviceRequests.every(req => req.requestData.MetodoPagosID === 4 && !req.paymentConfirmed);
+    serviceRequests.every(req => req.requestData.MetodoPagosID === 4);
 
   const allMercadoPagoConfirmed = serviceRequests.length > 0 && 
     serviceRequests.every(req => 
       req.requestData.MetodoPagosID !== 4 || (req.requestData.MetodoPagosID === 4 && req.paymentConfirmed)
     );
+
+  // Helper to determine if all MP payments are confirmed
+  const hasPendingMercadoPagoPayments = serviceRequests.some(
+    req => req.requestData.MetodoPagosID === 4 && !req.paymentConfirmed
+  );
 
   return (
     <>
@@ -347,7 +352,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
             <DialogTitle className="text-center">
               {serviceRequests.length > 0 ? (
                 <div className="flex items-center justify-center gap-2 text-lg">
-                  {allMercadoPago ? (
+                  {hasPendingMercadoPagoPayments ? (
                     <>
                       <CheckCircle className="h-6 w-6 text-yellow-600" />
                       <span className="text-yellow-600">
@@ -363,7 +368,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                     <>
                       <CheckCircle className="h-6 w-6 text-green-600" />
                       <span className="text-green-600">
-                        Servicios Confirmados!
+                        Servicios Confirmados! {allMercadoPago && !hasPendingMercadoPagoPayments ? "Pago exitoso!" : ""}
                       </span>
                     </>
                   )}
@@ -381,14 +386,14 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
             <div className="py-6 text-center space-y-4">
               <Alert 
                 variant="default" 
-                className={allMercadoPago ? 
+                className={hasPendingMercadoPagoPayments ? 
                   "bg-yellow-50 border-yellow-200" : 
                   "bg-green-50 border-green-200"
                 }
               >
-                <CheckCircle className={`h-5 w-5 ${allMercadoPago ? "text-yellow-600" : "text-green-600"}`} />
+                <CheckCircle className={`h-5 w-5 ${hasPendingMercadoPagoPayments ? "text-yellow-600" : "text-green-600"}`} />
                 <AlertTitle>
-                  {allMercadoPago ? 
+                  {hasPendingMercadoPagoPayments ? 
                     "Solicitudes pendientes de pago" : 
                     "Solicitudes confirmadas"
                   }
@@ -446,7 +451,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                 </AlertDescription>
               </Alert>
               
-              {allMercadoPago && !allMercadoPagoConfirmed && (
+              {hasPendingMercadoPagoPayments && (
                 <div className="space-y-4">
                   <MercadoPagoPayment 
                     onPaymentClick={() => {
