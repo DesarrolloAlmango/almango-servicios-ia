@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
@@ -31,7 +30,6 @@ import MercadoPagoPayment from "./MercadoPagoPayment";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatTimeSlot, formatLocationInfo } from "@/utils/timeUtils";
 
-// Define ServiceRequest interface
 interface ServiceRequest {
   solicitudId: number;
   serviceName: string;
@@ -101,7 +99,9 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     if (showResultDialog && hasPendingMercadoPagoPayments && !paymentCheckIntervalRef.current) {
       paymentCheckIntervalRef.current = window.setInterval(() => {
         checkPendingPayments();
-      }, 3000); // Changed to check every 3 seconds
+      }, 3000);
+      
+      console.log("Started polling for pending payments");
     }
 
     return () => {
@@ -129,14 +129,17 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     
     try {
       for (const request of pendingRequests) {
+        console.log(`Checking payment status for request ${request.solicitudId}`);
+        
         const response = await fetch(`http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ConsultarPagoPendiente?Solicitudesid=${request.solicitudId}`);
         
         if (response.ok) {
           const result = await response.json();
-          console.log(`Payment status for request ${request.solicitudId}:`, result);
+          console.log(`Payment status response for request ${request.solicitudId}:`, result);
           
-          // Check if result.Pagado === "S"
           if (result && result.Pagado === "S") {
+            console.log(`Payment confirmed for request ${request.solicitudId}`);
+            
             setPaymentStatusChecked(prev => ({
               ...prev,
               [request.solicitudId]: true
@@ -155,6 +158,8 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                   : item
               )
             );
+          } else {
+            console.log(`Payment not yet confirmed for request ${request.solicitudId}`);
           }
         } else {
           console.error(`Failed to check payment status for request ${request.solicitudId}`);
@@ -171,6 +176,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     );
     
     if (allChecked && paymentCheckIntervalRef.current) {
+      console.log("All payments confirmed, stopping polling");
       window.clearInterval(paymentCheckIntervalRef.current);
       paymentCheckIntervalRef.current = null;
     }
@@ -293,7 +299,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       req.requestData.MetodoPagosID !== 4 || (req.requestData.MetodoPagosID === 4 && req.paymentConfirmed)
     );
 
-  // Helper to determine if all MP payments are confirmed
   const hasPendingMercadoPagoPayments = serviceRequests.some(
     req => req.requestData.MetodoPagosID === 4 && !req.paymentConfirmed
   );
