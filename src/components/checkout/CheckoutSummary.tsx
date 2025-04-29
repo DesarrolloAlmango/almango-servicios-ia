@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
@@ -82,15 +83,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const [paymentStatusChecked, setPaymentStatusChecked] = useState<Record<number, boolean>>({});
   const [checkingPayment, setCheckingPayment] = useState(false);
   const paymentCheckIntervalRef = useRef<number | null>(null);
-  
-  const [paymentCheckResults, setPaymentCheckResults] = useState<Array<{
-    solicitudId: number;
-    timestamp: string;
-    responseData: any;
-    isPaid: boolean;
-    rawResponse?: string;
-    error?: string;
-  }>>([]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -102,7 +94,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       setShowDetailDialog(false);
       setSelectedRequestData(null);
       setIsRedirecting(false);
-      setPaymentCheckResults([]);
       
       if (paymentCheckIntervalRef.current) {
         window.clearInterval(paymentCheckIntervalRef.current);
@@ -253,17 +244,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           console.log(`RESULTADO FINAL: ¿Pago confirmado? ${isPaid ? 'SÍ' : 'NO'}`);
           console.log(`Datos de resultado:`, result);
           
-          setPaymentCheckResults(prev => [
-            ...prev,
-            {
-              solicitudId: request.solicitudId,
-              timestamp: new Date().toISOString(),
-              responseData: result,
-              rawResponse: rawResponseText,
-              isPaid: isPaid
-            }
-          ]);
-          
           // Final toast with the payment status
           toast({
             title: `Estado del pago #${request.solicitudId}`,
@@ -316,17 +296,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           }
         } catch (err) {
           console.error(`Error al verificar pago para solicitud ${request.solicitudId}:`, err);
-          
-          setPaymentCheckResults(prev => [
-            ...prev,
-            {
-              solicitudId: request.solicitudId,
-              timestamp: new Date().toISOString(),
-              responseData: null,
-              isPaid: false,
-              error: err instanceof Error ? err.message : String(err)
-            }
-          ]);
           
           toast({
             title: "Error de verificación",
@@ -637,49 +606,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                   </div>
                 </AlertDescription>
               </Alert>
-
-              {paymentCheckResults.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm">Historial de verificación de pagos</CardTitle>
-                  </CardHeader>
-                  <CardContent className="max-h-40 overflow-y-auto text-xs">
-                    <div className="space-y-2">
-                      {paymentCheckResults.map((result, index) => (
-                        <div key={index} className={`p-2 rounded ${result.isPaid ? "bg-green-50" : result.error ? "bg-red-50" : "bg-gray-50"}`}>
-                          <div className="flex justify-between items-center">
-                            <span className="font-medium">Solicitud #{result.solicitudId}</span>
-                            <span className="text-gray-500">
-                              {new Date(result.timestamp).toLocaleTimeString()}
-                            </span>
-                          </div>
-                          <div className="mt-1 text-left">
-                            {result.error ? (
-                              <span className="text-red-500">Error: {result.error}</span>
-                            ) : (
-                              <span>Respuesta: {JSON.stringify(result.responseData)}</span>
-                            )}
-                            {result.rawResponse && (
-                              <div className="mt-1 text-gray-600">
-                                Texto crudo: {result.rawResponse.substring(0, 50)}{result.rawResponse.length > 50 ? '...' : ''}
-                              </div>
-                            )}
-                          </div>
-                          <div className="mt-1 font-semibold text-left">
-                            {result.isPaid ? (
-                              <span className="text-green-600">¡Pago confirmado! (Pagado="S")</span>
-                            ) : result.error ? (
-                              <span className="text-red-600">Error de verificación</span>
-                            ) : (
-                              <span className="text-yellow-600">Pago pendiente (Pagado≠"S")</span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
               
               {hasPendingMercadoPagoPayments && (
                 <div className="space-y-4">
