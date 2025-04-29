@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
@@ -861,4 +862,68 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                     </TableBody>
                     <TableFooter>
                       <TableRow>
-                        <
+                        <TableCell colSpan={3} className="text-right font-semibold">Total</TableCell>
+                        <TableCell className="text-right font-bold">
+                          ${calcularTotal(selectedRequestData.Level1).toFixed(2)}
+                        </TableCell>
+                      </TableRow>
+                    </TableFooter>
+                  </Table>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Información de Pago</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Forma de Pago</p>
+                      <p className="text-lg font-medium">
+                        {getFormaDePago(selectedRequestData.MetodoPagosID)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Estado</p>
+                      <p className={`text-lg font-medium ${
+                        selectedRequestData.MetodoPagosID === 1 ? 
+                          "text-blue-600" : 
+                          (selectedRequestData.SolicitudPagada === "S" ? "text-green-600" : "text-yellow-600")
+                      }`}>
+                        {selectedRequestData.MetodoPagosID === 1 ? 
+                          "Pago en el domicilio" : 
+                          (selectedRequestData.SolicitudPagada === "S" ? "PAGADO" : "PENDIENTE")
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showDebugDialog} onOpenChange={setShowDebugDialog}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{debugTitle || "Debug Data"}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <pre className="bg-gray-100 p-4 rounded-md overflow-x-auto text-xs">
+              {debugData ? JSON.stringify(debugData, null, 2) : "No data available"}
+            </pre>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setShowDebugDialog(false)}>
+              Cerrar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};
+
+export default CheckoutSummary;
