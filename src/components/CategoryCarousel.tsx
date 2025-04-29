@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { 
   Carousel,
   CarouselContent,
@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Category {
   id: string;
@@ -24,6 +25,8 @@ interface CategoryCarouselProps {
 
 const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelectCategory }) => {
   const isMobile = useIsMobile();
+  const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
+  const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
 
   const getImageSource = (imageStr: string) => {
     if (!imageStr) return null;
@@ -37,6 +40,36 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
       return `data:image/png;base64,${imageStr}`;
     }
   };
+
+  const handleImageLoad = (categoryId: string) => {
+    setLoadingImages(prev => ({ ...prev, [categoryId]: false }));
+  };
+
+  const handleImageError = (categoryId: string, imageUrl: string) => {
+    console.error("Error loading category image:", imageUrl);
+    setFailedImages(prev => ({ ...prev, [categoryId]: true }));
+    setLoadingImages(prev => ({ ...prev, [categoryId]: false }));
+  };
+
+  // Precargar imágenes para mejorar la experiencia
+  React.useEffect(() => {
+    categories.forEach(category => {
+      if (!category.id) return;
+      
+      setLoadingImages(prev => ({ ...prev, [category.id]: true }));
+      
+      const imgSource = getImageSource(category.image);
+      if (imgSource) {
+        const img = new Image();
+        img.onload = () => handleImageLoad(category.id);
+        img.onerror = () => handleImageError(category.id, imgSource);
+        img.src = imgSource;
+      } else {
+        setFailedImages(prev => ({ ...prev, [category.id]: true }));
+        setLoadingImages(prev => ({ ...prev, [category.id]: false }));
+      }
+    });
+  }, [categories]);
   
   return (
     <div className="py-4 sm:py-6 w-full">
@@ -64,16 +97,26 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
                 className="cursor-pointer hover:scale-105 transition-transform"
                 onClick={() => onSelectCategory(category)}
               >
-                <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2">
+                <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                   <AspectRatio ratio={1} className="bg-gray-100">
-                    {getImageSource(category.image) ? (
+                    {/* Mostrar skeleton mientras carga la imagen */}
+                    {loadingImages[category.id] && (
+                      <div className="absolute inset-0 flex items-center justify-center z-10">
+                        <Skeleton className="h-full w-full rounded-full" />
+                      </div>
+                    )}
+                    
+                    {getImageSource(category.image) && !failedImages[category.id] ? (
                       <img
                         src={getImageSource(category.image)}
                         alt={category.name}
                         className="w-full h-full object-cover"
-                        onError={(e) => {
-                          console.error("Error loading category image:", category.image);
-                          e.currentTarget.src = "/placeholder.svg";
+                        loading="lazy"
+                        onLoad={() => handleImageLoad(category.id)}
+                        onError={() => handleImageError(category.id, category.image)}
+                        style={{ 
+                          opacity: loadingImages[category.id] ? 0 : 1,
+                          transition: 'opacity 0.3s ease-in-out'
                         }}
                       />
                     ) : (
