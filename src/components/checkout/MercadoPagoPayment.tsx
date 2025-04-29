@@ -15,14 +15,17 @@ const MercadoPagoPayment = ({ onPaymentClick, isProcessing = false }: MercadoPag
         alt="Mercado Pago"
         className="h-36 w-auto"
       />
-      {!isProcessing && (
-        <button 
-          onClick={onPaymentClick}
-          className="text-[#009ee3] hover:text-[#008ed0] underline text-sm font-medium py-2 px-4 rounded-md transition-colors"
-        >
-          IR A PAGAR
-        </button>
-      )}
+      <button 
+        onClick={onPaymentClick}
+        className="text-[#009ee3] hover:text-[#008ed0] underline text-sm font-medium py-2 px-4 rounded-md transition-colors"
+      >
+        IR A PAGAR
+        {isProcessing && (
+          <span className="ml-2 inline-flex">
+            <Loader2 className="h-4 w-4 animate-spin" />
+          </span>
+        )}
+      </button>
     </div>
   );
 };
