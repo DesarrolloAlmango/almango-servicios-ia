@@ -689,7 +689,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
             
             {isLoading ? (
               <div className="flex justify-center items-center h-40">
-                <TextSkeleton text="Cargando categorías..." />
+                <TextSkeleton text="Cargando productos..." />
               </div>
             ) : error ? (
               <div className="bg-red-50 p-4 rounded-md border border-red-200 text-red-700">
