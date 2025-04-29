@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
@@ -59,10 +58,13 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const [departments, setDepartments] = useState<Array<{id: string, name: string}>>([]);
   const [municipalities, setMunicipalities] = useState<Record<string, Array<{id: string, name: string}>>>({});
   
-  // New states for debug dialogs
   const [showDebugDialog, setShowDebugDialog] = useState(false);
   const [debugData, setDebugData] = useState<any>(null);
   const [debugTitle, setDebugTitle] = useState<string>("");
+
+  const [paymentStatusChecked, setPaymentStatusChecked] = useState<Record<number, boolean>>({});
+  const [checkingPayment, setCheckingPayment] = useState(false);
+  const paymentCheckIntervalRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -74,8 +76,95 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       setShowDetailDialog(false);
       setSelectedRequestData(null);
       setIsRedirecting(false);
+      
+      if (paymentCheckIntervalRef.current) {
+        window.clearInterval(paymentCheckIntervalRef.current);
+        paymentCheckIntervalRef.current = null;
+      }
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    const hasPendingMercadoPagoPayments = serviceRequests.some(
+      request => request.requestData.MetodoPagosID === 4 && !paymentStatusChecked[request.solicitudId]
+    );
+
+    if (showResultDialog && hasPendingMercadoPagoPayments && !paymentCheckIntervalRef.current) {
+      paymentCheckIntervalRef.current = window.setInterval(() => {
+        checkPendingPayments();
+      }, 5000);
+    }
+
+    return () => {
+      if (paymentCheckIntervalRef.current) {
+        window.clearInterval(paymentCheckIntervalRef.current);
+        paymentCheckIntervalRef.current = null;
+      }
+    };
+  }, [showResultDialog, serviceRequests, paymentStatusChecked]);
+
+  const checkPendingPayments = async () => {
+    const pendingRequests = serviceRequests.filter(
+      request => request.requestData.MetodoPagosID === 4 && !paymentStatusChecked[request.solicitudId]
+    );
+    
+    if (pendingRequests.length === 0) {
+      if (paymentCheckIntervalRef.current) {
+        window.clearInterval(paymentCheckIntervalRef.current);
+        paymentCheckIntervalRef.current = null;
+      }
+      return;
+    }
+
+    setCheckingPayment(true);
+    
+    try {
+      for (const request of pendingRequests) {
+        const response = await fetch(`http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ConsultarPagoPendiente?Solicitudesid=${request.solicitudId}`);
+        
+        if (response.ok) {
+          const result = await response.text();
+          console.log(`Payment status for request ${request.solicitudId}:`, result);
+          
+          if (result === "S") {
+            setPaymentStatusChecked(prev => ({
+              ...prev,
+              [request.solicitudId]: true
+            }));
+            
+            toast({
+              title: "Pago confirmado",
+              description: `El pago para la solicitud #${request.solicitudId} ha sido confirmado.`,
+              duration: 5000,
+            });
+            
+            setServiceRequests(prev => 
+              prev.map(item => 
+                item.solicitudId === request.solicitudId 
+                  ? { ...item, paymentConfirmed: true } 
+                  : item
+              )
+            );
+          }
+        } else {
+          console.error(`Failed to check payment status for request ${request.solicitudId}`);
+        }
+      }
+    } catch (err) {
+      console.error("Error checking payment status:", err);
+    } finally {
+      setCheckingPayment(false);
+    }
+
+    const allChecked = serviceRequests.every(
+      request => request.requestData.MetodoPagosID !== 4 || paymentStatusChecked[request.solicitudId]
+    );
+    
+    if (allChecked && paymentCheckIntervalRef.current) {
+      window.clearInterval(paymentCheckIntervalRef.current);
+      paymentCheckIntervalRef.current = null;
+    }
+  };
 
   const processServiceRequest = async (serviceData: CheckoutData): Promise<number> => {
     const jsonSolicitud = JSON.stringify(serviceData);
@@ -154,7 +243,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     setShowDetailDialog(true);
   };
 
-  // New function to handle viewing debug data
   const handleViewDebugData = (data: any, title: string) => {
     setDebugData(data);
     setDebugTitle(title);
@@ -188,7 +276,12 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     serviceRequests.every(req => req.requestData.MetodoPagosID === 1);
 
   const allMercadoPago = serviceRequests.length > 0 && 
-    serviceRequests.every(req => req.requestData.MetodoPagosID === 4);
+    serviceRequests.every(req => req.requestData.MetodoPagosID === 4 && !req.paymentConfirmed);
+
+  const allMercadoPagoConfirmed = serviceRequests.length > 0 && 
+    serviceRequests.every(req => 
+      req.requestData.MetodoPagosID !== 4 || (req.requestData.MetodoPagosID === 4 && req.paymentConfirmed)
+    );
 
   return (
     <>
@@ -249,6 +342,11 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                       <CheckCircle className="h-6 w-6 text-yellow-600" />
                       <span className="text-yellow-600">
                         Servicios Confirmados! (Pendiente de Pago)
+                        {checkingPayment && (
+                          <span className="ml-2">
+                            <Loader2 className="h-4 w-4 inline animate-spin" />
+                          </span>
+                        )}
                       </span>
                     </>
                   ) : (
@@ -294,21 +392,32 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                       <div 
                         key={index}
                         className={`flex items-center justify-between p-3 rounded-lg ${
-                          allMercadoPago ? "bg-yellow-100" : "bg-green-100"
+                          request.paymentConfirmed ? 
+                            "bg-green-100" : 
+                            (request.requestData.MetodoPagosID === 4 ? "bg-yellow-100" : "bg-green-100")
                         }`}
                       >
                         <div className="text-left">
                           <div 
                             className={`text-xl font-bold cursor-pointer hover:text-opacity-80 transition-colors flex items-center gap-2 ${
-                              allMercadoPago ? "text-yellow-600 hover:text-yellow-700" : "text-green-600 hover:text-green-700"
+                              request.paymentConfirmed ? 
+                                "text-green-600 hover:text-green-700" : 
+                                (request.requestData.MetodoPagosID === 4 ? "text-yellow-600 hover:text-yellow-700" : "text-green-600 hover:text-green-700")
                             }`}
                             onClick={() => handleViewServiceDetails(request)}
                           >
                             #{request.solicitudId}
                             <Eye className="h-4 w-4" />
+                            {request.requestData.MetodoPagosID === 4 && !request.paymentConfirmed && checkingPayment && (
+                              <Loader2 className="h-4 w-4 animate-spin ml-1" />
+                            )}
+                            {request.requestData.MetodoPagosID === 4 && request.paymentConfirmed && (
+                              <span className="text-sm ml-1 bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                Pago confirmado
+                              </span>
+                            )}
                           </div>
                         </div>
-                        {/* Debug button for viewing JSON request data */}
                         <Button 
                           variant="outline" 
                           size="sm"
@@ -326,39 +435,44 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                   </div>
                 </AlertDescription>
               </Alert>
-              {allMercadoPago && (
+              
+              {allMercadoPago && !allMercadoPagoConfirmed && (
                 <div className="space-y-4">
                   <MercadoPagoPayment 
                     onPaymentClick={() => {
-                      const firstRequest = serviceRequests[0];
-                      if (firstRequest) {
-                        handlePaymentLink(firstRequest.solicitudId);
+                      const firstUnconfirmedRequest = serviceRequests.find(
+                        req => req.requestData.MetodoPagosID === 4 && !req.paymentConfirmed
+                      );
+                      if (firstUnconfirmedRequest) {
+                        handlePaymentLink(firstUnconfirmedRequest.solicitudId);
                       }
                     }} 
                   />
                   
-                  {/* Debug button for MercadoPago payment URL */}
                   {serviceRequests.length > 0 && (
                     <Button 
                       variant="outline" 
                       size="sm"
                       className="flex items-center gap-1 mx-auto"
                       onClick={() => {
-                        const firstRequest = serviceRequests[0];
+                        const firstRequest = serviceRequests.find(
+                          req => req.requestData.MetodoPagosID === 4 && !req.paymentConfirmed
+                        ) || serviceRequests[0];
                         if (firstRequest) {
                           const paymentUrl = `http://109.199.100.16:80/PasarelaPagos.NetEnvironment/procesarpago.aspx?S${firstRequest.solicitudId}`;
                           handleViewDebugData(
                             { 
                               url: paymentUrl,
-                              solicitudId: firstRequest.solicitudId 
+                              solicitudId: firstRequest.solicitudId,
+                              checkPaymentUrl: `http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ConsultarPagoPendiente?Solicitudesid=${firstRequest.solicitudId}`
                             }, 
-                            "URL Mercado Pago"
+                            "URLs de Pago y Verificación"
                           );
                         }
                       }}
                     >
                       <Code className="h-4 w-4" />
-                      Debug MP URL
+                      Debug MP URLs
                     </Button>
                   )}
                 </div>
@@ -499,7 +613,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                 </CardContent>
               </Card>
 
-              {/* Debug button for viewing JSON data */}
               <div className="flex justify-end">
                 <Button 
                   variant="outline" 
@@ -520,7 +633,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         </DialogContent>
       </Dialog>
 
-      {/* New Debug Dialog */}
       <Dialog open={showDebugDialog} onOpenChange={setShowDebugDialog}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
