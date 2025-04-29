@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
@@ -203,19 +204,36 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
             
             // Update the service request to mark payment as confirmed
             setServiceRequests(prev => 
-              prev.map(item => 
-                item.solicitudId === request.solicitudId 
-                  ? { ...item, paymentConfirmed: true } 
-                  : item
-              )
+              prev.map(item => {
+                if (item.solicitudId === request.solicitudId) {
+                  // Also update the SolicitudPagada flag in the requestData
+                  return { 
+                    ...item, 
+                    paymentConfirmed: true,
+                    requestData: {
+                      ...item.requestData,
+                      SolicitudPagada: "S"  // Set the payment status to "S" (paid)
+                    }
+                  };
+                }
+                return item;
+              })
             );
             
             // Check if we need to stop polling
-            const updatedRequests = serviceRequests.map(item => 
-              item.solicitudId === request.solicitudId 
-                ? { ...item, paymentConfirmed: true } 
-                : item
-            );
+            const updatedRequests = serviceRequests.map(item => {
+              if (item.solicitudId === request.solicitudId) {
+                return { 
+                  ...item, 
+                  paymentConfirmed: true,
+                  requestData: {
+                    ...item.requestData,
+                    SolicitudPagada: "S"
+                  }
+                };
+              }
+              return item;
+            });
             
             const stillHasPendingPayments = updatedRequests.some(
               req => req.requestData.MetodoPagosID === 4 && !req.paymentConfirmed
@@ -225,6 +243,15 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
               console.log("Todos los pagos confirmados, deteniendo verificación");
               window.clearInterval(paymentCheckIntervalRef.current);
               paymentCheckIntervalRef.current = null;
+            }
+            
+            // Update selectedRequestData if it matches the current request
+            if (selectedRequestData && selectedRequestData.SolicitudPagada !== "S" && 
+                request.solicitudId === selectedServiceId) {
+              setSelectedRequestData({
+                ...selectedRequestData,
+                SolicitudPagada: "S"
+              });
             }
           } else {
             console.log(`⏱️ Pago aún no confirmado para solicitud ${request.solicitudId}. Pagado="${result?.Pagado || 'desconocido'}"`);
@@ -314,6 +341,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   };
 
   const handleViewServiceDetails = (request: ServiceRequest) => {
+    setSelectedServiceId(request.solicitudId);
     setSelectedRequestData(request.requestData);
     setShowDetailDialog(true);
   };
@@ -559,6 +587,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
               )}
             </div>
           ) : (
+            /* ... keep existing code (Error alert) */
             <div className="py-6 text-center space-y-4">
               <Alert variant="destructive">
                 <XCircle className="h-5 w-5" />
