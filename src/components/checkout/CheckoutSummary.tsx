@@ -72,6 +72,13 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const [paymentStatusChecked, setPaymentStatusChecked] = useState<Record<number, boolean>>({});
   const [checkingPayment, setCheckingPayment] = useState(false);
   const paymentCheckIntervalRef = useRef<number | null>(null);
+  
+  const [paymentCheckResults, setPaymentCheckResults] = useState<Array<{
+    solicitudId: number;
+    timestamp: string;
+    responseData: any;
+    isPaid: boolean;
+  }>>([]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -83,6 +90,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       setShowDetailDialog(false);
       setSelectedRequestData(null);
       setIsRedirecting(false);
+      setPaymentCheckResults([]);
       
       if (paymentCheckIntervalRef.current) {
         window.clearInterval(paymentCheckIntervalRef.current);
@@ -98,11 +106,14 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
     if (showResultDialog && hasPendingMercadoPagoPayments && !paymentCheckIntervalRef.current) {
       console.log("Started polling for pending payments");
+      toast({
+        title: "Verificación de pagos iniciada",
+        description: "Se está verificando el estado de los pagos cada 3 segundos",
+        duration: 3000,
+      });
       
-      // Start checking payments immediately
       checkPendingPayments();
       
-      // Then set up the interval
       paymentCheckIntervalRef.current = window.setInterval(() => {
         checkPendingPayments();
       }, 3000);
@@ -123,6 +134,11 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     
     if (pendingRequests.length === 0) {
       console.log("No pending requests to check, clearing interval");
+      toast({
+        title: "No hay pagos pendientes",
+        description: "No se encontraron solicitudes de pago pendientes para verificar",
+        duration: 2000,
+      });
       if (paymentCheckIntervalRef.current) {
         window.clearInterval(paymentCheckIntervalRef.current);
         paymentCheckIntervalRef.current = null;
@@ -131,34 +147,59 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     }
 
     setCheckingPayment(true);
+    console.log(`Verificando ${pendingRequests.length} pagos pendientes...`);
     
     try {
       for (const request of pendingRequests) {
-        console.log(`Checking payment status for request ${request.solicitudId}`);
+        console.log(`Verificando estado de pago para solicitud ${request.solicitudId}`);
+        toast({
+          title: "Verificando pago",
+          description: `Consultando estado para solicitud #${request.solicitudId}...`,
+          duration: 2000,
+        });
         
-        const response = await fetch(`http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ConsultarPagoPendiente?Solicitudesid=${request.solicitudId}`);
+        const checkUrl = `http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ConsultarPagoPendiente?Solicitudesid=${request.solicitudId}`;
+        console.log(`URL de verificación: ${checkUrl}`);
+        
+        const response = await fetch(checkUrl);
         
         if (response.ok) {
           const result = await response.json();
-          console.log(`Payment status response for request ${request.solicitudId}:`, result);
+          console.log(`Respuesta de estado de pago para solicitud ${request.solicitudId}:`, result);
           
-          if (result && result.Pagado === "S") {
-            console.log(`Payment confirmed for request ${request.solicitudId}`);
+          setPaymentCheckResults(prev => [
+            ...prev,
+            {
+              solicitudId: request.solicitudId,
+              timestamp: new Date().toISOString(),
+              responseData: result,
+              isPaid: result && result.Pagado === "S"
+            }
+          ]);
+          
+          toast({
+            title: `Respuesta para solicitud #${request.solicitudId}`,
+            description: `Datos: ${JSON.stringify(result)}`,
+            duration: 3000,
+          });
+          
+          const isPaid = result && result.Pagado === "S";
+          console.log(`¿Pago confirmado? ${isPaid ? 'SÍ' : 'NO'} (Pagado="${result?.Pagado}")`);
+          
+          if (isPaid) {
+            console.log(`Pago confirmado para solicitud ${request.solicitudId}`);
             
-            // Update payment status
             setPaymentStatusChecked(prev => ({
               ...prev,
               [request.solicitudId]: true
             }));
             
-            // Show success notification
             toast({
-              title: "Pago confirmado",
-              description: `El pago para la solicitud #${request.solicitudId} ha sido confirmado.`,
+              title: "¡Pago confirmado!",
+              description: `El pago para la solicitud #${request.solicitudId} ha sido confirmado. Se detendrá la verificación.`,
               duration: 5000,
             });
             
-            // Update request in state
             setServiceRequests(prev => 
               prev.map(item => 
                 item.solicitudId === request.solicitudId 
@@ -167,25 +208,46 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
               )
             );
           } else {
-            console.log(`Payment not yet confirmed for request ${request.solicitudId}`);
+            console.log(`Pago aún no confirmado para solicitud ${request.solicitudId}. Pagado="${result?.Pagado}"`);
+            toast({
+              title: "Pago pendiente",
+              description: `El pago para la solicitud #${request.solicitudId} aún está pendiente. Continuando verificación...`,
+              duration: 3000,
+            });
           }
         } else {
-          console.error(`Failed to check payment status for request ${request.solicitudId}`);
+          console.error(`Error al verificar estado de pago para solicitud ${request.solicitudId}: ${response.status} ${response.statusText}`);
+          toast({
+            title: "Error de verificación",
+            description: `No se pudo verificar el estado del pago para la solicitud #${request.solicitudId}. Código: ${response.status}`,
+            variant: "destructive",
+            duration: 3000,
+          });
         }
       }
     } catch (err) {
-      console.error("Error checking payment status:", err);
+      console.error("Error al verificar estado de pagos:", err);
+      toast({
+        title: "Error",
+        description: "Ocurrió un error al verificar el estado de los pagos",
+        variant: "destructive",
+        duration: 3000,
+      });
     } finally {
       setCheckingPayment(false);
     }
 
-    // Check if all Mercado Pago payments are now confirmed
     const allConfirmed = serviceRequests.every(
-      request => request.requestData.MetodoPagosID !== 4 || request.paymentConfirmed
+      req => req.requestData.MetodoPagosID !== 4 || req.paymentConfirmed
     );
     
     if (allConfirmed && paymentCheckIntervalRef.current) {
-      console.log("All payments confirmed, stopping polling");
+      console.log("Todos los pagos confirmados, deteniendo verificación");
+      toast({
+        title: "Verificación completada",
+        description: "Todos los pagos han sido confirmados. Se detendrá la verificación.",
+        duration: 3000,
+      });
       window.clearInterval(paymentCheckIntervalRef.current);
       paymentCheckIntervalRef.current = null;
     }
@@ -464,6 +526,38 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                   </div>
                 </AlertDescription>
               </Alert>
+
+              {paymentCheckResults.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm">Historial de verificación de pagos</CardTitle>
+                  </CardHeader>
+                  <CardContent className="max-h-40 overflow-y-auto text-xs">
+                    <div className="space-y-2">
+                      {paymentCheckResults.map((result, index) => (
+                        <div key={index} className={`p-2 rounded ${result.isPaid ? "bg-green-50" : "bg-gray-50"}`}>
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium">Solicitud #{result.solicitudId}</span>
+                            <span className="text-gray-500">
+                              {new Date(result.timestamp).toLocaleTimeString()}
+                            </span>
+                          </div>
+                          <div className="mt-1 text-left">
+                            <span>Respuesta: {JSON.stringify(result.responseData)}</span>
+                          </div>
+                          <div className="mt-1 font-semibold text-left">
+                            {result.isPaid ? (
+                              <span className="text-green-600">¡Pago confirmado! (Pagado="S")</span>
+                            ) : (
+                              <span className="text-yellow-600">Pago pendiente (Pagado≠"S")</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
               
               {hasPendingMercadoPagoPayments && (
                 <div className="space-y-4">
@@ -504,6 +598,20 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                       Debug MP URLs
                     </Button>
                   )}
+
+                  <Button
+                    size="sm"
+                    onClick={checkPendingPayments}
+                    disabled={checkingPayment}
+                    className="flex items-center gap-1 mx-auto"
+                  >
+                    {checkingPayment ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <CheckCircle className="h-4 w-4" />
+                    )}
+                    Verificar pago ahora
+                  </Button>
                 </div>
               )}
             </div>
