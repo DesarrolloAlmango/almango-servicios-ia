@@ -97,11 +97,15 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     );
 
     if (showResultDialog && hasPendingMercadoPagoPayments && !paymentCheckIntervalRef.current) {
+      console.log("Started polling for pending payments");
+      
+      // Start checking payments immediately
+      checkPendingPayments();
+      
+      // Then set up the interval
       paymentCheckIntervalRef.current = window.setInterval(() => {
         checkPendingPayments();
       }, 3000);
-      
-      console.log("Started polling for pending payments");
     }
 
     return () => {
@@ -110,7 +114,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         paymentCheckIntervalRef.current = null;
       }
     };
-  }, [showResultDialog, serviceRequests, paymentStatusChecked]);
+  }, [showResultDialog, serviceRequests]);
 
   const checkPendingPayments = async () => {
     const pendingRequests = serviceRequests.filter(
@@ -118,6 +122,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     );
     
     if (pendingRequests.length === 0) {
+      console.log("No pending requests to check, clearing interval");
       if (paymentCheckIntervalRef.current) {
         window.clearInterval(paymentCheckIntervalRef.current);
         paymentCheckIntervalRef.current = null;
@@ -140,17 +145,20 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           if (result && result.Pagado === "S") {
             console.log(`Payment confirmed for request ${request.solicitudId}`);
             
+            // Update payment status
             setPaymentStatusChecked(prev => ({
               ...prev,
               [request.solicitudId]: true
             }));
             
+            // Show success notification
             toast({
               title: "Pago confirmado",
               description: `El pago para la solicitud #${request.solicitudId} ha sido confirmado.`,
               duration: 5000,
             });
             
+            // Update request in state
             setServiceRequests(prev => 
               prev.map(item => 
                 item.solicitudId === request.solicitudId 
@@ -171,11 +179,12 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       setCheckingPayment(false);
     }
 
-    const allChecked = serviceRequests.every(
+    // Check if all Mercado Pago payments are now confirmed
+    const allConfirmed = serviceRequests.every(
       request => request.requestData.MetodoPagosID !== 4 || request.paymentConfirmed
     );
     
-    if (allChecked && paymentCheckIntervalRef.current) {
+    if (allConfirmed && paymentCheckIntervalRef.current) {
       console.log("All payments confirmed, stopping polling");
       window.clearInterval(paymentCheckIntervalRef.current);
       paymentCheckIntervalRef.current = null;
