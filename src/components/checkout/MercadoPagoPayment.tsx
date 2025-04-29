@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 interface MercadoPagoPaymentProps {
   onPaymentClick: () => void;
@@ -16,10 +17,24 @@ const MercadoPagoPayment = ({ onPaymentClick, isProcessing = false }: MercadoPag
       />
       <button 
         onClick={onPaymentClick}
-        className="text-[#009ee3] hover:text-[#008ed0] underline text-sm font-medium"
+        className={`
+          flex items-center gap-2 
+          ${isProcessing 
+            ? "bg-gray-200 text-gray-600 cursor-not-allowed" 
+            : "text-[#009ee3] hover:text-[#008ed0]"
+          } 
+          underline text-sm font-medium py-2 px-4 rounded-md transition-colors
+        `}
         disabled={isProcessing}
       >
-        {isProcessing ? "PROCESANDO..." : "IR A PAGAR"}
+        {isProcessing ? (
+          <>
+            <Loader2 className="h-4 w-4 animate-spin" />
+            PROCESANDO...
+          </>
+        ) : (
+          "IR A PAGAR"
+        )}
       </button>
     </div>
   );

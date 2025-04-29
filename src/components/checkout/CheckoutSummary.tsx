@@ -181,6 +181,13 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           try {
             rawResponseText = await response.clone().text();
             console.log(`Respuesta de texto crudo:`, rawResponseText);
+            
+            // Show raw response in a toast to help with debugging
+            toast({
+              title: "Respuesta del servidor (Raw)",
+              description: `${rawResponseText.substring(0, 100)}${rawResponseText.length > 100 ? '...' : ''}`,
+              duration: 5000,
+            });
           } catch (e) {
             console.error("Error al leer texto crudo de respuesta:", e);
           }
@@ -191,34 +198,60 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           }
           
           let result: any = null;
+          let isPaid = false;
           
+          // Log each step of the parsing process
+          console.log("Comenzando análisis de la respuesta...");
+          
+          // First attempt: try to parse as JSON
           try {
-            // First, try to parse as JSON
             result = await response.json();
-            console.log(`Respuesta de estado de pago para solicitud ${request.solicitudId} (JSON):`, result);
+            console.log(`Respuesta parseada como JSON:`, result);
+            
+            // Check if the JSON contains Pagado:S
+            isPaid = result && result.Pagado === "S";
+            console.log(`¿JSON contiene Pagado="S"? ${isPaid ? 'SÍ' : 'NO'}`);
+            
+            toast({
+              title: "Análisis del JSON",
+              description: `Objeto JSON: ${JSON.stringify(result)}. Estado de pago: ${isPaid ? 'CONFIRMADO ✓' : 'pendiente ⏱'}`,
+              duration: 3000,
+            });
           } catch (jsonError) {
             console.warn(`La respuesta no es JSON válido: ${jsonError}`);
+            toast({
+              title: "Error de parseo JSON",
+              description: `La respuesta no es JSON válido. Intentando análisis alternativo...`,
+              duration: 3000,
+            });
             
-            // If JSON parsing failed, try to extract data from the raw text
+            // Second attempt: try to extract data from raw text
             if (rawResponseText.includes('"Pagado":"S"')) {
               console.log("Se encontró 'Pagado:S' en la respuesta de texto, creando objeto manualmente");
               result = { Pagado: "S" };
+              isPaid = true;
+              
+              toast({
+                title: "Análisis alternativo exitoso",
+                description: `Se encontró "Pagado":"S" en el texto de respuesta. Pago CONFIRMADO ✓`,
+                duration: 3000,
+              });
             } else {
-              console.error("No se pudo interpretar la respuesta");
-              throw new Error("Formato de respuesta no reconocido");
+              console.log("Análisis alternativo: No se encontró 'Pagado:S' en el texto");
+              result = { Pagado: "N", rawText: rawResponseText };
+              isPaid = false;
+              
+              toast({
+                title: "Análisis alternativo",
+                description: `No se encontró "Pagado":"S" en el texto. Pago pendiente ⏱`,
+                duration: 3000,
+              });
             }
           }
           
+          // Log the final determination
+          console.log(`RESULTADO FINAL: ¿Pago confirmado? ${isPaid ? 'SÍ' : 'NO'}`);
           console.log(`Datos de resultado:`, result);
-          
-          // Check if the response contains valid data
-          if (!result || typeof result !== 'object') {
-            console.error("La respuesta no contiene un objeto válido");
-            throw new Error("Respuesta inválida");
-          }
-          
-          const isPaid = result && result.Pagado === "S";
-          console.log(`¿Pago confirmado? ${isPaid ? 'SÍ' : 'NO'} (Pagado="${result?.Pagado}")`);
           
           setPaymentCheckResults(prev => [
             ...prev,
@@ -231,14 +264,16 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
             }
           ]);
           
+          // Final toast with the payment status
           toast({
-            title: `Respuesta para solicitud #${request.solicitudId}`,
-            description: `Datos: ${JSON.stringify(result)} - Pago ${isPaid ? 'CONFIRMADO ✓' : 'pendiente ⏱'}`,
-            duration: 3000,
+            title: `Estado del pago #${request.solicitudId}`,
+            description: `Resultado: ${isPaid ? 'PAGO CONFIRMADO ✓' : 'Pago pendiente ⏱'} (Pagado="${result?.Pagado || 'desconocido'}")`,
+            variant: isPaid ? "default" : "default",
+            duration: 5000,
           });
           
           if (isPaid) {
-            console.log(`PAGO CONFIRMADO para solicitud ${request.solicitudId}`);
+            console.log(`✅ PAGO CONFIRMADO para solicitud ${request.solicitudId}`);
             
             setPaymentStatusChecked(prev => ({
               ...prev,
@@ -251,6 +286,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
               duration: 5000,
             });
             
+            // Update the service request to mark payment as confirmed
             setServiceRequests(prev => 
               prev.map(item => 
                 item.solicitudId === request.solicitudId 
@@ -259,7 +295,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
               )
             );
             
-            // If this request is now confirmed, check if we need to stop polling
+            // Check if we need to stop polling
             const updatedRequests = serviceRequests.map(item => 
               item.solicitudId === request.solicitudId 
                 ? { ...item, paymentConfirmed: true } 
@@ -276,12 +312,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
               paymentCheckIntervalRef.current = null;
             }
           } else {
-            console.log(`Pago aún no confirmado para solicitud ${request.solicitudId}. Pagado="${result?.Pagado}"`);
-            toast({
-              title: "Pago pendiente",
-              description: `El pago para la solicitud #${request.solicitudId} aún está pendiente. Continuando verificación...`,
-              duration: 3000,
-            });
+            console.log(`⏱️ Pago aún no confirmado para solicitud ${request.solicitudId}. Pagado="${result?.Pagado || 'desconocido'}"`);
           }
         } catch (err) {
           console.error(`Error al verificar pago para solicitud ${request.solicitudId}:`, err);
@@ -830,39 +861,4 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                     </TableBody>
                     <TableFooter>
                       <TableRow>
-                        <TableCell colSpan={3} className="text-right">Total</TableCell>
-                        <TableCell className="text-right">${calcularTotal(selectedRequestData.Level1).toFixed(2)}</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell colSpan={3} className="text-right">Forma de pago</TableCell>
-                        <TableCell className="text-right">{getFormaDePago(selectedRequestData.MetodoPagosID)}</TableCell>
-                      </TableRow>
-                    </TableFooter>
-                  </Table>
-                </CardContent>
-              </Card>
-
-              <div className="flex justify-end">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="flex items-center gap-1"
-                  onClick={() => handleViewDebugData(selectedRequestData, "JSON Detalle Solicitud")}
-                >
-                  <Code className="h-4 w-4" />
-                  Ver JSON
-                </Button>
-              </div>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button onClick={() => setShowDetailDialog(false)}>Cerrar</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showDebugDialog} onOpenChange={setShowDebugDialog}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{
+                        <
