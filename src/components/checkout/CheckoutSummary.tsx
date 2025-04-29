@@ -293,15 +293,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         };
         
         processedRequests.push(requestInfo);
-
-        if (serviceData.MetodoPagosID === 4) {
-          setIsRedirecting(true);
-          toast({
-            title: "Pago Pendiente",
-            description: "Por favor, haz clic en el botón de Mercado Pago para continuar con tu pago.",
-            duration: 5000,
-          });
-        }
       }
 
       setServiceRequests(processedRequests);
@@ -564,20 +555,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                       Debug MP URLs
                     </Button>
                   )}
-
-                  <Button
-                    size="sm"
-                    onClick={checkPendingPayments}
-                    disabled={checkingPayment}
-                    className="flex items-center gap-1 mx-auto"
-                  >
-                    {checkingPayment ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <CheckCircle className="h-4 w-4" />
-                    )}
-                    Verificar pago ahora
-                  </Button>
                 </div>
               )}
             </div>
