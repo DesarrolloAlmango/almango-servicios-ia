@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, Loader2, Eye, Code } from "lucide-react";
-import { CheckoutData, ServiceRequest } from "@/types/checkoutTypes";
+import { CheckoutData } from "@/types/checkoutTypes";
 import { 
   Dialog,
   DialogContent,
@@ -31,7 +31,7 @@ import MercadoPagoPayment from "./MercadoPagoPayment";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatTimeSlot, formatLocationInfo } from "@/utils/timeUtils";
 
-// Update ServiceRequest interface to include paymentConfirmed property
+// Define ServiceRequest interface
 interface ServiceRequest {
   solicitudId: number;
   serviceName: string;
