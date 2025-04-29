@@ -16,7 +16,8 @@ export default defineConfig(({ mode }) => ({
         secure: false,
         // Añadir esta línea para forzar el cambio de origen
         headers: {
-          'X-Forwarded-Host': 'localhost'
+          'X-Forwarded-Host': 'localhost',
+          'Origin': 'http://109.199.100.16'
         }
       }
     }
