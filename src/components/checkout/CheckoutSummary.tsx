@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
@@ -109,11 +108,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
     if (showResultDialog && hasPendingMercadoPagoPayments && !paymentCheckIntervalRef.current) {
       console.log("Started polling for pending payments");
-      toast({
-        title: "Verificación de pagos iniciada",
-        description: "Se está verificando el estado de los pagos cada 3 segundos",
-        duration: 3000,
-      });
       
       // Check immediately on first load
       checkPendingPayments();
@@ -138,11 +132,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     
     if (pendingRequests.length === 0) {
       console.log("No pending requests to check, clearing interval");
-      toast({
-        title: "No hay pagos pendientes",
-        description: "No se encontraron solicitudes de pago pendientes para verificar",
-        duration: 2000,
-      });
       if (paymentCheckIntervalRef.current) {
         window.clearInterval(paymentCheckIntervalRef.current);
         paymentCheckIntervalRef.current = null;
@@ -156,11 +145,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     try {
       for (const request of pendingRequests) {
         console.log(`Verificando estado de pago para solicitud ${request.solicitudId}`);
-        toast({
-          title: "Verificando pago",
-          description: `Consultando estado para solicitud #${request.solicitudId}...`,
-          duration: 2000,
-        });
         
         const checkUrl = `/api/AlmangoXV1NETFramework/WebAPI/ConsultarPagoPendiente?Solicitudesid=${request.solicitudId}`;
         console.log(`URL de verificación: ${checkUrl}`);
@@ -172,13 +156,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           try {
             rawResponseText = await response.clone().text();
             console.log(`Respuesta de texto crudo:`, rawResponseText);
-            
-            // Show raw response in a toast to help with debugging
-            toast({
-              title: "Respuesta del servidor (Raw)",
-              description: `${rawResponseText.substring(0, 100)}${rawResponseText.length > 100 ? '...' : ''}`,
-              duration: 5000,
-            });
           } catch (e) {
             console.error("Error al leer texto crudo de respuesta:", e);
           }
@@ -191,66 +168,30 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           let result: any = null;
           let isPaid = false;
           
-          // Log each step of the parsing process
           console.log("Comenzando análisis de la respuesta...");
           
-          // First attempt: try to parse as JSON
           try {
             result = await response.json();
             console.log(`Respuesta parseada como JSON:`, result);
             
-            // Check if the JSON contains Pagado:S
             isPaid = result && result.Pagado === "S";
             console.log(`¿JSON contiene Pagado="S"? ${isPaid ? 'SÍ' : 'NO'}`);
-            
-            toast({
-              title: "Análisis del JSON",
-              description: `Objeto JSON: ${JSON.stringify(result)}. Estado de pago: ${isPaid ? 'CONFIRMADO ✓' : 'pendiente ⏱'}`,
-              duration: 3000,
-            });
           } catch (jsonError) {
             console.warn(`La respuesta no es JSON válido: ${jsonError}`);
-            toast({
-              title: "Error de parseo JSON",
-              description: `La respuesta no es JSON válido. Intentando análisis alternativo...`,
-              duration: 3000,
-            });
             
-            // Second attempt: try to extract data from raw text
             if (rawResponseText.includes('"Pagado":"S"')) {
               console.log("Se encontró 'Pagado:S' en la respuesta de texto, creando objeto manualmente");
               result = { Pagado: "S" };
               isPaid = true;
-              
-              toast({
-                title: "Análisis alternativo exitoso",
-                description: `Se encontró "Pagado":"S" en el texto de respuesta. Pago CONFIRMADO ✓`,
-                duration: 3000,
-              });
             } else {
               console.log("Análisis alternativo: No se encontró 'Pagado:S' en el texto");
               result = { Pagado: "N", rawText: rawResponseText };
               isPaid = false;
-              
-              toast({
-                title: "Análisis alternativo",
-                description: `No se encontró "Pagado":"S" en el texto. Pago pendiente ⏱`,
-                duration: 3000,
-              });
             }
           }
           
-          // Log the final determination
           console.log(`RESULTADO FINAL: ¿Pago confirmado? ${isPaid ? 'SÍ' : 'NO'}`);
           console.log(`Datos de resultado:`, result);
-          
-          // Final toast with the payment status
-          toast({
-            title: `Estado del pago #${request.solicitudId}`,
-            description: `Resultado: ${isPaid ? 'PAGO CONFIRMADO ✓' : 'Pago pendiente ⏱'} (Pagado="${result?.Pagado || 'desconocido'}")`,
-            variant: isPaid ? "default" : "default",
-            duration: 5000,
-          });
           
           if (isPaid) {
             console.log(`✅ PAGO CONFIRMADO para solicitud ${request.solicitudId}`);
@@ -259,12 +200,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
               ...prev,
               [request.solicitudId]: true
             }));
-            
-            toast({
-              title: "¡Pago confirmado!",
-              description: `El pago para la solicitud #${request.solicitudId} ha sido confirmado. Se detendrá la verificación.`,
-              duration: 5000,
-            });
             
             // Update the service request to mark payment as confirmed
             setServiceRequests(prev => 
@@ -296,23 +231,10 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           }
         } catch (err) {
           console.error(`Error al verificar pago para solicitud ${request.solicitudId}:`, err);
-          
-          toast({
-            title: "Error de verificación",
-            description: `No se pudo verificar el estado del pago: ${err instanceof Error ? err.message : String(err)}`,
-            variant: "destructive",
-            duration: 5000,
-          });
         }
       }
     } catch (err) {
       console.error("Error general al verificar estado de pagos:", err);
-      toast({
-        title: "Error",
-        description: "Ocurrió un error al verificar el estado de los pagos",
-        variant: "destructive",
-        duration: 3000,
-      });
     } finally {
       setCheckingPayment(false);
     }
@@ -323,11 +245,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     
     if (allConfirmed && paymentCheckIntervalRef.current) {
       console.log("Todos los pagos confirmados, deteniendo verificación");
-      toast({
-        title: "Verificación completada",
-        description: "Todos los pagos han sido confirmados. Se detendrá la verificación.",
-        duration: 3000,
-      });
       window.clearInterval(paymentCheckIntervalRef.current);
       paymentCheckIntervalRef.current = null;
     }
