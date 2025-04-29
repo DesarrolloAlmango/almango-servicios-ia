@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -87,6 +86,19 @@ export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
           />
         )}
         
+        {/* Floating close button visible on all devices */}
+        <div className="fixed bottom-6 right-0 left-0 flex justify-center z-50 animate-fade-up animate-duration-300">
+          <Button 
+            onClick={onClose}
+            className="shadow-lg rounded-full px-8"
+            variant="default"
+          >
+            <X className="mr-2 h-4 w-4" />
+            Cerrar
+          </Button>
+        </div>
+        
+        {/* Keep mobile footer button as an additional option */}
         {isMobile && (
           <DialogFooter className="mt-4">
             <Button 

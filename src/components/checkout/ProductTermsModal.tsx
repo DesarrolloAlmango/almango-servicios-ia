@@ -6,6 +6,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 interface ProductTermsModalProps {
   isOpen: boolean;
@@ -92,10 +94,20 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
             />
           )}
         </div>
+
+        {/* Floating close button for all devices */}
+        <div className="fixed bottom-6 right-0 left-0 flex justify-center z-50 animate-fade-up animate-duration-300">
+          <Button 
+            onClick={onClose}
+            className="shadow-lg rounded-full px-8 bg-orange-500 hover:bg-orange-600"
+          >
+            <X className="mr-2 h-4 w-4" />
+            Cerrar
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
 };
 
 export default ProductTermsModal;
-
