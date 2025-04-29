@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 
 interface MercadoPagoPaymentProps {
   onPaymentClick: () => void;
+  isProcessing?: boolean;
 }
 
-const MercadoPagoPayment = ({ onPaymentClick }: MercadoPagoPaymentProps) => {
+const MercadoPagoPayment = ({ onPaymentClick, isProcessing = false }: MercadoPagoPaymentProps) => {
   return (
     <div className="flex flex-col items-center gap-2">
       <img 
@@ -16,8 +17,9 @@ const MercadoPagoPayment = ({ onPaymentClick }: MercadoPagoPaymentProps) => {
       <button 
         onClick={onPaymentClick}
         className="text-[#009ee3] hover:text-[#008ed0] underline text-sm font-medium"
+        disabled={isProcessing}
       >
-        IR A PAGAR
+        {isProcessing ? "PROCESANDO..." : "IR A PAGAR"}
       </button>
     </div>
   );

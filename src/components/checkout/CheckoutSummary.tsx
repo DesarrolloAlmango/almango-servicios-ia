@@ -43,6 +43,16 @@ interface CheckoutSummaryProps {
   data: CheckoutData[];
 }
 
+// Helper function to safely parse JSON
+const safeParse = (jsonString: string): any => {
+  try {
+    return JSON.parse(jsonString);
+  } catch (e) {
+    console.error("Error parsing JSON:", e);
+    return null;
+  }
+};
+
 const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   isOpen,
   onClose,
@@ -78,6 +88,8 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     timestamp: string;
     responseData: any;
     isPaid: boolean;
+    rawResponse?: string;
+    error?: string;
   }>>([]);
 
   useEffect(() => {
@@ -112,6 +124,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         duration: 3000,
       });
       
+      // Check immediately on first load
       checkPendingPayments();
       
       paymentCheckIntervalRef.current = window.setInterval(() => {
@@ -161,11 +174,51 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         const checkUrl = `http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ConsultarPagoPendiente?Solicitudesid=${request.solicitudId}`;
         console.log(`URL de verificación: ${checkUrl}`);
         
-        const response = await fetch(checkUrl);
-        
-        if (response.ok) {
-          const result = await response.json();
-          console.log(`Respuesta de estado de pago para solicitud ${request.solicitudId}:`, result);
+        try {
+          const response = await fetch(checkUrl);
+          
+          let rawResponseText = "";
+          try {
+            rawResponseText = await response.clone().text();
+            console.log(`Respuesta de texto crudo:`, rawResponseText);
+          } catch (e) {
+            console.error("Error al leer texto crudo de respuesta:", e);
+          }
+          
+          if (!response.ok) {
+            console.error(`Error HTTP: ${response.status} ${response.statusText}`);
+            throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
+          }
+          
+          let result: any = null;
+          
+          try {
+            // First, try to parse as JSON
+            result = await response.json();
+            console.log(`Respuesta de estado de pago para solicitud ${request.solicitudId} (JSON):`, result);
+          } catch (jsonError) {
+            console.warn(`La respuesta no es JSON válido: ${jsonError}`);
+            
+            // If JSON parsing failed, try to extract data from the raw text
+            if (rawResponseText.includes('"Pagado":"S"')) {
+              console.log("Se encontró 'Pagado:S' en la respuesta de texto, creando objeto manualmente");
+              result = { Pagado: "S" };
+            } else {
+              console.error("No se pudo interpretar la respuesta");
+              throw new Error("Formato de respuesta no reconocido");
+            }
+          }
+          
+          console.log(`Datos de resultado:`, result);
+          
+          // Check if the response contains valid data
+          if (!result || typeof result !== 'object') {
+            console.error("La respuesta no contiene un objeto válido");
+            throw new Error("Respuesta inválida");
+          }
+          
+          const isPaid = result && result.Pagado === "S";
+          console.log(`¿Pago confirmado? ${isPaid ? 'SÍ' : 'NO'} (Pagado="${result?.Pagado}")`);
           
           setPaymentCheckResults(prev => [
             ...prev,
@@ -173,21 +226,19 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
               solicitudId: request.solicitudId,
               timestamp: new Date().toISOString(),
               responseData: result,
-              isPaid: result && result.Pagado === "S"
+              rawResponse: rawResponseText,
+              isPaid: isPaid
             }
           ]);
           
           toast({
             title: `Respuesta para solicitud #${request.solicitudId}`,
-            description: `Datos: ${JSON.stringify(result)}`,
+            description: `Datos: ${JSON.stringify(result)} - Pago ${isPaid ? 'CONFIRMADO ✓' : 'pendiente ⏱'}`,
             duration: 3000,
           });
           
-          const isPaid = result && result.Pagado === "S";
-          console.log(`¿Pago confirmado? ${isPaid ? 'SÍ' : 'NO'} (Pagado="${result?.Pagado}")`);
-          
           if (isPaid) {
-            console.log(`Pago confirmado para solicitud ${request.solicitudId}`);
+            console.log(`PAGO CONFIRMADO para solicitud ${request.solicitudId}`);
             
             setPaymentStatusChecked(prev => ({
               ...prev,
@@ -207,6 +258,23 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                   : item
               )
             );
+            
+            // If this request is now confirmed, check if we need to stop polling
+            const updatedRequests = serviceRequests.map(item => 
+              item.solicitudId === request.solicitudId 
+                ? { ...item, paymentConfirmed: true } 
+                : item
+            );
+            
+            const stillHasPendingPayments = updatedRequests.some(
+              req => req.requestData.MetodoPagosID === 4 && !req.paymentConfirmed
+            );
+            
+            if (!stillHasPendingPayments && paymentCheckIntervalRef.current) {
+              console.log("Todos los pagos confirmados, deteniendo verificación");
+              window.clearInterval(paymentCheckIntervalRef.current);
+              paymentCheckIntervalRef.current = null;
+            }
           } else {
             console.log(`Pago aún no confirmado para solicitud ${request.solicitudId}. Pagado="${result?.Pagado}"`);
             toast({
@@ -215,18 +283,30 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
               duration: 3000,
             });
           }
-        } else {
-          console.error(`Error al verificar estado de pago para solicitud ${request.solicitudId}: ${response.status} ${response.statusText}`);
+        } catch (err) {
+          console.error(`Error al verificar pago para solicitud ${request.solicitudId}:`, err);
+          
+          setPaymentCheckResults(prev => [
+            ...prev,
+            {
+              solicitudId: request.solicitudId,
+              timestamp: new Date().toISOString(),
+              responseData: null,
+              isPaid: false,
+              error: err instanceof Error ? err.message : String(err)
+            }
+          ]);
+          
           toast({
             title: "Error de verificación",
-            description: `No se pudo verificar el estado del pago para la solicitud #${request.solicitudId}. Código: ${response.status}`,
+            description: `No se pudo verificar el estado del pago: ${err instanceof Error ? err.message : String(err)}`,
             variant: "destructive",
-            duration: 3000,
+            duration: 5000,
           });
         }
       }
     } catch (err) {
-      console.error("Error al verificar estado de pagos:", err);
+      console.error("Error general al verificar estado de pagos:", err);
       toast({
         title: "Error",
         description: "Ocurrió un error al verificar el estado de los pagos",
@@ -535,7 +615,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                   <CardContent className="max-h-40 overflow-y-auto text-xs">
                     <div className="space-y-2">
                       {paymentCheckResults.map((result, index) => (
-                        <div key={index} className={`p-2 rounded ${result.isPaid ? "bg-green-50" : "bg-gray-50"}`}>
+                        <div key={index} className={`p-2 rounded ${result.isPaid ? "bg-green-50" : result.error ? "bg-red-50" : "bg-gray-50"}`}>
                           <div className="flex justify-between items-center">
                             <span className="font-medium">Solicitud #{result.solicitudId}</span>
                             <span className="text-gray-500">
@@ -543,11 +623,22 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                             </span>
                           </div>
                           <div className="mt-1 text-left">
-                            <span>Respuesta: {JSON.stringify(result.responseData)}</span>
+                            {result.error ? (
+                              <span className="text-red-500">Error: {result.error}</span>
+                            ) : (
+                              <span>Respuesta: {JSON.stringify(result.responseData)}</span>
+                            )}
+                            {result.rawResponse && (
+                              <div className="mt-1 text-gray-600">
+                                Texto crudo: {result.rawResponse.substring(0, 50)}{result.rawResponse.length > 50 ? '...' : ''}
+                              </div>
+                            )}
                           </div>
                           <div className="mt-1 font-semibold text-left">
                             {result.isPaid ? (
                               <span className="text-green-600">¡Pago confirmado! (Pagado="S")</span>
+                            ) : result.error ? (
+                              <span className="text-red-600">Error de verificación</span>
                             ) : (
                               <span className="text-yellow-600">Pago pendiente (Pagado≠"S")</span>
                             )}
@@ -569,7 +660,8 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                       if (firstUnconfirmedRequest) {
                         handlePaymentLink(firstUnconfirmedRequest.solicitudId);
                       }
-                    }} 
+                    }}
+                    isProcessing={checkingPayment}
                   />
                   
                   {serviceRequests.length > 0 && (
@@ -773,88 +865,4 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       <Dialog open={showDebugDialog} onOpenChange={setShowDebugDialog}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{debugTitle}</DialogTitle>
-            <DialogDescription>
-              Datos JSON enviados a la API
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="bg-slate-800 text-green-400 p-4 rounded-md overflow-auto max-h-[60vh]">
-            <pre className="text-sm whitespace-pre-wrap break-words">
-              {debugData ? JSON.stringify(debugData, null, 2) : "No hay datos disponibles"}
-            </pre>
-          </div>
-
-          <DialogFooter>
-            <Button 
-              onClick={() => {
-                if (debugData) {
-                  navigator.clipboard.writeText(JSON.stringify(debugData, null, 2))
-                    .then(() => {
-                      toast({
-                        title: "Copiado al portapapeles",
-                        description: "Los datos JSON se han copiado con éxito",
-                      });
-                    })
-                    .catch(err => {
-                      console.error("Error al copiar", err);
-                      toast({
-                        title: "Error",
-                        description: "No se pudo copiar al portapapeles",
-                        variant: "destructive",
-                      });
-                    });
-                }
-              }}
-              variant="outline"
-              className="mr-2"
-            >
-              Copiar
-            </Button>
-            <Button onClick={() => setShowDebugDialog(false)}>
-              Cerrar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog 
-        open={showPaymentModal} 
-        onOpenChange={(open) => {
-          if (!open) {
-            setShowPaymentModal(false);
-            onClose(true);
-          }
-        }}
-      >
-        <DialogContent className="max-w-3xl max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle>Procesar Pago</DialogTitle>
-            <DialogDescription>
-              Se abrirá la página de Mercado Pago para completar tu pago.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="flex justify-center p-4">
-            <iframe 
-              src={paymentUrl}
-              className="w-full h-[600px] border-0"
-              title="Mercado Pago"
-            />
-          </div>
-
-          <DialogFooter>
-            <Button onClick={() => {
-              setShowPaymentModal(false);
-              onClose(true);
-            }}>
-              Cerrar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
-};
-
-export default CheckoutSummary;
+            <DialogTitle>{
