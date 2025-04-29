@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
@@ -29,6 +30,14 @@ import { useToast } from "@/hooks/use-toast";
 import MercadoPagoPayment from "./MercadoPagoPayment";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatTimeSlot, formatLocationInfo } from "@/utils/timeUtils";
+
+// Update ServiceRequest interface to include paymentConfirmed property
+interface ServiceRequest {
+  solicitudId: number;
+  serviceName: string;
+  requestData: CheckoutData;
+  paymentConfirmed?: boolean;
+}
 
 interface CheckoutSummaryProps {
   isOpen: boolean;
@@ -86,7 +95,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
   useEffect(() => {
     const hasPendingMercadoPagoPayments = serviceRequests.some(
-      request => request.requestData.MetodoPagosID === 4 && !paymentStatusChecked[request.solicitudId]
+      request => request.requestData.MetodoPagosID === 4 && !request.paymentConfirmed
     );
 
     if (showResultDialog && hasPendingMercadoPagoPayments && !paymentCheckIntervalRef.current) {
@@ -105,7 +114,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
   const checkPendingPayments = async () => {
     const pendingRequests = serviceRequests.filter(
-      request => request.requestData.MetodoPagosID === 4 && !paymentStatusChecked[request.solicitudId]
+      request => request.requestData.MetodoPagosID === 4 && !request.paymentConfirmed
     );
     
     if (pendingRequests.length === 0) {
@@ -123,10 +132,11 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         const response = await fetch(`http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ConsultarPagoPendiente?Solicitudesid=${request.solicitudId}`);
         
         if (response.ok) {
-          const result = await response.text();
+          const result = await response.json();
           console.log(`Payment status for request ${request.solicitudId}:`, result);
           
-          if (result === "S") {
+          // Updated to check for the actual response format {"Pagado":"S"}
+          if (result && result.Pagado === "S") {
             setPaymentStatusChecked(prev => ({
               ...prev,
               [request.solicitudId]: true
@@ -157,7 +167,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     }
 
     const allChecked = serviceRequests.every(
-      request => request.requestData.MetodoPagosID !== 4 || paymentStatusChecked[request.solicitudId]
+      request => request.requestData.MetodoPagosID !== 4 || request.paymentConfirmed
     );
     
     if (allChecked && paymentCheckIntervalRef.current) {
