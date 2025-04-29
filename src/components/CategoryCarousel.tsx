@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Carousel,
   CarouselContent,
@@ -10,6 +10,7 @@ import {
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 interface Category {
   id: string;
@@ -23,11 +24,16 @@ interface CategoryCarouselProps {
   onSelectCategory: (category: Category) => void;
 }
 
+const IMAGE_CACHE_KEY = 'category_images_cache';
+const IMAGE_CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
+
 const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelectCategory }) => {
   const isMobile = useIsMobile();
   const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
+  const [cachedImages, setCachedImages] = useState<Record<string, string>>({});
 
+  // Función para obtener la URL de la imagen
   const getImageSource = (imageStr: string) => {
     if (!imageStr) return null;
     if (imageStr.startsWith('data:image')) {
@@ -38,6 +44,43 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
       return imageStr;
     } catch {
       return `data:image/png;base64,${imageStr}`;
+    }
+  };
+
+  // Cargar caché de imágenes al inicio
+  useEffect(() => {
+    try {
+      const cacheData = localStorage.getItem(IMAGE_CACHE_KEY);
+      
+      if (cacheData) {
+        const { images, timestamp } = JSON.parse(cacheData);
+        
+        // Verificar si la caché ha expirado
+        if (Date.now() - timestamp < IMAGE_CACHE_EXPIRY) {
+          setCachedImages(images || {});
+          console.log('Imágenes de categorías cargadas desde caché local', Object.keys(images).length);
+        } else {
+          console.log('Caché de imágenes expirada, limpiando...');
+          localStorage.removeItem(IMAGE_CACHE_KEY);
+        }
+      }
+    } catch (error) {
+      console.error('Error al cargar caché de imágenes:', error);
+    }
+  }, []);
+
+  // Guardar imágenes en caché
+  const saveImageToCache = (categoryId: string, imageData: string) => {
+    try {
+      const newCache = { ...cachedImages, [categoryId]: imageData };
+      setCachedImages(newCache);
+      
+      localStorage.setItem(IMAGE_CACHE_KEY, JSON.stringify({
+        images: newCache,
+        timestamp: Date.now()
+      }));
+    } catch (error) {
+      console.error('Error al guardar imagen en caché:', error);
     }
   };
 
@@ -52,16 +95,44 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
   };
 
   // Precargar imágenes para mejorar la experiencia
-  React.useEffect(() => {
+  useEffect(() => {
     categories.forEach(category => {
       if (!category.id) return;
+      
+      // Si la imagen ya está en caché, no necesitamos cargarla
+      if (cachedImages[category.id]) {
+        setLoadingImages(prev => ({ ...prev, [category.id]: false }));
+        return;
+      }
       
       setLoadingImages(prev => ({ ...prev, [category.id]: true }));
       
       const imgSource = getImageSource(category.image);
       if (imgSource) {
+        // Cargar la imagen
         const img = new Image();
-        img.onload = () => handleImageLoad(category.id);
+        img.crossOrigin = "anonymous"; // Para permitir la conversión a base64
+        
+        img.onload = () => {
+          handleImageLoad(category.id);
+          
+          // Convertir la imagen a base64 para guardarla en caché
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0);
+              const dataURL = canvas.toDataURL('image/jpeg', 0.7); // Comprimir al 70%
+              saveImageToCache(category.id, dataURL);
+            }
+          } catch (err) {
+            console.warn('No se pudo convertir la imagen a base64:', err);
+          }
+        };
+        
         img.onerror = () => handleImageError(category.id, imgSource);
         img.src = imgSource;
       } else {
@@ -69,7 +140,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
         setLoadingImages(prev => ({ ...prev, [category.id]: false }));
       }
     });
-  }, [categories]);
+  }, [categories, cachedImages]);
   
   return (
     <div className="py-4 sm:py-6 w-full">
@@ -106,13 +177,12 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
                       </div>
                     )}
                     
-                    {getImageSource(category.image) && !failedImages[category.id] ? (
+                    {/* Mostrar imagen desde caché si está disponible */}
+                    {cachedImages[category.id] && !failedImages[category.id] ? (
                       <img
-                        src={getImageSource(category.image)}
+                        src={cachedImages[category.id]}
                         alt={category.name}
                         className="w-full h-full object-cover"
-                        loading="lazy"
-                        onLoad={() => handleImageLoad(category.id)}
                         onError={() => handleImageError(category.id, category.image)}
                         style={{ 
                           opacity: loadingImages[category.id] ? 0 : 1,
@@ -120,9 +190,27 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
                         }}
                       />
                     ) : (
-                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-500 text-xs">Sin imagen</span>
-                      </div>
+                      <>
+                        {/* Mostrar imagen desde fuente original si no hay caché */}
+                        {getImageSource(category.image) && !failedImages[category.id] ? (
+                          <img
+                            src={getImageSource(category.image)}
+                            alt={category.name}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                            onLoad={() => handleImageLoad(category.id)}
+                            onError={() => handleImageError(category.id, category.image)}
+                            style={{ 
+                              opacity: loadingImages[category.id] ? 0 : 1,
+                              transition: 'opacity 0.3s ease-in-out'
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-gray-500 text-xs">Sin imagen</span>
+                          </div>
+                        )}
+                      </>
                     )}
                   </AspectRatio>
                 </div>
