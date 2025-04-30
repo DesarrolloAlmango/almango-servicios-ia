@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { LucideIcon } from "lucide-react";
 import { Check } from "lucide-react";
 import { ShoppingCart } from "lucide-react";
-import { Skeleton, PriceSkeleton } from "@/components/ui/skeleton";
+import { Skeleton, PriceSkeleton, TextSkeleton } from "@/components/ui/skeleton";
 
 interface Category {
   id: string;
@@ -409,8 +409,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       
       {allProductsLoading ? (
         <div className="flex flex-col items-center justify-center h-64 gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-          <p className="text-gray-600">Cargando productos...</p>
+          <TextSkeleton text="Calculando precios..." />
         </div>
       ) : products.length === 0 ? (
         <div className="flex items-center justify-center h-40">
@@ -685,7 +684,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
             
             {isLoading ? (
               <div className="flex justify-center items-center h-40">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+                <TextSkeleton text="Cargando categorías..." />
               </div>
             ) : error ? (
               <div className="bg-red-50 p-4 rounded-md border border-red-200 text-red-700">

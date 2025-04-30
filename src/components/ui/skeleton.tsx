@@ -26,4 +26,23 @@ function PriceSkeleton({
   )
 }
 
-export { Skeleton, PriceSkeleton }
+// Skeleton con texto para mensajes de carga
+function TextSkeleton({
+  className,
+  text,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement> & { text?: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-2">
+      <Skeleton
+        className={cn("h-12 w-12 rounded-full", className)}
+        {...props}
+      />
+      {text && (
+        <span className="text-sm text-gray-600 font-medium">{text}</span>
+      )}
+    </div>
+  )
+}
+
+export { Skeleton, PriceSkeleton, TextSkeleton }
