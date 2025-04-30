@@ -148,8 +148,8 @@ const Servicios = () => {
 
   const {
     data: services,
-    isLoading,
-    isError,
+    isLoading: isServicesLoading,
+    isError: isServicesError,
   } = useQuery({
     queryKey: ["tarjetasServicios"],
     queryFn: fetchTarjetasServicios,
@@ -215,7 +215,7 @@ const Servicios = () => {
     fetchStoreName();
   }, [commerceId, services]);
 
-  const displayedServices = isError ? fallbackServices : services;
+  const displayedServices = isServicesError ? fallbackServices : services;
   const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
 
   const getPurchaseLocationForService = (serviceId: string) => {
@@ -405,7 +405,7 @@ const Servicios = () => {
     toast.success("Lugar de compra y productos asociados eliminados");
   };
 
-  if (isLoading && isLoadingMudanza) {
+  if (isServicesLoading && isLoadingMudanza) {
     return (
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
         <main className="flex-grow py-8 px-4">
@@ -482,7 +482,7 @@ const Servicios = () => {
             Nuestros Servicios
           </h1>
           
-          {isError && (
+          {isServicesError && (
             <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6 rounded-md">
               <p className="text-amber-700">
                 No se pudieron obtener los servicios del servidor. Mostrando información local.
@@ -526,7 +526,14 @@ const Servicios = () => {
           
           <div className="mb-12">
             <ServiceCarousel title="Servicios de Armado e Instalación">
-              {displayedServices?.map((service, index) => {
+              {isServicesLoading ? (
+                // Mostrar skeletons mientras se cargan los servicios
+                Array(4).fill(0).map((_, index) => (
+                  <div key={index} className="w-[220px] h-[220px]">
+                    <Skeleton className="w-full h-full rounded-full" />
+                  </div>
+                ))
+              ) : displayedServices?.map((service, index) => {
                 const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
                 
                 return (
@@ -551,7 +558,14 @@ const Servicios = () => {
           
           <div className="mb-12">
             <ServiceCarousel title="Servicios de Mudanza">
-              {displayedMudanzaServices?.map((service, index) => {
+              {isLoadingMudanza ? (
+                // Mostrar skeletons mientras se cargan los servicios de mudanza
+                Array(4).fill(0).map((_, index) => (
+                  <div key={index} className="w-[220px] h-[220px]">
+                    <Skeleton className="w-full h-full rounded-full" />
+                  </div>
+                ))
+              ) : displayedMudanzaServices?.map((service, index) => {
                 const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
                 
                 return (

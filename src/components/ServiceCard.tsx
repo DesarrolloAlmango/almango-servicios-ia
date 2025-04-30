@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { LucideIcon } from "lucide-react";
 import { Check } from "lucide-react";
 import { ShoppingCart } from "lucide-react";
+import { Skeleton, PriceSkeleton } from "@/components/ui/skeleton";
 
 interface Category {
   id: string;
@@ -37,6 +38,7 @@ interface ProductCardProps {
   purchaseLocationId?: string;
   serviceId?: string;
   categoryId?: string;
+  isPriceLoading?: boolean;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ 
@@ -47,9 +49,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
   animating,
   purchaseLocationId,
   serviceId,
-  categoryId
+  categoryId,
+  isPriceLoading = false
 }) => {
   const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const getImageSource = () => {
     if (!product.image) return null;
@@ -69,12 +73,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
   return (
     <Card className="overflow-hidden h-full flex flex-col relative">
       <div className="relative h-40 bg-gray-100 flex items-center justify-center">
+        {!imageLoaded && (
+          <Skeleton className="absolute inset-0 w-full h-full" />
+        )}
         {imageSource && !imageError ? (
           <img 
             src={imageSource}
             alt={product.name}
             className="w-full h-full object-cover"
             onError={() => setImageError(true)}
+            onLoad={() => setImageLoaded(true)}
+            style={{ opacity: imageLoaded ? 1 : 0 }}
           />
         ) : (
           <div className="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -117,14 +126,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <CardContent className="p-4 flex-grow">
         <h4 className="font-medium mb-1 line-clamp-2">{product.name}</h4>
         <div className="flex justify-between items-center mt-2">
-          {product.price !== undefined ? (
+          {isPriceLoading ? (
+            <PriceSkeleton />
+          ) : product.price !== undefined ? (
             <span className="font-bold">
               ${product.price.toLocaleString('es-UY', { maximumFractionDigits: 0 })}
             </span>
           ) : (
-            <div className="animate-pulse flex space-x-2">
-              <div className="h-5 w-20 bg-gray-200 rounded"></div>
-            </div>
+            <PriceSkeleton />
           )}
         </div>
       </CardContent>
@@ -157,16 +166,16 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const location = useLocation();
   const [productQuantities, setProductQuantities] = useState<Record<string, number>>({});
   const [products, setProducts] = useState<Product[]>([]);
-  const [isLoadingPrices, setIsLoadingPrices] = useState(true);
+  const [loadingProductIds, setLoadingProductIds] = useState<Set<string>>(new Set());
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
 
   const getPurchaseLocationForService = (serviceId: string) => {
     return null;
   };
 
-  const fetchUpdatedPrice = async (product: Product): Promise<number> => {
+  const fetchUpdatedPrice = async (product: Product): Promise<{id: string, price: number}> => {
     if (!purchaseLocationId || !serviceId || !category.id) {
-      return product.defaultPrice || product.price;
+      return { id: product.id, price: product.defaultPrice || product.price };
     }
 
     try {
@@ -179,69 +188,75 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       }
       
       const data = await response.json();
-      return data.Precio > 0 ? data.Precio : (product.defaultPrice || product.price);
+      return { 
+        id: product.id,
+        price: data.Precio > 0 ? data.Precio : (product.defaultPrice || product.price) 
+      };
     } catch (error) {
       console.error(`Error al obtener precio para producto ${product.id}:`, error);
-      return product.defaultPrice || product.price;
+      return { 
+        id: product.id,
+        price: product.defaultPrice || product.price 
+      };
     }
   };
 
   useEffect(() => {
-    const loadProductsWithPrices = async () => {
-      if (!category.products.length) {
-        setIsLoadingPrices(false);
-        return;
-      }
-
-      try {
-        const productsWithPrices = await Promise.all(
-          category.products.map(async (product) => {
-            const updatedPrice = await fetchUpdatedPrice(product);
-            return { 
-              ...product, 
-              price: updatedPrice,
-              defaultPrice: product.price
-            };
-          })
+    // Set initial state with product base data
+    if (category.products.length > 0) {
+      // Initialize all products with their default prices first
+      const initialProducts = category.products.map(product => ({ 
+        ...product, 
+        defaultPrice: product.price 
+      }));
+      setProducts(initialProducts);
+      
+      // Setup initial quantities based on cart items
+      const initialQuantities: Record<string, number> = {};
+      initialProducts.forEach(product => {
+        const cartItem = currentCartItems.find(item => 
+          item.productId === product.id && 
+          item.categoryId === category.id &&
+          item.serviceId === serviceId
         );
         
-        setProducts(productsWithPrices);
-        
-        const initialQuantities: Record<string, number> = {};
-        
-        productsWithPrices.forEach(product => {
-          const cartItem = currentCartItems.find(item => 
-            item.productId === product.id && 
-            item.categoryId === category.id &&
-            item.serviceId === serviceId
+        initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
+      });
+      setProductQuantities(initialQuantities);
+      
+      // Mark all products as loading prices
+      const loadingIds = new Set(initialProducts.map(p => p.id));
+      setLoadingProductIds(loadingIds);
+      
+      // Fetch updated prices individually
+      initialProducts.forEach(async (product) => {
+        try {
+          const updatedPrice = await fetchUpdatedPrice(product);
+          
+          // Update the specific product price as it becomes available
+          setProducts(prevProducts => 
+            prevProducts.map(p => 
+              p.id === updatedPrice.id ? { ...p, price: updatedPrice.price } : p
+            )
           );
           
-          initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
-        });
-        
-        setProductQuantities(initialQuantities);
-      } catch (error) {
-        console.error("Error al cargar precios:", error);
-        toast.error("Error al cargar precios de productos");
-        setProducts(category.products.map(p => ({ ...p, defaultPrice: p.price })));
-        
-        const initialQuantities: Record<string, number> = {};
-        category.products.forEach(product => {
-          const cartItem = currentCartItems.find(item => 
-            item.productId === product.id && 
-            item.categoryId === category.id &&
-            item.serviceId === serviceId
-          );
-          initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
-        });
-        
-        setProductQuantities(initialQuantities);
-      } finally {
-        setIsLoadingPrices(false);
-      }
-    };
-
-    loadProductsWithPrices();
+          // Mark this product as no longer loading
+          setLoadingProductIds(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(updatedPrice.id);
+            return newSet;
+          });
+        } catch (error) {
+          console.error(`Error al actualizar precio para ${product.id}:`, error);
+          // Even on error, mark the product as no longer loading to show default price
+          setLoadingProductIds(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(product.id);
+            return newSet;
+          });
+        }
+      });
+    }
   }, [category, purchaseLocationId, serviceId, currentCartItems]);
 
   const updateCart = (productId: string, newQuantity: number) => {
@@ -376,6 +391,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   const hasSelectedProducts = Object.values(productQuantities).some(qty => qty > 0);
 
+  // Determine if we need to show loading message
+  const allProductsLoading = products.length === 0;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center mb-4">
@@ -389,10 +407,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
       </div>
       
-      {isLoadingPrices ? (
+      {allProductsLoading ? (
         <div className="flex flex-col items-center justify-center h-64 gap-4">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-          <p className="text-gray-600">Actualizando precios...</p>
+          <p className="text-gray-600">Cargando productos...</p>
         </div>
       ) : products.length === 0 ? (
         <div className="flex items-center justify-center h-40">
@@ -412,6 +430,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
                 purchaseLocationId={purchaseLocationId}
                 serviceId={serviceId}
                 categoryId={category.id}
+                isPriceLoading={loadingProductIds.has(product.id)}
               />
             ))}
           </div>
@@ -702,5 +721,5 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     </>
   );
 };
-/**/
+
 export default ServiceCard;

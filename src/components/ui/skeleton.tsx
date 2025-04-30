@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils"
 
 function Skeleton({
@@ -12,4 +13,17 @@ function Skeleton({
   )
 }
 
-export { Skeleton }
+// Skeleton para precios con ancho específico
+function PriceSkeleton({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <Skeleton
+      className={cn("h-5 w-16 bg-gray-200 rounded", className)}
+      {...props}
+    />
+  )
+}
+
+export { Skeleton, PriceSkeleton }
