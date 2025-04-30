@@ -33,7 +33,7 @@ function PriceSkeleton({
 // Skeleton con texto para mensajes de carga
 function TextSkeleton({
   className,
-  text,
+  text = "Cargando...",
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & { text?: string }) {
   return (

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -414,7 +413,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       
       {allProductsLoading ? (
         <div className="flex flex-col items-center justify-center h-64 gap-4">
-          <TextSkeleton text="Calculando precios..." />
+          <TextSkeleton text="Cargando productos..." />
         </div>
       ) : products.length === 0 ? (
         <div className="flex items-center justify-center h-40">
