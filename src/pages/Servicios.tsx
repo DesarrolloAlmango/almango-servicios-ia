@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -432,9 +433,15 @@ const Servicios = () => {
             <h1 className="text-3xl font-normal mb-12 text-center text-[#ff6900] uppercase font-display opacity-0 transition-opacity duration-500">Nuestros Servicios</h1>
             
             <div className="flex justify-center items-center h-64 gap-6">
-              <CategorySkeleton text="Calculando precios..." />
-              <CategorySkeleton text="Calculando precios..." />
-              <CategorySkeleton text="Calculando precios..." />
+              <div className="w-[220px] h-[220px]">
+                <Skeleton className="w-full h-full rounded-full" />
+              </div>
+              <div className="w-[220px] h-[220px]">
+                <Skeleton className="w-full h-full rounded-full" />
+              </div>
+              <div className="w-[220px] h-[220px]">
+                <Skeleton className="w-full h-full rounded-full" />
+              </div>
             </div>
           </div>
         </main>
