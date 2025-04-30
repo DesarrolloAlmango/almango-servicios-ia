@@ -41,7 +41,6 @@ export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
       
       const data = await response.json();
       
-      // Accedemos directamente a data.Texto en lugar de data.textos[0].texto
       if (data && data.Texto) {
         const decodedText = decodeHTMLEntities(data.Texto);
         setTerms(decodedText);
@@ -86,15 +85,14 @@ export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
           />
         )}
         
-        {/* Floating close button visible on all devices */}
-        <div className="fixed bottom-6 right-0 left-0 flex justify-center z-50 animate-fade-up animate-duration-300">
+        {/* Floating close button as a small circle with X at the right */}
+        <div className="fixed top-4 right-4 z-50">
           <Button 
             onClick={onClose}
-            className="shadow-lg rounded-full px-8"
-            variant="default"
+            className="h-10 w-10 rounded-full p-0 shadow-lg"
+            size="icon"
           >
-            <X className="mr-2 h-4 w-4" />
-            Cerrar
+            <X className="h-5 w-5" />
           </Button>
         </div>
         

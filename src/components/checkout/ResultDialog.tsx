@@ -12,6 +12,7 @@ import { CheckCircle, XCircle, Loader2, Eye } from "lucide-react";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { ServiceRequest } from "@/types/checkoutTypes";
 import MercadoPagoPayment from "./MercadoPagoPayment";
+import { useNavigate } from "react-router-dom";
 
 interface ResultDialogProps {
   isOpen: boolean;
@@ -32,9 +33,15 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
   onPaymentClick,
   onViewServiceDetails,
 }) => {
+  const navigate = useNavigate();
   const hasPendingMercadoPagoPayments = serviceRequests.some(
     req => req.requestData.MetodoPagosID === 4 && !req.paymentConfirmed
   );
+
+  const handleClose = () => {
+    onClose();
+    navigate('/'); // Redirect to home page on close
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
@@ -164,7 +171,7 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
         )}
 
         <DialogFooter>
-          <Button onClick={onClose} className="w-full">
+          <Button onClick={handleClose} className="w-full">
             Cerrar
           </Button>
         </DialogFooter>
