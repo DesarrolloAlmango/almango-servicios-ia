@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -476,7 +477,7 @@ interface ServiceCardProps {
     serviceId?: string;
     departmentId?: string;
     locationId?: string;
-    categoryId?: string;  // Added to track selected category
+    categoryId?: string;
   } | null;
   forceOpen?: boolean;
   circular?: boolean;
@@ -506,30 +507,22 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const [imageError, setImageError] = useState(false);
   
   useEffect(() => {
-    // Cuando forceOpen es true y tenemos id y purchaseLocation
-    // queremos abrir el diálogo y mostrar los productos para la categoría seleccionada
+    // Modificamos esta función para llamar directamente a ObtenerNivel2 cuando tenemos categoryId
     if (forceOpen && id && purchaseLocation) {
       setIsDialogOpen(true);
-      fetchCategories(id).then(() => {
-        // Después de cargar las categorías, buscamos la categoría seleccionada
-        if (purchaseLocation.categoryId) {
-          const category = categories.find(cat => cat.id === purchaseLocation.categoryId);
-          if (category) {
-            // Si la categoría tiene productos, la seleccionamos directamente
-            if (category.products && category.products.length > 0) {
-              setSelectedCategory(category);
-            } else {
-              // Si no tiene productos, los cargamos
-              fetchProducts(id, purchaseLocation.categoryId);
-            }
-          }
-        }
-      });
+      
+      // Si tenemos categoryId, cargar directamente los productos
+      if (purchaseLocation.categoryId) {
+        fetchProducts(id, purchaseLocation.categoryId);
+      } else {
+        // Solo si no hay categoryId, cargamos primero las categorías
+        fetchCategories(id);
+      }
     } else if (forceOpen && id) {
       setIsDialogOpen(true);
       fetchCategories(id);
     }
-  }, [forceOpen, id, purchaseLocation, categories]);
+  }, [forceOpen, id, purchaseLocation]);
 
   const fetchCategories = async (serviceId: string) => {
     setIsLoading(true);
@@ -564,6 +557,8 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const fetchProducts = async (serviceId: string, categoryId: string) => {
     setIsLoading(true);
     try {
+      // Llamada directa a ObtenerNivel2
+      console.log(`Fetching products directly for service ${serviceId} and category ${categoryId}`);
       const response = await fetch(
         `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`
       );
@@ -573,6 +568,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       }
       
       const data = await response.json();
+      console.log('Products data:', data);
       
       const transformedProducts = data.map((product: any) => ({
         id: product.id || product.Nivel2Id,
@@ -583,13 +579,28 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         textosId: product.TextosId || null
       }));
       
-      setCategories(prev => prev.map(cat => 
-        cat.id === categoryId ? { ...cat, products: transformedProducts } : cat
-      ));
-      
-      const updatedCategory = categories.find(cat => cat.id === categoryId);
-      if (updatedCategory) {
-        setSelectedCategory({ ...updatedCategory, products: transformedProducts });
+      // Crear una categoría temporal si no existe en el estado
+      if (!categories.some(cat => cat.id === categoryId)) {
+        const categoryName = purchaseLocation?.categoryName || "Productos";
+        const tempCategory: Category = {
+          id: categoryId,
+          name: categoryName,
+          image: "",
+          products: transformedProducts
+        };
+        
+        setCategories(prev => [...prev, tempCategory]);
+        setSelectedCategory(tempCategory);
+      } else {
+        // Actualizar la categoría existente con los productos
+        setCategories(prev => prev.map(cat => 
+          cat.id === categoryId ? { ...cat, products: transformedProducts } : cat
+        ));
+        
+        const updatedCategory = categories.find(cat => cat.id === categoryId);
+        if (updatedCategory) {
+          setSelectedCategory({ ...updatedCategory, products: transformedProducts });
+        }
       }
       
     } catch (err) {
@@ -608,7 +619,6 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     }
     
     if (id) {
-      // Siempre abrimos el diálogo para mostrar las categorías primero
       setIsDialogOpen(true);
       fetchCategories(id);
     }
