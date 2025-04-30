@@ -168,6 +168,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProductIds, setLoadingProductIds] = useState<Set<string>>(new Set());
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
+  const [pricesLoaded, setPricesLoaded] = useState<boolean>(false);
 
   const getPurchaseLocationForService = (serviceId: string) => {
     return null;
@@ -203,7 +204,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   useEffect(() => {
     // Set initial state with product base data
-    if (category.products.length > 0) {
+    if (category.products.length > 0 && !pricesLoaded) {
       // Initialize all products with their default prices first
       const initialProducts = category.products.map(product => ({ 
         ...product, 
@@ -246,6 +247,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             newSet.delete(updatedPrice.id);
             return newSet;
           });
+          
         } catch (error) {
           console.error(`Error al actualizar precio para ${product.id}:`, error);
           // Even on error, mark the product as no longer loading to show default price
@@ -256,8 +258,18 @@ const ProductGrid: React.FC<ProductGridProps> = ({
           });
         }
       });
+      
+      // Once all prices are loaded, mark the component as having finished price loading
+      const checkInterval = setInterval(() => {
+        if (loadingProductIds.size === 0) {
+          setPricesLoaded(true);
+          clearInterval(checkInterval);
+        }
+      }, 300);
+      
+      return () => clearInterval(checkInterval);
     }
-  }, [category, purchaseLocationId, serviceId, currentCartItems]);
+  }, [category, purchaseLocationId, serviceId, currentCartItems, pricesLoaded, loadingProductIds.size]);
 
   const updateCart = (productId: string, newQuantity: number) => {
     const product = products.find(p => p.id === productId);
