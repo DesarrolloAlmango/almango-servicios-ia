@@ -16,10 +16,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useQuery } from "@tanstack/react-query";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton, TextSkeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import PurchaseLocationModal from "@/components/PurchaseLocationModal";
-import TextSkeleton from "@/components/TextSkeleton";
 
 export interface CartItem {
   id: string;
