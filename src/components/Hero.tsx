@@ -18,7 +18,7 @@ const Hero = () => {
       </div>
       
       <div className="container relative z-10 mx-auto px-6 text-left pl-8 md:pl-12">
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4 max-w-xl animate-fade-in">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4 max-w-xl animate-fade-in font-sans">
           PROFESIONALES A TU SERVICIO
         </h1>
         <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-xl font-normal animate-fade-in">

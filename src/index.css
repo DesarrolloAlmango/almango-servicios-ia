@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -100,12 +99,12 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Arkibal Display', serif !important;
+    font-family: 'Arkibal', sans-serif !important;
   }
 }
 
 .font-display {
-  font-family: 'Arkibal Display', serif !important;
+  font-family: 'Arkibal', sans-serif !important;
   letter-spacing: 1px;
 }
 
