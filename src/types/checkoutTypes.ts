@@ -39,6 +39,7 @@ export interface ServiceRequest {
   solicitudId: number;
   serviceName: string;
   requestData: CheckoutData;
+  paymentConfirmed?: boolean;
 }
 
 export const getProviderAuxiliary = (storeId: string, otherLocation?: string): string | null => {
