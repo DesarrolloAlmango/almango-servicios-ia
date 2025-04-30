@@ -476,6 +476,7 @@ interface ServiceCardProps {
     serviceId?: string;
     departmentId?: string;
     locationId?: string;
+    categoryId?: string;  // Added to track selected category
   } | null;
   forceOpen?: boolean;
   circular?: boolean;
@@ -505,11 +506,28 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const [imageError, setImageError] = useState(false);
   
   useEffect(() => {
-    if (forceOpen && id) {
+    // When forceOpen is true and we have id and purchaseLocation with categoryId,
+    // we want to show the products for that category
+    if (forceOpen && id && purchaseLocation?.categoryId) {
+      setIsDialogOpen(true);
+      fetchCategories(id).then(() => {
+        // After categories are loaded, find the selected category
+        const category = categories.find(cat => cat.id === purchaseLocation.categoryId);
+        if (category) {
+          // If the category has products, select it directly
+          if (category.products && category.products.length > 0) {
+            setSelectedCategory(category);
+          } else {
+            // Otherwise fetch products for this category
+            fetchProducts(id, purchaseLocation.categoryId);
+          }
+        }
+      });
+    } else if (forceOpen && id) {
       setIsDialogOpen(true);
       fetchCategories(id);
     }
-  }, [forceOpen, id]);
+  }, [forceOpen, id, purchaseLocation, categories]);
 
   const fetchCategories = async (serviceId: string) => {
     setIsLoading(true);
@@ -588,7 +606,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     }
     
     if (id) {
-      // Ya no verificamos onBeforeCardClick aquí, siempre mostramos las categorías primero
+      // Always open the dialog to show categories first
       setIsDialogOpen(true);
       fetchCategories(id);
     }
@@ -596,7 +614,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   
   const handleCategorySelect = (category: Category) => {
     if (id && onCategorySelect) {
-      // En lugar de cargar productos o mostrarlos, notificamos a Servicios para que muestre el modal de ubicación
+      // Notify parent to show the location modal
       onCategorySelect(id, category.id, category.name);
       setIsDialogOpen(false);
     } else if (category.products.length > 0) {

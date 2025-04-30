@@ -301,20 +301,15 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     onClose();
   };
 
-  // Función para verificar si el formulario es válido
   const isFormValid = useMemo(() => {
-    // Si hay un commerceId, solo necesitamos departamento y localidad
     if (commerceId) {
       return selectedDepartment && selectedLocation;
     }
     
-    // Si no hay commerceId, validamos según la selección
     if (!selectedStore && !searchQuery) return false;
     
-    // Si se seleccionó "Otro", validamos que haya texto en otherStore
     if (selectedStore === "other" && !otherStore.trim()) return false;
     
-    // Validamos siempre departamento y localidad
     return selectedDepartment && selectedLocation;
   }, [commerceId, selectedStore, searchQuery, otherStore, selectedDepartment, selectedLocation]);
 

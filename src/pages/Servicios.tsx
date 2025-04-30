@@ -350,7 +350,7 @@ const Servicios = () => {
     );
     
     if (existingLocation) {
-      // Si ya tiene ubicación para esta categoría, configuramos forceOpen en true
+      // Si ya tiene ubicación para esta categoría, configuramos forceOpen en true para mostrar productos
       setPendingServiceCardAction(true);
     } else {
       // Si no tiene ubicación, mostramos el modal de ubicación
@@ -407,6 +407,7 @@ const Servicios = () => {
       setIsLocationModalOpen(false);
       toast.success(`Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName} - ${selectedCategoryName}`);
       
+      // Set pendingServiceCardAction to true to show the products
       setPendingServiceCardAction(true);
     }
   };
