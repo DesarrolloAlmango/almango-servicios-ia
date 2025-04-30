@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { 
   Carousel,
@@ -8,7 +9,7 @@ import {
 } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Skeleton, TextSkeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
 interface Category {

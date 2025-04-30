@@ -30,7 +30,7 @@ function PriceSkeleton({
   )
 }
 
-// Skeleton con texto para mensajes de carga
+// Skeleton con icono de carga sin texto
 function TextSkeleton({
   className,
   text,
@@ -44,17 +44,14 @@ function TextSkeleton({
           <div className="h-2 w-2 rounded-full bg-primary" />
         </div>
       </div>
-      {text && (
-        <span className="text-sm text-gray-600 font-medium">{text}</span>
-      )}
     </div>
   )
 }
 
-// Skeleton animado para categorías y productos
+// Skeleton animado para categorías y productos (sin texto)
 function CategorySkeleton({
   className,
-  text = "Calculando precios...",
+  text,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & { text?: string }) {
   return (
@@ -65,9 +62,6 @@ function CategorySkeleton({
           <div className="h-2 w-2 rounded-full bg-primary" />
         </div>
       </div>
-      {text && (
-        <span className="text-sm text-gray-600 font-medium">{text}</span>
-      )}
     </div>
   )
 }
