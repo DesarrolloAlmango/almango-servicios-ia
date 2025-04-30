@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useQuery } from "@tanstack/react-query";
-import { Skeleton, TextSkeleton } from "@/components/ui/skeleton";
+import { Skeleton, TextSkeleton, CategorySkeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import PurchaseLocationModal from "@/components/PurchaseLocationModal";
 
@@ -432,9 +432,9 @@ const Servicios = () => {
             <h1 className="text-3xl font-normal mb-12 text-center text-[#ff6900] uppercase font-display opacity-0 transition-opacity duration-500">Nuestros Servicios</h1>
             
             <div className="flex justify-center items-center h-64 gap-6">
-              <TextSkeleton text="Cargando categorías..." />
-              <TextSkeleton text="Cargando categorías..." />
-              <TextSkeleton text="Cargando categorías..." />
+              <CategorySkeleton text="Calculando precios..." />
+              <CategorySkeleton text="Calculando precios..." />
+              <CategorySkeleton text="Calculando precios..." />
             </div>
           </div>
         </main>
