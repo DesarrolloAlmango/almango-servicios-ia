@@ -85,20 +85,9 @@ export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
           />
         )}
         
-        {/* Floating close button as a small circle with X at the right */}
-        <div className="fixed top-4 right-4 z-50">
-          <Button 
-            onClick={onClose}
-            className="h-10 w-10 rounded-full p-0 shadow-lg"
-            size="icon"
-          >
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
-        
-        {/* Keep mobile footer button as an additional option */}
+        {/* Keep mobile footer button as an additional option, with 30px bottom padding */}
         {isMobile && (
-          <DialogFooter className="mt-4">
+          <DialogFooter className="mt-4 pb-[30px]">
             <Button 
               onClick={onClose} 
               className="w-full"
@@ -108,6 +97,19 @@ export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
               Cerrar
             </Button>
           </DialogFooter>
+        )}
+
+        {/* Add a non-mobile close button with bottom padding when not mobile */}
+        {!isMobile && (
+          <div className="flex justify-center mt-4 pb-[30px]">
+            <Button 
+              onClick={onClose} 
+              variant="outline"
+            >
+              <X className="mr-2 h-4 w-4" />
+              Cerrar
+            </Button>
+          </div>
         )}
       </DialogContent>
     </Dialog>

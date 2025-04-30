@@ -5,6 +5,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
@@ -95,16 +96,17 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
           )}
         </div>
 
-        {/* Floating close button as a small circle with X at the right */}
-        <div className="fixed top-4 right-4 z-50">
+        {/* Add close button with bottom padding */}
+        <DialogFooter className="mt-4 pb-[30px]">
           <Button 
             onClick={onClose}
-            className="h-10 w-10 rounded-full p-0 shadow-lg"
-            size="icon"
+            className="w-full"
+            variant="outline"
           >
-            <X className="h-5 w-5" />
+            <X className="mr-2 h-4 w-4" />
+            Cerrar
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
