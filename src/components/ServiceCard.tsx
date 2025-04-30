@@ -506,20 +506,22 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const [imageError, setImageError] = useState(false);
   
   useEffect(() => {
-    // When forceOpen is true and we have id and purchaseLocation with categoryId,
-    // we want to show the products for that category
-    if (forceOpen && id && purchaseLocation?.categoryId) {
+    // Cuando forceOpen es true y tenemos id y purchaseLocation
+    // queremos abrir el diálogo y mostrar los productos para la categoría seleccionada
+    if (forceOpen && id && purchaseLocation) {
       setIsDialogOpen(true);
       fetchCategories(id).then(() => {
-        // After categories are loaded, find the selected category
-        const category = categories.find(cat => cat.id === purchaseLocation.categoryId);
-        if (category) {
-          // If the category has products, select it directly
-          if (category.products && category.products.length > 0) {
-            setSelectedCategory(category);
-          } else {
-            // Otherwise fetch products for this category
-            fetchProducts(id, purchaseLocation.categoryId);
+        // Después de cargar las categorías, buscamos la categoría seleccionada
+        if (purchaseLocation.categoryId) {
+          const category = categories.find(cat => cat.id === purchaseLocation.categoryId);
+          if (category) {
+            // Si la categoría tiene productos, la seleccionamos directamente
+            if (category.products && category.products.length > 0) {
+              setSelectedCategory(category);
+            } else {
+              // Si no tiene productos, los cargamos
+              fetchProducts(id, purchaseLocation.categoryId);
+            }
           }
         }
       });
@@ -606,7 +608,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     }
     
     if (id) {
-      // Always open the dialog to show categories first
+      // Siempre abrimos el diálogo para mostrar las categorías primero
       setIsDialogOpen(true);
       fetchCategories(id);
     }
@@ -614,7 +616,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   
   const handleCategorySelect = (category: Category) => {
     if (id && onCategorySelect) {
-      // Notify parent to show the location modal
+      // Notificamos al componente padre para que muestre el modal de ubicación o los productos
       onCategorySelect(id, category.id, category.name);
       setIsDialogOpen(false);
     } else if (category.products.length > 0) {

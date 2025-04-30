@@ -223,6 +223,7 @@ const Servicios = () => {
   const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
 
   const getPurchaseLocationForService = (serviceId: string) => {
+    // Buscar cualquier ubicación que tenga este serviceId, independientemente de la categoría
     return purchaseLocations.find(location => location.serviceId === serviceId) || null;
   };
 
@@ -296,8 +297,7 @@ const Servicios = () => {
     if (!serviceId) return false;
     
     if (commerceId) {
-      // En lugar de retornar true directamente, debemos verificar
-      // si ya tenemos información de ubicación para este servicio
+      // En comercio fijo, verificamos si ya tenemos información de ubicación
       const existingLocation = purchaseLocations.find(loc => 
         loc.serviceId === serviceId && loc.departmentId && loc.locationId
       );
@@ -316,6 +316,7 @@ const Servicios = () => {
       return false;
     }
     
+    // Buscar cualquier ubicación asociada a este servicio, sin importar la categoría
     const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
     
     if (existingLocation) {
@@ -341,16 +342,30 @@ const Servicios = () => {
       setSelectedServiceName(service.name);
     }
     
-    // Verificar si este servicio ya tiene una ubicación configurada
+    // MODIFICACIÓN: Verificar si este SERVICIO ya tiene una ubicación configurada
+    // No importa la categoría, solo verificamos a nivel de servicio
     const existingLocation = purchaseLocations.find(loc => 
       loc.serviceId === serviceId && 
-      loc.categoryId === categoryId &&
       loc.departmentId && 
       loc.locationId
     );
     
     if (existingLocation) {
-      // Si ya tiene ubicación para esta categoría, configuramos forceOpen en true para mostrar productos
+      // Si ya tiene ubicación para este servicio, actualizamos la ubicación con la nueva categoría
+      setPurchaseLocations(prev => {
+        return prev.map(loc => {
+          if (loc.serviceId === serviceId) {
+            // Actualizar con la categoría actual
+            return {
+              ...loc,
+              categoryId: categoryId,
+              categoryName: categoryName
+            };
+          }
+          return loc;
+        });
+      });
+      // Mostramos los productos
       setPendingServiceCardAction(true);
     } else {
       // Si no tiene ubicación, mostramos el modal de ubicación
@@ -367,7 +382,7 @@ const Servicios = () => {
     locationName: string,
     otherLocation?: string
   ) => {
-    if (selectedServiceId && selectedServiceName && selectedCategoryId && selectedCategoryName) {
+    if (selectedServiceId && selectedServiceName) {
       const newLocation: PurchaseLocation = { 
         storeId, 
         storeName, 
@@ -378,37 +393,42 @@ const Servicios = () => {
         departmentName,
         locationId,
         locationName,
-        categoryId: selectedCategoryId,
-        categoryName: selectedCategoryName
+        // Solo añadimos la información de categoría si está disponible
+        categoryId: selectedCategoryId || undefined,
+        categoryName: selectedCategoryName || undefined
       };
+      
+      // Verificar si ya existe alguna ubicación para este servicio
+      const existingLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
       
       // Actualizar o agregar la ubicación
       setPurchaseLocations(prev => {
-        const existingIndex = prev.findIndex(loc => 
-          loc.serviceId === selectedServiceId && 
-          loc.categoryId === selectedCategoryId
-        );
-        
-        if (existingIndex >= 0) {
-          const updated = [...prev];
-          updated[existingIndex] = {
-            ...updated[existingIndex],
-            departmentId,
-            departmentName,
-            locationId,
-            locationName
-          };
-          return updated;
+        if (existingLocation) {
+          // Si ya existe, actualizamos los datos manteniendo el mismo servicio
+          return prev.map(loc => 
+            loc.serviceId === selectedServiceId ? 
+            {...newLocation} : loc
+          );
         } else {
+          // Si no existe, agregamos la nueva ubicación
           return [...prev, newLocation];
         }
       });
       
       setIsLocationModalOpen(false);
-      toast.success(`Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName} - ${selectedCategoryName}`);
       
-      // Set pendingServiceCardAction to true to show the products
-      setPendingServiceCardAction(true);
+      let successMessage = "";
+      if (selectedCategoryId && selectedCategoryName) {
+        successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName} - ${selectedCategoryName}`;
+      } else {
+        successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName}`;
+      }
+      toast.success(successMessage);
+      
+      // Mostramos los productos si hay una categoría seleccionada
+      if (selectedCategoryId) {
+        setPendingServiceCardAction(true);
+      }
     }
   };
 
