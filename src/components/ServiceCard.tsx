@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -168,6 +169,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProductIds, setLoadingProductIds] = useState<Set<string>>(new Set());
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
+  const [pricesFetched, setPricesFetched] = useState<boolean>(false);
 
   const getPurchaseLocationForService = (serviceId: string) => {
     return null;
@@ -203,7 +205,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   useEffect(() => {
     // Set initial state with product base data
-    if (category.products.length > 0) {
+    if (category.products.length > 0 && !pricesFetched) {
       // Initialize all products with their default prices first
       const initialProducts = category.products.map(product => ({ 
         ...product, 
@@ -256,8 +258,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
           });
         }
       });
+      
+      // Mark prices as fetched to prevent refetching
+      setPricesFetched(true);
     }
-  }, [category, purchaseLocationId, serviceId, currentCartItems]);
+  }, [category, purchaseLocationId, serviceId, currentCartItems, pricesFetched]);
 
   const updateCart = (productId: string, newQuantity: number) => {
     const product = products.find(p => p.id === productId);
