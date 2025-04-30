@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -53,6 +52,8 @@ interface PurchaseLocation {
   departmentName?: string;
   locationId?: string;
   locationName?: string;
+  categoryId?: string;  // Nueva propiedad para almacenar la categoría seleccionada
+  categoryName?: string; // Nueva propiedad para almacenar el nombre de la categoría
 }
 
 const iconComponents = {
@@ -135,6 +136,8 @@ const Servicios = () => {
   const [purchaseLocations, setPurchaseLocations] = useState<PurchaseLocation[]>([]);
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
   const [selectedServiceName, setSelectedServiceName] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
   const [pendingServiceCardAction, setPendingServiceCardAction] = useState<boolean>(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState<{ serviceId: string, locationName: string } | null>(null);
@@ -325,6 +328,36 @@ const Servicios = () => {
     }
   };
 
+  const handleCategorySelect = (serviceId: string, categoryId: string, categoryName: string) => {
+    setSelectedServiceId(serviceId);
+    setSelectedCategoryId(categoryId);
+    setSelectedCategoryName(categoryName);
+    
+    // Buscar el servicio seleccionado para obtener su nombre
+    const service = [...(displayedServices || []), ...(displayedMudanzaServices || [])]
+      .find(s => s.id === serviceId);
+    
+    if (service) {
+      setSelectedServiceName(service.name);
+    }
+    
+    // Verificar si este servicio ya tiene una ubicación configurada
+    const existingLocation = purchaseLocations.find(loc => 
+      loc.serviceId === serviceId && 
+      loc.categoryId === categoryId &&
+      loc.departmentId && 
+      loc.locationId
+    );
+    
+    if (existingLocation) {
+      // Si ya tiene ubicación para esta categoría, configuramos forceOpen en true
+      setPendingServiceCardAction(true);
+    } else {
+      // Si no tiene ubicación, mostramos el modal de ubicación
+      setIsLocationModalOpen(true);
+    }
+  };
+
   const handleLocationSelect = (
     storeId: string, 
     storeName: string, 
@@ -334,7 +367,7 @@ const Servicios = () => {
     locationName: string,
     otherLocation?: string
   ) => {
-    if (selectedServiceId && selectedServiceName) {
+    if (selectedServiceId && selectedServiceName && selectedCategoryId && selectedCategoryName) {
       const newLocation: PurchaseLocation = { 
         storeId, 
         storeName, 
@@ -344,12 +377,17 @@ const Servicios = () => {
         departmentId,
         departmentName,
         locationId,
-        locationName
+        locationName,
+        categoryId: selectedCategoryId,
+        categoryName: selectedCategoryName
       };
       
       // Actualizar o agregar la ubicación
       setPurchaseLocations(prev => {
-        const existingIndex = prev.findIndex(loc => loc.serviceId === selectedServiceId);
+        const existingIndex = prev.findIndex(loc => 
+          loc.serviceId === selectedServiceId && 
+          loc.categoryId === selectedCategoryId
+        );
         
         if (existingIndex >= 0) {
           const updated = [...prev];
@@ -367,29 +405,44 @@ const Servicios = () => {
       });
       
       setIsLocationModalOpen(false);
-      toast.success(`Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName}`);
+      toast.success(`Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName} - ${selectedCategoryName}`);
       
       setPendingServiceCardAction(true);
     }
   };
 
-  const clearPurchaseLocation = (serviceId: string) => {
+  const clearPurchaseLocation = (serviceId: string, categoryId?: string) => {
     // If commerceId exists, don't allow location removal
     if (commerceId) return;
     
-    const location = purchaseLocations.find(loc => loc.serviceId === serviceId);
-    if (!location) return;
+    const locationsToRemove = categoryId 
+      ? purchaseLocations.filter(loc => loc.serviceId === serviceId && loc.categoryId === categoryId)
+      : purchaseLocations.filter(loc => loc.serviceId === serviceId);
+    
+    if (locationsToRemove.length === 0) return;
 
-    const hasAssociatedItems = cartItems.some(item => item.serviceId === serviceId);
+    // Verificar si hay items en el carrito asociados a este servicio/categoría
+    const hasAssociatedItems = cartItems.some(item => {
+      if (categoryId) {
+        return item.serviceId === serviceId && item.categoryId === categoryId;
+      }
+      return item.serviceId === serviceId;
+    });
 
     if (hasAssociatedItems) {
+      const location = locationsToRemove[0];
       setLocationToDelete({
         serviceId,
         locationName: location.storeId === "other" ? location.otherLocation! : location.storeName
       });
       setShowDeleteConfirmation(true);
     } else {
-      setPurchaseLocations(prev => prev.filter(loc => loc.serviceId !== serviceId));
+      // Eliminar ubicaciones sin confirmación si no hay items en el carrito
+      if (categoryId) {
+        setPurchaseLocations(prev => prev.filter(loc => !(loc.serviceId === serviceId && loc.categoryId === categoryId)));
+      } else {
+        setPurchaseLocations(prev => prev.filter(loc => loc.serviceId !== serviceId));
+      }
       toast.success("Lugar de compra eliminado");
     }
   };
@@ -397,8 +450,10 @@ const Servicios = () => {
   const confirmDeleteLocation = () => {
     if (!locationToDelete) return;
 
+    // Eliminar productos del carrito
     setCartItems(prev => prev.filter(item => item.serviceId !== locationToDelete.serviceId));
     
+    // Eliminar ubicación
     setPurchaseLocations(prev => prev.filter(loc => loc.serviceId !== locationToDelete.serviceId));
     
     setShowDeleteConfirmation(false);
@@ -515,12 +570,13 @@ const Servicios = () => {
                   <div key={index} className="bg-white p-2 rounded-md border border-blue-200 flex items-center gap-1">
                     <MapPin size={14} className="text-blue-500" />
                     <span className="text-sm text-blue-600">
-                      {location.serviceName}: {location.storeId === "other" ? location.otherLocation : location.storeName}
+                      {location.serviceName}{location.categoryName ? ` - ${location.categoryName}` : ''}: 
+                      {location.storeId === "other" ? location.otherLocation : location.storeName}
                     </span>
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      onClick={() => clearPurchaseLocation(location.serviceId || "")} 
+                      onClick={() => clearPurchaseLocation(location.serviceId || "", location.categoryId)} 
                       className="h-5 w-5 p-0 text-blue-700 hover:bg-blue-100 ml-1"
                     >
                       <X size={12} />
@@ -552,7 +608,7 @@ const Servicios = () => {
                     icon={!isIconKey ? service.icon : undefined}
                     addToCart={addToCart}
                     externalUrl={service.url}
-                    onBeforeCardClick={() => handleServiceCardClick(service.id, service.name)}
+                    onCategorySelect={handleCategorySelect}
                     purchaseLocation={getPurchaseLocationForService(service.id || "")}
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
                     circular={true}
@@ -584,7 +640,7 @@ const Servicios = () => {
                     icon={!isIconKey ? service.icon : undefined}
                     addToCart={addToCart}
                     externalUrl={service.url}
-                    onBeforeCardClick={() => handleServiceCardClick(service.id, service.name)}
+                    onCategorySelect={handleCategorySelect}
                     purchaseLocation={getPurchaseLocationForService(service.id || "")}
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
                     circular={true}
@@ -615,7 +671,7 @@ const Servicios = () => {
             }
           }}
           onSelectLocation={handleLocationSelect}
-          serviceName={selectedServiceName || undefined}
+          serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`}
           commerceId={commerceId}
           commerceName={storeName}
         />

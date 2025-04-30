@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -469,6 +468,7 @@ interface ServiceCardProps {
   addToCart: (item: CartItem) => void;
   externalUrl?: string;
   onBeforeCardClick?: () => boolean;
+  onCategorySelect?: (serviceId: string, categoryId: string, categoryName: string) => void;
   purchaseLocation?: {
     storeId: string;
     storeName: string;
@@ -490,6 +490,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   addToCart, 
   externalUrl,
   onBeforeCardClick,
+  onCategorySelect,
   purchaseLocation,
   forceOpen = false,
   circular = false,
@@ -587,20 +588,18 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     }
     
     if (id) {
-      if (onBeforeCardClick) {
-        const shouldProceed = onBeforeCardClick();
-        if (!shouldProceed) return;
-      }
-      
+      // Ya no verificamos onBeforeCardClick aquí, siempre mostramos las categorías primero
       setIsDialogOpen(true);
-      if (id) {
-        fetchCategories(id);
-      }
+      fetchCategories(id);
     }
   };
   
   const handleCategorySelect = (category: Category) => {
-    if (category.products.length > 0) {
+    if (id && onCategorySelect) {
+      // En lugar de cargar productos o mostrarlos, notificamos a Servicios para que muestre el modal de ubicación
+      onCategorySelect(id, category.id, category.name);
+      setIsDialogOpen(false);
+    } else if (category.products.length > 0) {
       setSelectedCategory(category);
     } else if (id) {
       fetchProducts(id, category.id);
@@ -676,7 +675,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           <div className="p-4 sm:p-6">
             <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4 text-center px-3 mx-auto text-orange-500 truncate">{name}</h2>
             
-            {purchaseLocation && (
+            {purchaseLocation && selectedCategory && (
               <div className="mb-4 bg-blue-50 p-3 rounded-lg border border-blue-200 text-sm">
                 <span className="font-medium text-blue-700">Lugar de compra: </span>
                 <span className="text-blue-600">
