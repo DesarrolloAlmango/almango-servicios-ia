@@ -37,7 +37,7 @@ function TextSkeleton({
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & { text?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2">
+    <div className="flex flex-col items-center justify-center gap-2 font-sans">
       <div className="relative">
         <Loader className="h-12 w-12 animate-spin text-primary" />
         <div className="absolute inset-0 flex items-center justify-center">
@@ -55,7 +55,7 @@ function CategorySkeleton({
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & { text?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2">
+    <div className="flex flex-col items-center justify-center gap-2 font-sans">
       <div className="relative">
         <Loader className="h-12 w-12 animate-spin text-primary" />
         <div className="absolute inset-0 flex items-center justify-center">
