@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -478,6 +477,7 @@ interface ServiceCardProps {
     departmentId?: string;
     locationId?: string;
     categoryId?: string;
+    categoryName?: string;  // Added categoryName property
   } | null;
   forceOpen?: boolean;
   circular?: boolean;
