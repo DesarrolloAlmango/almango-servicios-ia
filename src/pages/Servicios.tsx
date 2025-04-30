@@ -586,22 +586,46 @@ const Servicios = () => {
           {!commerceId && purchaseLocations.length > 0 && (
             <div className="mb-6 bg-blue-50 p-3 rounded-lg border border-blue-200">
               <h3 className="font-medium text-blue-700 mb-2">Lugares de compra registrados:</h3>
-              <div className="flex flex-wrap gap-2">
-                {purchaseLocations.map((location, index) => (
-                  <div key={index} className="bg-white p-2 rounded-md border border-blue-200 flex items-center gap-1">
-                    <MapPin size={14} className="text-blue-500" />
-                    <span className="text-sm text-blue-600">
-                      {location.serviceName}{location.categoryName ? ` - ${location.categoryName}` : ''}: 
-                      {location.storeId === "other" ? location.otherLocation : location.storeName}
-                    </span>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => clearPurchaseLocation(location.serviceId || "", location.categoryId)} 
-                      className="h-5 w-5 p-0 text-blue-700 hover:bg-blue-100 ml-1"
-                    >
-                      <X size={12} />
-                    </Button>
+              <div className="space-y-2">
+                {/* Group purchase locations by service */}
+                {Object.values(purchaseLocations.reduce((grouped, location) => {
+                  if (!location.serviceId || !location.serviceName) return grouped;
+                  
+                  if (!grouped[location.serviceId]) {
+                    grouped[location.serviceId] = {
+                      serviceId: location.serviceId,
+                      serviceName: location.serviceName,
+                      locations: []
+                    };
+                  }
+                  
+                  grouped[location.serviceId].locations.push(location);
+                  return grouped;
+                }, {} as Record<string, {serviceId: string, serviceName: string, locations: PurchaseLocation[]}>))
+                .map((serviceGroup, index) => (
+                  <div key={index} className="text-sm">
+                    {/* Service Name with locations underneath */}
+                    <div className="font-medium text-blue-700">{serviceGroup.serviceName}:</div>
+                    {serviceGroup.locations.map((location, locIndex) => (
+                      <div key={locIndex} className="flex items-center ml-4 mt-1 text-blue-600">
+                        <span>
+                          {location.storeId === "other" ? location.otherLocation : location.storeName}
+                          {location.departmentName && location.locationName && (
+                            <span className="text-blue-500">
+                              ({location.departmentName}, {location.locationName})
+                            </span>
+                          )}
+                        </span>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => clearPurchaseLocation(location.serviceId || "", location.categoryId)} 
+                          className="h-5 w-5 p-0 text-blue-700 hover:bg-blue-100 ml-1"
+                        >
+                          <X size={12} />
+                        </Button>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
