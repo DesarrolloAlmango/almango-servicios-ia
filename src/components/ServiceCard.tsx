@@ -168,7 +168,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProductIds, setLoadingProductIds] = useState<Set<string>>(new Set());
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
-  const [pricesFetched, setPricesFetched] = useState<boolean>(false);
 
   const getPurchaseLocationForService = (serviceId: string) => {
     return null;
@@ -204,7 +203,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   useEffect(() => {
     // Set initial state with product base data
-    if (category.products.length > 0 && !pricesFetched) {
+    if (category.products.length > 0) {
       // Initialize all products with their default prices first
       const initialProducts = category.products.map(product => ({ 
         ...product, 
@@ -257,11 +256,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
           });
         }
       });
-      
-      // Mark prices as fetched to prevent refetching
-      setPricesFetched(true);
     }
-  }, [category, purchaseLocationId, serviceId, currentCartItems, pricesFetched]);
+  }, [category, purchaseLocationId, serviceId, currentCartItems]);
 
   const updateCart = (productId: string, newQuantity: number) => {
     const product = products.find(p => p.id === productId);
@@ -413,7 +409,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       
       {allProductsLoading ? (
         <div className="flex flex-col items-center justify-center h-64 gap-4">
-          <TextSkeleton text="Cargando productos..." />
+          <TextSkeleton text="Calculando precios..." />
         </div>
       ) : products.length === 0 ? (
         <div className="flex items-center justify-center h-40">
