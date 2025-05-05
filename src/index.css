@@ -135,20 +135,21 @@ html {
   height: 100%;
   display: block;
   z-index: 0;
+  background: url(https://www.script-tutorials.com/demos/360/images/stars.png) repeat top center;
 }
 
 .stars {
-  background: url(https://www.script-tutorials.com/demos/360/images/stars.png) repeat top center;
+  opacity: 0.8;
 }
 
 .stars2 {
-  background: url(https://www.script-tutorials.com/demos/360/images/stars.png) repeat top center;
   animation: stars-animation 50s linear infinite;
+  opacity: 0.6;
 }
 
 .stars3 {
-  background: url(https://www.script-tutorials.com/demos/360/images/stars.png) repeat top center;
   animation: stars-animation 75s linear infinite;
+  opacity: 0.4;
 }
 
 @keyframes stars-animation {
@@ -247,16 +248,17 @@ html {
   transition: transform 0.3s ease;
 }
 
-/* Añadir sombra a las tarjetas circulares */
+/* Add border to circular cards and improve shadows */
 [data-component="service-card"].circular,
 .service-card-hover.circular {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 0 2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 2px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.3s ease, transform 0.3s ease;
+  border: 2px solid #ff6900; /* Primary color border */
 }
 
 [data-component="service-card"].circular:hover,
 .service-card-hover.circular:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12), 0 0 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15), 0 0 4px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
 }
 
@@ -265,6 +267,11 @@ html {
 .dark .service-card-hover {
   background-color: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark [data-component="service-card"].circular,
+.dark .service-card-hover.circular {
+  border: 2px solid #ff6900; /* Keep primary color border in dark mode */
 }
 
 .dark [data-component="service-card"]:hover,

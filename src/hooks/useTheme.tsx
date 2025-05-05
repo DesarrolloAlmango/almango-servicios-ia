@@ -16,14 +16,16 @@ const ThemeContext = createContext<ThemeContextType>({
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(() => {
     // Check local storage first
-    const savedTheme = localStorage.getItem("theme") as Theme;
-    if (savedTheme === "dark" || savedTheme === "light") {
-      return savedTheme;
-    }
-    
-    // Check system preference
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return "dark";
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem("theme") as Theme;
+      if (savedTheme === "dark" || savedTheme === "light") {
+        return savedTheme;
+      }
+      
+      // Check system preference
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return "dark";
+      }
     }
     
     // Default to light
@@ -36,8 +38,21 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     
     // Apply to document
     const root = window.document.documentElement;
+    
+    // First remove both classes
     root.classList.remove("dark", "light");
+    
+    // Then add the current theme
     root.classList.add(theme);
+    
+    // Additionally, for dark mode, add a class to the body
+    if (theme === "dark") {
+      document.body.classList.add("dark");
+    } else {
+      document.body.classList.remove("dark");
+    }
+    
+    console.log("Theme changed to:", theme);
   }, [theme]);
 
   return (
