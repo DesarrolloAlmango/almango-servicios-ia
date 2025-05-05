@@ -115,10 +115,10 @@ html {
 }
 
 /* Animación para el botón de solicitud de servicio */
-@keyframes buttonPulse {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-  100% { transform: translateY(0); }
+@keyframes buttonGlow {
+  0% { box-shadow: 0 0 5px rgba(255, 105, 0, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(255, 105, 0, 0.8); }
+  100% { box-shadow: 0 0 5px rgba(255, 105, 0, 0.5); }
 }
 
 /* Animaciones adicionales */

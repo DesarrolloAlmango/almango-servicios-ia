@@ -28,8 +28,8 @@ const Hero = () => {
         </p>
         <Button 
           onClick={() => navigate('/servicios')} 
-          className="bg-primary hover:bg-primary/80 text-white rounded-md uppercase font-medium text-lg shadow-lg flex items-center transition-transform hover:scale-105 animate-fade-in my-0 mx-0 py-[23px] px-[21px] animate-pulse"
-          style={{ animation: 'buttonPulse 3s infinite ease-in-out' }}
+          className="bg-primary hover:bg-primary/80 text-white rounded-md uppercase font-medium text-lg shadow-lg flex items-center transition-all hover:scale-105 animate-fade-in my-0 mx-0 py-[23px] px-[21px]"
+          style={{ animation: 'buttonGlow 2s infinite ease-in-out' }}
         >
           Solicita Tu Servicio <ArrowRight className="ml-2" size={18} />
         </Button>
