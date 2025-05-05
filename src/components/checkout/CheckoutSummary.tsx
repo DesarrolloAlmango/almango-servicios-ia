@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
@@ -83,13 +82,22 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   }, [isOpen]);
 
   const processServiceRequest = async (serviceData: CheckoutData): Promise<number> => {
+    // Get the provider ID from the ProveedorAuxiliar field
+    // If storeId exists, use it as the provider ID, otherwise use 0
+    const providerId = serviceData.ProveedorAuxiliar && serviceData.ProveedorAuxiliar.trim() !== "" ? 
+                       (serviceData.ProveedorAuxiliar === "No lo sé" ? "0" : serviceData.ProveedorAuxiliar) : 
+                       "0";
+    
     const jsonSolicitud = JSON.stringify(serviceData);
     const url = new URL("/api/AlmangoXV1NETFramework/WebAPI/AltaSolicitud", window.location.origin);
     url.searchParams.append("Userconect", "NoEmpty");
     url.searchParams.append("Key", "d3d3LmF6bWl0YS5jb20=");
-    url.searchParams.append("Proveedorid", "0");
+    url.searchParams.append("Proveedorid", providerId); // Using the correct provider ID
     url.searchParams.append("Usuarioid", "0");
     url.searchParams.append("Jsonsolicitud", jsonSolicitud);
+
+    console.log("Sending request with provider ID:", providerId);
+    console.log("Service data:", serviceData);
 
     const response = await fetch(url.toString());
     
