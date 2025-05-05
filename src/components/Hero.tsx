@@ -11,17 +11,21 @@ const Hero = () => {
   
   return (
     <div className={`relative w-full overflow-hidden ${isMobile ? "min-h-[calc(100vh-40px)]" : "min-h-[100vh] md:min-h-[110vh]"} flex items-center`}>
-      {/* Hero background image */}
+      {/* Hero background image with improved quality */}
       <div className="absolute inset-0 z-0">
         <img 
           src="/lovable-uploads/c2ed9c0f-52fe-496a-b472-3ce279dac5df.png" 
           alt="Profesionales Almango" 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover object-center"
+          style={{ 
+            imageRendering: "high-quality",
+            maxWidth: "none",
+          }}
         />
       </div>
       
-      {/* Overlay for better text visibility */}
-      <div className="absolute inset-0 bg-blue-600/10 backdrop-blur-[2px] z-0"></div>
+      {/* Overlay with less blur for better image visibility */}
+      <div className="absolute inset-0 bg-blue-900/20 backdrop-blur-[1px] z-0"></div>
       
       <div className="container relative z-10 mx-auto px-6 text-left pl-8 md:pl-12">
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 max-w-xl animate-fade-in font-sans drop-shadow-lg">
