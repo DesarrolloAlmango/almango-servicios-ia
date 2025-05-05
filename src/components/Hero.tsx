@@ -1,11 +1,14 @@
+
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ContactInfo from "@/components/ContactInfo";
+
 const Hero = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  
   return <div className={`relative w-full overflow-hidden ${isMobile ? "min-h-[calc(100vh-40px)]" : "min-h-[100vh] md:min-h-[110vh]"} flex items-start pt-20 md:pt-28`}>
       {/* Hero background image */}
       <div className="absolute inset-0 z-0">
@@ -23,7 +26,11 @@ const Hero = () => {
         <p className="text-xl text-white mb-2 max-w-xl font-normal animate-fade-in drop-shadow-lg md:text-xl py-[4px]">
           SOLUCIONES PARA TU HOGAR O EMPRESA EN UN SOLO LUGAR
         </p>
-        <Button onClick={() => navigate('/servicios')} className="bg-primary hover:bg-primary/80 text-white rounded-md uppercase font-medium text-lg shadow-lg flex items-center transition-transform hover:scale-105 animate-fade-in my-0 mx-0 py-[23px] px-[21px]">
+        <Button 
+          onClick={() => navigate('/servicios')} 
+          className="bg-primary hover:bg-primary/80 text-white rounded-md uppercase font-medium text-lg shadow-lg flex items-center transition-transform hover:scale-105 animate-fade-in my-0 mx-0 py-[23px] px-[21px] animate-pulse"
+          style={{ animation: 'buttonPulse 3s infinite ease-in-out' }}
+        >
           Solicita Tu Servicio <ArrowRight className="ml-2" size={18} />
         </Button>
       </div>

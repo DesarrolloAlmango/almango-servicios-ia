@@ -43,8 +43,8 @@ const Header = () => {
     <header className={cn(
       'fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b', 
       isScrolled 
-        ? 'bg-primary/90 backdrop-blur-sm shadow-md py-2 border-black/70' 
-        : 'bg-primary/70 backdrop-blur-sm py-4 border-black/30'
+        ? 'bg-primary shadow-md py-2 border-black border-b-2' 
+        : 'bg-primary py-4 border-black border-b-2'
     )}>
       <div className="container mx-auto flex justify-between items-center px-4">
         <div className="flex items-center">
