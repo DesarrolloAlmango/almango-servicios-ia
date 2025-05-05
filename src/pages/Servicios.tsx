@@ -558,7 +558,7 @@ const Servicios = () => {
           </div>
           
           <h1 
-            className={`text-3xl font-normal mb-12 text-center text-[#008be1] uppercase font-display transition-all duration-1000 transform ${
+            className={`text-3xl font-bold mb-12 text-center text-[#008be1] uppercase font-display transition-all duration-1000 transform ${
               titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
