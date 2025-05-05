@@ -43,19 +43,19 @@ const Header = () => {
         
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
-          <button onClick={() => scrollToSection('inicio')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-bold">
+          <button onClick={() => scrollToSection('inicio')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-semibold">
             Inicio
           </button>
-          <button onClick={() => scrollToSection('servicios')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-bold">
+          <button onClick={() => scrollToSection('servicios')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-semibold">
             Servicios
           </button>
-          <button onClick={() => scrollToSection('quienes-somos')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-bold">
+          <button onClick={() => scrollToSection('quienes-somos')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-semibold">
             ¿Quienes somos?
           </button>
-          <button onClick={() => scrollToSection('formar-parte')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-bold">
+          <button onClick={() => scrollToSection('formar-parte')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-semibold">
             Formar parte
           </button>
-          <button onClick={() => scrollToSection('contacto')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-bold">
+          <button onClick={() => scrollToSection('contacto')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-semibold">
             Contacto
           </button>
         </nav>
