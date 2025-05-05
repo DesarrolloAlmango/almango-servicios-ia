@@ -24,8 +24,7 @@ const Hero = () => {
         />
       </div>
       
-      {/* Overlay with less blur for better image visibility */}
-      <div className="absolute inset-0 bg-blue-900/20 backdrop-blur-[1px] z-0"></div>
+      {/* Removed the blue overlay div that was affecting image visibility */}
       
       <div className="container relative z-10 mx-auto px-6 text-left pl-8 md:pl-12">
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 max-w-xl animate-fade-in font-sans drop-shadow-lg">
