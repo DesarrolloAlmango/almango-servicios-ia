@@ -106,6 +106,9 @@ export default {
 				sans: ['Arkibal', 'sans-serif'],
 				display: ['Arkibal Display', 'serif'],
 			},
+			backgroundImage: {
+				'stars': "url('https://www.script-tutorials.com/demos/360/images/stars.png')",
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],

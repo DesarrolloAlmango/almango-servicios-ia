@@ -1,9 +1,13 @@
+
 import { useState, useEffect } from 'react';
-import { Facebook, Instagram, Menu, X } from 'lucide-react';
+import { Facebook, Instagram, Menu, X, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
+
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   // Handle scroll event
   useEffect(() => {
@@ -19,6 +23,7 @@ const Header = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+
   const scrollToSection = (id: string) => {
     if (id === 'inicio') {
       window.scrollTo({
@@ -35,7 +40,13 @@ const Header = () => {
     }
     setIsMobileMenuOpen(false);
   };
-  return <header className={cn('fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b', isScrolled ? 'bg-primary shadow-md py-2 border-black border-b-8' : 'bg-primary py-4 border-black border-b-8')}>
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
+  return <header className={cn('fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b', 
+    isScrolled ? 'bg-primary shadow-md py-2 border-black border-b-8' : 'bg-primary py-4 border-black border-b-8')}>
       <div className="container mx-auto flex justify-between items-center px-4">
         <div className="flex items-center">
           <img alt="ALMANGO Logo" src="/lovable-uploads/10976e12-6bf7-48d0-b947-61ef37b1289b.png" className="h-14 transition-all duration-300 object-scale-down" />
@@ -60,8 +71,15 @@ const Header = () => {
           </button>
         </nav>
         
-        {/* Social Links */}
+        {/* Social Links and Theme Toggle */}
         <div className="hidden md:flex items-center space-x-4">
+          <button
+            onClick={toggleTheme}
+            className="text-white hover:text-gray-900 transition-colors p-1"
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
           <a href="https://www.facebook.com/almango.com.uy" target="_blank" rel="noreferrer" className="text-white hover:text-gray-900 transition-colors" aria-label="Facebook">
             <Facebook size={20} />
           </a>
@@ -71,9 +89,18 @@ const Header = () => {
         </div>
         
         {/* Mobile Menu Button */}
-        <button className="md:hidden text-white focus:outline-none" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} aria-label="Toggle menu">
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        <div className="md:hidden flex items-center space-x-2">
+          <button
+            onClick={toggleTheme}
+            className="text-white hover:text-gray-300 transition-colors p-1"
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+          <button className="text-white focus:outline-none" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} aria-label="Toggle menu">
+            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
       
       {/* Mobile Menu */}
@@ -108,4 +135,5 @@ const Header = () => {
         </div>}
     </header>;
 };
+
 export default Header;

@@ -484,43 +484,49 @@ const Servicios = () => {
 
   if (isServicesLoading && isLoadingMudanza) {
     return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
-        <main className="flex-grow py-8 px-4">
-          <div className="container mx-auto">
-            <div className="flex justify-between items-center mb-8 mt-4">
-              <Button 
-                variant="ghost" 
-                onClick={handleBackToHome}
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft size={20} />
-                <span>Volver</span>
-              </Button>
+      <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#14162c] to-[#1a1f2c]">
+        <div className="relative w-full h-full overflow-hidden">
+          <div className="stars"></div>
+          <div className="stars2"></div>
+          <div className="stars3"></div>
+          
+          <main className="flex-grow py-8 px-4 relative z-10">
+            <div className="container mx-auto">
+              <div className="flex justify-between items-center mb-8 mt-4">
+                <Button 
+                  variant="ghost" 
+                  onClick={handleBackToHome}
+                  className="flex items-center gap-2 text-white hover:text-gray-300"
+                >
+                  <ArrowLeft size={20} />
+                  <span>Volver</span>
+                </Button>
+                
+                <Button 
+                  variant="ghost" 
+                  className="relative text-white hover:text-gray-300"
+                  onClick={() => setIsCartOpen(true)}
+                >
+                  <ShoppingCart size={24} />
+                </Button>
+              </div>
               
-              <Button 
-                variant="ghost" 
-                className="relative"
-                onClick={() => setIsCartOpen(true)}
-              >
-                <ShoppingCart size={24} />
-              </Button>
-            </div>
-            
-            <h1 className="text-3xl font-normal mb-12 text-center text-[#ff6900] uppercase font-display opacity-0 transition-opacity duration-500">Nuestros Servicios</h1>
-            
-            <div className="flex justify-center items-center h-64 gap-6">
-              <div className="w-[220px] h-[220px]">
-                <Skeleton className="w-full h-full rounded-full" />
-              </div>
-              <div className="w-[220px] h-[220px]">
-                <Skeleton className="w-full h-full rounded-full" />
-              </div>
-              <div className="w-[220px] h-[220px]">
-                <Skeleton className="w-full h-full rounded-full" />
+              <h1 className="text-3xl font-normal mb-12 text-center text-[#008be1] uppercase font-display opacity-0 transition-opacity duration-500">Nuestros Servicios</h1>
+              
+              <div className="flex justify-center items-center h-64 gap-6">
+                <div className="w-[220px] h-[220px]">
+                  <Skeleton className="w-full h-full rounded-full" />
+                </div>
+                <div className="w-[220px] h-[220px]">
+                  <Skeleton className="w-full h-full rounded-full" />
+                </div>
+                <div className="w-[220px] h-[220px]">
+                  <Skeleton className="w-full h-full rounded-full" />
+                </div>
               </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
     );
   }
@@ -530,197 +536,203 @@ const Servicios = () => {
   console.log("Productos en el carrito:", cartItems);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
-      <main className="flex-grow py-8 px-4">
-        <div className="container mx-auto">
-          <div className="flex justify-between items-center mb-8 mt-4">
-            <Button 
-              variant="ghost" 
-              onClick={handleBackToHome}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft size={20} />
-              <span>Volver</span>
-            </Button>
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-[#14162c] to-[#1a1f2c]">
+      <div className="relative w-full h-full overflow-hidden">
+        <div className="stars"></div>
+        <div className="stars2"></div>
+        <div className="stars3"></div>
+        
+        <main className="flex-grow py-8 px-4 relative z-10">
+          <div className="container mx-auto">
+            <div className="flex justify-between items-center mb-8 mt-4">
+              <Button 
+                variant="ghost" 
+                onClick={handleBackToHome}
+                className="flex items-center gap-2 text-white hover:text-gray-300"
+              >
+                <ArrowLeft size={20} />
+                <span>Volver</span>
+              </Button>
+              
+              <Button 
+                variant="ghost" 
+                className="relative text-white hover:text-gray-300"
+                onClick={() => setIsCartOpen(true)}
+              >
+                <ShoppingCart size={24} />
+                {getCartItemsCount() > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {getCartItemsCount()}
+                  </span>
+                )}
+              </Button>
+            </div>
             
-            <Button 
-              variant="ghost" 
-              className="relative"
-              onClick={() => setIsCartOpen(true)}
+            <h1 
+              className={`text-3xl font-normal mb-12 text-center text-[#008be1] uppercase font-display transition-all duration-1000 transform ${
+                titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              }`}
             >
-              <ShoppingCart size={24} />
-              {getCartItemsCount() > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  {getCartItemsCount()}
-                </span>
-              )}
-            </Button>
-          </div>
-          
-          <h1 
-            className={`text-3xl font-normal mb-12 text-center text-[#008be1] uppercase font-display transition-all duration-1000 transform ${
-              titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
-          >
-            Nuestros Servicios
-          </h1>
-          
-          {isServicesError && (
-            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6 rounded-md">
-              <p className="text-amber-700">
-                No se pudieron obtener los servicios del servidor. Mostrando información local.
-              </p>
-            </div>
-          )}
-          
-          {commerceId && storeName && (
-            <div className="mb-6 bg-blue-50 p-3 rounded-lg border border-blue-200">
-              <h3 className="font-medium text-blue-700 mb-2">Lugar de compra fijo:</h3>
-              <div className="flex items-center gap-2">
-                <MapPin className="text-blue-500" size={16} />
-                <span className="text-blue-600">{storeName}</span>
+              Nuestros Servicios
+            </h1>
+            
+            {isServicesError && (
+              <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6 rounded-md">
+                <p className="text-amber-700">
+                  No se pudieron obtener los servicios del servidor. Mostrando información local.
+                </p>
               </div>
-            </div>
-          )}
-          
-          {!commerceId && purchaseLocations.length > 0 && (
-            <div className="mb-6 bg-blue-50 p-3 rounded-lg border border-blue-200">
-              <h3 className="font-medium text-blue-700 mb-2">Lugares de compra registrados:</h3>
-              <div className="space-y-2">
-                {/* Group purchase locations by service */}
-                {Object.values(purchaseLocations.reduce((grouped, location) => {
-                  if (!location.serviceId || !location.serviceName) return grouped;
-                  
-                  if (!grouped[location.serviceId]) {
-                    grouped[location.serviceId] = {
-                      serviceId: location.serviceId,
-                      serviceName: location.serviceName,
-                      locations: []
-                    };
-                  }
-                  
-                  grouped[location.serviceId].locations.push(location);
-                  return grouped;
-                }, {} as Record<string, {serviceId: string, serviceName: string, locations: PurchaseLocation[]}>))
-                .map((serviceGroup, index) => (
-                  <div key={index} className="text-sm">
-                    {/* Service Name with locations underneath */}
-                    <div className="font-medium text-blue-700">{serviceGroup.serviceName}:</div>
-                    {serviceGroup.locations.map((location, locIndex) => (
-                      <div key={locIndex} className="flex items-center ml-4 mt-1 text-blue-600">
-                        <span>
-                          {location.storeId === "other" ? location.otherLocation : location.storeName}
-                          {location.departmentName && location.locationName && (
-                            <span className="text-blue-500">
-                              ({location.departmentName}, {location.locationName})
-                            </span>
-                          )}
-                        </span>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => clearPurchaseLocation(location.serviceId || "", location.categoryId)} 
-                          className="h-5 w-5 p-0 text-blue-700 hover:bg-blue-100 ml-1"
-                        >
-                          <X size={12} />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                ))}
+            )}
+            
+            {commerceId && storeName && (
+              <div className="mb-6 bg-blue-900/30 p-3 rounded-lg border border-blue-500/30">
+                <h3 className="font-medium text-blue-300 mb-2">Lugar de compra fijo:</h3>
+                <div className="flex items-center gap-2">
+                  <MapPin className="text-blue-300" size={16} />
+                  <span className="text-blue-200">{storeName}</span>
+                </div>
               </div>
+            )}
+            
+            {!commerceId && purchaseLocations.length > 0 && (
+              <div className="mb-6 bg-blue-900/30 p-3 rounded-lg border border-blue-500/30">
+                <h3 className="font-medium text-blue-300 mb-2">Lugares de compra registrados:</h3>
+                <div className="space-y-2">
+                  {/* Group purchase locations by service */}
+                  {Object.values(purchaseLocations.reduce((grouped, location) => {
+                    if (!location.serviceId || !location.serviceName) return grouped;
+                    
+                    if (!grouped[location.serviceId]) {
+                      grouped[location.serviceId] = {
+                        serviceId: location.serviceId,
+                        serviceName: location.serviceName,
+                        locations: []
+                      };
+                    }
+                    
+                    grouped[location.serviceId].locations.push(location);
+                    return grouped;
+                  }, {} as Record<string, {serviceId: string, serviceName: string, locations: PurchaseLocation[]}>))
+                  .map((serviceGroup, index) => (
+                    <div key={index} className="text-sm">
+                      {/* Service Name with locations underneath */}
+                      <div className="font-medium text-blue-300">{serviceGroup.serviceName}:</div>
+                      {serviceGroup.locations.map((location, locIndex) => (
+                        <div key={locIndex} className="flex items-center ml-4 mt-1 text-blue-200">
+                          <span>
+                            {location.storeId === "other" ? location.otherLocation : location.storeName}
+                            {location.departmentName && location.locationName && (
+                              <span className="text-blue-300">
+                                ({location.departmentName}, {location.locationName})
+                              </span>
+                            )}
+                          </span>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => clearPurchaseLocation(location.serviceId || "", location.categoryId)} 
+                            className="h-5 w-5 p-0 text-blue-300 hover:bg-blue-800/30 ml-1"
+                          >
+                            <X size={12} />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            <div className="mb-12">
+              <ServiceCarousel title="Servicios de Armado e Instalación">
+                {isServicesLoading ? (
+                  // Mostrar skeletons mientras se cargan los servicios
+                  Array(4).fill(0).map((_, index) => (
+                    <div key={index} className="w-[220px] h-[220px]">
+                      <Skeleton className="w-full h-full rounded-full" />
+                    </div>
+                  ))
+                ) : displayedServices?.map((service, index) => {
+                  const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
+                  
+                  return (
+                    <ServiceCard 
+                      key={index}
+                      id={service.id}
+                      name={service.name} 
+                      iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Home} 
+                      icon={!isIconKey ? service.icon : undefined}
+                      addToCart={addToCart}
+                      externalUrl={service.url}
+                      onCategorySelect={handleCategorySelect}
+                      purchaseLocation={getPurchaseLocationForService(service.id || "")}
+                      forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
+                      circular={true}
+                      currentCartItems={cartItems}
+                    />
+                  );
+                })}
+              </ServiceCarousel>
             </div>
-          )}
-          
-          <div className="mb-12">
-            <ServiceCarousel title="Servicios de Armado e Instalación">
-              {isServicesLoading ? (
-                // Mostrar skeletons mientras se cargan los servicios
-                Array(4).fill(0).map((_, index) => (
-                  <div key={index} className="w-[220px] h-[220px]">
-                    <Skeleton className="w-full h-full rounded-full" />
-                  </div>
-                ))
-              ) : displayedServices?.map((service, index) => {
-                const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
-                
-                return (
-                  <ServiceCard 
-                    key={index}
-                    id={service.id}
-                    name={service.name} 
-                    iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Home} 
-                    icon={!isIconKey ? service.icon : undefined}
-                    addToCart={addToCart}
-                    externalUrl={service.url}
-                    onCategorySelect={handleCategorySelect}
-                    purchaseLocation={getPurchaseLocationForService(service.id || "")}
-                    forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
-                    circular={true}
-                    currentCartItems={cartItems}
-                  />
-                );
-              })}
-            </ServiceCarousel>
+            
+            <div className="mb-12">
+              <ServiceCarousel title="Servicios de Mudanza">
+                {isLoadingMudanza ? (
+                  // Mostrar skeletons mientras se cargan los servicios de mudanza
+                  Array(4).fill(0).map((_, index) => (
+                    <div key={index} className="w-[220px] h-[220px]">
+                      <Skeleton className="w-full h-full rounded-full" />
+                    </div>
+                  ))
+                ) : displayedMudanzaServices?.map((service, index) => {
+                  const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
+                  
+                  return (
+                    <ServiceCard 
+                      key={index}
+                      id={service.id}
+                      name={service.name} 
+                      iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Truck} 
+                      icon={!isIconKey ? service.icon : undefined}
+                      addToCart={addToCart}
+                      externalUrl={service.url}
+                      onCategorySelect={handleCategorySelect}
+                      purchaseLocation={getPurchaseLocationForService(service.id || "")}
+                      forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
+                      circular={true}
+                      currentCartItems={cartItems}
+                    />
+                  );
+                })}
+              </ServiceCarousel>
+            </div>
           </div>
           
-          <div className="mb-12">
-            <ServiceCarousel title="Servicios de Mudanza">
-              {isLoadingMudanza ? (
-                // Mostrar skeletons mientras se cargan los servicios de mudanza
-                Array(4).fill(0).map((_, index) => (
-                  <div key={index} className="w-[220px] h-[220px]">
-                    <Skeleton className="w-full h-full rounded-full" />
-                  </div>
-                ))
-              ) : displayedMudanzaServices?.map((service, index) => {
-                const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
-                
-                return (
-                  <ServiceCard 
-                    key={index}
-                    id={service.id}
-                    name={service.name} 
-                    iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Truck} 
-                    icon={!isIconKey ? service.icon : undefined}
-                    addToCart={addToCart}
-                    externalUrl={service.url}
-                    onCategorySelect={handleCategorySelect}
-                    purchaseLocation={getPurchaseLocationForService(service.id || "")}
-                    forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
-                    circular={true}
-                    currentCartItems={cartItems}
-                  />
-                );
-              })}
-            </ServiceCarousel>
-          </div>
-        </div>
-        
-        <CartDrawer 
-          isOpen={isCartOpen}
-          setIsOpen={setIsCartOpen}
-          cartItems={cartItems}
-          updateCartItem={updateCartItem}
-          total={getCartTotal()}
-          purchaseLocations={getAllPurchaseLocations()}
-          setPurchaseLocations={setPurchaseLocations}
-        />
-        
-        <PurchaseLocationModal 
-          isOpen={isLocationModalOpen}
-          onClose={() => {
-            setIsLocationModalOpen(false);
-            if (pendingServiceCardAction) {
-              setPendingServiceCardAction(false);
-            }
-          }}
-          onSelectLocation={handleLocationSelect}
-          serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`}
-          commerceId={commerceId}
-          commerceName={storeName}
-        />
-      </main>
+          <CartDrawer 
+            isOpen={isCartOpen}
+            setIsOpen={setIsCartOpen}
+            cartItems={cartItems}
+            updateCartItem={updateCartItem}
+            total={getCartTotal()}
+            purchaseLocations={getAllPurchaseLocations()}
+            setPurchaseLocations={setPurchaseLocations}
+          />
+          
+          <PurchaseLocationModal 
+            isOpen={isLocationModalOpen}
+            onClose={() => {
+              setIsLocationModalOpen(false);
+              if (pendingServiceCardAction) {
+                setPendingServiceCardAction(false);
+              }
+            }}
+            onSelectLocation={handleLocationSelect}
+            serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`}
+            commerceId={commerceId}
+            commerceName={storeName}
+          />
+        </main>
+      </div>
 
       <AlertDialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>
         <AlertDialogContent>
