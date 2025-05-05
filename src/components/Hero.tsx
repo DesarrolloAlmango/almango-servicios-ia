@@ -4,24 +4,30 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ContactInfo from "@/components/ContactInfo";
+
 const Hero = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  return <div className={`relative w-full overflow-hidden bg-gray-950 ${isMobile ? "min-h-[calc(100vh-40px)]" : "min-h-[100vh] md:min-h-[110vh]"} flex items-center`}>
-      {/* Stars background */}
+  
+  return (
+    <div className={`relative w-full overflow-hidden ${isMobile ? "min-h-[calc(100vh-40px)]" : "min-h-[100vh] md:min-h-[110vh]"} flex items-center`}>
+      {/* Hero background image */}
       <div className="absolute inset-0 z-0">
-        <div className="stars-container absolute inset-0">
-          <div className="stars"></div>
-          <div className="stars2"></div>
-          <div className="stars3"></div>
-        </div>
+        <img 
+          src="/lovable-uploads/c2ed9c0f-52fe-496a-b472-3ce279dac5df.png" 
+          alt="Profesionales Almango" 
+          className="w-full h-full object-cover"
+        />
       </div>
       
+      {/* Overlay for better text visibility */}
+      <div className="absolute inset-0 bg-blue-600/10 backdrop-blur-[2px] z-0"></div>
+      
       <div className="container relative z-10 mx-auto px-6 text-left pl-8 md:pl-12">
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4 max-w-xl animate-fade-in font-sans">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 max-w-xl animate-fade-in font-sans drop-shadow-lg">
           PROFESIONALES A TU SERVICIO
         </h1>
-        <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-xl font-normal animate-fade-in">
+        <p className="text-xl md:text-2xl text-white mb-8 max-w-xl font-normal animate-fade-in drop-shadow-lg">
           SOLUCIONES PARA TU HOGAR O EMPRESA EN UN SOLO LUGAR
         </p>
         <Button onClick={() => navigate('/servicios')} className="bg-primary hover:bg-primary/80 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg flex items-center transition-transform hover:scale-105 animate-fade-in">
@@ -55,6 +61,8 @@ const Hero = () => {
       </div>
 
       <ContactInfo />
-    </div>;
+    </div>
+  );
 };
+
 export default Hero;
