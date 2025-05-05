@@ -11,10 +11,10 @@ const Hero = () => {
   
   return (
     <div className={`relative w-full overflow-hidden ${isMobile ? "min-h-[calc(100vh-40px)]" : "min-h-[100vh] md:min-h-[110vh]"} flex items-center`}>
-      {/* Hero background image with improved quality */}
+      {/* Hero background image with responsive support */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="/lovable-uploads/c2ed9c0f-52fe-496a-b472-3ce279dac5df.png" 
+          src={isMobile ? "/lovable-uploads/844d8cf9-49eb-4dea-aed8-da206b842f56.png" : "/lovable-uploads/c2ed9c0f-52fe-496a-b472-3ce279dac5df.png"}
           alt="Profesionales Almango" 
           className="w-full h-full object-cover object-center"
           style={{ 
