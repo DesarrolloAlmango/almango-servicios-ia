@@ -18,7 +18,7 @@ const Hero = () => {
           alt="Profesionales Almango" 
           className="w-full h-full object-cover object-center"
           style={{ 
-            imageRendering: "high-quality",
+            imageRendering: "auto",
             maxWidth: "none",
           }}
         />
