@@ -17,10 +17,10 @@ const Hero = () => {
       
       {/* Contenedor principal con ajustes precisos de margen */}
       <div className="container relative z-10 mx-auto px-6 text-left pl-8 md:pl-12 mt-[56px] sm:mt-[40px] md:mt-[33px]">
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 max-w-xl animate-fade-in font-sans drop-shadow-lg lg:text-4xl">
+        <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 max-w-xl animate-fade-in font-sans drop-shadow-lg px-0 py-0 my-0 lg:text-4xl">
           PROFESIONALES A TU SERVICIO
         </h1>
-        <p className="text-xl text-white mb-8 max-w-xl font-normal animate-fade-in drop-shadow-lg md:text-xl">
+        <p className="text-xl text-white mb-8 max-w-xl font-normal animate-fade-in drop-shadow-lg md:text-xl py-0 my-[14px]">
           SOLUCIONES PARA TU HOGAR O EMPRESA EN UN SOLO LUGAR
         </p>
         <Button onClick={() => navigate('/servicios')} className="bg-primary hover:bg-primary/80 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg flex items-center transition-transform hover:scale-105 animate-fade-in">
