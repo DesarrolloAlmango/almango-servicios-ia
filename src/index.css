@@ -230,7 +230,7 @@ html {
 
 .dark [data-component="service-card"].circular,
 .dark .service-card-hover.circular {
-  border: 2px solid #ff6900; /* Keep primary color border in dark mode */
+  border: 2px solid rgba(255, 105, 0, 0.7); /* Semi-transparent orange border in dark mode */
 }
 
 .dark [data-component="service-card"]:hover,
