@@ -1,8 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { Facebook, Instagram, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -21,7 +19,6 @@ const Header = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
-
   const scrollToSection = (id: string) => {
     if (id === 'inicio') {
       window.scrollTo({
@@ -38,14 +35,7 @@ const Header = () => {
     }
     setIsMobileMenuOpen(false);
   };
-
-  return (
-    <header className={cn(
-      'fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b', 
-      isScrolled 
-        ? 'bg-primary shadow-md py-2 border-black border-b-8' 
-        : 'bg-primary py-4 border-black border-b-8'
-    )}>
+  return <header className={cn('fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b', isScrolled ? 'bg-primary shadow-md py-2 border-black border-b-8' : 'bg-primary py-4 border-black border-b-8')}>
       <div className="container mx-auto flex justify-between items-center px-4">
         <div className="flex items-center">
           <img alt="ALMANGO Logo" src="/lovable-uploads/10976e12-6bf7-48d0-b947-61ef37b1289b.png" className="h-14 transition-all duration-300 object-scale-down" />
@@ -53,19 +43,19 @@ const Header = () => {
         
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
-          <button onClick={() => scrollToSection('inicio')} className="uppercase text-sm font-medium text-white hover:text-gray-900 transition-colors">
+          <button onClick={() => scrollToSection('inicio')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-bold">
             Inicio
           </button>
-          <button onClick={() => scrollToSection('servicios')} className="uppercase text-sm font-medium text-white hover:text-gray-900 transition-colors">
+          <button onClick={() => scrollToSection('servicios')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-bold">
             Servicios
           </button>
-          <button onClick={() => scrollToSection('quienes-somos')} className="uppercase text-sm font-medium text-white hover:text-gray-900 transition-colors">
+          <button onClick={() => scrollToSection('quienes-somos')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-bold">
             ¿Quienes somos?
           </button>
-          <button onClick={() => scrollToSection('formar-parte')} className="uppercase text-sm font-medium text-white hover:text-gray-900 transition-colors">
+          <button onClick={() => scrollToSection('formar-parte')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-bold">
             Formar parte
           </button>
-          <button onClick={() => scrollToSection('contacto')} className="uppercase text-sm font-medium text-white hover:text-gray-900 transition-colors">
+          <button onClick={() => scrollToSection('contacto')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-bold">
             Contacto
           </button>
         </nav>
@@ -116,8 +106,6 @@ const Header = () => {
             </div>
           </div>
         </div>}
-    </header>
-  );
+    </header>;
 };
-
 export default Header;
