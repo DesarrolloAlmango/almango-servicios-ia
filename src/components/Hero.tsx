@@ -20,7 +20,7 @@ const Hero = () => {
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 max-w-xl animate-fade-in font-sans drop-shadow-lg lg:text-4xl">
           PROFESIONALES A TU SERVICIO
         </h1>
-        <p className="text-xl md:text-2xl text-white mb-8 max-w-xl font-normal animate-fade-in drop-shadow-lg">
+        <p className="text-xl text-white mb-8 max-w-xl font-normal animate-fade-in drop-shadow-lg md:text-xl">
           SOLUCIONES PARA TU HOGAR O EMPRESA EN UN SOLO LUGAR
         </p>
         <Button onClick={() => navigate('/servicios')} className="bg-primary hover:bg-primary/80 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg flex items-center transition-transform hover:scale-105 animate-fade-in">
