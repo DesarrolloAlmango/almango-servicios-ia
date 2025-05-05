@@ -120,47 +120,6 @@ html {
   font-family: 'Arkibal', sans-serif !important;
 }
 
-/* Galactic background styles */
-.stars-container {
-  background: linear-gradient(to bottom, #14162c 0%, #1a1f2c 100%);
-}
-
-.stars, .stars2, .stars3 {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  z-index: 0;
-  background: url(https://www.script-tutorials.com/demos/360/images/stars.png) repeat top center;
-}
-
-.stars {
-  opacity: 0.8;
-}
-
-.stars2 {
-  animation: stars-animation 50s linear infinite;
-  opacity: 0.6;
-}
-
-.stars3 {
-  animation: stars-animation 75s linear infinite;
-  opacity: 0.4;
-}
-
-@keyframes stars-animation {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: 0 10000px;
-  }
-}
-
 /* Animación para el botón de solicitud de servicio */
 @keyframes buttonGlow {
   0% { box-shadow: 0 0 5px rgba(255, 105, 0, 0.5); }
