@@ -35,31 +35,37 @@ const Header = () => {
         const elementPosition = element.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.scrollY - 100; // Adjust offset for header
         
-        // Create a custom easing function for a more bouncy effect
+        // Set up animation variables
         const startTime = performance.now();
         const startScrollY = window.scrollY;
-        const duration = 800; // Longer duration for more noticeable effect
+        const duration = 1200; // Longer duration for a more dramatic effect
         
-        function easeOutBack(t: number): number {
-          const c1 = 1.70158;
-          const c3 = c1 + 1;
-          return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+        // Elastic ease out function for a spring-like bouncy effect
+        function elasticEaseOut(t: number): number {
+          const p = 0.3;
+          return Math.pow(2, -10 * t) * Math.sin((t - p / 4) * (2 * Math.PI) / p) + 1;
         }
         
+        // Animation function that runs on each frame
         function scrollAnimation(currentTime: number) {
           const elapsed = currentTime - startTime;
           const progress = Math.min(elapsed / duration, 1);
-          const easedProgress = easeOutBack(progress);
           
+          // Apply the elastic easing function
+          const easedProgress = elasticEaseOut(progress);
+          
+          // Apply easing and scroll
           window.scrollTo({
             top: startScrollY + (offsetPosition - startScrollY) * easedProgress,
           });
           
+          // Continue animation until complete
           if (progress < 1) {
             requestAnimationFrame(scrollAnimation);
           }
         }
         
+        // Start the animation
         requestAnimationFrame(scrollAnimation);
       }
     }
