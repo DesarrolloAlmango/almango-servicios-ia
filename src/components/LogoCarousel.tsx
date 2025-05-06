@@ -33,7 +33,7 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
             ${speed === "ultra-fast" ? "moderate-scroll" : ""}
             flex ${direction === "rtl" ? "flex-row-reverse" : "flex-row"} w-max gap-0`}>
           {extendedLogos.map((logo, index) => <CarouselItem key={index} className="min-w-0 pl-0 basis-auto flex-shrink-0">
-              <div className="h-28 flex items-center justify-center p-1 transition-all hover:scale-105 mx-[32px] my-[42px] py-[17px]">
+              <div className="h-28 flex items-center justify-center p-1 transition-all hover:scale-105 my-[37px] py-0 px-0 mx-[12px]">
                 <img src={logo.url} alt={logo.alt} className="max-h-full max-w-full object-contain" />
               </div>
             </CarouselItem>)}
