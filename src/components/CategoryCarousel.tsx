@@ -33,8 +33,10 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
   const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const [cachedImages, setCachedImages] = useState<Record<string, string>>({});
+  const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set());
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
+  const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   
   // Función optimizada para obtener la URL de la imagen
   const getImageSource = useMemo(() => (imageStr: string) => {
@@ -50,9 +52,48 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
     }
   }, []);
 
-  // Implementar lazy loading con IntersectionObserver
+  // Crear un IntersectionObserver para detectar elementos visibles
   useEffect(() => {
-    // Crear un IntersectionObserver para cargar imágenes solo cuando sean visibles
+    // Observer para detectar qué elementos están visibles en el viewport
+    const visibilityObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const categoryId = entry.target.getAttribute('data-category-id');
+        if (categoryId) {
+          if (entry.isIntersecting) {
+            // Marcar como visible y priorizar su carga
+            setVisibleItems(prev => {
+              const updated = new Set(prev);
+              updated.add(categoryId);
+              return updated;
+            });
+          } else {
+            // Opcional: remover de visibles cuando sale de la vista
+            setVisibleItems(prev => {
+              const updated = new Set(prev);
+              updated.delete(categoryId);
+              return updated;
+            });
+          }
+        }
+      });
+    }, { 
+      rootMargin: '50px',
+      threshold: 0.1
+    });
+    
+    // Registrar elementos para observar visibilidad
+    itemRefs.current.forEach((ref, id) => {
+      visibilityObserver.observe(ref);
+    });
+    
+    return () => {
+      visibilityObserver.disconnect();
+    };
+  }, []);
+
+  // Implementar lazy loading con IntersectionObserver para imágenes
+  useEffect(() => {
+    // Observer para cargar imágenes en segundo plano
     intersectionObserver.current = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -98,6 +139,28 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
 
     loadCache();
   }, []);
+
+  // Efecto para monitorear elementos visibles y priorizar su carga
+  useEffect(() => {
+    // Priorizar la carga de elementos visibles
+    visibleItems.forEach(categoryId => {
+      if (!cachedImages[categoryId] && !loadingImages[categoryId]) {
+        loadCategoryImage(categoryId);
+      }
+    });
+    
+    // Cargar los elementos no visibles después de un delay
+    const timer = setTimeout(() => {
+      categories.forEach(category => {
+        if (!visibleItems.has(category.id) && !cachedImages[category.id] && !loadingImages[category.id]) {
+          // Comenzar carga de imágenes no visibles con baja prioridad
+          loadCategoryImage(category.id);
+        }
+      });
+    }, 500); // Delay para priorizar elementos visibles primero
+    
+    return () => clearTimeout(timer);
+  }, [visibleItems, categories, cachedImages, loadingImages]);
 
   // Observer para las referencias de imágenes
   useEffect(() => {
@@ -223,6 +286,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
                 lg:basis-1/4
                 pl-2 sm:pl-4
               "
+              ref={el => el && itemRefs.current.set(category.id, el)}
+              data-category-id={category.id}
             >
               <div 
                 className="cursor-pointer hover:scale-105 transition-transform"
@@ -277,7 +342,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
                     )}
                   </AspectRatio>
                 </div>
-                <p className="text-center text-sm sm:text-base font-medium mt-1 sm:mt-2 line-clamp-2 px-1">{category.name}</p>
+                <p className="text-center text-sm sm:text-base font-medium mt-1 sm:mt-2 line-clamp-2 px-1 
+                  animate-in fade-in duration-300">{category.name}</p>
               </div>
             </CarouselItem>
           ))}
