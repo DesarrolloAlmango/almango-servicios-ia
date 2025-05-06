@@ -248,7 +248,7 @@ const Index = () => {
                   <img 
                     src="https://almango.com.uy/img/img-local.jpg" 
                     alt="Comercios" 
-                    className="w-full h-full object-cover md:rounded-r-lg border-2 border-black" 
+                    className="w-full h-full object-cover md:rounded-r-lg border-4 border-black" 
                   />
                 </div>
               </div>
@@ -259,7 +259,7 @@ const Index = () => {
                   <img 
                     src="https://almango.com.uy/img/img-proveedores.jpg" 
                     alt="Profesionales" 
-                    className="w-full h-full object-cover md:rounded-l-lg border-2 border-black" 
+                    className="w-full h-full object-cover md:rounded-l-lg border-4 border-black" 
                   />
                 </div>
                 
