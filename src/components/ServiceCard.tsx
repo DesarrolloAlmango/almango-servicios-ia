@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -441,8 +442,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             <div className="flex justify-center gap-4 mt-8 sticky bottom-4 bg-white p-4 rounded-lg shadow-md">
               <Button 
                 onClick={handleAddAnotherService}
-                variant="secondary"
-                className="text-white hover:bg-secondary/90 transition-colors"
+                variant="outline"
+                className="text-secondary border-secondary hover:bg-secondary hover:text-white transition-colors"
               >
                 Agregar otro servicio
               </Button>
