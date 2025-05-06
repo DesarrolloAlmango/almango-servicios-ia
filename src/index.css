@@ -221,27 +221,50 @@ html {
 }
 
 /* Dark mode service card styles - ONLY for the carousel circles in Servicios page */
-.servicios-page [data-component="service-card"].circular,
-.servicios-page .service-card-hover.circular {
+.servicios-page.dark [data-component="service-card"].circular,
+.servicios-page.dark .service-card-hover.circular {
   border: 2px solid rgba(255, 105, 0, 0.7); /* Transparent orange border in dark mode */
 }
 
-.servicios-page [data-component="service-card"]:hover,
-.servicios-page .service-card-hover:hover {
+.servicios-page.dark [data-component="service-card"]:hover,
+.servicios-page.dark .service-card-hover:hover {
   background-color: rgba(255, 166, 0, 0.15) !important;
 }
 
 /* Add servicios page specific dark mode styling */
-.servicios-page {
-  @apply bg-[#14162c] text-white;
+.servicios-page.dark {
+  background-color: #14162c;
+  color: white;
 }
 
-.servicios-page h1 {
-  @apply text-blue-300;
+.servicios-page.dark h1 {
+  color: #90caf9;
 }
 
-.servicios-page button {
-  @apply text-gray-200 hover:text-white;
+.servicios-page.dark button {
+  color: #e0e0e0;
+}
+
+.servicios-page.dark button:hover {
+  color: white;
+}
+
+/* Light mode styling for servicios page */
+.servicios-page:not(.dark) {
+  background-color: white;
+  color: #333;
+}
+
+.servicios-page:not(.dark) h1 {
+  color: #0066cc;
+}
+
+.servicios-page:not(.dark) button {
+  color: #555;
+}
+
+.servicios-page:not(.dark) button:hover {
+  color: #333;
 }
 
 /* Estilos para la distribución de las tarjetas de servicio */
