@@ -34,6 +34,7 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
       >
         <CarouselContent 
           className={`${direction === "rtl" ? "animate-infinite-scroll-reverse" : "animate-infinite-scroll"} ${speed === "fast" ? "fast-scroll" : ""} flex ${direction === "rtl" ? "flex-row-reverse" : "flex-row"}`}
+          style={{ transform: direction === "rtl" ? "translateX(-25%)" : "translateX(0)" }}
         >
           {extendedLogos.map((logo, index) => (
             <CarouselItem 
