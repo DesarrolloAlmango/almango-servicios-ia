@@ -1,11 +1,9 @@
-
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import ServicesShowcase from "@/components/ServicesShowcase";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { Button } from "@/components/ui/button";
-
 const Index = () => {
   return <div className="min-h-screen flex flex-col">
       <Header />
@@ -30,23 +28,11 @@ const Index = () => {
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-                <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:bg-orange-50">
-                  <div className="text-primary text-4xl mb-4">01</div>
-                  <h3 className="text-xl font-semibold mb-2">Servicio Profesional</h3>
-                  <p className="text-gray-600">Contamos con profesionales calificados para cada tipo de servicio que ofrecemos.</p>
-                </div>
                 
-                <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:bg-orange-50">
-                  <div className="text-primary text-4xl mb-4">02</div>
-                  <h3 className="text-xl font-semibold mb-2">Atención Personalizada</h3>
-                  <p className="text-gray-600">Nos adaptamos a tus necesidades específicas para brindarte la mejor solución.</p>
-                </div>
                 
-                <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:bg-orange-50">
-                  <div className="text-primary text-4xl mb-4">03</div>
-                  <h3 className="text-xl font-semibold mb-2">Garantía de Calidad</h3>
-                  <p className="text-gray-600">Todos nuestros servicios cuentan con garantía para tu tranquilidad.</p>
-                </div>
+                
+                
+                
               </div>
             </div>
           </div>
