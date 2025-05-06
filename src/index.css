@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -275,10 +276,12 @@ html {
 
 .animate-infinite-scroll {
   animation: scroll 60s linear infinite;
+  width: max-content;
 }
 
 .animate-infinite-scroll-reverse {
   animation: scroll 60s linear infinite reverse;
+  width: max-content;
 }
 
 /* Add faster scroll animation */
@@ -409,4 +412,21 @@ html {
 /* Add specific basis classes for logo carousel */
 .basis-1\/8 {
   flex-basis: 12.5%;
+}
+
+.basis-1\/10 {
+  flex-basis: 10%;
+}
+
+.basis-1\/12 {
+  flex-basis: 8.333%;
+}
+
+.basis-1\/16 {
+  flex-basis: 6.25%;
+}
+
+/* Make carousel content fill entire width */
+.w-max {
+  width: max-content;
 }

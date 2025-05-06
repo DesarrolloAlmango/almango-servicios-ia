@@ -136,10 +136,10 @@ const Index = () => {
           </div>
           
           <div className="w-full px-0">
-            <div className="mb-6 w-full">
+            <div className="mb-6 w-full overflow-hidden">
               <LogoCarousel logos={firstHalfLogos} direction="rtl" speed="ultra-fast" />
             </div>
-            <div className="w-full">
+            <div className="w-full overflow-hidden">
               <LogoCarousel logos={secondHalfLogos} direction="ltr" speed="ultra-fast" />
             </div>
           </div>
