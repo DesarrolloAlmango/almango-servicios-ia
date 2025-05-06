@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { 
   Carousel,
   CarouselContent,
@@ -26,15 +26,18 @@ interface CategoryCarouselProps {
 
 const IMAGE_CACHE_KEY = 'category_images_cache';
 const IMAGE_CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
+const COMPRESSION_QUALITY = 0.6; // Reducir calidad para mejorar rendimiento
 
 const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelectCategory }) => {
   const isMobile = useIsMobile();
   const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const [cachedImages, setCachedImages] = useState<Record<string, string>>({});
-
-  // Función para obtener la URL de la imagen
-  const getImageSource = (imageStr: string) => {
+  const intersectionObserver = useRef<IntersectionObserver | null>(null);
+  const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
+  
+  // Función optimizada para obtener la URL de la imagen
+  const getImageSource = useMemo(() => (imageStr: string) => {
     if (!imageStr) return null;
     if (imageStr.startsWith('data:image')) {
       return imageStr;
@@ -45,44 +48,93 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
     } catch {
       return `data:image/png;base64,${imageStr}`;
     }
-  };
-
-  // Cargar caché de imágenes al inicio
-  useEffect(() => {
-    try {
-      const cacheData = localStorage.getItem(IMAGE_CACHE_KEY);
-      
-      if (cacheData) {
-        const { images, timestamp } = JSON.parse(cacheData);
-        
-        // Verificar si la caché ha expirado
-        if (Date.now() - timestamp < IMAGE_CACHE_EXPIRY) {
-          setCachedImages(images || {});
-          console.log('Imágenes de categorías cargadas desde caché local', Object.keys(images).length);
-        } else {
-          console.log('Caché de imágenes expirada, limpiando...');
-          localStorage.removeItem(IMAGE_CACHE_KEY);
-        }
-      }
-    } catch (error) {
-      console.error('Error al cargar caché de imágenes:', error);
-    }
   }, []);
 
-  // Guardar imágenes en caché
-  const saveImageToCache = (categoryId: string, imageData: string) => {
-    try {
-      const newCache = { ...cachedImages, [categoryId]: imageData };
-      setCachedImages(newCache);
+  // Implementar lazy loading con IntersectionObserver
+  useEffect(() => {
+    // Crear un IntersectionObserver para cargar imágenes solo cuando sean visibles
+    intersectionObserver.current = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const categoryId = entry.target.getAttribute('data-category-id');
+          if (categoryId && !cachedImages[categoryId]) {
+            loadCategoryImage(categoryId);
+          }
+          // Dejar de observar una vez que se ha iniciado la carga
+          intersectionObserver.current?.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: '100px' });
+    
+    return () => {
+      if (intersectionObserver.current) {
+        intersectionObserver.current.disconnect();
+      }
+    };
+  }, [cachedImages]);
+
+  // Cargar caché de imágenes al inicio de manera asíncrona
+  useEffect(() => {
+    const loadCache = async () => {
+      try {
+        const cacheData = localStorage.getItem(IMAGE_CACHE_KEY);
+        
+        if (cacheData) {
+          const { images, timestamp } = JSON.parse(cacheData);
+          
+          // Verificar si la caché ha expirado
+          if (Date.now() - timestamp < IMAGE_CACHE_EXPIRY) {
+            setCachedImages(images || {});
+            console.log('Imágenes de categorías cargadas desde caché local', Object.keys(images).length);
+          } else {
+            console.log('Caché de imágenes expirada, limpiando...');
+            localStorage.removeItem(IMAGE_CACHE_KEY);
+          }
+        }
+      } catch (error) {
+        console.error('Error al cargar caché de imágenes:', error);
+      }
+    };
+
+    loadCache();
+  }, []);
+
+  // Observer para las referencias de imágenes
+  useEffect(() => {
+    // Registrar observadores para cada imagen que no esté en caché
+    categories.forEach(category => {
+      const imgElement = imageRefs.current.get(category.id);
+      if (imgElement && !cachedImages[category.id] && intersectionObserver.current) {
+        intersectionObserver.current.observe(imgElement);
+      }
+    });
+  }, [categories, cachedImages]);
+
+  // Guardar imágenes en caché con debounce
+  const saveImageToCache = useMemo(() => {
+    let debounceTimer: ReturnType<typeof setTimeout>;
+    
+    return (categoryId: string, imageData: string) => {
+      clearTimeout(debounceTimer);
       
-      localStorage.setItem(IMAGE_CACHE_KEY, JSON.stringify({
-        images: newCache,
-        timestamp: Date.now()
-      }));
-    } catch (error) {
-      console.error('Error al guardar imagen en caché:', error);
-    }
-  };
+      // Actualizar el estado inmediatamente para la UI
+      setCachedImages(prev => ({ ...prev, [categoryId]: imageData }));
+      
+      // Debounce la escritura en localStorage para evitar operaciones frecuentes
+      debounceTimer = setTimeout(() => {
+        try {
+          const newCache = { ...cachedImages, [categoryId]: imageData };
+          
+          localStorage.setItem(IMAGE_CACHE_KEY, JSON.stringify({
+            images: newCache,
+            timestamp: Date.now()
+          }));
+        } catch (error) {
+          console.error('Error al guardar imagen en caché:', error);
+        }
+      }, 300);
+    };
+  }, [cachedImages]);
 
   const handleImageLoad = (categoryId: string) => {
     setLoadingImages(prev => ({ ...prev, [categoryId]: false }));
@@ -94,53 +146,61 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
     setLoadingImages(prev => ({ ...prev, [categoryId]: false }));
   };
 
-  // Precargar imágenes para mejorar la experiencia
-  useEffect(() => {
-    categories.forEach(category => {
-      if (!category.id) return;
+  // Función para cargar una imagen individual
+  const loadCategoryImage = (categoryId: string) => {
+    const category = categories.find(c => c.id === categoryId);
+    if (!category) return;
+    
+    setLoadingImages(prev => ({ ...prev, [categoryId]: true }));
+    
+    const imgSource = getImageSource(category.image);
+    if (imgSource) {
+      // Cargar la imagen
+      const img = new Image();
+      img.crossOrigin = "anonymous"; // Para permitir la conversión a base64
       
-      // Si la imagen ya está en caché, no necesitamos cargarla
-      if (cachedImages[category.id]) {
-        setLoadingImages(prev => ({ ...prev, [category.id]: false }));
-        return;
-      }
-      
-      setLoadingImages(prev => ({ ...prev, [category.id]: true }));
-      
-      const imgSource = getImageSource(category.image);
-      if (imgSource) {
-        // Cargar la imagen
-        const img = new Image();
-        img.crossOrigin = "anonymous"; // Para permitir la conversión a base64
+      img.onload = () => {
+        handleImageLoad(categoryId);
         
-        img.onload = () => {
-          handleImageLoad(category.id);
+        // Convertir la imagen a base64 para guardarla en caché con compresión
+        try {
+          const canvas = document.createElement('canvas');
           
-          // Convertir la imagen a base64 para guardarla en caché
-          try {
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            
-            const ctx = canvas.getContext('2d');
-            if (ctx) {
-              ctx.drawImage(img, 0, 0);
-              const dataURL = canvas.toDataURL('image/jpeg', 0.7); // Comprimir al 70%
-              saveImageToCache(category.id, dataURL);
-            }
-          } catch (err) {
-            console.warn('No se pudo convertir la imagen a base64:', err);
+          // Determinar el tamaño óptimo para la imagen en caché
+          const maxSize = 150; // tamaño máximo para miniaturas de categoría
+          let width = img.width;
+          let height = img.height;
+          
+          // Mantener relación de aspecto pero reducir tamaño
+          if (width > height && width > maxSize) {
+            height = (height * maxSize) / width;
+            width = maxSize;
+          } else if (height > maxSize) {
+            width = (width * maxSize) / height;
+            height = maxSize;
           }
-        };
-        
-        img.onerror = () => handleImageError(category.id, imgSource);
-        img.src = imgSource;
-      } else {
-        setFailedImages(prev => ({ ...prev, [category.id]: true }));
-        setLoadingImages(prev => ({ ...prev, [category.id]: false }));
-      }
-    });
-  }, [categories, cachedImages]);
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataURL = canvas.toDataURL('image/jpeg', COMPRESSION_QUALITY);
+            saveImageToCache(categoryId, dataURL);
+          }
+        } catch (err) {
+          console.warn('No se pudo convertir la imagen a base64:', err);
+        }
+      };
+      
+      img.onerror = () => handleImageError(categoryId, imgSource);
+      img.src = imgSource;
+    } else {
+      setFailedImages(prev => ({ ...prev, [categoryId]: true }));
+      setLoadingImages(prev => ({ ...prev, [categoryId]: false }));
+    }
+  };
   
   return (
     <div className="py-4 sm:py-6 w-full">
@@ -191,10 +251,13 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
                       />
                     ) : (
                       <>
-                        {/* Mostrar imagen desde fuente original si no hay caché */}
+                        {/* Mostrar imagen desde fuente original con lazy loading */}
                         {getImageSource(category.image) && !failedImages[category.id] ? (
                           <img
-                            src={getImageSource(category.image)}
+                            ref={el => el && imageRefs.current.set(category.id, el)}
+                            data-category-id={category.id}
+                            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" // placeholder transparente
+                            data-src={getImageSource(category.image)}
                             alt={category.name}
                             className="w-full h-full object-cover"
                             loading="lazy"
