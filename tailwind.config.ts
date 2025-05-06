@@ -99,12 +99,17 @@ export default {
 						transform: 'scale(1.1)',
 						opacity: '0.8'
 					}
+				},
+				'scroll': {
+					from: { transform: 'translateX(0)' },
+					to: { transform: 'translateX(-50%)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+				'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+				'infinite-scroll': 'scroll 30s linear infinite'
 			},
 			fontFamily: {
 				sans: ['Social Gothic', 'sans-serif'],

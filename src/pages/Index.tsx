@@ -4,7 +4,27 @@ import Hero from "@/components/Hero";
 import ServicesShowcase from "@/components/ServicesShowcase";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
+import LogoCarousel from "@/components/LogoCarousel";
 import { Button } from "@/components/ui/button";
+
+const clientLogos = [
+  { url: "https://almango.com.uy/img/logos/logo-sodimac.png", alt: "Sodimac" },
+  { url: "https://almango.com.uy/img/logos/logo-devoto.png", alt: "Devoto" },
+  { url: "https://almango.com.uy/img/logos/logo-disco.png", alt: "Disco" },
+  { url: "https://almango.com.uy/img/logos/logo-geant.png", alt: "Geant" },
+  { url: "https://almango.com.uy/img/logos/Logos-Almango-03.png", alt: "Almango" },
+  { url: "https://almango.com.uy/img/logos/logo-lacueva.png", alt: "La Cueva" },
+  { url: "https://almango.com.uy/img/logos/logo-lamulata.png", alt: "La Mulata" },
+  { url: "https://almango.com.uy/img/logos/logo-prontometal.png", alt: "Pronto Metal" },
+  { url: "https://almango.com.uy/img/logos/logo-arte.png", alt: "Arte" },
+  { url: "https://almango.com.uy/img/logos/logo-cimarron.png", alt: "Cimarron" },
+  { url: "https://almango.com.uy/img/logos/logo-ferrobasso.png", alt: "Ferro Basso" },
+  { url: "https://almango.com.uy/img/logos/logo-elombu.png", alt: "El Ombu" },
+  { url: "https://almango.com.uy/img/logos/logo-adi.png", alt: "ADI" },
+  { url: "https://almango.com.uy/img/logos/logo-volkers.png", alt: "Volkers" },
+  { url: "https://almango.com.uy/img/logos/logo-tiendamia.png", alt: "Tienda Mia" },
+  { url: "https://almango.com.uy/img/logos/logo-blanes.png", alt: "Blanes" }
+];
 
 const Index = () => {
   return <div className="min-h-screen flex flex-col">
@@ -13,6 +33,24 @@ const Index = () => {
         <Hero />
         
         <ServicesShowcase />
+        
+        {/* Partners Section */}
+        <section className="bg-[#F0F0F0] py-8">
+          <div className="bg-[#F97316] py-6 mb-8">
+            <h2 className="text-3xl font-bold text-center text-white uppercase">
+              ALGUNOS DE NUESTROS CLIENTES Y ALIANZAS COMERCIALES
+            </h2>
+          </div>
+          
+          <div className="container mx-auto px-4">
+            <div className="mb-6">
+              <LogoCarousel logos={clientLogos.slice(0, 8)} direction="rtl" />
+            </div>
+            <div>
+              <LogoCarousel logos={clientLogos.slice(8)} direction="ltr" />
+            </div>
+          </div>
+        </section>
         
         <section id="como-contratar" className="py-20 px-4 bg-primary text-white">
           <div className="container mx-auto">
