@@ -7,6 +7,11 @@ interface ServiceItem {
   imageUrl: string;
 }
 
+interface SealItem {
+  imageUrl: string;
+  alt: string;
+}
+
 const ServiceItems: ServiceItem[] = [
   { title: "INSTALACIONES ELÉCTRICAS", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-01.png" },
   { title: "ARMADO DE MUEBLES", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-04.png" },
@@ -28,6 +33,15 @@ const ServiceItems: ServiceItem[] = [
   { title: "STEEL FRAMING", imageUrl: "https://almango.com.uy/img/iconos/icon-steelframing.png" },
   { title: "MONTAJES PARA DEPÓSITOS", imageUrl: "https://almango.com.uy/img/iconos/icon-depositos.png" },
   { title: "CALEFACCIÓN", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-18.png" }
+];
+
+const SealItems: SealItem[] = [
+  { imageUrl: "https://almango.com.uy/img/caracteristicas/01-atencion-personalizada.svg", alt: "Atención personalizada" },
+  { imageUrl: "https://almango.com.uy/img/caracteristicas/02-servicios-seguros.svg", alt: "Servicios seguros" },
+  { imageUrl: "https://almango.com.uy/img/caracteristicas/03-profesionales-calificados.svg", alt: "Profesionales calificados" },
+  { imageUrl: "https://almango.com.uy/img/caracteristicas/04-pago-online.svg", alt: "Pago online" },
+  { imageUrl: "https://almango.com.uy/img/caracteristicas/05-garantia-de-instalacion.svg", alt: "Garantía de instalación" },
+  { imageUrl: "https://almango.com.uy/img/caracteristicas/06-proveedores-verificados.svg", alt: "Proveedores verificados" }
 ];
 
 const ServicesShowcase: React.FC = () => {
@@ -70,6 +84,21 @@ const ServicesShowcase: React.FC = () => {
           
           <div className="text-[#1EAEDB] text-2xl md:text-3xl font-bold uppercase">
             Y CONTANDO...
+          </div>
+        </div>
+        
+        {/* Seals Section */}
+        <div className="mt-16">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 md:gap-6">
+            {SealItems.map((seal, index) => (
+              <div key={index} className="flex flex-col items-center">
+                <img 
+                  src={seal.imageUrl} 
+                  alt={seal.alt}
+                  className="h-24 w-24 mb-2 transition-transform hover:scale-110 duration-300"
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>
