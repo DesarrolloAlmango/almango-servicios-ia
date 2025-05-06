@@ -1,14 +1,11 @@
-
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ContactInfo from "@/components/ContactInfo";
-
 const Hero = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  
   return <div className={`relative w-full overflow-hidden ${isMobile ? "min-h-[calc(100vh-40px)]" : "min-h-[100vh] md:min-h-[110vh]"} flex items-start pt-20 md:pt-28`}>
       {/* Hero background image */}
       <div className="absolute inset-0 z-0">
@@ -20,17 +17,11 @@ const Hero = () => {
       
       {/* Contenedor principal con ajustes precisos de margen */}
       <div className="container relative z-10 mx-auto px-6 text-left pl-8 md:pl-12 mt-[66px] sm:mt-[50px] md:mt-[23px]">
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-[5px] max-w-xl animate-fade-in font-sans drop-shadow-lg px-0 py-0 my-0 lg:text-4xl">
-          PROFESIONALES A TU SERVICIO
-        </h1>
-        <p className="text-xl text-white mb-2 max-w-xl font-normal animate-fade-in drop-shadow-lg md:text-xl py-[4px]">
-          SOLUCIONES PARA TU HOGAR O EMPRESA EN UN SOLO LUGAR
-        </p>
-        <Button 
-          onClick={() => navigate('/servicios')} 
-          className="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md text-lg shadow-lg flex items-center transition-all hover:scale-105 animate-fade-in my-0 mx-0 py-[23px] px-[21px] font-serif"
-          style={{ animation: 'buttonGlow 2s infinite ease-in-out' }}
-        >
+        <h1 className="text-3xl md:text-4xl font-bold text-white mb-[5px] max-w-xl animate-fade-in font-sans drop-shadow-lg px-0 py-0 my-0 lg:text-4xl">SOLICITÁ TU SERVICIO EN MINUTOS</h1>
+        <p className="text-xl text-white mb-2 max-w-xl font-normal animate-fade-in drop-shadow-lg md:text-xl py-[4px]">RÁPIDO. FÁCIL. CON GARANTÍA. SIN VUELTAS. </p>
+        <Button onClick={() => navigate('/servicios')} className="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md text-lg shadow-lg flex items-center transition-all hover:scale-105 animate-fade-in my-0 mx-0 py-[23px] px-[21px] font-serif" style={{
+        animation: 'buttonGlow 2s infinite ease-in-out'
+      }}>
           Solicita Tu Servicio <ArrowRight className="ml-2" size={18} />
         </Button>
       </div>
