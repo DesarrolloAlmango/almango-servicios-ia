@@ -5,11 +5,15 @@ import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext
 interface ServiceCarouselProps {
   children: React.ReactNode[];
   title?: string;
+  showLoadingNames?: boolean; // New prop for showing loading names
+  loadingItems?: string[]; // Names to display during loading
 }
 
 const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
   children,
-  title
+  title,
+  showLoadingNames = false,
+  loadingItems = []
 }) => {
   if (!children || children.length === 0) {
     return <div className="text-center py-8">No hay servicios disponibles</div>;
@@ -29,6 +33,8 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
           containScroll: "trimSnaps"
         }} 
         className="w-full relative"
+        showLoadingNames={showLoadingNames}
+        loadingItems={loadingItems}
       >
         <CarouselContent className="-ml-2 sm:-ml-4">
           {children.map((child, index) => (
