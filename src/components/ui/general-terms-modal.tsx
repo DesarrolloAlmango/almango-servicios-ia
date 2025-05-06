@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTheme } from "@/hooks/useTheme";
 
 interface GeneralTermsModalProps {
   isOpen: boolean;
@@ -20,6 +22,7 @@ export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
   const [terms, setTerms] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const isMobile = useIsMobile();
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (isOpen) {
@@ -64,9 +67,16 @@ export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
     return textarea.value;
   };
 
+  const isDarkMode = theme === 'dark';
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl max-h-screen overflow-y-auto">
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={(open) => !open && onClose()}
+    >
+      <DialogContent 
+        className={`max-w-3xl max-h-screen overflow-y-auto ${isDarkMode ? 'dark' : ''}`}
+      >
         <DialogHeader>
           <DialogTitle className="text-center text-xl">
             Términos y Condiciones

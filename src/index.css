@@ -267,6 +267,14 @@ html {
   color: #333;
 }
 
+/* Make sure modals and sheets respect the current theme */
+/* This ensures the cart drawer and other dialogs follow the theme setting */
+.dark .Dialog,
+.dark .Sheet,
+.dark [role="dialog"] {
+  color-scheme: dark;
+}
+
 /* Estilos para la distribución de las tarjetas de servicio */
 .grid-container {
   display: grid;

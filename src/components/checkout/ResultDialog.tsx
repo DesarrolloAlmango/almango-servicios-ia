@@ -13,6 +13,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { ServiceRequest } from "@/types/checkoutTypes";
 import MercadoPagoPayment from "./MercadoPagoPayment";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/hooks/useTheme";
 
 interface ResultDialogProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
   onViewServiceDetails,
 }) => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
   const hasPendingMercadoPagoPayments = serviceRequests.some(
     req => req.requestData.MetodoPagosID === 4 && !req.paymentConfirmed
   );
@@ -43,10 +45,12 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
     navigate('/'); // Redirect to home page on close
   };
 
+  const isDarkMode = theme === 'dark';
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
       <DialogContent 
-        className="max-w-md" 
+        className={`max-w-md ${isDarkMode ? 'dark' : ''}`}
         onPointerDownOutside={(e) => e.preventDefault()} 
         onEscapeKeyDown={(e) => e.preventDefault()}
         hideCloseButton={true}
