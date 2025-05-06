@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { Card } from "@/components/ui/card";
 
 interface ServiceItem {
   title: string;
@@ -65,14 +64,14 @@ const ServicesShowcase: React.FC = () => {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
           {ServiceItems.map((service, index) => (
             <div key={index} className="flex flex-col items-center">
-              <Card className="w-full aspect-square flex flex-col items-center justify-center p-4 hover:shadow-md transition-shadow duration-300 service-card-hover">
+              <div className="w-full aspect-square flex flex-col items-center justify-center p-4 hover:shadow-md transition-shadow duration-300">
                 <img 
                   src={service.imageUrl} 
                   alt={service.title} 
                   className="h-16 w-16 mb-4 transition-transform duration-300"
                 />
                 <h3 className="text-xs sm:text-sm text-center font-medium text-gray-800">{service.title}</h3>
-              </Card>
+              </div>
             </div>
           ))}
         </div>
