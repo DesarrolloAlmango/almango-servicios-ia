@@ -1,51 +1,94 @@
-
 import React from 'react';
-
 interface ServiceItem {
   title: string;
   imageUrl: string;
 }
-
 interface SealItem {
   imageUrl: string;
   alt: string;
 }
-
-const ServiceItems: ServiceItem[] = [
-  { title: "INSTALACIONES ELÉCTRICAS", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-01.png" },
-  { title: "ARMADO DE MUEBLES", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-04.png" },
-  { title: "INSTALACIONES SANITARIAS", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-02.png" },
-  { title: "SERVICIO DE A/A", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-05.png" },
-  { title: "MUDANZAS", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-03.png" },
-  { title: "INSTALACIÓN DE ELECTRO DOMÉSTICOS", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-06.png" },
-  { title: "JARDINERÍA", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-07.png" },
-  { title: "ALBAÑILERÍA", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-11.png" },
-  { title: "REVESTIMIENTO", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-08.png" },
-  { title: "PINTURA", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-12.png" },
-  { title: "SISTEMAS DE SEGURIDAD", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-09.png" },
-  { title: "CERRAJERÍA", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-09.png" },
-  { title: "DECO HOGAR", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-10.png" },
-  { title: "HERRERÍA", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-14.png" },
-  { title: "LIMPIEZA", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-15.png" },
-  { title: "FUMIGACIÓN", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-16.png" },
-  { title: "SERVICIO TÉCNICO", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-17.png" },
-  { title: "STEEL FRAMING", imageUrl: "https://almango.com.uy/img/iconos/icon-steelframing.png" },
-  { title: "MONTAJES PARA DEPÓSITOS", imageUrl: "https://almango.com.uy/img/iconos/icon-depositos.png" },
-  { title: "CALEFACCIÓN", imageUrl: "https://almango.com.uy/img/iconos/icono-almango-18.png" }
-];
-
-const SealItems: SealItem[] = [
-  { imageUrl: "https://almango.com.uy/img/caracteristicas/01-atencion-personalizada.svg", alt: "Atención personalizada" },
-  { imageUrl: "https://almango.com.uy/img/caracteristicas/02-servicios-seguros.svg", alt: "Servicios seguros" },
-  { imageUrl: "https://almango.com.uy/img/caracteristicas/03-profesionales-calificados.svg", alt: "Profesionales calificados" },
-  { imageUrl: "https://almango.com.uy/img/caracteristicas/04-pago-online.svg", alt: "Pago online" },
-  { imageUrl: "https://almango.com.uy/img/caracteristicas/05-garantia-de-instalacion.svg", alt: "Garantía de instalación" },
-  { imageUrl: "https://almango.com.uy/img/caracteristicas/06-proveedores-verificados.svg", alt: "Proveedores verificados" }
-];
-
+const ServiceItems: ServiceItem[] = [{
+  title: "INSTALACIONES ELÉCTRICAS",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-01.png"
+}, {
+  title: "ARMADO DE MUEBLES",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-04.png"
+}, {
+  title: "INSTALACIONES SANITARIAS",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-02.png"
+}, {
+  title: "SERVICIO DE A/A",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-05.png"
+}, {
+  title: "MUDANZAS",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-03.png"
+}, {
+  title: "INSTALACIÓN DE ELECTRO DOMÉSTICOS",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-06.png"
+}, {
+  title: "JARDINERÍA",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-07.png"
+}, {
+  title: "ALBAÑILERÍA",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-11.png"
+}, {
+  title: "REVESTIMIENTO",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-08.png"
+}, {
+  title: "PINTURA",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-12.png"
+}, {
+  title: "SISTEMAS DE SEGURIDAD",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-09.png"
+}, {
+  title: "CERRAJERÍA",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-09.png"
+}, {
+  title: "DECO HOGAR",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-10.png"
+}, {
+  title: "HERRERÍA",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-14.png"
+}, {
+  title: "LIMPIEZA",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-15.png"
+}, {
+  title: "FUMIGACIÓN",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-16.png"
+}, {
+  title: "SERVICIO TÉCNICO",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-17.png"
+}, {
+  title: "STEEL FRAMING",
+  imageUrl: "https://almango.com.uy/img/iconos/icon-steelframing.png"
+}, {
+  title: "MONTAJES PARA DEPÓSITOS",
+  imageUrl: "https://almango.com.uy/img/iconos/icon-depositos.png"
+}, {
+  title: "CALEFACCIÓN",
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-18.png"
+}];
+const SealItems: SealItem[] = [{
+  imageUrl: "https://almango.com.uy/img/caracteristicas/01-atencion-personalizada.svg",
+  alt: "Atención personalizada"
+}, {
+  imageUrl: "https://almango.com.uy/img/caracteristicas/02-servicios-seguros.svg",
+  alt: "Servicios seguros"
+}, {
+  imageUrl: "https://almango.com.uy/img/caracteristicas/03-profesionales-calificados.svg",
+  alt: "Profesionales calificados"
+}, {
+  imageUrl: "https://almango.com.uy/img/caracteristicas/04-pago-online.svg",
+  alt: "Pago online"
+}, {
+  imageUrl: "https://almango.com.uy/img/caracteristicas/05-garantia-de-instalacion.svg",
+  alt: "Garantía de instalación"
+}, {
+  imageUrl: "https://almango.com.uy/img/caracteristicas/06-proveedores-verificados.svg",
+  alt: "Proveedores verificados"
+}];
 const ServicesShowcase: React.FC = () => {
-  return (
-    <section className="py-16 bg-[#F0F0F0]">
+  return <section className="py-16 bg-[#F0F0F0]">
       <div className="container mx-auto">
         <h2 className="text-3xl font-bold mb-10 text-center text-secondary uppercase">Nuestros Servicios</h2>
         
@@ -63,18 +106,12 @@ const ServicesShowcase: React.FC = () => {
         
         {/* Further reduced gaps and adjusted spacing between rows */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-1 gap-y-0">
-          {ServiceItems.map((service, index) => (
-            <div key={index} className="flex flex-col items-center py-0.5">
-              <div className="flex flex-col items-center justify-center">
-                <img 
-                  src={service.imageUrl} 
-                  alt={service.title} 
-                  className="h-14 w-14 mb-1 hover:scale-125 transition-transform duration-300"
-                />
+          {ServiceItems.map((service, index) => <div key={index} className="flex flex-col items-center py-0.5">
+              <div className="flex flex-col items-center justify-center px-[29px] py-[6px] my-[8px] mx-[3px]">
+                <img src={service.imageUrl} alt={service.title} className="h-14 w-14 mb-1 hover:scale-125 transition-transform duration-300" />
                 <h3 className="text-xs text-center font-medium text-gray-800">{service.title}</h3>
               </div>
-            </div>
-          ))}
+            </div>)}
         </div>
         
         {/* Services Counter Section - Updated with blue color */}
@@ -84,14 +121,9 @@ const ServicesShowcase: React.FC = () => {
           </div>
           
           <div className="flex">
-            {[0, 9, 8, 8, 0, 0].map((digit, index) => (
-              <div 
-                key={index} 
-                className="bg-[#1A1F2C] text-white w-10 h-14 md:w-12 md:h-16 flex items-center justify-center text-xl md:text-2xl font-bold mx-0.5"
-              >
+            {[0, 9, 8, 8, 0, 0].map((digit, index) => <div key={index} className="bg-[#1A1F2C] text-white w-10 h-14 md:w-12 md:h-16 flex items-center justify-center text-xl md:text-2xl font-bold mx-0.5">
                 {digit}
-              </div>
-            ))}
+              </div>)}
           </div>
           
           <div className="text-secondary text-2xl md:text-3xl font-bold uppercase">
@@ -102,20 +134,12 @@ const ServicesShowcase: React.FC = () => {
         {/* Seals Section - Updated with larger size */}
         <div className="mt-16">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 md:gap-6">
-            {SealItems.map((seal, index) => (
-              <div key={index} className="flex flex-col items-center">
-                <img 
-                  src={seal.imageUrl} 
-                  alt={seal.alt}
-                  className="h-28 w-28 mb-2 transition-transform hover:scale-110 duration-300"
-                />
-              </div>
-            ))}
+            {SealItems.map((seal, index) => <div key={index} className="flex flex-col items-center">
+                <img src={seal.imageUrl} alt={seal.alt} className="h-28 w-28 mb-2 transition-transform hover:scale-110 duration-300" />
+              </div>)}
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default ServicesShowcase;
