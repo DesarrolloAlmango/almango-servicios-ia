@@ -37,17 +37,17 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
       >
         <CarouselContent 
           className={`${direction === "rtl" ? "animate-infinite-scroll-reverse" : "animate-infinite-scroll"} 
-            ${speed === "fast" ? "fast-scroll" : ""} 
+            ${speed === "fast" ? "slow-scroll" : ""} 
             ${speed === "super-fast" ? "super-fast-scroll" : ""} 
             ${speed === "ultra-fast" ? "moderate-scroll" : ""}
-            flex ${direction === "rtl" ? "flex-row-reverse" : "flex-row"} w-max`}
+            flex ${direction === "rtl" ? "flex-row-reverse" : "flex-row"} w-max gap-0`}
         >
           {extendedLogos.map((logo, index) => (
             <CarouselItem 
               key={index} 
-              className="min-w-0 basis-1/12 sm:basis-1/12 md:basis-1/14 lg:basis-1/16 xl:basis-1/18 flex-shrink-0"
+              className="min-w-0 pl-0 basis-auto flex-shrink-0"
             >
-              <div className="h-28 flex items-center justify-center p-2 transition-all hover:scale-105">
+              <div className="h-28 flex items-center justify-center p-1 transition-all hover:scale-105">
                 <img 
                   src={logo.url} 
                   alt={logo.alt} 
