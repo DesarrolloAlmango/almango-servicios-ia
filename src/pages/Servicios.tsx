@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -16,7 +17,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useQuery } from "@tanstack/react-query";
-import { Skeleton, TextSkeleton, CategorySkeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import PurchaseLocationModal from "@/components/PurchaseLocationModal";
 
@@ -220,12 +221,12 @@ const Servicios = () => {
   }, [commerceId, services]);
 
   useEffect(() => {
-    // Add dark mode class to body when component mounts
-    document.body.classList.add('dark', 'servicios-page');
+    // DO NOT add dark mode class to body, just to the page container
+    // The dark class will be handled by the page component itself
     
     // Clean up function to remove class when component unmounts
     return () => {
-      document.body.classList.remove('dark', 'servicios-page');
+      // Nothing to clean up as we're not modifying the body anymore
     };
   }, []);
 
