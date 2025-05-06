@@ -20,7 +20,7 @@ export default {
 		},
 		extend: {
 			screens: {
-				'xl': '1430px',
+				'xl': '1400px',
 			},
 			colors: {
 				border: 'hsl(var(--border))',
