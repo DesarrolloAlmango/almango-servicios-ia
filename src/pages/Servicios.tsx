@@ -485,7 +485,7 @@ const Servicios = () => {
   if (isServicesLoading && isLoadingMudanza) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
-        <main className="flex-grow py-8 px-4 relative z-10 bg-[#14162c] text-white">
+        <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
           <div className="container mx-auto">
             <div className="flex justify-between items-center mb-8 mt-4">
               <Button 
@@ -531,7 +531,7 @@ const Servicios = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <main className="flex-grow py-8 px-4 relative z-10 bg-[#14162c] text-white">
+      <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-8 mt-4">
             <Button 

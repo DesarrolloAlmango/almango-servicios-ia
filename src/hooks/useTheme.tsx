@@ -22,10 +22,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         return savedTheme;
       }
       
-      // Check system preference
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return "dark";
-      }
+      // We're removing the system preference check to prevent default dark mode
+      // This ensures we default to light mode on all devices
     }
     
     // Default to light

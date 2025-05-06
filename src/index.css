@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -104,24 +105,31 @@
     font-family: 'Arkibal', sans-serif !important;
   }
   
+  /* Remove the dark class here - we want to be explicit with our dark styling */
   body.dark {
-    @apply bg-[#14162c] text-white;
+    @apply bg-background text-white;
   }
 }
 
-/* Dark background for "Nuestros Servicios" page */
-.bg-\[\#14162c\] .service-card-hover,
-.bg-\[\#14162c\] [data-component="service-card"] {
+/* Specifically target the Servicios page background independent of theme */
+.servicios-page {
+  background-color: #14162c !important;
+  color: white;
+}
+
+/* Dark background for "Nuestros Servicios" page - independent of theme */
+.servicios-page .service-card-hover,
+.servicios-page [data-component="service-card"] {
   background-color: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 105, 0, 0.5);
 }
 
-.bg-\[\#14162c\] .service-card-hover:hover,
-.bg-\[\#14162c\] [data-component="service-card"]:hover {
+.servicios-page .service-card-hover:hover,
+.servicios-page [data-component="service-card"]:hover {
   background-color: rgba(255, 166, 0, 0.15) !important;
 }
 
-.bg-\[\#14162c\] .carousel-title {
+.servicios-page .carousel-title {
   color: #f0f0f0;
 }
 
