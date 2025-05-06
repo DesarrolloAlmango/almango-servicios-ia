@@ -199,7 +199,7 @@ html {
     transform: translateX(0);
   }
   to {
-    transform: translateX(-50%);
+    transform: translateX(-100%);
   }
 }
 
@@ -216,20 +216,20 @@ html {
 }
 
 .animate-infinite-scroll {
-  animation: scroll 30s linear infinite;
+  animation: scroll 60s linear infinite;
 }
 
 .animate-infinite-scroll-reverse {
-  animation: scroll 30s linear infinite reverse;
+  animation: scroll 60s linear infinite reverse;
 }
 
 /* Add faster scroll animation */
 .fast-scroll.animate-infinite-scroll {
-  animation: scroll 20s linear infinite;
+  animation: scroll 40s linear infinite;
 }
 
 .fast-scroll.animate-infinite-scroll-reverse {
-  animation: scroll 20s linear infinite reverse;
+  animation: scroll 40s linear infinite reverse;
 }
 
 .transition-transform {

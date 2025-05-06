@@ -17,8 +17,9 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
     return null;
   }
 
-  // Triple the logos to create a longer seamless loop effect
-  const extendedLogos = [...logos, ...logos, ...logos];
+  // Duplicate the logos multiple times to create a longer seamless loop effect
+  // By repeating 3-4 times, we ensure no visible reset during scroll
+  const extendedLogos = [...logos, ...logos, ...logos, ...logos];
   
   return (
     <div className="overflow-hidden">
@@ -37,9 +38,9 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
           {extendedLogos.map((logo, index) => (
             <CarouselItem 
               key={index} 
-              className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 flex-shrink-0"
+              className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/6 flex-shrink-0"
             >
-              <div className="h-32 flex items-center justify-center p-4 transition-all hover:scale-105">
+              <div className="h-36 flex items-center justify-center p-4 transition-all hover:scale-105">
                 <img 
                   src={logo.url} 
                   alt={logo.alt}

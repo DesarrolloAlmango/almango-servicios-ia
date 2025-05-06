@@ -7,24 +7,28 @@ import LogoCarousel from "@/components/LogoCarousel";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-// First 6 logos
+// First 8 logos
 const firstHalfLogos = [
   { url: "https://almango.com.uy/img/logos/logo-sodimac.png", alt: "Sodimac" },
   { url: "https://almango.com.uy/img/logos/logo-devoto.png", alt: "Devoto" },
   { url: "https://almango.com.uy/img/logos/logo-disco.png", alt: "Disco" },
   { url: "https://almango.com.uy/img/logos/logo-geant.png", alt: "Geant" },
   { url: "https://almango.com.uy/img/logos/Logos-Almango-03.png", alt: "Almango" },
-  { url: "https://almango.com.uy/img/logos/logo-lacueva.png", alt: "La Cueva" }
+  { url: "https://almango.com.uy/img/logos/logo-lacueva.png", alt: "La Cueva" },
+  { url: "https://almango.com.uy/img/logos/logo-lamulata.png", alt: "La Mulata" },
+  { url: "https://almango.com.uy/img/logos/logo-prontometal.png", alt: "Pronto Metal" }
 ];
 
-// Last 6 logos
+// Last 8 logos
 const secondHalfLogos = [
-  { url: "https://almango.com.uy/img/logos/logo-lamulata.png", alt: "La Mulata" },
-  { url: "https://almango.com.uy/img/logos/logo-prontometal.png", alt: "Pronto Metal" },
   { url: "https://almango.com.uy/img/logos/logo-arte.png", alt: "Arte" },
   { url: "https://almango.com.uy/img/logos/logo-cimarron.png", alt: "Cimarron" },
   { url: "https://almango.com.uy/img/logos/logo-ferrobasso.png", alt: "Ferro Basso" },
-  { url: "https://almango.com.uy/img/logos/logo-elombu.png", alt: "El Ombu" }
+  { url: "https://almango.com.uy/img/logos/logo-elombu.png", alt: "El Ombu" },
+  { url: "https://almango.com.uy/img/logos/logo-adi.png", alt: "ADI" },
+  { url: "https://almango.com.uy/img/logos/logo-volkers.png", alt: "Volkers" },
+  { url: "https://almango.com.uy/img/logos/logo-tiendamia.png", alt: "Tienda Mia" },
+  { url: "https://almango.com.uy/img/logos/logo-blanes.png", alt: "Blanes" }
 ];
 
 const Index = () => {
