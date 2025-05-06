@@ -45,12 +45,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     // Then add the current theme
     root.classList.add(theme);
     
-    // Additionally, for dark mode, add a class to the body
-    if (theme === "dark") {
-      document.body.classList.add("dark");
-    } else {
-      document.body.classList.remove("dark");
-    }
+    // Note: We don't add dark class to body anymore
+    // This is now handled per-page with conditional classes
     
     console.log("Theme changed to:", theme);
   }, [theme]);
