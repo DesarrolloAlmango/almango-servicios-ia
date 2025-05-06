@@ -1,4 +1,3 @@
-
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import ServicesShowcase from "@/components/ServicesShowcase";
@@ -8,62 +7,29 @@ import LogoCarousel from "@/components/LogoCarousel";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
-const clientLogos = [{
-  url: "https://almango.com.uy/img/logos/logo-sodimac.png",
-  alt: "Sodimac"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-devoto.png",
-  alt: "Devoto"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-disco.png",
-  alt: "Disco"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-geant.png",
-  alt: "Geant"
-}, {
-  url: "https://almango.com.uy/img/logos/Logos-Almango-03.png",
-  alt: "Almango"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-lacueva.png",
-  alt: "La Cueva"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-lamulata.png",
-  alt: "La Mulata"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-prontometal.png",
-  alt: "Pronto Metal"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-arte.png",
-  alt: "Arte"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-cimarron.png",
-  alt: "Cimarron"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-ferrobasso.png",
-  alt: "Ferro Basso"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-elombu.png",
-  alt: "El Ombu"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-adi.png",
-  alt: "ADI"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-volkers.png",
-  alt: "Volkers"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-tiendamia.png",
-  alt: "Tienda Mia"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-blanes.png",
-  alt: "Blanes"
-}];
+// First 7 logos
+const firstHalfLogos = [
+  { url: "https://almango.com.uy/img/logos/logo-sodimac.png", alt: "Sodimac" },
+  { url: "https://almango.com.uy/img/logos/logo-devoto.png", alt: "Devoto" },
+  { url: "https://almango.com.uy/img/logos/logo-disco.png", alt: "Disco" },
+  { url: "https://almango.com.uy/img/logos/logo-geant.png", alt: "Geant" },
+  { url: "https://almango.com.uy/img/logos/Logos-Almango-03.png", alt: "Almango" },
+  { url: "https://almango.com.uy/img/logos/logo-lacueva.png", alt: "La Cueva" },
+  { url: "https://almango.com.uy/img/logos/logo-lamulata.png", alt: "La Mulata" }
+];
+
+// Last 7 logos
+const secondHalfLogos = [
+  { url: "https://almango.com.uy/img/logos/logo-prontometal.png", alt: "Pronto Metal" },
+  { url: "https://almango.com.uy/img/logos/logo-arte.png", alt: "Arte" },
+  { url: "https://almango.com.uy/img/logos/logo-cimarron.png", alt: "Cimarron" },
+  { url: "https://almango.com.uy/img/logos/logo-ferrobasso.png", alt: "Ferro Basso" },
+  { url: "https://almango.com.uy/img/logos/logo-elombu.png", alt: "El Ombu" },
+  { url: "https://almango.com.uy/img/logos/logo-adi.png", alt: "ADI" },
+  { url: "https://almango.com.uy/img/logos/logo-volkers.png", alt: "Volkers" }
+];
 
 const Index = () => {
-  // Split logos into equal halves
-  const halfLength = Math.ceil(clientLogos.length / 2);
-  const firstHalf = clientLogos.slice(0, halfLength);
-  const secondHalf = clientLogos.slice(halfLength);
-  
   return <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow" id="inicio">
@@ -75,7 +41,7 @@ const Index = () => {
         
         {/* Partners Section */}
         <section className="bg-[#F0F0F0] py-8">
-          <div className="bg-[#F97316] py-6 mb-8">
+          <div className="bg-[#F97316] py-6 mb-8 -mt-8">
             <h2 className="font-bold text-center text-white uppercase text-2xl">
               ALGUNOS DE NUESTROS CLIENTES Y ALIANZAS COMERCIALES
             </h2>
@@ -83,10 +49,10 @@ const Index = () => {
           
           <div className="container mx-auto px-4">
             <div className="mb-6">
-              <LogoCarousel logos={firstHalf} direction="rtl" speed="fast" />
+              <LogoCarousel logos={firstHalfLogos} direction="rtl" speed="fast" />
             </div>
             <div>
-              <LogoCarousel logos={secondHalf} direction="ltr" speed="fast" />
+              <LogoCarousel logos={secondHalfLogos} direction="ltr" speed="fast" />
             </div>
           </div>
         </section>
