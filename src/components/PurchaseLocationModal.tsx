@@ -7,6 +7,7 @@ import { MapPin, Loader2, ChevronDown, X } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import LocationStep from "@/components/checkout/LocationStep";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Store {
   id: string;
@@ -211,6 +212,13 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     }
   };
 
+  // Function to blur the active element to close the keyboard
+  const closeKeyboard = () => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  };
+
   const handleStoreChange = (value: string) => {
     const selectedStoreObj = [...fixedStores, ...localStores].find(store => store.id === value);
     setSelectedStore(value);
@@ -221,6 +229,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     }
     
     setIsStoreDropdownOpen(false);
+    
+    // Close the keyboard when a store is selected
+    closeKeyboard();
   };
 
   const handleInputClick = () => {
@@ -439,6 +450,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                     value={otherStore}
                     onChange={(e) => setOtherStore(e.target.value)}
                     className="text-xs"
+                    onFocus={() => {
+                      // This is intentionally empty as we want the keyboard to open on focus
+                    }}
                   />
                 </div>
               )}
@@ -457,6 +471,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   onValueChange={(value) => {
                     setSelectedDepartment(value);
                     setSelectedLocation("");
+                    // Close keyboard when selecting from dropdown
+                    closeKeyboard();
                   }}
                   disabled={loadingLocation.departments}
                 >
@@ -481,7 +497,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                 </label>
                 <Select 
                   value={selectedLocation} 
-                  onValueChange={setSelectedLocation}
+                  onValueChange={(value) => {
+                    setSelectedLocation(value);
+                    // Close keyboard when selecting from dropdown
+                    closeKeyboard();
+                  }}
                   disabled={!selectedDepartment || loadingLocation.municipalities}
                 >
                   <SelectTrigger>
@@ -524,5 +544,5 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     </Dialog>
   );
 };
-/**/
+
 export default PurchaseLocationModal;
