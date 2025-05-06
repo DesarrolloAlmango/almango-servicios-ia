@@ -1,9 +1,10 @@
-
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { Button } from "@/components/ui/button";
+import { CalendarClock, UserCheck, DollarSign, Star } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Index = () => {
   return <div className="min-h-screen flex flex-col">
@@ -45,6 +46,55 @@ const Index = () => {
                   <p className="text-gray-600">Todos nuestros servicios cuentan con garantía para tu tranquilidad.</p>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+        
+        <section id="como-contratar" className="py-20 px-4 bg-white">
+          <div className="container mx-auto">
+            <h2 className="text-3xl font-bold mb-4 text-center text-secondary uppercase">¿CÓMO CONTRATAR?</h2>
+            <h3 className="text-xl font-medium mb-12 text-center text-gray-600">PROCESO DE CONTRATACIÓN</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+              <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardContent className="p-6 text-center flex flex-col items-center">
+                  <div className="bg-secondary/10 p-4 rounded-full mb-4">
+                    <CalendarClock className="h-8 w-8 text-secondary" />
+                  </div>
+                  <h4 className="text-lg font-semibold mb-2">Agendá fecha y hora</h4>
+                  <p className="text-gray-600">Coordinación inmediata.</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardContent className="p-6 text-center flex flex-col items-center">
+                  <div className="bg-secondary/10 p-4 rounded-full mb-4">
+                    <UserCheck className="h-8 w-8 text-secondary" />
+                  </div>
+                  <h4 className="text-lg font-semibold mb-2">Recibí al técnico</h4>
+                  <p className="text-gray-600">Un profesional calificado realizará el trabajo.</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardContent className="p-6 text-center flex flex-col items-center">
+                  <div className="bg-secondary/10 p-4 rounded-full mb-4">
+                    <DollarSign className="h-8 w-8 text-secondary" />
+                  </div>
+                  <h4 className="text-lg font-semibold mb-2">Realizá el pago al finalizar</h4>
+                  <p className="text-gray-600">Seleccioná el medio que más te convenga.</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-none shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardContent className="p-6 text-center flex flex-col items-center">
+                  <div className="bg-secondary/10 p-4 rounded-full mb-4">
+                    <Star className="h-8 w-8 text-secondary" />
+                  </div>
+                  <h4 className="text-lg font-semibold mb-2">Ayudanos a mejorar</h4>
+                  <p className="text-gray-600">Calificá el servicio, tus comentarios importan.</p>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>
