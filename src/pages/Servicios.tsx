@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -16,7 +17,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useQuery } from "@tanstack/react-query";
-import { Skeleton, TextSkeleton, CategorySkeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import PurchaseLocationModal from "@/components/PurchaseLocationModal";
 
@@ -484,7 +485,15 @@ const Servicios = () => {
 
   if (isServicesLoading && isLoadingMudanza) {
     return (
-      <div className="min-h-screen flex flex-col bg-background">
+      <div className="min-h-screen flex flex-col">
+        <div className="absolute inset-0 z-0 bg-[#14162c]">
+          <div className="absolute inset-0 z-1" style={{
+            background: "radial-gradient(circle at 20% 30%, #008be1 0%, transparent 40%), radial-gradient(circle at 80% 70%, #ff6900 0%, transparent 40%), radial-gradient(circle at 50% 50%, #0EA5E9 0%, transparent 30%)",
+            opacity: 0.8
+          }}></div>
+          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#14162c] to-transparent z-2"></div>
+        </div>
         <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
           <div className="container mx-auto">
             <div className="flex justify-between items-center mb-8 mt-4">
@@ -525,12 +534,18 @@ const Servicios = () => {
     );
   }
 
-  console.log("Servicios recibidos de la API:", displayedServices);
-  console.log("Servicios de mudanza recibidos de la API:", displayedMudanzaServices);
-  console.log("Productos en el carrito:", cartItems);
-
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col relative">
+      {/* Hero-style background with primary colors */}
+      <div className="absolute inset-0 z-0 bg-[#14162c]">
+        <div className="absolute inset-0 z-1" style={{
+          background: "radial-gradient(circle at 20% 30%, #008be1 0%, transparent 40%), radial-gradient(circle at 80% 70%, #ff6900 0%, transparent 40%), radial-gradient(circle at 50% 50%, #0EA5E9 0%, transparent 30%)",
+          opacity: 0.8
+        }}></div>
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#14162c] to-transparent z-2"></div>
+      </div>
+      
       <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-8 mt-4">
@@ -558,7 +573,7 @@ const Servicios = () => {
           </div>
           
           <h1 
-            className={`text-3xl font-bold mb-12 text-center text-[#008be1] uppercase font-display transition-all duration-1000 transform ${
+            className={`text-3xl font-bold mb-12 text-center text-white uppercase font-display transition-all duration-1000 transform ${
               titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >

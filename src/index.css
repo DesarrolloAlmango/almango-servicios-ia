@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -116,13 +115,11 @@
   }
 }
 
-/* Specifically target the Servicios page background independent of theme */
+/* The servicios-page class now just handles text color since background is handled inline */
 .servicios-page {
-  background-color: #14162c !important;
   color: white;
 }
 
-/* Dark background for "Nuestros Servicios" page - independent of theme */
 .servicios-page .service-card-hover,
 .servicios-page [data-component="service-card"] {
   background-color: rgba(255, 255, 255, 0.05);
