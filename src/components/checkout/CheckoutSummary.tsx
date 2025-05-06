@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
@@ -53,6 +54,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const paymentLinkRef = useRef<HTMLAnchorElement>(null);
   const [departments, setDepartments] = useState<Array<{id: string, name: string}>>([]);
   const [municipalities, setMunicipalities] = useState<Record<string, Array<{id: string, name: string}>>>({});
+  const [showBlockingOverlay, setShowBlockingOverlay] = useState(false); // New state for blocking overlay
 
   // Use the custom hook for MercadoPago payment handling
   const {
@@ -78,6 +80,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       setShowDetailDialog(false);
       setSelectedRequestData(null);
       setIsRedirecting(false);
+      setShowBlockingOverlay(false); // Reset blocking overlay
     }
   }, [isOpen]);
 
@@ -119,6 +122,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       setSubmitting(true);
       setError(null);
       setServiceRequests([]);
+      setShowBlockingOverlay(true); // Show blocking overlay
 
       const processedRequests = [];
 
@@ -144,11 +148,14 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     } finally {
       setSubmitting(false);
       setProcessingService(null);
+      // We don't hide the blocking overlay here since we want it to remain visible
+      // until the ResultDialog is shown and the user interacts with it
     }
   };
 
   const handleCloseResultDialog = () => {
     setShowResultDialog(false);
+    setShowBlockingOverlay(false); // Hide blocking overlay when dialog is closed
     onClose(serviceRequests.length > 0);
     navigate('/servicios');
   };
@@ -177,6 +184,19 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         style={{ display: 'none' }}
       />
 
+      {/* Full-screen blocking overlay */}
+      {showBlockingOverlay && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-sm">
+          <div className="bg-background p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
+            <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary mb-4" />
+            <p className="text-lg font-medium mb-2">Procesando tu solicitud</p>
+            <p className="text-muted-foreground">
+              {processingService ? `Procesando ${processingService}...` : 'Por favor espera...'}
+            </p>
+          </div>
+        </div>
+      )}
+
       <AlertDialog open={isOpen} onOpenChange={(open) => {
         if (!open && !serviceRequests.length && !error) {
           onClose(false);
@@ -195,7 +215,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => onClose(false)}>
+            <AlertDialogCancel onClick={() => onClose(false)} disabled={submitting}>
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction 
