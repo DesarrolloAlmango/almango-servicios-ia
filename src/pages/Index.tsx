@@ -64,23 +64,21 @@ const secondHalfLogos = [{
 
 // Combine all logos into a single array for the carousel
 const allLogos = [...firstHalfLogos, ...secondHalfLogos];
-
 const Index = () => {
   // Create refs for each section to animate
   const contratarSectionRef = useRef<HTMLElement>(null);
   const quienesSomosSectionRef = useRef<HTMLElement>(null);
   const formarParteSectionRef = useRef<HTMLElement>(null);
   const partnersSectionRef = useRef<HTMLElement>(null);
-
   useEffect(() => {
     const options = {
       root: null,
       rootMargin: '0px',
-      threshold: 0.1,
+      threshold: 0.1
     };
 
     // Setup observer for section animations
-    const sectionObserver = new IntersectionObserver((entries) => {
+    const sectionObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           if (entry.target.classList.contains('animate-from-left')) {
@@ -88,7 +86,7 @@ const Index = () => {
           } else if (entry.target.classList.contains('animate-from-right')) {
             entry.target.classList.add('animate-section-from-right');
           }
-          
+
           // For step-by-step item animations
           const animItems = entry.target.querySelectorAll('.anim-item');
           animItems.forEach((item, index) => {
@@ -96,7 +94,6 @@ const Index = () => {
             (item as HTMLElement).style.animationDelay = `${delay}s`;
             item.classList.add('animate-item-appear');
           });
-          
           sectionObserver.unobserve(entry.target);
         }
       });
@@ -115,12 +112,10 @@ const Index = () => {
     if (partnersSectionRef.current) {
       sectionObserver.observe(partnersSectionRef.current);
     }
-
     return () => {
       sectionObserver.disconnect();
     };
   }, []);
-
   return <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow" id="inicio">
@@ -246,24 +241,18 @@ const Index = () => {
                 </div>
                 
                 <div className="w-full md:w-1/2 flex">
-                  <img 
-                    src="https://almango.com.uy/img/img-local.jpg" 
-                    alt="Comercios" 
-                    className="w-full object-cover md:rounded-r-lg border-8 border-black" 
-                    style={{ height: '100%' }}
-                  />
+                  <img src="https://almango.com.uy/img/img-local.jpg" alt="Comercios" style={{
+                  height: '100%'
+                }} className="w-full object-cover md:rounded-r-lg border-4 border-black" />
                 </div>
               </div>
               
               {/* Profesionales Card with attached image */}
               <div className="flex flex-col md:flex-row w-full">
                 <div className="w-full md:w-1/2 order-2 md:order-1 flex">
-                  <img 
-                    src="https://almango.com.uy/img/img-proveedores.jpg" 
-                    alt="Profesionales" 
-                    className="w-full object-cover md:rounded-l-lg border-8 border-black" 
-                    style={{ height: '100%' }}
-                  />
+                  <img src="https://almango.com.uy/img/img-proveedores.jpg" alt="Profesionales" style={{
+                  height: '100%'
+                }} className="w-full object-cover md:rounded-l-lg border-4 border-black" />
                 </div>
                 
                 <div className="w-full md:w-1/2 bg-white p-8 rounded-r-lg shadow-md order-1 md:order-2 anim-item opacity-0">
