@@ -441,8 +441,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             <div className="flex justify-center gap-4 mt-8 sticky bottom-4 bg-white p-4 rounded-lg shadow-md">
               <Button 
                 onClick={handleAddAnotherService}
-                variant="outline"
-                className="border-orange-500 text-orange-500 hover:bg-orange-50 hover:text-orange-600"
+                variant="secondary"
+                className="text-white hover:bg-secondary/90 transition-colors"
               >
                 Agregar otro servicio
               </Button>
