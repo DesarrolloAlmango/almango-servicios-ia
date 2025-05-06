@@ -227,12 +227,14 @@ const Index = () => {
             <div className="flex flex-col max-w-4xl mx-auto gap-12">
               {/* Comercios Card with attached image */}
               <div className="flex flex-col md:flex-row w-full">
-                <div className="w-full md:w-1/2 bg-white p-8 rounded-l-lg shadow-md h-full anim-item opacity-0">
-                  <h3 className="text-xl font-semibold mb-4 text-primary">FORMAR PARTE COMERCIOS</h3>
-                  <p className="text-lg text-gray-600 mb-6">
-                    Incrementá tus ingresos al ser parte de nuestra red de socios. Generando solicitudes de 
-                    servicio en nuestra plataforma, obtendrás atractivas comisiones. Registrate para más información.
-                  </p>
+                <div className="w-full md:w-1/2 bg-white p-8 rounded-l-lg shadow-md anim-item opacity-0 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-xl font-semibold mb-4 text-primary">FORMAR PARTE COMERCIOS</h3>
+                    <p className="text-lg text-gray-600 mb-6">
+                      Incrementá tus ingresos al ser parte de nuestra red de socios. Generando solicitudes de 
+                      servicio en nuestra plataforma, obtendrás atractivas comisiones. Registrate para más información.
+                    </p>
+                  </div>
                   
                   <div className="mt-8 text-center">
                     <a href="https://almango.com.uy/altas/altacomercio.html" target="_blank" rel="noreferrer" className="inline-block">
@@ -244,7 +246,7 @@ const Index = () => {
                   </div>
                 </div>
                 
-                <div className="w-full md:w-1/2">
+                <div className="w-full md:w-1/2 h-full">
                   <img 
                     src="https://almango.com.uy/img/img-local.jpg" 
                     alt="Comercios" 
