@@ -734,7 +734,16 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
             ) : !selectedCategory ? (
               <CategoryCarousel 
                 categories={categories} 
-                onSelectCategory={handleCategorySelect} 
+                onSelectCategory={(categoryId, categoryName) => {
+                  // Find the category object with the matching ID
+                  const category = categories.find(cat => cat.id === categoryId);
+                  if (category) {
+                    handleCategorySelect(category);
+                  }
+                }}
+                selectedService={selectedService || {id: id, name: name}}
+                isLoading={isLoading}
+                cartItems={currentCartItems}
               />
             ) : (
               <ProductGrid 
