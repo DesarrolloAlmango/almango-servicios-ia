@@ -1,14 +1,14 @@
-
 import React from "react";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
-
 interface LogoCarouselProps {
-  logos: { url: string; alt: string }[];
+  logos: {
+    url: string;
+    alt: string;
+  }[];
   direction?: "ltr" | "rtl";
   speed?: "normal" | "fast" | "super-fast" | "ultra-fast";
 }
-
-const LogoCarousel: React.FC<LogoCarouselProps> = ({ 
+const LogoCarousel: React.FC<LogoCarouselProps> = ({
   logos,
   direction = "rtl",
   speed = "normal"
@@ -20,44 +20,27 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
   // Duplicate the logos multiple times to create a longer seamless loop effect
   // By repeating 4 times, we ensure no visible reset during scroll
   const extendedLogos = [...logos, ...logos, ...logos, ...logos];
-  
-  return (
-    <div className="overflow-hidden w-full">
-      <Carousel
-        opts={{
-          align: "start",
-          containScroll: false,
-          dragFree: true,
-          loop: true,
-        }}
-        className="w-full"
-      >
-        <CarouselContent 
-          className={`${direction === "rtl" ? "animate-infinite-scroll-reverse" : "animate-infinite-scroll"} 
+  return <div className="overflow-hidden w-full">
+      <Carousel opts={{
+      align: "start",
+      containScroll: false,
+      dragFree: true,
+      loop: true
+    }} className="w-full">
+        <CarouselContent className={`${direction === "rtl" ? "animate-infinite-scroll-reverse" : "animate-infinite-scroll"} 
             ${speed === "fast" ? "fast-scroll" : ""} 
             ${speed === "super-fast" ? "super-fast-scroll" : ""} 
             ${speed === "ultra-fast" ? "ultra-fast-scroll" : ""}
-            flex ${direction === "rtl" ? "flex-row-reverse" : "flex-row"} w-full`}
-          style={{ transform: direction === "rtl" ? "translateX(-25%)" : "translateX(0)" }}
-        >
-          {extendedLogos.map((logo, index) => (
-            <CarouselItem 
-              key={index} 
-              className="basis-1/2 sm:basis-1/3 md:basis-1/5 lg:basis-1/6 xl:basis-1/8 flex-shrink-0"
-            >
-              <div className="h-36 flex items-center justify-center p-3 transition-all hover:scale-105">
-                <img 
-                  src={logo.url} 
-                  alt={logo.alt}
-                  className="max-h-full max-w-full object-contain"
-                />
+            flex ${direction === "rtl" ? "flex-row-reverse" : "flex-row"} w-full`} style={{
+        transform: direction === "rtl" ? "translateX(-25%)" : "translateX(0)"
+      }}>
+          {extendedLogos.map((logo, index) => <CarouselItem key={index} className="basis-1/2 sm:basis-1/3 md:basis-1/5 lg:basis-1/6 xl:basis-1/8 flex-shrink-0">
+              <div className="h-36 flex items-center justify-center p-3 transition-all hover:scale-105 py-0 px-0">
+                <img src={logo.url} alt={logo.alt} className="max-h-full max-w-full object-contain" />
               </div>
-            </CarouselItem>
-          ))}
+            </CarouselItem>)}
         </CarouselContent>
       </Carousel>
-    </div>
-  );
+    </div>;
 };
-
 export default LogoCarousel;
