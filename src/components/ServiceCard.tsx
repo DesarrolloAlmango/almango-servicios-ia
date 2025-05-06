@@ -477,7 +477,7 @@ interface ServiceCardProps {
     departmentId?: string;
     locationId?: string;
     categoryId?: string;
-    categoryName?: string;  // Added categoryName property
+    categoryName?: string;
   } | null;
   forceOpen?: boolean;
   circular?: boolean;
@@ -505,6 +505,9 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const [imageError, setImageError] = useState(false);
+  
+  // Create a service object for the selectedService prop
+  const currentService = { id, name };
   
   useEffect(() => {
     // Modificamos esta función para llamar directamente a ObtenerNivel2 cuando tenemos categoryId
@@ -741,7 +744,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                     handleCategorySelect(category);
                   }
                 }}
-                selectedService={selectedService || {id: id, name: name}}
+                selectedService={currentService}
                 isLoading={isLoading}
                 cartItems={currentCartItems}
               />
