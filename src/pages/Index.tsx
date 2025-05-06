@@ -1,6 +1,7 @@
 
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import ServicesShowcase from "@/components/ServicesShowcase";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,8 @@ const Index = () => {
       <Header />
       <main className="flex-grow" id="inicio">
         <Hero />
+        
+        <ServicesShowcase />
         
         <section id="servicios" className="py-20 px-4 relative bg-gray-50">
           <div className="container mx-auto">
