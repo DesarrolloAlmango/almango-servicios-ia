@@ -1,4 +1,3 @@
-
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -6,44 +5,27 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import ContactInfo from "@/components/ContactInfo";
 import { useEffect, useState } from "react";
 import LottieAnimation from "./LottieAnimation";
-
 const Hero = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [isLoaded, setIsLoaded] = useState(false);
-  
   useEffect(() => {
     // Set loaded state after initial render
     setIsLoaded(true);
   }, []);
-  
   return <div className={`relative w-full overflow-hidden ${isMobile ? "min-h-[calc(100vh-40px)]" : "min-h-[100vh] md:min-h-[110vh]"} flex items-start pt-20 md:pt-28`}>
       {/* Hero background with primary colors */}
       <div className="absolute inset-0 z-0 bg-[#14162c]">
         <div className="absolute inset-0 z-1" style={{
-          background: "radial-gradient(circle at 20% 30%, #008be1 0%, transparent 40%), radial-gradient(circle at 80% 70%, #ff6900 0%, transparent 40%), radial-gradient(circle at 50% 50%, #0EA5E9 0%, transparent 30%)",
-          opacity: 0.8
-        }}></div>
+        background: "radial-gradient(circle at 20% 30%, #008be1 0%, transparent 40%), radial-gradient(circle at 80% 70%, #ff6900 0%, transparent 40%), radial-gradient(circle at 50% 50%, #0EA5E9 0%, transparent 30%)",
+        opacity: 0.8
+      }}></div>
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#14162c] to-transparent z-2"></div>
       </div>
       
       {/* Handshake animation - positioned at center-right */}
-      <div 
-        className={`absolute right-[15%] sm:right-[20%] md:right-[25%] top-1/3 z-10 w-[240px] h-[240px] flex items-center justify-center transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-      >
-        <div className="relative w-full h-full">
-          <LottieAnimation 
-            src="https://assets1.lottiefiles.com/share/lottie-5d28279d-f13a-4970-804c-b24a99abe6c8.json" 
-            loop={true} 
-            autoplay={true} 
-            className="w-full h-full"
-          />
-          <div className="absolute -bottom-8 w-full text-center">
-            <span className="text-white font-bold text-sm shadow-lg">CONECTAMOS SOLUCIONES</span>
-          </div>
-        </div>
-      </div>
+      
       
       {/* Contenedor principal con ajustes precisos de margen */}
       <div className="container relative z-10 mx-auto px-6 text-left pl-8 md:pl-12 mt-[66px] sm:mt-[50px] md:mt-[23px]">
