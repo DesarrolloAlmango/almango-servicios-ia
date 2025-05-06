@@ -1,11 +1,14 @@
+
 import React, { useEffect, useRef } from "react";
 import lottie from "lottie-web";
+
 interface LottieAnimationProps {
   src: string;
   loop?: boolean;
   autoplay?: boolean;
   className?: string;
 }
+
 const LottieAnimation: React.FC<LottieAnimationProps> = ({
   src,
   loop = true,
@@ -14,6 +17,7 @@ const LottieAnimation: React.FC<LottieAnimationProps> = ({
 }) => {
   const container = useRef<HTMLDivElement>(null);
   const animationInstance = useRef<any>(null);
+
   useEffect(() => {
     if (container.current) {
       if (animationInstance.current) {
@@ -35,6 +39,9 @@ const LottieAnimation: React.FC<LottieAnimationProps> = ({
       }
     };
   }, [src, loop, autoplay]);
-  return;
+  
+  // Return the container div element
+  return <div ref={container} className={className}></div>;
 };
+
 export default LottieAnimation;
