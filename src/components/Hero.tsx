@@ -4,33 +4,17 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ContactInfo from "@/components/ContactInfo";
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
+import LottieAnimation from "./LottieAnimation";
 
 const Hero = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const handshakeRef = useRef<HTMLDivElement>(null);
-
+  const [isLoaded, setIsLoaded] = useState(false);
+  
   useEffect(() => {
-    // Animation for handshake
-    const handshake = handshakeRef.current;
-    if (handshake) {
-      let position = 0;
-      let direction = 1;
-      const animate = () => {
-        if (!handshake) return;
-        position += 0.4 * direction;
-        
-        // Change direction when reaching boundaries
-        if (position > 10) direction = -1;
-        if (position < -10) direction = 1;
-        
-        handshake.style.transform = `translateX(${position}px)`;
-        requestAnimationFrame(animate);
-      };
-      
-      animate();
-    }
+    // Set loaded state after initial render
+    setIsLoaded(true);
   }, []);
   
   return <div className={`relative w-full overflow-hidden ${isMobile ? "min-h-[calc(100vh-40px)]" : "min-h-[100vh] md:min-h-[110vh]"} flex items-start pt-20 md:pt-28`}>
@@ -44,74 +28,17 @@ const Hero = () => {
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#14162c] to-transparent z-2"></div>
       </div>
       
-      {/* Animated handshake image - repositioned to center-right */}
+      {/* Handshake animation - positioned at center-right */}
       <div 
-        ref={handshakeRef}
-        className="absolute right-[15%] sm:right-[20%] md:right-[25%] top-1/3 z-10 animate-pulse"
-        style={{
-          transition: 'transform 0.3s ease-in-out'
-        }}
+        className={`absolute right-[15%] sm:right-[20%] md:right-[25%] top-1/3 z-10 w-[240px] h-[240px] flex items-center justify-center transition-all duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
       >
-        <div className="relative">
-          <svg width="180" height="180" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            {/* Left person silhouette */}
-            <path 
-              d="M6,8.5 C6,6.5 7,5 8,5 C9,5 9.5,6 9.5,7 L9.5,10.5" 
-              stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" 
-              className="animate-pulse"
-            />
-            <path 
-              d="M6,8.5 C6,9.5 5.5,11 7,12 C8,12.5 9,11.5 9.5,10.5" 
-              stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" 
-            />
-            
-            {/* Right person silhouette */}
-            <path 
-              d="M18,8.5 C18,6.5 17,5 16,5 C15,5 14.5,6 14.5,7 L14.5,10.5" 
-              stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" 
-              className="animate-pulse"
-            />
-            <path 
-              d="M18,8.5 C18,9.5 18.5,11 17,12 C16,12.5 15,11.5 14.5,10.5" 
-              stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round"
-            />
-            
-            {/* Handshake - central focus */}
-            <path 
-              d="M9.5,10.5 C9.5,10.5 10.5,12 12,12 C13.5,12 14.5,10.5 14.5,10.5" 
-              stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-              className="animate-pulse"
-            />
-            
-            {/* Left hand detail */}
-            <path 
-              d="M8.4,10.6c0,0-0.9-0.9-1.6-0.9c-0.9,0-2.1,1.2-0.6,2.2c1.1,0.8,2.9-0.1,3.9-0.5" 
-              stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-            />
-            
-            {/* Right hand detail */}
-            <path 
-              d="M15.6,10.6c0,0,0.9-0.9,1.6-0.9c0.9,0,2.1,1.2,0.6,2.2c-1.1,0.8-2.9-0.1-3.9-0.5" 
-              stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-            />
-            
-            {/* Contract agreement lines */}
-            <path 
-              d="M10.5,12c0,0-2.2,2-3.5,3.1c-0.6,0.5-1.1,1-0.7,1.6c0.3,0.4,0.9,0.2,1.2,0c1-0.8,2.7-2.4,3.7-3.4" 
-              stroke="#FF6900" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-              className="animate-pulse"
-            />
-            <path 
-              d="M13.5,12c0,0,2.2,2,3.5,3.1c0.6,0.5,1.1,1,0.7,1.6c-0.3,0.4-0.9,0.2-1.2,0c-1-0.8-2.7-2.4-3.7-3.4" 
-              stroke="#008be1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-              className="animate-pulse"
-            />
-            
-            {/* Sparkle effects to indicate "deal closing" */}
-            <circle cx="12" cy="9" r="0.4" fill="#FFFFFF" className="animate-pulse" />
-            <circle cx="14" cy="8.5" r="0.3" fill="#FFFFFF" className="animate-pulse" />
-            <circle cx="10" cy="8.5" r="0.3" fill="#FFFFFF" className="animate-pulse" />
-          </svg>
+        <div className="relative w-full h-full">
+          <LottieAnimation 
+            src="https://assets1.lottiefiles.com/share/lottie-5d28279d-f13a-4970-804c-b24a99abe6c8.json" 
+            loop={true} 
+            autoplay={true} 
+            className="w-full h-full"
+          />
           <div className="absolute -bottom-8 w-full text-center">
             <span className="text-white font-bold text-sm shadow-lg">CONECTAMOS SOLUCIONES</span>
           </div>
