@@ -21,6 +21,7 @@ export default {
 		extend: {
 			screens: {
 				'xl': '1400px',
+				'custom': '1370px',
 			},
 			colors: {
 				border: 'hsl(var(--border))',

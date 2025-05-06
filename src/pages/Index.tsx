@@ -91,8 +91,8 @@ const Index = () => {
                 <div className="mt-8 text-center">
                   <a href="https://almango.com.uy/altas/altacomercio.html" target="_blank" rel="noreferrer" className="inline-block">
                     <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg w-full sm:w-auto break-words">
-                      <span className="hidden xl:inline">Pre-Registros de Comercios</span>
-                      <span className="inline xl:hidden">COMERCIOS</span>
+                      <span className="hidden custom:inline">Pre-Registros de Comercios</span>
+                      <span className="inline custom:hidden">COMERCIOS</span>
                     </Button>
                   </a>
                 </div>
@@ -108,8 +108,8 @@ const Index = () => {
                 <div className="mt-8 text-center">
                   <a href="https://almango.com.uy/altas/altaprestador.html" target="_blank" rel="noreferrer" className="inline-block">
                     <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg w-full sm:w-auto break-words">
-                      <span className="hidden xl:inline">Pre-Registros de Profesionales</span>
-                      <span className="inline xl:hidden">PROFESIONALES</span>
+                      <span className="hidden custom:inline">Pre-Registros de Profesionales</span>
+                      <span className="inline custom:hidden">PROFESIONALES</span>
                     </Button>
                   </a>
                 </div>
