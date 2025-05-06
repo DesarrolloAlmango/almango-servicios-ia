@@ -50,6 +50,18 @@ const ServicesShowcase: React.FC = () => {
       <div className="container mx-auto">
         <h2 className="text-3xl font-bold mb-10 text-center text-secondary uppercase">Nuestros Servicios</h2>
         
+        <div className="max-w-3xl mx-auto mt-8 mb-12">
+          <h3 className="text-xl font-semibold mb-4 text-primary">Hogares</h3>
+          <p className="text-lg text-gray-600 mb-8">
+            Descubrí una amplia red de profesionales listos para ayudarte. En Almango, podés contratar servicios de reparación, instalación, reformas y una variedad de oficios para tu hogar. Disfrutá de precios estandarizados, garantía de instalación de 12 meses, profesionales calificados y más beneficios.
+          </p>
+          
+          <h3 className="text-xl font-semibold mb-4 text-primary">Empresas</h3>
+          <p className="text-lg text-gray-600 mb-8">
+            A través de Almango podés acceder a servicios de logística, montaje, instalaciones, mantenimiento y mucho más, todo adaptado a las necesidades de tu empresa. Simplificá la gestión de proyectos y garantizá la eficiencia operativa.
+          </p>
+        </div>
+        
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
           {ServiceItems.map((service, index) => (
             <div key={index} className="flex flex-col items-center">
@@ -65,9 +77,9 @@ const ServicesShowcase: React.FC = () => {
           ))}
         </div>
         
-        {/* Services Counter Section */}
+        {/* Services Counter Section - Updated with blue color */}
         <div className="mt-20 flex flex-col md:flex-row items-center justify-center gap-6">
-          <div className="text-[#1EAEDB] text-2xl md:text-3xl font-bold uppercase">
+          <div className="text-secondary text-2xl md:text-3xl font-bold uppercase">
             SERVICIOS REALIZADOS
           </div>
           
@@ -82,12 +94,12 @@ const ServicesShowcase: React.FC = () => {
             ))}
           </div>
           
-          <div className="text-[#1EAEDB] text-2xl md:text-3xl font-bold uppercase">
+          <div className="text-secondary text-2xl md:text-3xl font-bold uppercase">
             Y CONTANDO...
           </div>
         </div>
         
-        {/* Seals Section */}
+        {/* Seals Section - Updated with larger size */}
         <div className="mt-16">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 md:gap-6">
             {SealItems.map((seal, index) => (
@@ -95,7 +107,7 @@ const ServicesShowcase: React.FC = () => {
                 <img 
                   src={seal.imageUrl} 
                   alt={seal.alt}
-                  className="h-24 w-24 mb-2 transition-transform hover:scale-110 duration-300"
+                  className="h-28 w-28 mb-2 transition-transform hover:scale-110 duration-300"
                 />
               </div>
             ))}

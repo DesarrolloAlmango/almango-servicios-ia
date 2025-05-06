@@ -1,9 +1,11 @@
+
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import ServicesShowcase from "@/components/ServicesShowcase";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { Button } from "@/components/ui/button";
+
 const Index = () => {
   return <div className="min-h-screen flex flex-col">
       <Header />
@@ -11,32 +13,6 @@ const Index = () => {
         <Hero />
         
         <ServicesShowcase />
-        
-        <section id="servicios" className="py-20 px-4 relative bg-gray-50">
-          <div className="container mx-auto">
-            <h2 className="text-3xl font-bold mb-8 text-center text-secondary uppercase">Nuestros Servicios</h2>
-            
-            <div className="max-w-3xl mx-auto mt-8">
-              <h3 className="text-xl font-semibold mb-4 text-primary">Hogares</h3>
-              <p className="text-lg text-gray-600 mb-8">
-                Descubrí una amplia red de profesionales listos para ayudarte. En Almango, podés contratar servicios de reparación, instalación, reformas y una variedad de oficios para tu hogar. Disfrutá de precios estandarizados, garantía de instalación de 12 meses, profesionales calificados y más beneficios.
-              </p>
-              
-              <h3 className="text-xl font-semibold mb-4 text-primary">Empresas</h3>
-              <p className="text-lg text-gray-600 mb-8">
-                A través de Almango podés acceder a servicios de logística, montaje, instalaciones, mantenimiento y mucho más, todo adaptado a las necesidades de tu empresa. Simplificá la gestión de proyectos y garantizá la eficiencia operativa.
-              </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-                
-                
-                
-                
-                
-              </div>
-            </div>
-          </div>
-        </section>
         
         <section id="como-contratar" className="py-20 px-4 bg-primary text-white">
           <div className="container mx-auto">
@@ -153,4 +129,5 @@ const Index = () => {
       <WhatsAppButton />
     </div>;
 };
+
 export default Index;
