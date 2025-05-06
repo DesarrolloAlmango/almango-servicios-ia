@@ -92,15 +92,20 @@
 @layer base {
   * {
     @apply border-border;
-    font-family: 'Arkibal', serif !important;
+    font-family: 'Social Gothic', sans-serif !important;
   }
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Arkibal', serif !important;
+    font-family: 'Social Gothic', sans-serif !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
+    font-family: 'Social Gothic', sans-serif !important;
+  }
+  
+  /* Header elements - using Arkibal */
+  header *, header button, .btn, button {
     font-family: 'Arkibal', serif !important;
   }
   
@@ -135,7 +140,7 @@
 /* Remove font-display class and replace with regular font */
 html {
   scroll-behavior: smooth;
-  font-family: 'Arkibal', serif !important;
+  font-family: 'Social Gothic', sans-serif !important;
 }
 
 /* Animación para el botón de solicitud de servicio */

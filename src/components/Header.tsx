@@ -70,7 +70,7 @@ const Header = () => {
     setIsMobileMenuOpen(false);
   };
 
-  return <header className={cn('fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b', 
+  return <header className={cn('fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b font-serif', 
     isScrolled ? 'bg-primary shadow-md py-2 border-black border-b-8' : 'bg-primary py-4 border-black border-b-8')}>
       <div className="container mx-auto flex justify-between items-center px-4">
         <div className="flex items-center">

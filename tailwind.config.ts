@@ -107,8 +107,8 @@ export default {
 				'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
 			},
 			fontFamily: {
-				sans: ['Arkibal', 'serif'],
-				// Removed the display font family
+				sans: ['Social Gothic', 'sans-serif'],
+				serif: ['Arkibal', 'serif'],
 			},
 			backgroundImage: {
 				'stars': "url('https://www.script-tutorials.com/demos/360/images/stars.png')",
