@@ -1,18 +1,23 @@
+
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import ContactInfo from "@/components/ContactInfo";
+
 const Hero = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  
   return <div className={`relative w-full overflow-hidden ${isMobile ? "min-h-[calc(100vh-40px)]" : "min-h-[100vh] md:min-h-[110vh]"} flex items-start pt-20 md:pt-28`}>
-      {/* Hero background image */}
-      <div className="absolute inset-0 z-0">
-        <img src={isMobile ? "/lovable-uploads/844d8cf9-49eb-4dea-aed8-da206b842f56.png" : "/lovable-uploads/c2ed9c0f-52fe-496a-b472-3ce279dac5df.png"} alt="Profesionales Almango" className="w-full h-full object-cover object-center" style={{
-        imageRendering: "auto",
-        maxWidth: "none"
-      }} />
+      {/* Hero background with solid colors */}
+      <div className="absolute inset-0 z-0 bg-[#14162c]">
+        <div className="absolute inset-0 z-1" style={{
+          background: "radial-gradient(circle at 20% 30%, #6E59A5 0%, transparent 40%), radial-gradient(circle at 80% 70%, #0EA5E9 0%, transparent 40%), radial-gradient(circle at 50% 50%, #8B5CF6 0%, transparent 30%)",
+          opacity: 0.8
+        }}></div>
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#14162c] to-transparent z-2"></div>
       </div>
       
       {/* Contenedor principal con ajustes precisos de margen */}
@@ -22,7 +27,7 @@ const Hero = () => {
         <Button onClick={() => navigate('/servicios')} className="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md text-lg shadow-lg flex items-center transition-all hover:scale-105 animate-fade-in my-0 mx-0 py-[23px] px-[21px] font-serif" style={{
         animation: 'buttonGlow 2s infinite ease-in-out'
       }}>
-          Solicita Tu Servicio <ArrowRight className="ml-2" size={18} />
+          SOLICITAR SERVICIO <ArrowRight className="ml-2" size={18} />
         </Button>
       </div>
 
