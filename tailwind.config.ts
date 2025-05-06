@@ -104,7 +104,7 @@ export default {
 			},
 			fontFamily: {
 				sans: ['Arkibal', 'sans-serif'],
-				display: ['Arkibal Display', 'serif'],
+				// Removed the display font family
 			},
 			backgroundImage: {
 				'stars': "url('https://www.script-tutorials.com/demos/360/images/stars.png')",

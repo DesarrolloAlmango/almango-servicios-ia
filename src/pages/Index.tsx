@@ -4,6 +4,7 @@ import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { Button } from "@/components/ui/button";
+
 const Index = () => {
   return <div className="min-h-screen flex flex-col">
       <Header />
@@ -12,7 +13,7 @@ const Index = () => {
         
         <section id="servicios" className="py-20 px-4 relative bg-gray-50">
           <div className="container mx-auto">
-            <h2 className="text-3xl font-bold mb-8 text-center text-secondary uppercase font-display">Nuestros Servicios</h2>
+            <h2 className="text-3xl font-bold mb-8 text-center text-secondary uppercase">Nuestros Servicios</h2>
             
             <div className="max-w-3xl mx-auto mt-8">
               <h3 className="text-xl font-semibold mb-4 text-primary">Hogares</h3>
@@ -50,7 +51,7 @@ const Index = () => {
         
         <section id="quienes-somos" className="py-20 px-4 bg-white">
           <div className="container mx-auto">
-            <h2 className="text-3xl font-bold mb-8 text-center text-secondary uppercase font-display">¿Quiénes Somos?</h2>
+            <h2 className="text-3xl font-bold mb-8 text-center text-secondary uppercase">¿Quiénes Somos?</h2>
             <div className="max-w-4xl mx-auto">
               <div className="flex flex-col items-center gap-4">
                 <div className="w-full max-w-md mx-auto mb-4">
@@ -77,7 +78,7 @@ const Index = () => {
         
         <section id="formar-parte" className="py-20 px-4 bg-gray-50">
           <div className="container mx-auto">
-            <h2 className="text-3xl font-bold mb-12 text-center text-secondary uppercase font-display">Formar Parte</h2>
+            <h2 className="text-3xl font-bold mb-12 text-center text-secondary uppercase">Formar Parte</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               <div className="bg-white p-8 rounded-lg shadow-md">
