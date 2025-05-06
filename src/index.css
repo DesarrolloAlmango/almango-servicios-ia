@@ -13,10 +13,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
@@ -34,14 +32,21 @@
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 222.2 84% 4.9%;
-    --sidebar-primary: 222.2 47.4% 11.2%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 210 40% 96.1%;
-    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
-    --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-ring: 222.2 84% 4.9%;
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
@@ -54,10 +59,10 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 24 100% 50%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 202 97% 44%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
@@ -72,53 +77,255 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
-
-    --sidebar-background: 222.2 84% 4.9%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 210 40% 98%;
-    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
-    --sidebar-accent: 217.2 32.6% 17.5%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-ring: 212.7 26.8% 83.9%;
+    
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
 @layer base {
   * {
     @apply border-border;
+    font-family: 'Social Gothic', sans-serif !important;
   }
+
   body {
     @apply bg-background text-foreground;
+    font-family: 'Social Gothic', sans-serif !important;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Social Gothic', sans-serif !important;
+  }
+  
+  /* Header elements - using Arkibal */
+  header *, header button, .btn, button {
+    font-family: 'Arkibal', serif !important;
+  }
+  
+  /* Remove the dark class here - we want to be explicit with our dark styling */
+  body.dark {
+    @apply bg-background text-white;
   }
 }
 
-@keyframes infinite-scroll {
+/* Specifically target the Servicios page background independent of theme */
+.servicios-page {
+  background-color: #14162c !important;
+  color: white;
+}
+
+/* Dark background for "Nuestros Servicios" page - independent of theme */
+.servicios-page .service-card-hover,
+.servicios-page [data-component="service-card"] {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 105, 0, 0.5);
+}
+
+.servicios-page .service-card-hover:hover,
+.servicios-page [data-component="service-card"]:hover {
+  background-color: rgba(255, 166, 0, 0.15) !important;
+}
+
+.servicios-page .carousel-title {
+  color: #f0f0f0;
+}
+
+/* Remove font-display class and replace with regular font */
+html {
+  scroll-behavior: smooth;
+  font-family: 'Social Gothic', sans-serif !important;
+}
+
+/* Animación para el botón de solicitud de servicio */
+@keyframes buttonGlow {
+  0% { box-shadow: 0 0 5px rgba(255, 105, 0, 0.5); }
+  50% { box-shadow: 0 0 20px rgba(255, 105, 0, 0.8); }
+  100% { box-shadow: 0 0 5px rgba(255, 105, 0, 0.5); }
+}
+
+.button-glow {
+  animation: buttonGlow 2s infinite ease-in-out;
+}
+
+/* Animaciones adicionales */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bounceIn {
   0% {
-    transform: translateX(0);
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  60% {
+    transform: translateX(-10px);
+    opacity: 1;
+  }
+  80% {
+    transform: translateX(5px);
   }
   100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
     transform: translateX(-50%);
   }
 }
 
-@keyframes infinite-scroll-reverse {
-  0% {
-    transform: translateX(-50%);
-  }
-  100% {
-    transform: translateX(0);
-  }
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.6s ease-out forwards;
 }
 
 .animate-infinite-scroll {
-  animation: infinite-scroll 30s linear infinite;
+  animation: scroll 30s linear infinite;
 }
 
 .animate-infinite-scroll-reverse {
-  animation: infinite-scroll-reverse 30s linear infinite;
+  animation: scroll 30s linear infinite reverse;
 }
 
-.fast-scroll {
-  animation-duration: 20s !important;
+/* Add faster scroll animation */
+.fast-scroll.animate-infinite-scroll {
+  animation: scroll 20s linear infinite;
+}
+
+.fast-scroll.animate-infinite-scroll-reverse {
+  animation: scroll 20s linear infinite reverse;
+}
+
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+.transition-opacity {
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
+/* Update service card hover */
+[data-component="service-card"]:hover,
+.service-card-hover:hover {
+  background-color: rgba(255, 166, 0, 0.1) !important;
+}
+
+[data-component="service-card"]:hover svg,
+.service-card-hover:hover svg {
+  transform: scale(1.2);
+  transition: transform 0.3s ease;
+}
+
+/* Add border to circular cards and improve shadows */
+[data-component="service-card"].circular,
+.service-card-hover.circular {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 2px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  border: 2px solid #ff6900; /* Primary color border */
+}
+
+[data-component="service-card"].circular:hover,
+.service-card-hover.circular:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15), 0 0 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Dark mode service card styles */
+.dark [data-component="service-card"],
+.dark .service-card-hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark [data-component="service-card"].circular,
+.dark .service-card-hover.circular {
+  border: 2px solid #ff6900; /* Keep primary color border in dark mode */
+}
+
+.dark [data-component="service-card"]:hover,
+.dark .service-card-hover:hover {
+  background-color: rgba(255, 166, 0, 0.15) !important;
+}
+
+/* Estilos para la distribución de las tarjetas de servicio */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 24px;
+  justify-content: space-evenly;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .grid-container {
+    grid-template-columns: repeat(2, minmax(0, 280px));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-container {
+    grid-template-columns: repeat(3, minmax(0, 280px));
+  }
+}
+
+/* Centrado de las tarjetas cuando hay menos de 3 en la última fila */
+@media (min-width: 1024px) {
+  .grid-container.cards-7 > div:nth-child(7),
+  .grid-container.cards-4 > div:nth-child(4) {
+    grid-column-start: 2;
+  }
+  
+  .grid-container.cards-8 > div:nth-child(7),
+  .grid-container.cards-8 > div:nth-child(8),
+  .grid-container.cards-5 > div:nth-child(4),
+  .grid-container.cards-5 > div:nth-child(5) {
+    grid-column-start: 1;
+  }
+  
+  .grid-container.cards-8 > div:nth-child(8),
+  .grid-container.cards-5 > div:nth-child(5) {
+    grid-column-start: 3;
+  }
 }

@@ -9,22 +9,22 @@ import { Separator } from "@/components/ui/separator";
 
 // First 6 logos
 const firstHalfLogos = [
-  { url: "/logos/logo-sodimac.png", alt: "Sodimac" },
-  { url: "/logos/logo-devoto.png", alt: "Devoto" },
-  { url: "/logos/logo-disco.png", alt: "Disco" },
-  { url: "/logos/logo-geant.png", alt: "Geant" },
-  { url: "/logos/Logos-Almango-03.png", alt: "Almango" },
-  { url: "/logos/logo-lacueva.png", alt: "La Cueva" }
+  { url: "https://almango.com.uy/img/logos/logo-sodimac.png", alt: "Sodimac" },
+  { url: "https://almango.com.uy/img/logos/logo-devoto.png", alt: "Devoto" },
+  { url: "https://almango.com.uy/img/logos/logo-disco.png", alt: "Disco" },
+  { url: "https://almango.com.uy/img/logos/logo-geant.png", alt: "Geant" },
+  { url: "https://almango.com.uy/img/logos/Logos-Almango-03.png", alt: "Almango" },
+  { url: "https://almango.com.uy/img/logos/logo-lacueva.png", alt: "La Cueva" }
 ];
 
 // Last 6 logos
 const secondHalfLogos = [
-  { url: "/logos/logo-lamulata.png", alt: "La Mulata" },
-  { url: "/logos/logo-prontometal.png", alt: "Pronto Metal" },
-  { url: "/logos/logo-arte.png", alt: "Arte" },
-  { url: "/logos/logo-cimarron.png", alt: "Cimarron" },
-  { url: "/logos/logo-ferrobasso.png", alt: "Ferro Basso" },
-  { url: "/logos/logo-elombu.png", alt: "El Ombu" }
+  { url: "https://almango.com.uy/img/logos/logo-lamulata.png", alt: "La Mulata" },
+  { url: "https://almango.com.uy/img/logos/logo-prontometal.png", alt: "Pronto Metal" },
+  { url: "https://almango.com.uy/img/logos/logo-arte.png", alt: "Arte" },
+  { url: "https://almango.com.uy/img/logos/logo-cimarron.png", alt: "Cimarron" },
+  { url: "https://almango.com.uy/img/logos/logo-ferrobasso.png", alt: "Ferro Basso" },
+  { url: "https://almango.com.uy/img/logos/logo-elombu.png", alt: "El Ombu" }
 ];
 
 const Index = () => {
@@ -54,7 +54,6 @@ const Index = () => {
             </div>
           </div>
         </section>
-        
         <Separator className="h-1 bg-black" />
         
         <section id="como-contratar" className="py-20 px-4 bg-primary text-white">
@@ -65,7 +64,7 @@ const Index = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl mx-auto">
               <div className="text-center flex flex-col items-center">
                 <div className="mb-4">
-                  <img src="/icons/agenda-almango.svg" alt="Agenda" className="h-16 w-16 mx-auto" />
+                  <img src="https://almango.com.uy/img/agenda-almango.svg" alt="Agenda" className="h-16 w-16 mx-auto" />
                 </div>
                 <h4 className="text-lg font-semibold mb-2">Agendá fecha y hora</h4>
                 <p className="text-white/90">Coordinación inmediata.</p>
@@ -73,7 +72,7 @@ const Index = () => {
               
               <div className="text-center flex flex-col items-center">
                 <div className="mb-4">
-                  <img src="/icons/tecnico-almango.svg" alt="Recibir técnico" className="h-16 w-16 mx-auto" />
+                  <img src="https://almango.com.uy/img/pago-almango.svg" alt="Recibir técnico" className="h-16 w-16 mx-auto" />
                 </div>
                 <h4 className="text-lg font-semibold mb-2">Recibí al técnico</h4>
                 <p className="text-white/90">Un profesional calificado realizará el trabajo.</p>
@@ -81,7 +80,7 @@ const Index = () => {
               
               <div className="text-center flex flex-col items-center">
                 <div className="mb-4">
-                  <img src="/icons/pago-almango.svg" alt="Pago" className="h-16 w-16 mx-auto" />
+                  <img src="https://almango.com.uy/img/pago-almango.svg" alt="Pago" className="h-16 w-16 mx-auto" />
                 </div>
                 <h4 className="text-lg font-semibold mb-2">Realizá el pago al finalizar</h4>
                 <p className="text-white/90">Seleccioná el medio que más te convenga.</p>
@@ -89,7 +88,7 @@ const Index = () => {
               
               <div className="text-center flex flex-col items-center">
                 <div className="mb-4">
-                  <img src="/icons/valora-almango.svg" alt="Valoración" className="h-16 w-16 mx-auto" />
+                  <img src="https://almango.com.uy/img/valora-almango.svg" alt="Valoración" className="h-16 w-16 mx-auto" />
                 </div>
                 <h4 className="text-lg font-semibold mb-2">Ayudanos a mejorar</h4>
                 <p className="text-white/90">Calificá el servicio, tus comentarios importan.</p>
