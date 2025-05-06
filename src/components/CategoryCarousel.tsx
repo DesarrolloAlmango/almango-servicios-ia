@@ -35,6 +35,14 @@ const IMAGE_CACHE_KEY = 'category_images_cache';
 const IMAGE_CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
 const COMPRESSION_QUALITY = 0.6; // Reducir calidad para mejorar rendimiento
 
+// Random service names for demonstration
+const DEMO_SERVICE_NAMES = [
+  "Corte de pelo", "Peinado", "Coloración", "Maquillaje",
+  "Tratamiento facial", "Depilación", "Manicura premium", 
+  "Masaje relajante", "Pedicura", "Limpieza facial",
+  "Alisado", "Extensiones", "Uñas acrílicas", "Cejas y pestañas"
+];
+
 const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   categories,
   onSelectCategory,
@@ -280,8 +288,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   
   // Extraer solo los nombres de categorías para mostrar durante la carga
   const categoryNames = useMemo(() => 
-    categories.map(category => category.name),
-  [categories]);
+    isLoading ? DEMO_SERVICE_NAMES : categories.map(category => category.name),
+  [categories, isLoading]);
 
   if (isLoading) {
     return (

@@ -5,7 +5,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext
 interface ServiceCarouselProps {
   children: React.ReactNode[];
   title?: string;
-  showLoadingNames?: boolean; // New prop for showing loading names
+  showLoadingNames?: boolean; // Prop for showing loading names
   loadingItems?: string[]; // Names to display during loading
 }
 
@@ -13,7 +13,11 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
   children,
   title,
   showLoadingNames = false,
-  loadingItems = []
+  loadingItems = [
+    "Peluquería", "Manicura", "Pedicura", "Masajes",
+    "Depilación", "Tratamiento facial", "Corte de cabello",
+    "Tintura", "Maquillaje", "Estética corporal"
+  ] // Default random service names for demonstration
 }) => {
   if (!children || children.length === 0) {
     return <div className="text-center py-8">No hay servicios disponibles</div>;

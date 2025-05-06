@@ -151,21 +151,21 @@ const Carousel = React.forwardRef<
         >
           {children}
           
-          {/* Visualización de nombres de carga */}
+          {/* Visualización de nombres de carga con animación mejorada */}
           {showLoadingNames && loadingItems && loadingItems.length > 0 && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="loading-names-container w-full h-full flex flex-wrap justify-center items-center overflow-hidden">
                 {loadingItems.map((name, index) => (
                   <div 
                     key={index}
-                    className={`px-3 py-1 m-1 rounded-full text-white text-sm font-medium animate-pulse
-                      ${index % 2 === 0 ? 'bg-secondary' : 'bg-primary'}`}
+                    className={`px-3 py-1 m-1 rounded-full text-sm font-medium animate-pulse
+                      ${index % 2 === 0 ? 'bg-[#F97316] text-white' : 'bg-[#1EAEDB] text-white'}`}
                     style={{
                       position: 'absolute',
-                      top: `${Math.random() * 70}%`, 
-                      left: `${Math.random() * 70}%`,
+                      top: `${Math.random() * 80}%`, 
+                      left: `${Math.random() * 80}%`,
                       animationDelay: `${index * 0.2}s`,
-                      animationDuration: '1.5s'
+                      animationDuration: `${1 + Math.random() * 0.5}s`
                     }}
                   >
                     {name}
