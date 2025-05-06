@@ -1,3 +1,4 @@
+
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import ServicesShowcase from "@/components/ServicesShowcase";
@@ -9,22 +10,22 @@ import { Separator } from "@/components/ui/separator";
 
 // First 6 logos
 const firstHalfLogos = [
-  { url: "https://almango.com.uy/img/logos/logo-sodimac.png", alt: "Sodimac" },
-  { url: "https://almango.com.uy/img/logos/logo-devoto.png", alt: "Devoto" },
-  { url: "https://almango.com.uy/img/logos/logo-disco.png", alt: "Disco" },
-  { url: "https://almango.com.uy/img/logos/logo-geant.png", alt: "Geant" },
-  { url: "https://almango.com.uy/img/logos/Logos-Almango-03.png", alt: "Almango" },
-  { url: "https://almango.com.uy/img/logos/logo-lacueva.png", alt: "La Cueva" }
+  { url: "/logos/logo-sodimac.png", alt: "Sodimac" },
+  { url: "/logos/logo-devoto.png", alt: "Devoto" },
+  { url: "/logos/logo-disco.png", alt: "Disco" },
+  { url: "/logos/logo-geant.png", alt: "Geant" },
+  { url: "/logos/Logos-Almango-03.png", alt: "Almango" },
+  { url: "/logos/logo-lacueva.png", alt: "La Cueva" }
 ];
 
 // Last 6 logos
 const secondHalfLogos = [
-  { url: "https://almango.com.uy/img/logos/logo-lamulata.png", alt: "La Mulata" },
-  { url: "https://almango.com.uy/img/logos/logo-prontometal.png", alt: "Pronto Metal" },
-  { url: "https://almango.com.uy/img/logos/logo-arte.png", alt: "Arte" },
-  { url: "https://almango.com.uy/img/logos/logo-cimarron.png", alt: "Cimarron" },
-  { url: "https://almango.com.uy/img/logos/logo-ferrobasso.png", alt: "Ferro Basso" },
-  { url: "https://almango.com.uy/img/logos/logo-elombu.png", alt: "El Ombu" }
+  { url: "/logos/logo-lamulata.png", alt: "La Mulata" },
+  { url: "/logos/logo-prontometal.png", alt: "Pronto Metal" },
+  { url: "/logos/logo-arte.png", alt: "Arte" },
+  { url: "/logos/logo-cimarron.png", alt: "Cimarron" },
+  { url: "/logos/logo-ferrobasso.png", alt: "Ferro Basso" },
+  { url: "/logos/logo-elombu.png", alt: "El Ombu" }
 ];
 
 const Index = () => {
