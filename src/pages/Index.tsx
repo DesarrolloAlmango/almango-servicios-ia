@@ -1,3 +1,4 @@
+
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import ServicesShowcase from "@/components/ServicesShowcase";
@@ -5,6 +6,8 @@ import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import LogoCarousel from "@/components/LogoCarousel";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+
 const clientLogos = [{
   url: "https://almango.com.uy/img/logos/logo-sodimac.png",
   alt: "Sodimac"
@@ -54,13 +57,21 @@ const clientLogos = [{
   url: "https://almango.com.uy/img/logos/logo-blanes.png",
   alt: "Blanes"
 }];
+
 const Index = () => {
+  // Split logos into equal halves
+  const halfLength = Math.ceil(clientLogos.length / 2);
+  const firstHalf = clientLogos.slice(0, halfLength);
+  const secondHalf = clientLogos.slice(halfLength);
+  
   return <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow" id="inicio">
         <Hero />
         
+        <Separator className="h-1 bg-black" />
         <ServicesShowcase />
+        <Separator className="h-1 bg-black" />
         
         {/* Partners Section */}
         <section className="bg-[#F0F0F0] py-8">
@@ -72,13 +83,14 @@ const Index = () => {
           
           <div className="container mx-auto px-4">
             <div className="mb-6">
-              <LogoCarousel logos={clientLogos.slice(0, 8)} direction="rtl" />
+              <LogoCarousel logos={firstHalf} direction="rtl" speed="fast" />
             </div>
             <div>
-              <LogoCarousel logos={clientLogos.slice(8)} direction="ltr" />
+              <LogoCarousel logos={secondHalf} direction="ltr" speed="fast" />
             </div>
           </div>
         </section>
+        <Separator className="h-1 bg-black" />
         
         <section id="como-contratar" className="py-20 px-4 bg-primary text-white">
           <div className="container mx-auto">
@@ -120,6 +132,7 @@ const Index = () => {
             </div>
           </div>
         </section>
+        <Separator className="h-1 bg-black" />
         
         <section id="quienes-somos" className="py-20 px-4 bg-white">
           <div className="container mx-auto">
@@ -147,6 +160,7 @@ const Index = () => {
             </div>
           </div>
         </section>
+        <Separator className="h-1 bg-black" />
         
         <section id="formar-parte" className="py-20 px-4 bg-gray-50">
           <div className="container mx-auto">
