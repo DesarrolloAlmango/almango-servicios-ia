@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 interface ServiceCarouselProps {
@@ -26,7 +27,10 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
                 basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 
                 ${shouldCenter ? "mx-auto" : ""}`}>
               <div className="flex items-center justify-center py-4">
-                {child}
+                {/* Apply orange border with transparency to child elements */}
+                <div className="border-2 border-orange-500/50 rounded-full">
+                  {child}
+                </div>
               </div>
             </CarouselItem>)}
         </CarouselContent>
