@@ -72,7 +72,7 @@ const Index = () => {
         
         {/* Partners Section */}
         <section className="bg-[#F0F0F0] py-8">
-          <div className="bg-[#F97316] py-6 mb-8 -mt-8">
+          <div className="bg-[#F97316] mb-8 -mt-8 px-0 mx-0 py-[46px]">
             <h2 className="font-bold text-center text-white uppercase text-2xl">
               ALGUNOS DE NUESTROS CLIENTES Y ALIANZAS COMERCIALES
             </h2>
