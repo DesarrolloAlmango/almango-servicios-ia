@@ -39,7 +39,7 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
               key={index} 
               className="basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6 flex-shrink-0"
             >
-              <div className="h-36 flex items-center justify-center p-4 transition-all hover:scale-105">
+              <div className="h-40 flex items-center justify-center p-4 transition-all hover:scale-105">
                 <img 
                   src={logo.url} 
                   alt={logo.alt}

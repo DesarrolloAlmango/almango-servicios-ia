@@ -16,3 +16,4 @@ These logo images were saved locally from the following original sources:
 - Cimarron: https://almango.com.uy/img/logos/logo-cimarron.png
 - Ferro Basso: https://almango.com.uy/img/logos/logo-ferrobasso.png
 - El Ombu: https://almango.com.uy/img/logos/logo-elombu.png
+
