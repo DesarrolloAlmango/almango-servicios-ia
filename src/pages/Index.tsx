@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -246,26 +245,28 @@ const Index = () => {
                   </div>
                 </div>
                 
-                <div className="w-full md:w-1/2 h-full">
+                <div className="w-full md:w-1/2 flex">
                   <img 
                     src="https://almango.com.uy/img/img-local.jpg" 
                     alt="Comercios" 
-                    className="w-full h-full object-cover md:rounded-r-lg border-4 border-black" 
+                    className="w-full object-cover md:rounded-r-lg border-8 border-black" 
+                    style={{ height: '100%' }}
                   />
                 </div>
               </div>
               
               {/* Profesionales Card with attached image */}
               <div className="flex flex-col md:flex-row w-full">
-                <div className="w-full md:w-1/2 order-2 md:order-1">
+                <div className="w-full md:w-1/2 order-2 md:order-1 flex">
                   <img 
                     src="https://almango.com.uy/img/img-proveedores.jpg" 
                     alt="Profesionales" 
-                    className="w-full h-full object-cover md:rounded-l-lg border-4 border-black" 
+                    className="w-full object-cover md:rounded-l-lg border-8 border-black" 
+                    style={{ height: '100%' }}
                   />
                 </div>
                 
-                <div className="w-full md:w-1/2 bg-white p-8 rounded-r-lg shadow-md h-full order-1 md:order-2 anim-item opacity-0">
+                <div className="w-full md:w-1/2 bg-white p-8 rounded-r-lg shadow-md order-1 md:order-2 anim-item opacity-0">
                   <h3 className="text-xl font-semibold mb-4 text-primary">FORMAR PARTE PROFESIONALES</h3>
                   <p className="text-lg text-gray-600 mb-6">
                     Unite a nuestra red de prestadores de servicios y aumentá tus ingresos. Con Almango, 
