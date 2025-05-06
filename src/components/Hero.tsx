@@ -28,7 +28,7 @@ const Hero = () => {
         </p>
         <Button 
           onClick={() => navigate('/servicios')} 
-          className="bg-primary hover:bg-primary/80 text-white rounded-md uppercase font-medium text-lg shadow-lg flex items-center transition-all hover:scale-105 animate-fade-in my-0 mx-0 py-[23px] px-[21px]"
+          className="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md uppercase font-medium text-lg shadow-lg flex items-center transition-all hover:scale-105 animate-fade-in my-0 mx-0 py-[23px] px-[21px] font-serif"
           style={{ animation: 'buttonGlow 2s infinite ease-in-out' }}
         >
           Solicita Tu Servicio <ArrowRight className="ml-2" size={18} />
