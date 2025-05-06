@@ -1,13 +1,13 @@
-
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { 
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
+  Carousel, 
+  CarouselContent, 
+  CarouselItem, 
+  CarouselPrevious, 
+  CarouselNext 
 } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { CircleEllipsis } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -16,19 +16,32 @@ interface Category {
   id: string;
   name: string;
   image: string;
-  products: any[];
+  price?: number;
+  count?: number;
 }
 
 interface CategoryCarouselProps {
   categories: Category[];
-  onSelectCategory: (category: Category) => void;
+  onSelectCategory: (categoryId: string, categoryName: string) => void;
+  selectedService: {
+    id?: string;
+    name: string;
+  };
+  isLoading?: boolean;
+  cartItems?: any[];
 }
 
 const IMAGE_CACHE_KEY = 'category_images_cache';
 const IMAGE_CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
 const COMPRESSION_QUALITY = 0.6; // Reducir calidad para mejorar rendimiento
 
-const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelectCategory }) => {
+const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
+  categories,
+  onSelectCategory,
+  selectedService,
+  isLoading = false,
+  cartItems = []
+}) => {
   const isMobile = useIsMobile();
   const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
@@ -265,6 +278,41 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
     }
   };
   
+  // Extraer solo los nombres de categorías para mostrar durante la carga
+  const categoryNames = useMemo(() => 
+    categories.map(category => category.name),
+  [categories]);
+
+  if (isLoading) {
+    return (
+      <div className="w-full">
+        <div className="text-center mb-8">
+          <h3 className="text-xl font-semibold text-secondary">
+            Cargando categorías para {selectedService.name}
+          </h3>
+          <div className="mt-4 flex justify-center">
+            <CircleEllipsis className="animate-spin h-12 w-12 text-primary" />
+          </div>
+        </div>
+        
+        {/* Carousel con nombres durante la carga */}
+        <Carousel 
+          className="w-full"
+          showLoadingNames={true}
+          loadingItems={categoryNames}
+        >
+          <CarouselContent>
+            {Array(6).fill(0).map((_, index) => (
+              <CarouselItem key={index} className="md:basis-1/4 pl-4">
+                <div className="aspect-square rounded-full bg-slate-100 animate-pulse"></div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+      </div>
+    );
+  }
+
   return (
     <div className="py-4 sm:py-6 w-full">
       <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 truncate mx-auto">Selecciona una categoría</h3>
@@ -291,7 +339,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
             >
               <div 
                 className="cursor-pointer hover:scale-105 transition-transform"
-                onClick={() => onSelectCategory(category)}
+                onClick={() => onSelectCategory(category.id, category.name)}
               >
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                   <AspectRatio ratio={1} className="bg-gray-100">

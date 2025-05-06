@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
@@ -17,6 +18,8 @@ type CarouselProps = {
   plugins?: CarouselPlugin
   orientation?: "horizontal" | "vertical"
   setApi?: (api: CarouselApi) => void
+  showLoadingNames?: boolean
+  loadingItems?: string[]
 }
 
 type CarouselContextProps = {
@@ -26,6 +29,8 @@ type CarouselContextProps = {
   scrollNext: () => void
   canScrollPrev: boolean
   canScrollNext: boolean
+  showLoadingNames?: boolean
+  loadingItems?: string[]
 } & CarouselProps
 
 const CarouselContext = React.createContext<CarouselContextProps | null>(null)
@@ -52,6 +57,8 @@ const Carousel = React.forwardRef<
       plugins,
       className,
       children,
+      showLoadingNames,
+      loadingItems = [],
       ...props
     },
     ref
@@ -130,6 +137,8 @@ const Carousel = React.forwardRef<
           scrollNext,
           canScrollPrev,
           canScrollNext,
+          showLoadingNames,
+          loadingItems,
         }}
       >
         <div
@@ -141,6 +150,30 @@ const Carousel = React.forwardRef<
           {...props}
         >
           {children}
+          
+          {/* Visualización de nombres de carga */}
+          {showLoadingNames && loadingItems && loadingItems.length > 0 && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="loading-names-container w-full h-full flex flex-wrap justify-center items-center overflow-hidden">
+                {loadingItems.map((name, index) => (
+                  <div 
+                    key={index}
+                    className={`px-3 py-1 m-1 rounded-full text-white text-sm font-medium animate-pulse
+                      ${index % 2 === 0 ? 'bg-secondary' : 'bg-primary'}`}
+                    style={{
+                      position: 'absolute',
+                      top: `${Math.random() * 70}%`, 
+                      left: `${Math.random() * 70}%`,
+                      animationDelay: `${index * 0.2}s`,
+                      animationDuration: '1.5s'
+                    }}
+                  >
+                    {name}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </CarouselContext.Provider>
     )
