@@ -203,6 +203,64 @@ html {
   }
 }
 
+/* Section animations - left and right */
+@keyframes sectionFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sectionFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Item appear animation */
+@keyframes itemAppear {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Animation classes */
+.animate-from-left {
+  opacity: 0;
+  transform: translateX(-100px);
+}
+
+.animate-from-right {
+  opacity: 0;
+  transform: translateX(100px);
+}
+
+.animate-section-from-left {
+  animation: sectionFromLeft 0.8s ease-out forwards;
+}
+
+.animate-section-from-right {
+  animation: sectionFromRight 0.8s ease-out forwards;
+}
+
+.animate-item-appear {
+  animation: itemAppear 0.5s ease-out forwards;
+}
+
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
 }
