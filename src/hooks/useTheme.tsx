@@ -1,5 +1,5 @@
+
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { useLocation } from "react-router-dom";
 
 type Theme = "dark" | "light";
 
@@ -13,26 +13,20 @@ const ThemeContext = createContext<ThemeContextType>({
   setTheme: () => {},
 });
 
-export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const location = useLocation();
-  const isServiciosPage = location.pathname.includes('/servicios');
-  
+interface ThemeProviderProps {
+  children: ReactNode;
+  forceDarkMode?: boolean;
+}
+
+export const ThemeProvider = ({ children, forceDarkMode = false }: ThemeProviderProps) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    // If on Servicios page, default to dark mode
-    if (isServiciosPage) {
-      return "dark";
-    }
+    if (forceDarkMode) return "dark";
     
-    // Otherwise, check local storage first
+    // Check local storage if not forcing dark mode
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem("theme") as Theme;
       if (savedTheme === "dark" || savedTheme === "light") {
         return savedTheme;
-      }
-      
-      // Check system preference
-      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return "dark";
       }
     }
     
@@ -40,35 +34,32 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     return "light";
   });
 
-  // Effect to update theme when navigating to/from Servicios page
   useEffect(() => {
-    if (isServiciosPage && theme === "light") {
+    // If forceDarkMode is enabled, ensure we're using dark theme
+    if (forceDarkMode && theme !== "dark") {
       setTheme("dark");
+      return;
     }
-  }, [isServiciosPage]);
-
-  useEffect(() => {
-    // Save to localStorage
-    localStorage.setItem("theme", theme);
     
-    // Apply to document
+    // Apply theme to document
     const root = window.document.documentElement;
-    
-    // First remove both classes
     root.classList.remove("dark", "light");
-    
-    // Then add the current theme
     root.classList.add(theme);
     
-    // Additionally, for dark mode, add a class to the body
+    // Apply dark class to body if needed
     if (theme === "dark") {
       document.body.classList.add("dark");
     } else {
       document.body.classList.remove("dark");
     }
     
-    console.log("Theme changed to:", theme);
-  }, [theme]);
+    // Only save to localStorage if not forcing dark mode
+    if (!forceDarkMode) {
+      localStorage.setItem("theme", theme);
+    }
+    
+    console.log("Theme applied:", theme, forceDarkMode ? "(forced dark mode)" : "");
+  }, [theme, forceDarkMode]);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>

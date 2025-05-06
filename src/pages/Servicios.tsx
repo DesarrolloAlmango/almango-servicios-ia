@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin, Sun, Moon } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "@/components/ServiceCard";
 import CartDrawer from "@/components/CartDrawer";
 import ServiceCarousel from "@/components/ServiceCarousel";
-import { useTheme } from "@/hooks/useTheme";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useQuery } from "@tanstack/react-query";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton, TextSkeleton, CategorySkeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import PurchaseLocationModal from "@/components/PurchaseLocationModal";
 
@@ -130,7 +129,6 @@ const Servicios = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { commerceId } = useParams();
-  const { theme, setTheme } = useTheme();
   const [storeName, setStoreName] = useState<string>("");
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -484,10 +482,6 @@ const Servicios = () => {
     toast.success("Lugar de compra y productos asociados eliminados");
   };
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
-
   if (isServicesLoading && isLoadingMudanza) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
@@ -503,24 +497,13 @@ const Servicios = () => {
                 <span>Volver</span>
               </Button>
               
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="ghost" 
-                  onClick={toggleTheme}
-                  className="text-foreground hover:text-gray-300 transition-colors"
-                  aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-                >
-                  {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-                </Button>
-                
-                <Button 
-                  variant="ghost" 
-                  className="relative hover:text-gray-300"
-                  onClick={() => setIsCartOpen(true)}
-                >
-                  <ShoppingCart size={24} />
-                </Button>
-              </div>
+              <Button 
+                variant="ghost" 
+                className="relative hover:text-gray-300"
+                onClick={() => setIsCartOpen(true)}
+              >
+                <ShoppingCart size={24} />
+              </Button>
             </div>
             
             <h1 className="text-3xl font-normal mb-12 text-center text-[#008be1] uppercase font-display opacity-0 transition-opacity duration-500">Nuestros Servicios</h1>
@@ -560,29 +543,18 @@ const Servicios = () => {
               <span>Volver</span>
             </Button>
             
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="ghost" 
-                onClick={toggleTheme}
-                className="text-foreground hover:text-gray-300 transition-colors"
-                aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-              >
-                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-              </Button>
-              
-              <Button 
-                variant="ghost" 
-                className="relative hover:text-gray-300"
-                onClick={() => setIsCartOpen(true)}
-              >
-                <ShoppingCart size={24} />
-                {getCartItemsCount() > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {getCartItemsCount()}
-                  </span>
-                )}
-              </Button>
-            </div>
+            <Button 
+              variant="ghost" 
+              className="relative hover:text-gray-300"
+              onClick={() => setIsCartOpen(true)}
+            >
+              <ShoppingCart size={24} />
+              {getCartItemsCount() > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {getCartItemsCount()}
+                </span>
+              )}
+            </Button>
           </div>
           
           <h1 
