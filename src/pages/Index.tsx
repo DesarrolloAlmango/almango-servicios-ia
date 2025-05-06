@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -128,7 +127,9 @@ const Index = () => {
         <Hero />
         
         <Separator className="h-1 bg-black" />
-        <ServicesShowcase />
+        <section id="nuestros-servicios">
+          <ServicesShowcase />
+        </section>
         <Separator className="h-1 bg-black" />
         
         {/* Partners Section */}
@@ -155,7 +156,7 @@ const Index = () => {
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl mx-auto">
               <div className="text-center flex flex-col items-center anim-item opacity-0">
-                <div className="mb-4">
+                <div className="mb-4 transition-all duration-300 transform hover:scale-110">
                   <img src="https://almango.com.uy/img/agenda-almango.svg" alt="Agenda" className="h-16 w-16 mx-auto" />
                 </div>
                 <h4 className="text-lg font-semibold mb-2">Agendá fecha y hora</h4>
@@ -163,7 +164,7 @@ const Index = () => {
               </div>
               
               <div className="text-center flex flex-col items-center anim-item opacity-0">
-                <div className="mb-4">
+                <div className="mb-4 transition-all duration-300 transform hover:scale-110">
                   <img src="https://almango.com.uy/img/pago-almango.svg" alt="Recibir técnico" className="h-16 w-16 mx-auto" />
                 </div>
                 <h4 className="text-lg font-semibold mb-2">Recibí al técnico</h4>
@@ -171,7 +172,7 @@ const Index = () => {
               </div>
               
               <div className="text-center flex flex-col items-center anim-item opacity-0">
-                <div className="mb-4">
+                <div className="mb-4 transition-all duration-300 transform hover:scale-110">
                   <img src="https://almango.com.uy/img/pago-almango.svg" alt="Pago" className="h-16 w-16 mx-auto" />
                 </div>
                 <h4 className="text-lg font-semibold mb-2">Realizá el pago al finalizar</h4>
@@ -179,7 +180,7 @@ const Index = () => {
               </div>
               
               <div className="text-center flex flex-col items-center anim-item opacity-0">
-                <div className="mb-4">
+                <div className="mb-4 transition-all duration-300 transform hover:scale-110">
                   <img src="https://almango.com.uy/img/valora-almango.svg" alt="Valoración" className="h-16 w-16 mx-auto" />
                 </div>
                 <h4 className="text-lg font-semibold mb-2">Ayudanos a mejorar</h4>

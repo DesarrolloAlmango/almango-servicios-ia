@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Facebook, Instagram, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -82,7 +83,7 @@ const Header = () => {
           <button onClick={() => scrollToSection('inicio')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-semibold">
             Inicio
           </button>
-          <button onClick={() => scrollToSection('servicios')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-semibold">
+          <button onClick={() => scrollToSection('nuestros-servicios')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-semibold">
             Servicios
           </button>
           <button onClick={() => scrollToSection('quienes-somos')} className="uppercase text-sm text-white hover:text-gray-900 transition-colors font-semibold">
@@ -120,7 +121,7 @@ const Header = () => {
             <button onClick={() => scrollToSection('inicio')} className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left">
               Inicio
             </button>
-            <button onClick={() => scrollToSection('servicios')} className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left">
+            <button onClick={() => scrollToSection('nuestros-servicios')} className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left">
               Servicios
             </button>
             <button onClick={() => scrollToSection('quienes-somos')} className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left">
