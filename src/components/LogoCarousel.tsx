@@ -21,8 +21,8 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
   }
 
   // Duplicate the logos multiple times to create a longer seamless loop effect
-  // By repeating 4 times, we ensure no visible reset during scroll
-  const extendedLogos = [...logos, ...logos, ...logos, ...logos];
+  // By repeating 6 times, we ensure no visible reset during scroll
+  const extendedLogos = [...logos, ...logos, ...logos, ...logos, ...logos, ...logos];
 
   return (
     <div className="overflow-hidden w-full">
@@ -39,15 +39,15 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
           className={`${direction === "rtl" ? "animate-infinite-scroll-reverse" : "animate-infinite-scroll"} 
             ${speed === "fast" ? "fast-scroll" : ""} 
             ${speed === "super-fast" ? "super-fast-scroll" : ""} 
-            ${speed === "ultra-fast" ? "ultra-fast-scroll" : ""}
+            ${speed === "ultra-fast" ? "moderate-scroll" : ""}
             flex ${direction === "rtl" ? "flex-row-reverse" : "flex-row"} w-max`}
         >
           {extendedLogos.map((logo, index) => (
             <CarouselItem 
               key={index} 
-              className="min-w-0 basis-1/6 sm:basis-1/8 md:basis-1/10 lg:basis-1/12 xl:basis-1/16 flex-shrink-0"
+              className="min-w-0 basis-1/12 sm:basis-1/12 md:basis-1/14 lg:basis-1/16 xl:basis-1/18 flex-shrink-0"
             >
-              <div className="h-36 flex items-center justify-center p-3 transition-all hover:scale-105 py-0 px-0">
+              <div className="h-28 flex items-center justify-center p-2 transition-all hover:scale-105">
                 <img 
                   src={logo.url} 
                   alt={logo.alt} 

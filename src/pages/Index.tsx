@@ -62,6 +62,9 @@ const secondHalfLogos = [{
   alt: "Blanes"
 }];
 
+// Combine all logos into a single array for the carousel
+const allLogos = [...firstHalfLogos, ...secondHalfLogos];
+
 const Index = () => {
   // Create refs for each section to animate
   const contratarSectionRef = useRef<HTMLElement>(null);
@@ -136,11 +139,8 @@ const Index = () => {
           </div>
           
           <div className="w-full px-0">
-            <div className="mb-6 w-full overflow-hidden">
-              <LogoCarousel logos={firstHalfLogos} direction="rtl" speed="ultra-fast" />
-            </div>
             <div className="w-full overflow-hidden">
-              <LogoCarousel logos={secondHalfLogos} direction="ltr" speed="ultra-fast" />
+              <LogoCarousel logos={allLogos} direction="rtl" speed="fast" />
             </div>
           </div>
         </section>
