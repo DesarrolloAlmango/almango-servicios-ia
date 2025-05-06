@@ -8,29 +8,58 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 // First 8 logos
-const firstHalfLogos = [
-  { url: "https://almango.com.uy/img/logos/logo-sodimac.png", alt: "Sodimac" },
-  { url: "https://almango.com.uy/img/logos/logo-devoto.png", alt: "Devoto" },
-  { url: "https://almango.com.uy/img/logos/logo-disco.png", alt: "Disco" },
-  { url: "https://almango.com.uy/img/logos/logo-geant.png", alt: "Geant" },
-  { url: "https://almango.com.uy/img/logos/Logos-Almango-03.png", alt: "Almango" },
-  { url: "https://almango.com.uy/img/logos/logo-lacueva.png", alt: "La Cueva" },
-  { url: "https://almango.com.uy/img/logos/logo-lamulata.png", alt: "La Mulata" },
-  { url: "https://almango.com.uy/img/logos/logo-prontometal.png", alt: "Pronto Metal" }
-];
+const firstHalfLogos = [{
+  url: "https://almango.com.uy/img/logos/logo-sodimac.png",
+  alt: "Sodimac"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-devoto.png",
+  alt: "Devoto"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-disco.png",
+  alt: "Disco"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-geant.png",
+  alt: "Geant"
+}, {
+  url: "https://almango.com.uy/img/logos/Logos-Almango-03.png",
+  alt: "Almango"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-lacueva.png",
+  alt: "La Cueva"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-lamulata.png",
+  alt: "La Mulata"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-prontometal.png",
+  alt: "Pronto Metal"
+}];
 
 // Last 8 logos
-const secondHalfLogos = [
-  { url: "https://almango.com.uy/img/logos/logo-arte.png", alt: "Arte" },
-  { url: "https://almango.com.uy/img/logos/logo-cimarron.png", alt: "Cimarron" },
-  { url: "https://almango.com.uy/img/logos/logo-ferrobasso.png", alt: "Ferro Basso" },
-  { url: "https://almango.com.uy/img/logos/logo-elombu.png", alt: "El Ombu" },
-  { url: "https://almango.com.uy/img/logos/logo-adi.png", alt: "ADI" },
-  { url: "https://almango.com.uy/img/logos/logo-volkers.png", alt: "Volkers" },
-  { url: "https://almango.com.uy/img/logos/logo-tiendamia.png", alt: "Tienda Mia" },
-  { url: "https://almango.com.uy/img/logos/logo-blanes.png", alt: "Blanes" }
-];
-
+const secondHalfLogos = [{
+  url: "https://almango.com.uy/img/logos/logo-arte.png",
+  alt: "Arte"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-cimarron.png",
+  alt: "Cimarron"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-ferrobasso.png",
+  alt: "Ferro Basso"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-elombu.png",
+  alt: "El Ombu"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-adi.png",
+  alt: "ADI"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-volkers.png",
+  alt: "Volkers"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-tiendamia.png",
+  alt: "Tienda Mia"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-blanes.png",
+  alt: "Blanes"
+}];
 const Index = () => {
   return <div className="min-h-screen flex flex-col">
       <Header />
@@ -132,7 +161,7 @@ const Index = () => {
         
         <section id="formar-parte" className="py-20 px-4 bg-gray-50">
           <div className="container mx-auto">
-            <h2 className="text-3xl font-bold mb-12 text-center text-secondary uppercase">Formar Parte</h2>
+            <h2 className="text-3xl font-bold mb-12 text-center text-secondary uppercase">¿SOS EMPRESA O COMERCIO? CONOCÉ LOS BENEFICIOS.</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
               <div className="bg-white p-8 rounded-lg shadow-md">
