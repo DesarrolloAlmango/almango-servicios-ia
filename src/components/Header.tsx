@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Facebook, Instagram, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -30,9 +31,36 @@ const Header = () => {
     } else {
       const element = document.getElementById(id);
       if (element) {
-        element.scrollIntoView({
-          behavior: 'smooth'
-        });
+        // Get the element's position
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.scrollY - 100; // Adjust offset for header
+        
+        // Create a custom easing function for a more bouncy effect
+        const startTime = performance.now();
+        const startScrollY = window.scrollY;
+        const duration = 800; // Longer duration for more noticeable effect
+        
+        function easeOutBack(t: number): number {
+          const c1 = 1.70158;
+          const c3 = c1 + 1;
+          return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+        }
+        
+        function scrollAnimation(currentTime: number) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const easedProgress = easeOutBack(progress);
+          
+          window.scrollTo({
+            top: startScrollY + (offsetPosition - startScrollY) * easedProgress,
+          });
+          
+          if (progress < 1) {
+            requestAnimationFrame(scrollAnimation);
+          }
+        }
+        
+        requestAnimationFrame(scrollAnimation);
       }
     }
     setIsMobileMenuOpen(false);
