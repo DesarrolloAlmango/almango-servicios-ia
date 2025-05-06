@@ -51,10 +51,10 @@ const Index = () => {
           
           <div className="container mx-auto px-4">
             <div className="mb-6">
-              <LogoCarousel logos={firstHalfLogos} direction="rtl" speed="fast" />
+              <LogoCarousel logos={firstHalfLogos} direction="rtl" speed="super-fast" />
             </div>
             <div>
-              <LogoCarousel logos={secondHalfLogos} direction="ltr" speed="fast" />
+              <LogoCarousel logos={secondHalfLogos} direction="ltr" speed="super-fast" />
             </div>
           </div>
         </section>

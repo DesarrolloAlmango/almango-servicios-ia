@@ -232,6 +232,15 @@ html {
   animation: scroll 40s linear infinite reverse;
 }
 
+/* Add super fast scroll animation */
+.super-fast-scroll.animate-infinite-scroll {
+  animation: scroll 25s linear infinite;
+}
+
+.super-fast-scroll.animate-infinite-scroll-reverse {
+  animation: scroll 25s linear infinite reverse;
+}
+
 .transition-transform {
   transition-property: transform;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
