@@ -485,13 +485,13 @@ const Servicios = () => {
   if (isServicesLoading && isLoadingMudanza) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
-        <main className="flex-grow py-8 px-4 relative z-10">
+        <main className="flex-grow py-8 px-4 relative z-10 bg-[#14162c] text-white">
           <div className="container mx-auto">
             <div className="flex justify-between items-center mb-8 mt-4">
               <Button 
                 variant="ghost" 
                 onClick={handleBackToHome}
-                className="flex items-center gap-2 hover:text-gray-300"
+                className="flex items-center gap-2 hover:text-gray-300 text-white"
               >
                 <ArrowLeft size={20} />
                 <span>Volver</span>
@@ -499,7 +499,7 @@ const Servicios = () => {
               
               <Button 
                 variant="ghost" 
-                className="relative hover:text-gray-300"
+                className="relative hover:text-gray-300 text-white"
                 onClick={() => setIsCartOpen(true)}
               >
                 <ShoppingCart size={24} />
@@ -531,13 +531,13 @@ const Servicios = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <main className="flex-grow py-8 px-4 relative z-10">
+      <main className="flex-grow py-8 px-4 relative z-10 bg-[#14162c] text-white">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-8 mt-4">
             <Button 
               variant="ghost" 
               onClick={handleBackToHome}
-              className="flex items-center gap-2 hover:text-gray-300"
+              className="flex items-center gap-2 hover:text-gray-300 text-white"
             >
               <ArrowLeft size={20} />
               <span>Volver</span>
@@ -545,7 +545,7 @@ const Servicios = () => {
             
             <Button 
               variant="ghost" 
-              className="relative hover:text-gray-300"
+              className="relative hover:text-gray-300 text-white"
               onClick={() => setIsCartOpen(true)}
             >
               <ShoppingCart size={24} />
