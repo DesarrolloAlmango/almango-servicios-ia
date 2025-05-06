@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -224,18 +223,40 @@ html {
 /* Dark mode service card styles */
 .dark [data-component="service-card"],
 .dark .service-card-hover {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(20, 22, 44, 0.7);
+  border-color: rgba(255, 105, 0, 0.4);
 }
 
 .dark [data-component="service-card"].circular,
 .dark .service-card-hover.circular {
-  border: 2px solid #ff6900; /* Keep primary color border in dark mode */
+  border: 2px solid rgba(255, 105, 0, 0.7); /* Semi-transparent primary color border in dark mode */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 2px rgba(0, 0, 0, 0.2);
 }
 
 .dark [data-component="service-card"]:hover,
 .dark .service-card-hover:hover {
-  background-color: rgba(255, 166, 0, 0.15) !important;
+  background-color: rgba(255, 105, 0, 0.15) !important;
+}
+
+/* Ensure text is visible in dark mode */
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.dark .text-[#008be1] {
+  color: #1eaedb !important; /* Brighter blue for dark mode */
+}
+
+.dark .bg-blue-900\/30 {
+  background-color: rgba(30, 58, 138, 0.4); /* Slightly more visible */
+}
+
+.dark .border-blue-500\/30 {
+  border-color: rgba(59, 130, 246, 0.5); /* More visible border */
+}
+
+.dark .text-blue-300, .dark .text-blue-200 {
+  color: #90cdf4 !important; /* Brighter blue text for dark mode */
 }
 
 /* Estilos para la distribución de las tarjetas de servicio */

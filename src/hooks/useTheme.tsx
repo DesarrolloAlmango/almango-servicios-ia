@@ -1,5 +1,5 @@
-
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { useLocation } from "react-router-dom";
 
 type Theme = "dark" | "light";
 
@@ -14,8 +14,16 @@ const ThemeContext = createContext<ThemeContextType>({
 });
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
+  const location = useLocation();
+  const isServiciosPage = location.pathname.includes('/servicios');
+  
   const [theme, setTheme] = useState<Theme>(() => {
-    // Check local storage first
+    // If on Servicios page, default to dark mode
+    if (isServiciosPage) {
+      return "dark";
+    }
+    
+    // Otherwise, check local storage first
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem("theme") as Theme;
       if (savedTheme === "dark" || savedTheme === "light") {
@@ -31,6 +39,13 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     // Default to light
     return "light";
   });
+
+  // Effect to update theme when navigating to/from Servicios page
+  useEffect(() => {
+    if (isServiciosPage && theme === "light") {
+      setTheme("dark");
+    }
+  }, [isServiciosPage]);
 
   useEffect(() => {
     // Save to localStorage
