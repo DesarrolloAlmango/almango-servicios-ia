@@ -109,7 +109,7 @@ const ServicesShowcase: React.FC = () => {
           {ServiceItems.map((service, index) => <div key={index} className="flex flex-col items-center py-0.5">
               <div className="flex flex-col items-center justify-center px-[29px] py-[6px] my-[8px] mx-[3px]">
                 <img src={service.imageUrl} alt={service.title} className="h-14 w-14 mb-1 hover:scale-125 transition-transform duration-300" />
-                <h3 className="text-xs text-center font-medium text-gray-800">{service.title}</h3>
+                <h3 className="text-xs text-center font-medium text-gray-800 my-px px-[27px] py-[3px]">{service.title}</h3>
               </div>
             </div>)}
         </div>
