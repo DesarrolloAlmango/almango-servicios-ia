@@ -1,3 +1,5 @@
+
+import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import ServicesShowcase from "@/components/ServicesShowcase";
@@ -60,7 +62,63 @@ const secondHalfLogos = [{
   url: "https://almango.com.uy/img/logos/logo-blanes.png",
   alt: "Blanes"
 }];
+
 const Index = () => {
+  // Create refs for each section to animate
+  const contratarSectionRef = useRef<HTMLElement>(null);
+  const quienesSomosSectionRef = useRef<HTMLElement>(null);
+  const formarParteSectionRef = useRef<HTMLElement>(null);
+  const partnersSectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1,
+    };
+
+    // Setup observer for section animations
+    const sectionObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          if (entry.target.classList.contains('animate-from-left')) {
+            entry.target.classList.add('animate-section-from-left');
+          } else if (entry.target.classList.contains('animate-from-right')) {
+            entry.target.classList.add('animate-section-from-right');
+          }
+          
+          // For step-by-step item animations
+          const animItems = entry.target.querySelectorAll('.anim-item');
+          animItems.forEach((item, index) => {
+            const delay = index * 0.1;
+            (item as HTMLElement).style.animationDelay = `${delay}s`;
+            item.classList.add('animate-item-appear');
+          });
+          
+          sectionObserver.unobserve(entry.target);
+        }
+      });
+    }, options);
+
+    // Observe sections
+    if (contratarSectionRef.current) {
+      sectionObserver.observe(contratarSectionRef.current);
+    }
+    if (quienesSomosSectionRef.current) {
+      sectionObserver.observe(quienesSomosSectionRef.current);
+    }
+    if (formarParteSectionRef.current) {
+      sectionObserver.observe(formarParteSectionRef.current);
+    }
+    if (partnersSectionRef.current) {
+      sectionObserver.observe(partnersSectionRef.current);
+    }
+
+    return () => {
+      sectionObserver.disconnect();
+    };
+  }, []);
+
   return <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow" id="inicio">
@@ -71,7 +129,7 @@ const Index = () => {
         <Separator className="h-1 bg-black" />
         
         {/* Partners Section */}
-        <section className="bg-[#F0F0F0] py-8">
+        <section ref={partnersSectionRef} className="bg-[#F0F0F0] py-8 animate-from-left">
           <div className="bg-[#F97316] mb-8 -mt-8 px-0 mx-0 py-[46px]">
             <h2 className="font-bold text-center text-white uppercase text-2xl">
               ALGUNOS DE NUESTROS CLIENTES Y ALIANZAS COMERCIALES
@@ -89,13 +147,13 @@ const Index = () => {
         </section>
         <Separator className="h-1 bg-black" />
         
-        <section id="como-contratar" className="py-20 px-4 bg-primary text-white">
+        <section ref={contratarSectionRef} id="como-contratar" className="py-20 px-4 bg-primary text-white animate-from-right">
           <div className="container mx-auto">
             <h2 className="text-3xl font-bold mb-4 text-center uppercase">¿CÓMO CONTRATAR?</h2>
             <h3 className="text-xl font-medium mb-12 text-center">PROCESO DE CONTRATACIÓN</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl mx-auto">
-              <div className="text-center flex flex-col items-center">
+              <div className="text-center flex flex-col items-center anim-item opacity-0">
                 <div className="mb-4">
                   <img src="https://almango.com.uy/img/agenda-almango.svg" alt="Agenda" className="h-16 w-16 mx-auto" />
                 </div>
@@ -103,7 +161,7 @@ const Index = () => {
                 <p className="text-white/90">Coordinación inmediata.</p>
               </div>
               
-              <div className="text-center flex flex-col items-center">
+              <div className="text-center flex flex-col items-center anim-item opacity-0">
                 <div className="mb-4">
                   <img src="https://almango.com.uy/img/pago-almango.svg" alt="Recibir técnico" className="h-16 w-16 mx-auto" />
                 </div>
@@ -111,7 +169,7 @@ const Index = () => {
                 <p className="text-white/90">Un profesional calificado realizará el trabajo.</p>
               </div>
               
-              <div className="text-center flex flex-col items-center">
+              <div className="text-center flex flex-col items-center anim-item opacity-0">
                 <div className="mb-4">
                   <img src="https://almango.com.uy/img/pago-almango.svg" alt="Pago" className="h-16 w-16 mx-auto" />
                 </div>
@@ -119,7 +177,7 @@ const Index = () => {
                 <p className="text-white/90">Seleccioná el medio que más te convenga.</p>
               </div>
               
-              <div className="text-center flex flex-col items-center">
+              <div className="text-center flex flex-col items-center anim-item opacity-0">
                 <div className="mb-4">
                   <img src="https://almango.com.uy/img/valora-almango.svg" alt="Valoración" className="h-16 w-16 mx-auto" />
                 </div>
@@ -131,7 +189,7 @@ const Index = () => {
         </section>
         <Separator className="h-1 bg-black" />
         
-        <section id="quienes-somos" className="py-20 px-4 bg-white">
+        <section ref={quienesSomosSectionRef} id="quienes-somos" className="py-20 px-4 bg-white animate-from-left">
           <div className="container mx-auto">
             <h2 className="text-3xl font-bold mb-8 text-center text-secondary uppercase">¿Quiénes Somos?</h2>
             <div className="max-w-4xl mx-auto">
@@ -140,16 +198,16 @@ const Index = () => {
                   
                 </div>
                 <div className="w-full max-w-3xl">
-                  <h3 className="text-xl font-semibold mb-3 text-primary">ACERCA DE NOSOTROS</h3>
-                  <p className="text-lg text-gray-600 mb-6">
+                  <h3 className="text-xl font-semibold mb-3 text-primary anim-item opacity-0">ACERCA DE NOSOTROS</h3>
+                  <p className="text-lg text-gray-600 mb-6 anim-item opacity-0">
                     Somos una empresa tecnológica que brinda soluciones en la contratación de servicios y oficios, 
                     conectando a personas y empresas con proveedores de servicio previamente validados.
                   </p>
-                  <p className="text-lg text-gray-600 mb-6">
+                  <p className="text-lg text-gray-600 mb-6 anim-item opacity-0">
                     Aportamos valor agregado en el proceso de contratación de proveedores de servicios, 
                     brindando garantía, cobertura ante daños, pago online, atención personalizada y mucho más.
                   </p>
-                  <p className="text-lg text-gray-600">
+                  <p className="text-lg text-gray-600 anim-item opacity-0">
                     Generamos nuevas oportunidades de negocio para comercios y proveedores de servicio a través de un modelo innovador.
                   </p>
                 </div>
@@ -159,12 +217,12 @@ const Index = () => {
         </section>
         <Separator className="h-1 bg-black" />
         
-        <section id="formar-parte" className="py-20 px-4 bg-gray-50">
+        <section ref={formarParteSectionRef} id="formar-parte" className="py-20 px-4 bg-gray-50 animate-from-right">
           <div className="container mx-auto">
             <h2 className="text-3xl font-bold mb-12 text-center text-secondary uppercase">¿SOS EMPRESA O COMERCIO? CONOCÉ LOS BENEFICIOS.</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-              <div className="bg-white p-8 rounded-lg shadow-md">
+              <div className="bg-white p-8 rounded-lg shadow-md anim-item opacity-0">
                 <h3 className="text-xl font-semibold mb-4 text-primary">FORMAR PARTE COMERCIOS</h3>
                 <p className="text-lg text-gray-600 mb-6">
                   Incrementá tus ingresos al ser parte de nuestra red de socios. Generando solicitudes de 
@@ -181,7 +239,7 @@ const Index = () => {
                 </div>
               </div>
               
-              <div className="bg-white p-8 rounded-lg shadow-md">
+              <div className="bg-white p-8 rounded-lg shadow-md anim-item opacity-0">
                 <h3 className="text-xl font-semibold mb-4 text-primary">FORMAR PARTE PROFESIONALES</h3>
                 <p className="text-lg text-gray-600 mb-6">
                   Unite a nuestra red de prestadores de servicios y aumentá tus ingresos. Con Almango, 
