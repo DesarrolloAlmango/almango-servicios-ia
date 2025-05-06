@@ -50,6 +50,28 @@ const ServicesShowcase: React.FC = () => {
             </div>
           ))}
         </div>
+        
+        {/* Services Counter Section */}
+        <div className="mt-20 flex flex-col md:flex-row items-center justify-center gap-6">
+          <div className="text-[#1EAEDB] text-2xl md:text-3xl font-bold uppercase">
+            SERVICIOS REALIZADOS
+          </div>
+          
+          <div className="flex">
+            {[0, 9, 8, 8, 0, 0].map((digit, index) => (
+              <div 
+                key={index} 
+                className="bg-[#1A1F2C] text-white w-10 h-14 md:w-12 md:h-16 flex items-center justify-center text-xl md:text-2xl font-bold mx-0.5"
+              >
+                {digit}
+              </div>
+            ))}
+          </div>
+          
+          <div className="text-[#1EAEDB] text-2xl md:text-3xl font-bold uppercase">
+            Y CONTANDO...
+          </div>
+        </div>
       </div>
     </section>
   );
