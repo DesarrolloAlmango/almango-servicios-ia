@@ -439,17 +439,17 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             ))}
           </div>
           {hasSelectedProducts && (
-            <div className="flex justify-center gap-4 mt-8 sticky bottom-4 bg-white p-4 rounded-lg shadow-md">
+            <div className="flex justify-center gap-2 sm:gap-4 mt-8 sticky bottom-4 bg-white p-4 rounded-lg shadow-md">
               <Button 
                 onClick={handleAddAnotherService}
                 variant="outline"
-                className="text-secondary border-secondary hover:bg-secondary hover:text-white transition-colors"
+                className="text-secondary border-secondary hover:bg-secondary hover:text-white transition-colors text-xs sm:text-sm px-2 sm:px-4"
               >
                 Agregar otro servicio
               </Button>
               <Button 
                 onClick={handleContractNow}
-                className="bg-orange-500 hover:bg-orange-600 text-white"
+                className="bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm px-2 sm:px-4"
               >
                 Contratar ahora
               </Button>
