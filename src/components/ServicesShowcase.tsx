@@ -61,17 +61,17 @@ const ServicesShowcase: React.FC = () => {
           </p>
         </div>
         
-        {/* Reduced gap-5 to gap-2 to bring icons closer together */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+        {/* Further reduced gaps and adjusted spacing between rows */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-1 gap-y-0">
           {ServiceItems.map((service, index) => (
-            <div key={index} className="flex flex-col items-center">
-              <div className="w-full aspect-square flex flex-col items-center justify-center p-2">
+            <div key={index} className="flex flex-col items-center py-0.5">
+              <div className="flex flex-col items-center justify-center">
                 <img 
                   src={service.imageUrl} 
                   alt={service.title} 
-                  className="h-16 w-16 mb-3 hover:scale-125 transition-transform duration-300"
+                  className="h-14 w-14 mb-1 hover:scale-125 transition-transform duration-300"
                 />
-                <h3 className="text-xs sm:text-sm text-center font-medium text-gray-800">{service.title}</h3>
+                <h3 className="text-xs text-center font-medium text-gray-800">{service.title}</h3>
               </div>
             </div>
           ))}
