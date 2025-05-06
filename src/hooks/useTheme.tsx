@@ -13,20 +13,18 @@ const ThemeContext = createContext<ThemeContextType>({
   setTheme: () => {},
 });
 
-interface ThemeProviderProps {
-  children: ReactNode;
-  forceDarkMode?: boolean;
-}
-
-export const ThemeProvider = ({ children, forceDarkMode = false }: ThemeProviderProps) => {
+export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    if (forceDarkMode) return "dark";
-    
-    // Check local storage if not forcing dark mode
+    // Check local storage first
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem("theme") as Theme;
       if (savedTheme === "dark" || savedTheme === "light") {
         return savedTheme;
+      }
+      
+      // Check system preference
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return "dark";
       }
     }
     
@@ -35,31 +33,27 @@ export const ThemeProvider = ({ children, forceDarkMode = false }: ThemeProvider
   });
 
   useEffect(() => {
-    // If forceDarkMode is enabled, ensure we're using dark theme
-    if (forceDarkMode && theme !== "dark") {
-      setTheme("dark");
-      return;
-    }
+    // Save to localStorage
+    localStorage.setItem("theme", theme);
     
-    // Apply theme to document
+    // Apply to document
     const root = window.document.documentElement;
+    
+    // First remove both classes
     root.classList.remove("dark", "light");
+    
+    // Then add the current theme
     root.classList.add(theme);
     
-    // Apply dark class to body if needed
+    // Additionally, for dark mode, add a class to the body
     if (theme === "dark") {
       document.body.classList.add("dark");
     } else {
       document.body.classList.remove("dark");
     }
     
-    // Only save to localStorage if not forcing dark mode
-    if (!forceDarkMode) {
-      localStorage.setItem("theme", theme);
-    }
-    
-    console.log("Theme applied:", theme, forceDarkMode ? "(forced dark mode)" : "");
-  }, [theme, forceDarkMode]);
+    console.log("Theme changed to:", theme);
+  }, [theme]);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
