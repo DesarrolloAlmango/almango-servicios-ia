@@ -219,6 +219,16 @@ const Servicios = () => {
     fetchStoreName();
   }, [commerceId, services]);
 
+  useEffect(() => {
+    // Add dark mode class to body when component mounts
+    document.body.classList.add('dark', 'servicios-page');
+    
+    // Clean up function to remove class when component unmounts
+    return () => {
+      document.body.classList.remove('dark', 'servicios-page');
+    };
+  }, []);
+
   const displayedServices = isServicesError ? fallbackServices : services;
   const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
 
@@ -484,7 +494,7 @@ const Servicios = () => {
 
   if (isServicesLoading && isLoadingMudanza) {
     return (
-      <div className="min-h-screen flex flex-col bg-background">
+      <div className="min-h-screen flex flex-col bg-[#14162c] servicios-page">
         <main className="flex-grow py-8 px-4 relative z-10">
           <div className="container mx-auto">
             <div className="flex justify-between items-center mb-8 mt-4">
@@ -530,7 +540,7 @@ const Servicios = () => {
   console.log("Productos en el carrito:", cartItems);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-[#14162c] servicios-page">
       <main className="flex-grow py-8 px-4 relative z-10">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-8 mt-4">
