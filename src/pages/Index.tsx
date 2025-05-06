@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -223,38 +224,62 @@ const Index = () => {
           <div className="container mx-auto">
             <h2 className="text-3xl font-bold mb-12 text-center text-secondary uppercase">¿SOS EMPRESA O COMERCIO? CONOCÉ LOS BENEFICIOS.</h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-              <div className="bg-white p-8 rounded-lg shadow-md anim-item opacity-0">
-                <h3 className="text-xl font-semibold mb-4 text-primary">FORMAR PARTE COMERCIOS</h3>
-                <p className="text-lg text-gray-600 mb-6">
-                  Incrementá tus ingresos al ser parte de nuestra red de socios. Generando solicitudes de 
-                  servicio en nuestra plataforma, obtendrás atractivas comisiones. Registrate para más información.
-                </p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+              <div className="flex flex-col md:flex-row gap-6 items-center">
+                <div className="w-full md:w-1/2 order-1 md:order-2">
+                  <div className="bg-white p-8 rounded-lg shadow-md h-full anim-item opacity-0">
+                    <h3 className="text-xl font-semibold mb-4 text-primary">FORMAR PARTE COMERCIOS</h3>
+                    <p className="text-lg text-gray-600 mb-6">
+                      Incrementá tus ingresos al ser parte de nuestra red de socios. Generando solicitudes de 
+                      servicio en nuestra plataforma, obtendrás atractivas comisiones. Registrate para más información.
+                    </p>
+                    
+                    <div className="mt-8 text-center">
+                      <a href="https://almango.com.uy/altas/altacomercio.html" target="_blank" rel="noreferrer" className="inline-block">
+                        <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg w-full sm:w-auto break-words">
+                          <span className="hidden custom:inline">Pre-Registros de Comercios</span>
+                          <span className="inline custom:hidden">COMERCIOS</span>
+                        </Button>
+                      </a>
+                    </div>
+                  </div>
+                </div>
                 
-                <div className="mt-8 text-center">
-                  <a href="https://almango.com.uy/altas/altacomercio.html" target="_blank" rel="noreferrer" className="inline-block">
-                    <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg w-full sm:w-auto break-words">
-                      <span className="hidden custom:inline">Pre-Registros de Comercios</span>
-                      <span className="inline custom:hidden">COMERCIOS</span>
-                    </Button>
-                  </a>
+                <div className="w-full md:w-1/2 order-2 md:order-1">
+                  <img 
+                    src="https://almango.com.uy/img/img-local.jpg" 
+                    alt="Comercios" 
+                    className="w-full h-auto rounded-lg object-cover border-2 border-black shadow-lg" 
+                  />
                 </div>
               </div>
               
-              <div className="bg-white p-8 rounded-lg shadow-md anim-item opacity-0">
-                <h3 className="text-xl font-semibold mb-4 text-primary">FORMAR PARTE PROFESIONALES</h3>
-                <p className="text-lg text-gray-600 mb-6">
-                  Unite a nuestra red de prestadores de servicios y aumentá tus ingresos. Con Almango, 
-                  tendrás acceso a clientes potenciales y oportunidades de negocio constantes. Registrate para formar parte.
-                </p>
+              <div className="flex flex-col md:flex-row gap-6 items-center">
+                <div className="w-full md:w-1/2">
+                  <img 
+                    src="https://almango.com.uy/img/img-proveedores.jpg" 
+                    alt="Profesionales" 
+                    className="w-full h-auto rounded-lg object-cover border-2 border-black shadow-lg" 
+                  />
+                </div>
                 
-                <div className="mt-8 text-center">
-                  <a href="https://almango.com.uy/altas/altaprestador.html" target="_blank" rel="noreferrer" className="inline-block">
-                    <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg w-full sm:w-auto break-words">
-                      <span className="hidden custom:inline">Pre-Registros de Profesionales</span>
-                      <span className="inline custom:hidden">PROFESIONALES</span>
-                    </Button>
-                  </a>
+                <div className="w-full md:w-1/2">
+                  <div className="bg-white p-8 rounded-lg shadow-md h-full anim-item opacity-0">
+                    <h3 className="text-xl font-semibold mb-4 text-primary">FORMAR PARTE PROFESIONALES</h3>
+                    <p className="text-lg text-gray-600 mb-6">
+                      Unite a nuestra red de prestadores de servicios y aumentá tus ingresos. Con Almango, 
+                      tendrás acceso a clientes potenciales y oportunidades de negocio constantes. Registrate para formar parte.
+                    </p>
+                    
+                    <div className="mt-8 text-center">
+                      <a href="https://almango.com.uy/altas/altaprestador.html" target="_blank" rel="noreferrer" className="inline-block">
+                        <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md uppercase font-medium text-lg shadow-lg w-full sm:w-auto break-words">
+                          <span className="hidden custom:inline">Pre-Registros de Profesionales</span>
+                          <span className="inline custom:hidden">PROFESIONALES</span>
+                        </Button>
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
