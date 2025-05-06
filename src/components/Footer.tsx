@@ -3,11 +3,11 @@ import { Phone, Mail, MapPin } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer id="contacto" className="bg-primary text-white py-10">
+    <footer id="contacto" className="bg-secondary text-white py-10 font-serif">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Left side - contact info */}
-          <div className="space-y-6">
+          <div className="space-y-6 transform transition-all duration-500 hover:translate-y-[-5px]">
             <div>
               <h2 className="text-3xl font-bold uppercase mb-4">Contáctanos</h2>
               <p className="text-white/90 mb-6">
@@ -44,16 +44,24 @@ const Footer = () => {
             </div>
           </div>
           
-          {/* Right side - partners and affiliations */}
-          <div className="space-y-6">
+          {/* Right side - partners and affiliations with their logos */}
+          <div className="space-y-6 transform transition-all duration-500 hover:translate-y-[-5px]">
             <div className="mb-4">
               <p className="text-sm text-white/80">Apoyan:</p>
               <div className="flex items-center gap-4 mt-2">
-                <div className="bg-white/90 px-3 py-1 rounded">
-                  <span className="font-bold text-gray-800">ANDE</span>
+                <div className="bg-white/90 px-3 py-1 rounded flex items-center h-12">
+                  <img 
+                    src="https://almango.com.uy/img/logo-ande.svg" 
+                    alt="ANDE" 
+                    className="h-8 object-contain"
+                  />
                 </div>
-                <div className="bg-white/90 px-3 py-1 rounded">
-                  <span className="font-bold text-gray-800">ANII</span>
+                <div className="bg-white/90 px-3 py-1 rounded flex items-center h-12">
+                  <img 
+                    src="https://almango.com.uy/img/logo-anii.png" 
+                    alt="ANII" 
+                    className="h-8 object-contain"
+                  />
                 </div>
               </div>
             </div>
@@ -61,8 +69,12 @@ const Footer = () => {
             <div className="mb-4">
               <p className="text-sm text-white/80">Partner:</p>
               <div className="flex items-center mt-2">
-                <div className="bg-white/90 px-3 py-1 rounded">
-                  <span className="font-bold text-gray-800">ThalesLAB</span>
+                <div className="bg-white/90 px-3 py-1 rounded flex items-center h-12">
+                  <img 
+                    src="https://almango.com.uy/img/logo-taleslab.png" 
+                    alt="ThalesLAB" 
+                    className="h-8 object-contain"
+                  />
                 </div>
               </div>
             </div>
@@ -70,8 +82,12 @@ const Footer = () => {
             <div className="mb-4">
               <p className="text-sm text-white/80">Empresa afiliada a:</p>
               <div className="flex items-center mt-2">
-                <div className="bg-white/90 px-3 py-1 rounded">
-                  <span className="font-bold text-gray-800">Equifax + Clearing</span>
+                <div className="bg-white/90 px-3 py-1 rounded flex items-center h-12">
+                  <img 
+                    src="https://almango.com.uy/img/logo-equifax.png" 
+                    alt="Equifax + Clearing" 
+                    className="h-8 object-contain"
+                  />
                 </div>
               </div>
             </div>
@@ -79,8 +95,12 @@ const Footer = () => {
             <div>
               <p className="text-sm text-white/80">Servicios seguros:</p>
               <div className="flex items-center mt-2">
-                <div className="bg-white/90 px-3 py-1 rounded">
-                  <span className="font-bold text-gray-800">SURA</span>
+                <div className="bg-white/90 px-3 py-1 rounded flex items-center h-12">
+                  <img 
+                    src="https://almango.com.uy/img/logo-sura.png" 
+                    alt="SURA" 
+                    className="h-8 object-contain"
+                  />
                 </div>
               </div>
             </div>
