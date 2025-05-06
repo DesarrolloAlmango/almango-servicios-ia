@@ -27,19 +27,14 @@ interface CategoryCarouselProps {
 const IMAGE_CACHE_KEY = 'category_images_cache';
 const IMAGE_CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
 const COMPRESSION_QUALITY = 0.6; // Reducir calidad para mejorar rendimiento
-const INITIAL_VISIBLE_CATEGORIES = 4; // Número de categorías visibles inicialmente
 
 const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelectCategory }) => {
   const isMobile = useIsMobile();
   const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const [cachedImages, setCachedImages] = useState<Record<string, string>>({});
-  const [visibleCategories, setVisibleCategories] = useState<Category[]>([]);
-  const [remainingCategories, setRemainingCategories] = useState<Category[]>([]);
-  const [allCategoriesLoaded, setAllCategoriesLoaded] = useState<boolean>(false);
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
-  const carouselRef = useRef<HTMLDivElement>(null);
   
   // Función optimizada para obtener la URL de la imagen
   const getImageSource = useMemo(() => (imageStr: string) => {
@@ -54,66 +49,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
       return `data:image/png;base64,${imageStr}`;
     }
   }, []);
-
-  // Configuración inicial de categorías visibles y restantes
-  useEffect(() => {
-    if (categories.length > 0) {
-      // Determinar cuántas categorías mostrar inicialmente según el dispositivo
-      const initialCount = isMobile ? 2 : INITIAL_VISIBLE_CATEGORIES;
-      const initialVisible = categories.slice(0, Math.min(initialCount, categories.length));
-      const initialRemaining = categories.slice(Math.min(initialCount, categories.length));
-      
-      setVisibleCategories(initialVisible);
-      setRemainingCategories(initialRemaining);
-      
-      // Cargar inmediatamente las categorías visibles
-      initialVisible.forEach(category => {
-        if (!cachedImages[category.id]) {
-          loadCategoryImage(category.id);
-        }
-      });
-      
-      // Si no hay categorías restantes, marcar todo como cargado
-      if (initialRemaining.length === 0) {
-        setAllCategoriesLoaded(true);
-      }
-    }
-  }, [categories, isMobile]);
-
-  // Cargar el resto de categorías gradualmente
-  useEffect(() => {
-    if (remainingCategories.length > 0 && !allCategoriesLoaded) {
-      const loadNextBatch = () => {
-        // Cargar las siguientes 2-3 categorías
-        const batchSize = 3;
-        const nextBatch = remainingCategories.slice(0, batchSize);
-        const newRemaining = remainingCategories.slice(batchSize);
-        
-        // Actualizar estado
-        setVisibleCategories(prev => [...prev, ...nextBatch]);
-        setRemainingCategories(newRemaining);
-        
-        // Cargar imágenes para el nuevo lote
-        nextBatch.forEach(category => {
-          if (!cachedImages[category.id]) {
-            loadCategoryImage(category.id);
-          }
-        });
-        
-        // Si no quedan más categorías por cargar, marcar como completado
-        if (newRemaining.length === 0) {
-          setAllCategoriesLoaded(true);
-        } else {
-          // Programar la carga del siguiente lote
-          setTimeout(loadNextBatch, 200);
-        }
-      };
-      
-      // Iniciar la carga del primer lote después de un breve retraso
-      // para permitir que se muestren primero las categorías iniciales
-      setTimeout(loadNextBatch, 300);
-    }
-  }, [remainingCategories, allCategoriesLoaded]);
 
   // Implementar lazy loading con IntersectionObserver
   useEffect(() => {
@@ -167,14 +102,13 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
   // Observer para las referencias de imágenes
   useEffect(() => {
     // Registrar observadores para cada imagen que no esté en caché
-    const allCategories = [...visibleCategories, ...remainingCategories];
-    allCategories.forEach(category => {
+    categories.forEach(category => {
       const imgElement = imageRefs.current.get(category.id);
       if (imgElement && !cachedImages[category.id] && intersectionObserver.current) {
         intersectionObserver.current.observe(imgElement);
       }
     });
-  }, [visibleCategories, remainingCategories, cachedImages]);
+  }, [categories, cachedImages]);
 
   // Guardar imágenes en caché con debounce
   const saveImageToCache = useMemo(() => {
@@ -214,8 +148,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
 
   // Función para cargar una imagen individual
   const loadCategoryImage = (categoryId: string) => {
-    // Buscar la categoría en ambos arrays
-    const category = [...visibleCategories, ...remainingCategories].find(c => c.id === categoryId);
+    const category = categories.find(c => c.id === categoryId);
     if (!category) return;
     
     setLoadingImages(prev => ({ ...prev, [categoryId]: true }));
@@ -269,11 +202,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
     }
   };
   
-  // Combinamos todas las categorías para renderizar (cargadas primero + resto)
-  const allCategoriesToRender = [...visibleCategories];
-  
   return (
-    <div className="py-4 sm:py-6 w-full" ref={carouselRef}>
+    <div className="py-4 sm:py-6 w-full">
       <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 truncate mx-auto">Selecciona una categoría</h3>
       
       <Carousel
@@ -284,7 +214,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
         }}
       >
         <CarouselContent className="-ml-2 sm:-ml-4">
-          {allCategoriesToRender.map(category => (
+          {categories.map(category => (
             <CarouselItem 
               key={category.id}
               className="
@@ -292,11 +222,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({ categories, onSelec
                 sm:basis-1/3 
                 lg:basis-1/4
                 pl-2 sm:pl-4
-                animate-fade-in
               "
-              style={{
-                animationDelay: `${allCategoriesToRender.indexOf(category) * 50}ms`
-              }}
             >
               <div 
                 className="cursor-pointer hover:scale-105 transition-transform"
