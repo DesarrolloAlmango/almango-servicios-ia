@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -129,19 +128,19 @@ const Index = () => {
         <Separator className="h-1 bg-black" />
         
         {/* Partners Section */}
-        <section ref={partnersSectionRef} className="bg-[#F0F0F0] py-8 animate-from-left">
-          <div className="bg-[#F97316] mb-8 -mt-8 px-0 mx-0 py-[46px]">
+        <section ref={partnersSectionRef} className="bg-[#F0F0F0] py-8 animate-from-left w-full">
+          <div className="bg-[#F97316] mb-8 -mt-8 px-0 mx-0 py-[46px] w-full">
             <h2 className="font-bold text-center text-white uppercase text-2xl">
               ALGUNOS DE NUESTROS CLIENTES Y ALIANZAS COMERCIALES
             </h2>
           </div>
           
-          <div className="container mx-auto px-4">
-            <div className="mb-6">
-              <LogoCarousel logos={firstHalfLogos} direction="rtl" speed="super-fast" />
+          <div className="w-full px-0">
+            <div className="mb-6 w-full">
+              <LogoCarousel logos={firstHalfLogos} direction="rtl" speed="ultra-fast" />
             </div>
-            <div>
-              <LogoCarousel logos={secondHalfLogos} direction="ltr" speed="super-fast" />
+            <div className="w-full">
+              <LogoCarousel logos={secondHalfLogos} direction="ltr" speed="ultra-fast" />
             </div>
           </div>
         </section>

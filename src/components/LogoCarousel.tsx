@@ -5,7 +5,7 @@ import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carouse
 interface LogoCarouselProps {
   logos: { url: string; alt: string }[];
   direction?: "ltr" | "rtl";
-  speed?: "normal" | "fast" | "super-fast";
+  speed?: "normal" | "fast" | "super-fast" | "ultra-fast";
 }
 
 const LogoCarousel: React.FC<LogoCarouselProps> = ({ 
@@ -22,7 +22,7 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
   const extendedLogos = [...logos, ...logos, ...logos, ...logos];
   
   return (
-    <div className="overflow-hidden">
+    <div className="overflow-hidden w-full">
       <Carousel
         opts={{
           align: "start",
@@ -33,15 +33,19 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
         className="w-full"
       >
         <CarouselContent 
-          className={`${direction === "rtl" ? "animate-infinite-scroll-reverse" : "animate-infinite-scroll"} ${speed === "fast" ? "fast-scroll" : ""} ${speed === "super-fast" ? "super-fast-scroll" : ""} flex ${direction === "rtl" ? "flex-row-reverse" : "flex-row"}`}
+          className={`${direction === "rtl" ? "animate-infinite-scroll-reverse" : "animate-infinite-scroll"} 
+            ${speed === "fast" ? "fast-scroll" : ""} 
+            ${speed === "super-fast" ? "super-fast-scroll" : ""} 
+            ${speed === "ultra-fast" ? "ultra-fast-scroll" : ""}
+            flex ${direction === "rtl" ? "flex-row-reverse" : "flex-row"} w-full`}
           style={{ transform: direction === "rtl" ? "translateX(-25%)" : "translateX(0)" }}
         >
           {extendedLogos.map((logo, index) => (
             <CarouselItem 
               key={index} 
-              className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/8 xl:basis-1/8 flex-shrink-0"
+              className="basis-1/2 sm:basis-1/3 md:basis-1/5 lg:basis-1/6 xl:basis-1/8 flex-shrink-0"
             >
-              <div className="h-36 flex items-center justify-center p-4 transition-all hover:scale-105">
+              <div className="h-36 flex items-center justify-center p-3 transition-all hover:scale-105">
                 <img 
                   src={logo.url} 
                   alt={logo.alt}
