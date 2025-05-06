@@ -92,16 +92,16 @@
 @layer base {
   * {
     @apply border-border;
-    font-family: 'Arkibal', sans-serif !important;
+    font-family: 'Arkibal', serif !important;
   }
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Arkibal', sans-serif !important;
+    font-family: 'Arkibal', serif !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Arkibal', sans-serif !important;
+    font-family: 'Arkibal', serif !important;
   }
   
   /* Remove the dark class here - we want to be explicit with our dark styling */
@@ -135,7 +135,7 @@
 /* Remove font-display class and replace with regular font */
 html {
   scroll-behavior: smooth;
-  font-family: 'Arkibal', sans-serif !important;
+  font-family: 'Arkibal', serif !important;
 }
 
 /* Animación para el botón de solicitud de servicio */

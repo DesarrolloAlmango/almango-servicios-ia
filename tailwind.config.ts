@@ -103,7 +103,7 @@ export default {
 				'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
 			},
 			fontFamily: {
-				sans: ['Arkibal', 'sans-serif'],
+				sans: ['Arkibal', 'serif'],
 				// Removed the display font family
 			},
 			backgroundImage: {
