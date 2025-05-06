@@ -329,3 +329,8 @@ html {
     grid-column-start: 3;
   }
 }
+
+/* Add specific basis classes for logo carousel */
+.basis-1\/8 {
+  flex-basis: 12.5%;
+}
