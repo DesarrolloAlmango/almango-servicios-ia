@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -220,59 +221,21 @@ html {
   transform: translateY(-2px);
 }
 
-/* Dark mode service card styles - ONLY for the carousel circles in Servicios page */
-.servicios-page.dark [data-component="service-card"].circular,
-.servicios-page.dark .service-card-hover.circular {
-  border: 2px solid rgba(255, 105, 0, 0.7); /* Transparent orange border in dark mode */
+/* Dark mode service card styles */
+.dark [data-component="service-card"],
+.dark .service-card-hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-.servicios-page.dark [data-component="service-card"]:hover,
-.servicios-page.dark .service-card-hover:hover {
+.dark [data-component="service-card"].circular,
+.dark .service-card-hover.circular {
+  border: 2px solid #ff6900; /* Keep primary color border in dark mode */
+}
+
+.dark [data-component="service-card"]:hover,
+.dark .service-card-hover:hover {
   background-color: rgba(255, 166, 0, 0.15) !important;
-}
-
-/* Add servicios page specific dark mode styling */
-.servicios-page.dark {
-  background-color: #14162c;
-  color: white;
-}
-
-.servicios-page.dark h1 {
-  color: #90caf9;
-}
-
-.servicios-page.dark button {
-  color: #e0e0e0;
-}
-
-.servicios-page.dark button:hover {
-  color: white;
-}
-
-/* Light mode styling for servicios page */
-.servicios-page:not(.dark) {
-  background-color: white;
-  color: #333;
-}
-
-.servicios-page:not(.dark) h1 {
-  color: #0066cc;
-}
-
-.servicios-page:not(.dark) button {
-  color: #555;
-}
-
-.servicios-page:not(.dark) button:hover {
-  color: #333;
-}
-
-/* Make sure modals and sheets respect the current theme */
-/* This ensures the cart drawer and other dialogs follow the theme setting */
-.dark .Dialog,
-.dark .Sheet,
-.dark [role="dialog"] {
-  color-scheme: dark;
 }
 
 /* Estilos para la distribución de las tarjetas de servicio */

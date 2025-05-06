@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin, Moon, Sun } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "@/components/ServiceCard";
@@ -17,10 +16,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useQuery } from "@tanstack/react-query";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton, TextSkeleton, CategorySkeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import PurchaseLocationModal from "@/components/PurchaseLocationModal";
-import { useTheme } from "@/hooks/useTheme";
 
 export interface CartItem {
   id: string;
@@ -131,7 +129,6 @@ const Servicios = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { commerceId } = useParams();
-  const { theme, setTheme } = useTheme();
   const [storeName, setStoreName] = useState<string>("");
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -221,16 +218,6 @@ const Servicios = () => {
 
     fetchStoreName();
   }, [commerceId, services]);
-
-  useEffect(() => {
-    // DO NOT add dark mode class to body, just to the page container
-    // The dark class will be handled by the page component itself
-    
-    // Clean up function to remove class when component unmounts
-    return () => {
-      // Nothing to clean up as we're not modifying the body anymore
-    };
-  }, []);
 
   const displayedServices = isServicesError ? fallbackServices : services;
   const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
@@ -497,7 +484,7 @@ const Servicios = () => {
 
   if (isServicesLoading && isLoadingMudanza) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#14162c] servicios-page">
+      <div className="min-h-screen flex flex-col bg-background">
         <main className="flex-grow py-8 px-4 relative z-10">
           <div className="container mx-auto">
             <div className="flex justify-between items-center mb-8 mt-4">
@@ -543,7 +530,7 @@ const Servicios = () => {
   console.log("Productos en el carrito:", cartItems);
 
   return (
-    <div className={theme === 'dark' ? "min-h-screen flex flex-col bg-[#14162c] servicios-page dark" : "min-h-screen flex flex-col bg-white servicios-page"}>
+    <div className="min-h-screen flex flex-col bg-background">
       <main className="flex-grow py-8 px-4 relative z-10">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-8 mt-4">
@@ -556,30 +543,18 @@ const Servicios = () => {
               <span>Volver</span>
             </Button>
             
-            <div className="flex items-center gap-3">
-              <Button 
-                variant="outline" 
-                size="icon"
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="rounded-full bg-transparent border-[#008be1]/30 hover:bg-[#008be1]/10"
-                aria-label="Toggle theme"
-              >
-                {theme === 'dark' ? <Sun size={18} className="text-[#008be1]" /> : <Moon size={18} className="text-[#008be1]" />}
-              </Button>
-              
-              <Button 
-                variant="ghost" 
-                className="relative hover:text-gray-300"
-                onClick={() => setIsCartOpen(true)}
-              >
-                <ShoppingCart size={24} />
-                {getCartItemsCount() > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {getCartItemsCount()}
-                  </span>
-                )}
-              </Button>
-            </div>
+            <Button 
+              variant="ghost" 
+              className="relative hover:text-gray-300"
+              onClick={() => setIsCartOpen(true)}
+            >
+              <ShoppingCart size={24} />
+              {getCartItemsCount() > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {getCartItemsCount()}
+                </span>
+              )}
+            </Button>
           </div>
           
           <h1 
