@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Facebook, Instagram, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -38,12 +37,11 @@ const Header = () => {
         // Set up animation variables
         const startTime = performance.now();
         const startScrollY = window.scrollY;
-        const duration = 1200; // Longer duration for a more dramatic effect
+        const duration = 1000; // Slightly shorter duration
         
-        // Elastic ease out function for a spring-like bouncy effect
-        function elasticEaseOut(t: number): number {
-          const p = 0.3;
-          return Math.pow(2, -10 * t) * Math.sin((t - p / 4) * (2 * Math.PI) / p) + 1;
+        // Ease-in cubic function that starts slow and accelerates
+        function easeInCubic(t: number): number {
+          return t * t * t;
         }
         
         // Animation function that runs on each frame
@@ -51,8 +49,8 @@ const Header = () => {
           const elapsed = currentTime - startTime;
           const progress = Math.min(elapsed / duration, 1);
           
-          // Apply the elastic easing function
-          const easedProgress = elasticEaseOut(progress);
+          // Apply the ease-in cubic function
+          const easedProgress = easeInCubic(progress);
           
           // Apply easing and scroll
           window.scrollTo({
