@@ -1,8 +1,10 @@
+
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { Button } from "@/components/ui/button";
+
 const Index = () => {
   return <div className="min-h-screen flex flex-col">
       <Header />
@@ -47,10 +49,51 @@ const Index = () => {
           </div>
         </section>
         
+        <section id="como-contratar" className="py-20 px-4 bg-primary text-white">
+          <div className="container mx-auto">
+            <h2 className="text-3xl font-bold mb-4 text-center uppercase">¿CÓMO CONTRATAR?</h2>
+            <h3 className="text-xl font-medium mb-12 text-center">PROCESO DE CONTRATACIÓN</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl mx-auto">
+              <div className="text-center flex flex-col items-center">
+                <div className="mb-4">
+                  <img src="https://almango.com.uy/img/agenda-almango.svg" alt="Agenda" className="h-16 w-16 mx-auto" />
+                </div>
+                <h4 className="text-lg font-semibold mb-2">Agendá fecha y hora</h4>
+                <p className="text-white/90">Coordinación inmediata.</p>
+              </div>
+              
+              <div className="text-center flex flex-col items-center">
+                <div className="mb-4">
+                  <img src="https://almango.com.uy/img/pago-almango.svg" alt="Recibir técnico" className="h-16 w-16 mx-auto" />
+                </div>
+                <h4 className="text-lg font-semibold mb-2">Recibí al técnico</h4>
+                <p className="text-white/90">Un profesional calificado realizará el trabajo.</p>
+              </div>
+              
+              <div className="text-center flex flex-col items-center">
+                <div className="mb-4">
+                  <img src="https://almango.com.uy/img/pago-almango.svg" alt="Pago" className="h-16 w-16 mx-auto" />
+                </div>
+                <h4 className="text-lg font-semibold mb-2">Realizá el pago al finalizar</h4>
+                <p className="text-white/90">Seleccioná el medio que más te convenga.</p>
+              </div>
+              
+              <div className="text-center flex flex-col items-center">
+                <div className="mb-4">
+                  <img src="https://almango.com.uy/img/valora-almango.svg" alt="Valoración" className="h-16 w-16 mx-auto" />
+                </div>
+                <h4 className="text-lg font-semibold mb-2">Ayudanos a mejorar</h4>
+                <p className="text-white/90">Calificá el servicio, tus comentarios importan.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+        
         <section id="quienes-somos" className="py-20 px-4 bg-white">
           <div className="container mx-auto">
             <h2 className="text-3xl font-bold mb-8 text-center text-secondary uppercase">¿Quiénes Somos?</h2>
-            <div className="max-w-4xl mx-auto font-semibold">
+            <div className="max-w-4xl mx-auto">
               <div className="flex flex-col items-center gap-4">
                 <div className="w-full max-w-md mx-auto mb-4">
                   
