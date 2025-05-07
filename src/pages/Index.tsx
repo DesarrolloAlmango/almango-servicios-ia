@@ -10,61 +10,60 @@ import { Separator } from "@/components/ui/separator";
 
 // First 8 logos
 const firstHalfLogos = [{
-  url: "/img/logos/logo-sodimac.png",
+  url: "https://almango.com.uy/img/logos/logo-sodimac.png",
   alt: "Sodimac"
 }, {
-  url: "/img/logos/logo-devoto.png",
+  url: "https://almango.com.uy/img/logos/logo-devoto.png",
   alt: "Devoto"
 }, {
-  url: "/img/logos/logo-disco.png",
+  url: "https://almango.com.uy/img/logos/logo-disco.png",
   alt: "Disco"
 }, {
-  url: "/img/logos/logo-geant.png",
+  url: "https://almango.com.uy/img/logos/logo-geant.png",
   alt: "Geant"
 }, {
-  url: "/img/logos/Logos-Almango-03.png",
+  url: "https://almango.com.uy/img/logos/Logos-Almango-03.png",
   alt: "Almango"
 }, {
-  url: "/img/logos/logo-lacueva.png",
+  url: "https://almango.com.uy/img/logos/logo-lacueva.png",
   alt: "La Cueva"
 }, {
-  url: "/img/logos/logo-lamulata.png",
+  url: "https://almango.com.uy/img/logos/logo-lamulata.png",
   alt: "La Mulata"
 }, {
-  url: "/img/logos/logo-prontometal.png",
+  url: "https://almango.com.uy/img/logos/logo-prontometal.png",
   alt: "Pronto Metal"
 }];
 
 // Last 8 logos
 const secondHalfLogos = [{
-  url: "/img/logos/logo-arte.png",
+  url: "https://almango.com.uy/img/logos/logo-arte.png",
   alt: "Arte"
 }, {
-  url: "/img/logos/logo-cimarron.png",
+  url: "https://almango.com.uy/img/logos/logo-cimarron.png",
   alt: "Cimarron"
 }, {
-  url: "/img/logos/logo-ferrobasso.png",
+  url: "https://almango.com.uy/img/logos/logo-ferrobasso.png",
   alt: "Ferro Basso"
 }, {
-  url: "/img/logos/logo-elombu.png",
+  url: "https://almango.com.uy/img/logos/logo-elombu.png",
   alt: "El Ombu"
 }, {
-  url: "/img/logos/logo-adi.png",
+  url: "https://almango.com.uy/img/logos/logo-adi.png",
   alt: "ADI"
 }, {
-  url: "/img/logos/logo-volkers.png",
+  url: "https://almango.com.uy/img/logos/logo-volkers.png",
   alt: "Volkers"
 }, {
-  url: "/img/logos/logo-tiendamia.png",
+  url: "https://almango.com.uy/img/logos/logo-tiendamia.png",
   alt: "Tienda Mia"
 }, {
-  url: "/img/logos/logo-blanes.png",
+  url: "https://almango.com.uy/img/logos/logo-blanes.png",
   alt: "Blanes"
 }];
 
 // Combine all logos into a single array for the carousel
 const allLogos = [...firstHalfLogos, ...secondHalfLogos];
-
 const Index = () => {
   // Create refs for each section to animate
   const contratarSectionRef = useRef<HTMLElement>(null);
@@ -242,14 +241,14 @@ const Index = () => {
                 </div>
                 
                 <div className="w-full md:w-1/2 h-[200px] md:h-auto">
-                  <img src="/img/img-local.jpg" alt="Comercios" className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-r-lg border-2 border-black" />
+                  <img src="https://almango.com.uy/img/img-local.jpg" alt="Comercios" className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-r-lg border-2 border-black" />
                 </div>
               </div>
               
               {/* Profesionales Card */}
               <div className="flex flex-col md:flex-row w-full">
                 <div className="w-full md:w-1/2 order-2 md:order-1 h-[200px] md:h-auto">
-                  <img src="/img/img-proveedores.jpg" alt="Profesionales" className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-l-lg border-2 border-black" />
+                  <img src="https://almango.com.uy/img/img-proveedores.jpg" alt="Profesionales" className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-l-lg border-2 border-black" />
                 </div>
                 
                 <div className="w-full md:w-1/2 bg-white p-8 rounded-t-lg md:rounded-t-none md:rounded-r-lg shadow-md order-1 md:order-2 anim-item opacity-0">

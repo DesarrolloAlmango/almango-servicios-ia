@@ -1,99 +1,92 @@
 import React, { useEffect, useRef } from 'react';
-
 interface ServiceItem {
   title: string;
   imageUrl: string;
 }
-
 interface SealItem {
   imageUrl: string;
   alt: string;
 }
-
-// Updated to use local images from public/img/iconos directory
 const ServiceItems: ServiceItem[] = [{
   title: "INSTALACIONES ELÉCTRICAS",
-  imageUrl: "/img/iconos/icono-almango-01.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-01.png"
 }, {
   title: "ARMADO DE MUEBLES",
-  imageUrl: "/img/iconos/icono-almango-04.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-04.png"
 }, {
   title: "INSTALACIONES SANITARIAS",
-  imageUrl: "/img/iconos/icono-almango-02.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-02.png"
 }, {
   title: "SERVICIO DE A/A",
-  imageUrl: "/img/iconos/icono-almango-05.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-05.png"
 }, {
   title: "MUDANZAS",
-  imageUrl: "/img/iconos/icono-almango-03.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-03.png"
 }, {
   title: "INSTALACIÓN DE ELECTRO DOMÉSTICOS",
-  imageUrl: "/img/iconos/icono-almango-06.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-06.png"
 }, {
   title: "JARDINERÍA",
-  imageUrl: "/img/iconos/icono-almango-07.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-07.png"
 }, {
   title: "ALBAÑILERÍA",
-  imageUrl: "/img/iconos/icono-almango-11.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-11.png"
 }, {
   title: "REVESTIMIENTO",
-  imageUrl: "/img/iconos/icono-almango-08.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-08.png"
 }, {
   title: "PINTURA",
-  imageUrl: "/img/iconos/icono-almango-12.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-12.png"
 }, {
   title: "SISTEMAS DE SEGURIDAD",
-  imageUrl: "/img/iconos/icono-almango-09.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-09.png"
 }, {
   title: "CERRAJERÍA",
-  imageUrl: "/img/iconos/icono-almango-09.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-09.png"
 }, {
   title: "DECO HOGAR",
-  imageUrl: "/img/iconos/icono-almango-10.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-10.png"
 }, {
   title: "HERRERÍA",
-  imageUrl: "/img/iconos/icono-almango-14.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-14.png"
 }, {
   title: "LIMPIEZA",
-  imageUrl: "/img/iconos/icono-almango-15.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-15.png"
 }, {
   title: "FUMIGACIÓN",
-  imageUrl: "/img/iconos/icono-almango-16.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-16.png"
 }, {
   title: "SERVICIO TÉCNICO",
-  imageUrl: "/img/iconos/icono-almango-17.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-17.png"
 }, {
   title: "STEEL FRAMING",
-  imageUrl: "/img/iconos/icon-steelframing.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icon-steelframing.png"
 }, {
   title: "MONTAJES PARA DEPÓSITOS",
-  imageUrl: "/img/iconos/icon-depositos.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icon-depositos.png"
 }, {
   title: "CALEFACCIÓN",
-  imageUrl: "/img/iconos/icono-almango-18.png"
+  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-18.png"
 }];
-
-// Updated to use local images for seal items too
 const SealItems: SealItem[] = [{
-  imageUrl: "/img/caracteristicas/01-atencion-personalizada.svg",
+  imageUrl: "https://almango.com.uy/img/caracteristicas/01-atencion-personalizada.svg",
   alt: "Atención personalizada"
 }, {
-  imageUrl: "/img/caracteristicas/02-servicios-seguros.svg",
+  imageUrl: "https://almango.com.uy/img/caracteristicas/02-servicios-seguros.svg",
   alt: "Servicios seguros"
 }, {
-  imageUrl: "/img/caracteristicas/03-profesionales-calificados.svg",
+  imageUrl: "https://almango.com.uy/img/caracteristicas/03-profesionales-calificados.svg",
   alt: "Profesionales calificados"
 }, {
-  imageUrl: "/img/caracteristicas/04-pago-online.svg",
+  imageUrl: "https://almango.com.uy/img/caracteristicas/04-pago-online.svg",
   alt: "Pago online"
 }, {
-  imageUrl: "/img/caracteristicas/05-garantia-de-instalacion.svg",
+  imageUrl: "https://almango.com.uy/img/caracteristicas/05-garantia-de-instalacion.svg",
   alt: "Garantía de instalación"
 }, {
-  imageUrl: "/img/caracteristicas/06-proveedores-verificados.svg",
+  imageUrl: "https://almango.com.uy/img/caracteristicas/06-proveedores-verificados.svg",
   alt: "Proveedores verificados"
 }];
-
 const ServicesShowcase: React.FC = () => {
   // Create refs for each section to animate
   const servicesDescriptionRef = useRef<HTMLDivElement>(null);
