@@ -70,7 +70,6 @@ const Index = () => {
   const quienesSomosSectionRef = useRef<HTMLElement>(null);
   const formarParteSectionRef = useRef<HTMLElement>(null);
   const partnersSectionRef = useRef<HTMLElement>(null);
-  
   useEffect(() => {
     const options = {
       root: null,
@@ -132,8 +131,8 @@ const Index = () => {
         <section ref={partnersSectionRef} className="bg-[#F0F0F0] py-8 animate-from-left w-full">
           <div className="bg-[#F97316] mb-8 -mt-8 px-0 mx-0 py-[46px] w-full">
             <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col">
-              <span>ALGUNOS DE NUESTROS CLIENTES</span>
-              <span>Y ALIANZAS COMERCIALES</span>
+              <span className="px-[20px]">ALGUNOS DE NUESTROS CLIENTES</span>
+              <span className="px-[20px]">Y ALIANZAS COMERCIALES</span>
             </h2>
           </div>
           
@@ -242,22 +241,14 @@ const Index = () => {
                 </div>
                 
                 <div className="w-full md:w-1/2 h-[200px] md:h-auto">
-                  <img 
-                    src="https://almango.com.uy/img/img-local.jpg" 
-                    alt="Comercios" 
-                    className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-r-lg border-4 border-black"
-                  />
+                  <img src="https://almango.com.uy/img/img-local.jpg" alt="Comercios" className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-r-lg border-4 border-black" />
                 </div>
               </div>
               
               {/* Profesionales Card */}
               <div className="flex flex-col md:flex-row w-full">
                 <div className="w-full md:w-1/2 order-2 md:order-1 h-[200px] md:h-auto">
-                  <img 
-                    src="https://almango.com.uy/img/img-proveedores.jpg" 
-                    alt="Profesionales" 
-                    className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-l-lg border-4 border-black"
-                  />
+                  <img src="https://almango.com.uy/img/img-proveedores.jpg" alt="Profesionales" className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-l-lg border-4 border-black" />
                 </div>
                 
                 <div className="w-full md:w-1/2 bg-white p-8 rounded-t-lg md:rounded-t-none md:rounded-r-lg shadow-md order-1 md:order-2 anim-item opacity-0">
