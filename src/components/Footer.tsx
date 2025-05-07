@@ -1,14 +1,13 @@
-
 import { Phone, Mail, MapPin } from 'lucide-react';
 const Footer = () => {
   return <footer id="contacto" className="bg-secondary text-white py-10 font-serif">
       <div className="container mx-auto my-[11px] px-4 md:px-[71px]">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-[15px] px-0">
           {/* Left side - contact info */}
-          <div className="space-y-6 transform transition-all duration-500 hover:translate-y-[-5px] my-[45px]">
-            <div>
+          <div className="space-y-6 transform transition-all duration-500 hover:translate-y-[-5px] my-[45px] mx-[64px]">
+            <div className="mx-0">
               <h2 className="text-3xl font-bold uppercase mb-4">Contáctanos</h2>
-              <p className="text-white/90 mb-6">
+              <p className="text-white/90 mb-2 px-0">
                 Si tienes alguna consulta puedes comunicarte a través de:
               </p>
             </div>
