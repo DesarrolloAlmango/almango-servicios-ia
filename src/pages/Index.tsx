@@ -70,6 +70,7 @@ const Index = () => {
   const quienesSomosSectionRef = useRef<HTMLElement>(null);
   const formarParteSectionRef = useRef<HTMLElement>(null);
   const partnersSectionRef = useRef<HTMLElement>(null);
+  
   useEffect(() => {
     const options = {
       root: null,
@@ -219,9 +220,9 @@ const Index = () => {
             <h2 className="text-3xl font-bold mb-12 text-center text-secondary uppercase">¿SOS EMPRESA O COMERCIO? CONOCÉ LOS BENEFICIOS.</h2>
             
             <div className="flex flex-col max-w-4xl mx-auto gap-12">
-              {/* Comercios Card with attached image */}
-              <div className="flex flex-col md:flex-row w-full max-h-[320px]">
-                <div className="w-full md:w-1/2 bg-white p-8 rounded-l-lg shadow-md anim-item opacity-0 flex flex-col justify-between max-h-[320px]">
+              {/* Comercios Card */}
+              <div className="flex flex-col md:flex-row w-full">
+                <div className="w-full md:w-1/2 bg-white p-8 rounded-t-lg md:rounded-t-none md:rounded-l-lg shadow-md anim-item opacity-0 flex flex-col justify-between">
                   <div>
                     <h3 className="text-xl font-semibold mb-4 text-primary">FORMAR PARTE COMERCIOS</h3>
                     <p className="text-lg text-gray-600 mb-0">
@@ -240,22 +241,26 @@ const Index = () => {
                   </div>
                 </div>
                 
-                <div className="w-full md:w-1/2 flex max-h-[320px]">
-                  <img src="https://almango.com.uy/img/img-local.jpg" alt="Comercios" className="w-full object-cover md:rounded-r-lg border-4 border-black max-h-[320px]" style={{
-                  height: '100%'
-                }} />
+                <div className="w-full md:w-1/2 h-[200px] md:h-auto">
+                  <img 
+                    src="https://almango.com.uy/img/img-local.jpg" 
+                    alt="Comercios" 
+                    className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-r-lg border-4 border-black"
+                  />
                 </div>
               </div>
               
-              {/* Profesionales Card with attached image */}
-              <div className="flex flex-col md:flex-row w-full max-h-[320px]">
-                <div className="w-full md:w-1/2 order-2 md:order-1 flex max-h-[320px]">
-                  <img src="https://almango.com.uy/img/img-proveedores.jpg" alt="Profesionales" className="w-full object-cover md:rounded-l-lg border-4 border-black max-h-[320px]" style={{
-                  height: '100%'
-                }} />
+              {/* Profesionales Card */}
+              <div className="flex flex-col md:flex-row w-full">
+                <div className="w-full md:w-1/2 order-2 md:order-1 h-[200px] md:h-auto">
+                  <img 
+                    src="https://almango.com.uy/img/img-proveedores.jpg" 
+                    alt="Profesionales" 
+                    className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-l-lg border-4 border-black"
+                  />
                 </div>
                 
-                <div className="w-full md:w-1/2 bg-white p-8 rounded-r-lg shadow-md order-1 md:order-2 anim-item opacity-0 max-h-[320px]">
+                <div className="w-full md:w-1/2 bg-white p-8 rounded-t-lg md:rounded-t-none md:rounded-r-lg shadow-md order-1 md:order-2 anim-item opacity-0">
                   <h3 className="text-xl font-semibold mb-4 text-primary">FORMAR PARTE PROFESIONALES</h3>
                   <p className="text-lg text-gray-600 mb-6">
                     Unite a nuestra red de prestadores de servicios y aumentá tus ingresos. Con Almango, 
