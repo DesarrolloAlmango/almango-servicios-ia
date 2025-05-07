@@ -1,2 +1,27 @@
 
 # This directory contains service icons
+
+# Images need to be downloaded from almango.com.uy and placed in this directory manually.
+# The images required are:
+# - icono-almango-01.png (Instalaciones Eléctricas)
+# - icono-almango-02.png (Instalaciones Sanitarias)
+# - icono-almango-03.png (Mudanzas)
+# - icono-almango-04.png (Armado de Muebles)
+# - icono-almango-05.png (Servicio de A/A)
+# - icono-almango-06.png (Instalación de Electrodomésticos)
+# - icono-almango-07.png (Jardinería)
+# - icono-almango-08.png (Revestimiento)
+# - icono-almango-09.png (Sistemas de Seguridad / Cerrajería)
+# - icono-almango-10.png (Deco Hogar)
+# - icono-almango-11.png (Albañilería)
+# - icono-almango-12.png (Pintura)
+# - icono-almango-14.png (Herrería)
+# - icono-almango-15.png (Limpieza)
+# - icono-almango-16.png (Fumigación)
+# - icono-almango-17.png (Servicio Técnico)
+# - icono-almango-18.png (Calefacción)
+# - icon-steelframing.png (Steel Framing)
+# - icon-depositos.png (Montajes para Depósitos)
+
+# Download each image from https://almango.com.uy/img/iconos/[filename]
+# For example: https://almango.com.uy/img/iconos/icono-almango-01.png

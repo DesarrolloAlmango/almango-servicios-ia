@@ -1,2 +1,24 @@
 
 # This directory contains partner logos
+
+# Images need to be downloaded from almango.com.uy and placed in this directory manually.
+# The logos required are:
+# - logo-sodimac.png
+# - logo-devoto.png
+# - logo-disco.png
+# - logo-geant.png
+# - Logos-Almango-03.png
+# - logo-lacueva.png
+# - logo-lamulata.png
+# - logo-prontometal.png
+# - logo-arte.png
+# - logo-cimarron.png
+# - logo-ferrobasso.png
+# - logo-elombu.png
+# - logo-adi.png
+# - logo-volkers.png
+# - logo-tiendamia.png
+# - logo-blanes.png
+
+# Download each image from https://almango.com.uy/img/logos/[filename]
+# For example: https://almango.com.uy/img/logos/logo-sodimac.png

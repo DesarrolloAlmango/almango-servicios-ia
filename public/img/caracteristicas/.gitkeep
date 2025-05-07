@@ -1,2 +1,14 @@
 
 # This directory contains service seal images
+
+# Images need to be downloaded from almango.com.uy and placed in this directory manually.
+# The images required are:
+# - 01-atencion-personalizada.svg
+# - 02-servicios-seguros.svg
+# - 03-profesionales-calificados.svg
+# - 04-pago-online.svg
+# - 05-garantia-de-instalacion.svg
+# - 06-proveedores-verificados.svg
+
+# Download each image from https://almango.com.uy/img/caracteristicas/[filename]
+# For example: https://almango.com.uy/img/caracteristicas/01-atencion-personalizada.svg
