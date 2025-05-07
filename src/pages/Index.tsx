@@ -241,14 +241,14 @@ const Index = () => {
                 </div>
                 
                 <div className="w-full md:w-1/2 h-[200px] md:h-auto">
-                  <img src="https://almango.com.uy/img/img-local.jpg" alt="Comercios" className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-r-lg border-4 border-white" />
+                  <img src="https://almango.com.uy/img/img-local.jpg" alt="Comercios" className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-r-lg border-4 border-black" />
                 </div>
               </div>
               
               {/* Profesionales Card */}
               <div className="flex flex-col md:flex-row w-full">
                 <div className="w-full md:w-1/2 order-2 md:order-1 h-[200px] md:h-auto">
-                  <img src="https://almango.com.uy/img/img-proveedores.jpg" alt="Profesionales" className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-l-lg border-4 border-white" />
+                  <img src="https://almango.com.uy/img/img-proveedores.jpg" alt="Profesionales" className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-l-lg border-4 border-black" />
                 </div>
                 
                 <div className="w-full md:w-1/2 bg-white p-8 rounded-t-lg md:rounded-t-none md:rounded-r-lg shadow-md order-1 md:order-2 anim-item opacity-0">
