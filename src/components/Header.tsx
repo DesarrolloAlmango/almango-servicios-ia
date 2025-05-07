@@ -1,8 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { Facebook, Instagram, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -21,7 +19,6 @@ const Header = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
-
   const scrollToSection = (id: string) => {
     if (id === 'inicio') {
       window.scrollTo({
@@ -34,52 +31,46 @@ const Header = () => {
         // Get the element's position
         const elementPosition = element.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.scrollY - 100; // Adjust offset for header
-        
+
         // Set up animation variables
         const startTime = performance.now();
         const startScrollY = window.scrollY;
         const duration = 1000; // Slightly shorter duration
-        
+
         // Ease-in cubic function that starts slow and accelerates
         function easeInCubic(t: number): number {
           return t * t * t;
         }
-        
+
         // Animation function that runs on each frame
         function scrollAnimation(currentTime: number) {
           const elapsed = currentTime - startTime;
           const progress = Math.min(elapsed / duration, 1);
-          
+
           // Apply the ease-in cubic function
           const easedProgress = easeInCubic(progress);
-          
+
           // Apply easing and scroll
           window.scrollTo({
-            top: startScrollY + (offsetPosition - startScrollY) * easedProgress,
+            top: startScrollY + (offsetPosition - startScrollY) * easedProgress
           });
-          
+
           // Continue animation until complete
           if (progress < 1) {
             requestAnimationFrame(scrollAnimation);
           }
         }
-        
+
         // Start the animation
         requestAnimationFrame(scrollAnimation);
       }
     }
     setIsMobileMenuOpen(false);
   };
-
-  return <header className={cn('fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b font-serif', 
-    isScrolled ? 'bg-primary shadow-md py-2 border-black border-b-8' : 'bg-primary py-4 border-black border-b-8')}>
+  return <header className={cn('fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b font-serif', isScrolled ? 'bg-primary shadow-md py-2 border-black border-b-8' : 'bg-primary py-4 border-black border-b-8')}>
       <div className="container mx-auto flex justify-between items-center px-4 relative">
         <div className="flex items-center overflow-visible">
-          <img 
-            alt="ALMANGO Logo" 
-            src="/lovable-uploads/10976e12-6bf7-48d0-b947-61ef37b1289b.png" 
-            className="h-20 transition-all duration-300 object-scale-down transform -translate-y-2" 
-          />
+          <img alt="ALMANGO Logo" src="/lovable-uploads/10976e12-6bf7-48d0-b947-61ef37b1289b.png" className="h-10 transition-all duration-300 object-scale-down transform -translate-y-2" />
         </div>
         
         {/* Desktop Navigation */}
@@ -151,5 +142,4 @@ const Header = () => {
         </div>}
     </header>;
 };
-
 export default Header;
