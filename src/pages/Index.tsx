@@ -196,15 +196,15 @@ const Index = () => {
                 </div>
                 <div className="w-full max-w-3xl">
                   <h3 className="text-xl font-semibold mb-3 text-primary anim-item opacity-0">ACERCA DE NOSOTROS</h3>
-                  <p className="text-lg text-gray-600 mb-6 anim-item opacity-0">
+                  <p className="text-lg text-gray-600 mb-6 anim-item opacity-0 text-justify">
                     Somos una empresa tecnológica que brinda soluciones en la contratación de servicios y oficios, 
                     conectando a personas y empresas con proveedores de servicio previamente validados.
                   </p>
-                  <p className="text-lg text-gray-600 mb-6 anim-item opacity-0">
+                  <p className="text-lg text-gray-600 mb-6 anim-item opacity-0 text-justify">
                     Aportamos valor agregado en el proceso de contratación de proveedores de servicios, 
                     brindando garantía, cobertura ante daños, pago online, atención personalizada y mucho más.
                   </p>
-                  <p className="text-lg text-gray-600 anim-item opacity-0">
+                  <p className="text-lg text-gray-600 anim-item opacity-0 text-justify">
                     Generamos nuevas oportunidades de negocio para comercios y proveedores de servicio a través de un modelo innovador.
                   </p>
                 </div>
@@ -224,7 +224,7 @@ const Index = () => {
                 <div className="w-full md:w-1/2 bg-white p-8 rounded-t-lg md:rounded-t-none md:rounded-l-lg shadow-md anim-item opacity-0 flex flex-col justify-between">
                   <div>
                     <h3 className="text-xl font-semibold mb-4 text-primary">FORMAR PARTE COMERCIOS</h3>
-                    <p className="text-lg text-gray-600 mb-0">
+                    <p className="text-lg text-gray-600 mb-0 text-justify">
                       Incrementá tus ingresos al ser parte de nuestra red de socios. Generando solicitudes de 
                       servicio en nuestra plataforma, obtendrás atractivas comisiones. Registrate para más información.
                     </p>
@@ -253,7 +253,7 @@ const Index = () => {
                 
                 <div className="w-full md:w-1/2 bg-white p-8 rounded-t-lg md:rounded-t-none md:rounded-r-lg shadow-md order-1 md:order-2 anim-item opacity-0">
                   <h3 className="text-xl font-semibold mb-4 text-primary">FORMAR PARTE PROFESIONALES</h3>
-                  <p className="text-lg text-gray-600 mb-6">
+                  <p className="text-lg text-gray-600 mb-6 text-justify">
                     Unite a nuestra red de prestadores de servicios y aumentá tus ingresos. Con Almango, 
                     tendrás acceso a clientes potenciales y oportunidades de negocio constantes. Registrate para formar parte.
                   </p>
