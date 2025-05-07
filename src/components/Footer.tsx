@@ -42,7 +42,7 @@ const Footer = () => {
           </div>
           
           {/* Right side - partners and affiliations with their logos */}
-          <div className="space-y-6 transform transition-all duration-500 hover:translate-y-[-5px] mx-0 sm:mx-[57px]">
+          <div className="space-y-6 transform transition-all duration-500 hover:translate-y-[-5px] mx-0 sm:mx-[57px] px-[42px]">
             <div className="mb-4">
               <p className="text-sm text-white/80">Apoyan:</p>
               <div className="flex items-center gap-4 mt-2">
