@@ -70,7 +70,7 @@ const Header = () => {
   return <header className={cn('fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b font-serif', isScrolled ? 'bg-primary shadow-md py-0 border-black border-b-8' : 'bg-primary py-1 border-black border-b-8')}>
       <div className="container mx-auto flex justify-between items-center px-4 relative">
         <div className="flex items-center overflow-visible -ml-2">
-          <img alt="ALMANGO Logo" src="/lovable-uploads/10976e12-6bf7-48d0-b947-61ef37b1289b.png" className="h-18 transition-all duration-300 object-scale-down transform translate-y-0.5" />
+          <img alt="ALMANGO Logo" src="/lovable-uploads/10976e12-6bf7-48d0-b947-61ef37b1289b.png" className="h-16 transition-all duration-300 object-scale-down transform translate-y-0.5" />
         </div>
         
         {/* Desktop Navigation */}
