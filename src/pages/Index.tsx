@@ -214,9 +214,9 @@ const Index = () => {
         </section>
         <Separator className="h-1 bg-black" />
         
-        <section ref={formarParteSectionRef} id="formar-parte" className="py-20 px-4 bg-gray-50 animate-from-right">
+        <section ref={formarParteSectionRef} id="formar-parte" className="py-20 px-4 bg-primary animate-from-right text-white">
           <div className="container mx-auto">
-            <h2 className="text-3xl font-bold mb-12 text-center text-secondary uppercase">¿SOS EMPRESA O COMERCIO? CONOCÉ LOS BENEFICIOS.</h2>
+            <h2 className="text-3xl font-bold mb-12 text-center text-white uppercase">¿SOS EMPRESA O COMERCIO? CONOCÉ LOS BENEFICIOS.</h2>
             
             <div className="flex flex-col max-w-4xl mx-auto gap-12">
               {/* Comercios Card */}
@@ -241,14 +241,14 @@ const Index = () => {
                 </div>
                 
                 <div className="w-full md:w-1/2 h-[200px] md:h-auto">
-                  <img src="https://almango.com.uy/img/img-local.jpg" alt="Comercios" className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-r-lg border-4 border-black" />
+                  <img src="https://almango.com.uy/img/img-local.jpg" alt="Comercios" className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-r-lg border-4 border-white" />
                 </div>
               </div>
               
               {/* Profesionales Card */}
               <div className="flex flex-col md:flex-row w-full">
                 <div className="w-full md:w-1/2 order-2 md:order-1 h-[200px] md:h-auto">
-                  <img src="https://almango.com.uy/img/img-proveedores.jpg" alt="Profesionales" className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-l-lg border-4 border-black" />
+                  <img src="https://almango.com.uy/img/img-proveedores.jpg" alt="Profesionales" className="w-full h-full object-cover rounded-b-lg md:rounded-b-none md:rounded-l-lg border-4 border-white" />
                 </div>
                 
                 <div className="w-full md:w-1/2 bg-white p-8 rounded-t-lg md:rounded-t-none md:rounded-r-lg shadow-md order-1 md:order-2 anim-item opacity-0">
