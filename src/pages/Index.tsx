@@ -87,13 +87,43 @@ const Index = () => {
             entry.target.classList.add('animate-section-from-right');
           }
 
-          // For step-by-step item animations
+          // For step-by-step item animations with increased delay between items
           const animItems = entry.target.querySelectorAll('.anim-item');
           animItems.forEach((item, index) => {
-            const delay = index * 0.1;
+            // Increased delay between items to make the sequence more visible
+            const delay = index * 0.3; // Increased from 0.1 to 0.3 seconds
             (item as HTMLElement).style.animationDelay = `${delay}s`;
             item.classList.add('animate-item-appear');
           });
+          
+          // Special animation for the contratar section steps
+          const contratarItems = entry.target.querySelectorAll('.contratar-item');
+          contratarItems.forEach((item, index) => {
+            const delay = index * 0.5; // Half-second delay between items
+            (item as HTMLElement).style.animationDelay = `${delay}s`;
+            item.classList.add('animate-item-appear');
+            
+            // Find icon and text within this item and apply cascading animation
+            const icon = item.querySelector('.icon-container');
+            const title = item.querySelector('.item-title');
+            const desc = item.querySelector('.item-desc');
+            
+            if (icon) {
+              (icon as HTMLElement).style.animationDelay = `${delay}s`;
+              icon.classList.add('animate-scale-in');
+            }
+            
+            if (title) {
+              (title as HTMLElement).style.animationDelay = `${delay + 0.2}s`;
+              title.classList.add('animate-fade-in');
+            }
+            
+            if (desc) {
+              (desc as HTMLElement).style.animationDelay = `${delay + 0.4}s`;
+              desc.classList.add('animate-fade-in');
+            }
+          });
+          
           sectionObserver.unobserve(entry.target);
         }
       });
@@ -150,36 +180,36 @@ const Index = () => {
             <h3 className="text-xl font-medium mb-12 text-center">PROCESO DE CONTRATACIÓN</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl mx-auto">
-              <div className="text-center flex flex-col items-center anim-item opacity-0">
-                <div className="mb-4 transition-all duration-300 transform hover:scale-110">
+              <div className="text-center flex flex-col items-center contratar-item opacity-0">
+                <div className="mb-4 transition-all duration-300 transform hover:scale-110 icon-container opacity-0">
                   <img src="https://almango.com.uy/img/agenda-almango.svg" alt="Agenda" className="h-16 w-16 mx-auto" />
                 </div>
-                <h4 className="text-lg font-semibold mb-2">Agendá fecha y hora</h4>
-                <p className="text-white/90">Coordinación inmediata.</p>
+                <h4 className="text-lg font-semibold mb-2 item-title opacity-0">Agendá fecha y hora</h4>
+                <p className="text-white/90 item-desc opacity-0">Coordinación inmediata.</p>
               </div>
               
-              <div className="text-center flex flex-col items-center anim-item opacity-0">
-                <div className="mb-4 transition-all duration-300 transform hover:scale-110">
+              <div className="text-center flex flex-col items-center contratar-item opacity-0">
+                <div className="mb-4 transition-all duration-300 transform hover:scale-110 icon-container opacity-0">
                   <img src="https://almango.com.uy/img/pago-almango.svg" alt="Recibir técnico" className="h-16 w-16 mx-auto" />
                 </div>
-                <h4 className="text-lg font-semibold mb-2">Recibí al técnico</h4>
-                <p className="text-white/90">Un profesional calificado realizará el trabajo.</p>
+                <h4 className="text-lg font-semibold mb-2 item-title opacity-0">Recibí al técnico</h4>
+                <p className="text-white/90 item-desc opacity-0">Un profesional calificado realizará el trabajo.</p>
               </div>
               
-              <div className="text-center flex flex-col items-center anim-item opacity-0">
-                <div className="mb-4 transition-all duration-300 transform hover:scale-110">
+              <div className="text-center flex flex-col items-center contratar-item opacity-0">
+                <div className="mb-4 transition-all duration-300 transform hover:scale-110 icon-container opacity-0">
                   <img src="https://almango.com.uy/img/pago-almango.svg" alt="Pago" className="h-16 w-16 mx-auto" />
                 </div>
-                <h4 className="text-lg font-semibold mb-2">Realizá el pago al finalizar</h4>
-                <p className="text-white/90">Seleccioná el medio que más te convenga.</p>
+                <h4 className="text-lg font-semibold mb-2 item-title opacity-0">Realizá el pago al finalizar</h4>
+                <p className="text-white/90 item-desc opacity-0">Seleccioná el medio que más te convenga.</p>
               </div>
               
-              <div className="text-center flex flex-col items-center anim-item opacity-0">
-                <div className="mb-4 transition-all duration-300 transform hover:scale-110">
+              <div className="text-center flex flex-col items-center contratar-item opacity-0">
+                <div className="mb-4 transition-all duration-300 transform hover:scale-110 icon-container opacity-0">
                   <img src="https://almango.com.uy/img/valora-almango.svg" alt="Valoración" className="h-16 w-16 mx-auto" />
                 </div>
-                <h4 className="text-lg font-semibold mb-2">Ayudanos a mejorar</h4>
-                <p className="text-white/90">Calificá el servicio, tus comentarios importan.</p>
+                <h4 className="text-lg font-semibold mb-2 item-title opacity-0">Ayudanos a mejorar</h4>
+                <p className="text-white/90 item-desc opacity-0">Calificá el servicio, tus comentarios importan.</p>
               </div>
             </div>
           </div>
