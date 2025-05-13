@@ -92,21 +92,23 @@
 @layer base {
   * {
     @apply border-border;
-    font-family: 'Social Gothic', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
   }
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Social Gothic', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Social Gothic', sans-serif !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-weight: 600;
   }
   
-  /* Header elements - using Arkibal */
+  /* Elementos de botones y header usan Inter */
   header *, header button, .btn, button {
-    font-family: 'Arkibal', serif !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 500;
   }
   
   /* Remove the dark class here - we want to be explicit with our dark styling */
@@ -138,7 +140,7 @@
 /* Remove font-display class and replace with regular font */
 html {
   scroll-behavior: smooth;
-  font-family: 'Social Gothic', sans-serif !important;
+  font-family: 'Poppins', sans-serif !important;
 }
 
 /* Animación para el botón de solicitud de servicio */

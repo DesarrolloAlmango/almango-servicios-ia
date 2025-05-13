@@ -1,4 +1,5 @@
 
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -121,8 +122,10 @@ export default {
 				'infinite-scroll-reverse': 'infinite-scroll-reverse 30s linear infinite'
 			},
 			fontFamily: {
-				sans: ['Social Gothic', 'sans-serif'],
-				serif: ['Arkibal', 'serif'],
+				// Reemplazamos las fuentes anteriores con las nuevas
+				sans: ['Poppins', 'system-ui', 'sans-serif'],
+				serif: ['Inter', 'Georgia', 'serif'],
+				display: ['Poppins', 'system-ui', 'sans-serif'],
 			},
 			backgroundImage: {
 				'stars': "url('https://www.script-tutorials.com/demos/360/images/stars.png')",
@@ -131,3 +134,4 @@ export default {
 	},
 	plugins: [require("tailwindcss-animate")],
 } satisfies Config;
+
