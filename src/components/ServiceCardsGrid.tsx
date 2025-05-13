@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
@@ -121,7 +121,8 @@ const ServiceCardsGrid = () => {
   }, [toast]);
 
   const handleServiceClick = (serviceId: string) => {
-    navigate(`/servicios?id=${serviceId}`);
+    // Simple navigation without any additional parameters
+    navigate('/servicios');
   };
 
   if (loading) {
