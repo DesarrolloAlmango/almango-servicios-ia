@@ -164,29 +164,18 @@ const ServicesShowcase: React.FC = () => {
   }, []);
   return <section className="py-16 bg-[#F0F0F0]">
       <div className="container mx-auto">
-        <h2 className="text-3xl font-bold mb-10 text-center text-secondary uppercase">Nuestros Servicios</h2>
+        
         
         <div ref={servicesDescriptionRef} className="max-w-3xl mx-auto mt-8 mb-12 animate-from-left opacity-0">
-          <h3 className="text-xl font-semibold mb-4 text-primary">Hogares</h3>
-          <p className="text-lg text-gray-600 mb-8 text-justify">
-            Descubrí una amplia red de profesionales listos para ayudarte. En Almango, podés contratar servicios de reparación, instalación, reformas y una variedad de oficios para tu hogar. Disfrutá de precios estandarizados, garantía de instalación de 12 meses, profesionales calificados y más beneficios.
-          </p>
           
-          <h3 className="text-xl font-semibold mb-4 text-primary">Empresas</h3>
-          <p className="text-lg text-gray-600 mb-8 text-justify">
-            A través de Almango podés acceder a servicios de logística, montaje, instalaciones, mantenimiento y mucho más, todo adaptado a las necesidades de tu empresa. Simplificá la gestión de proyectos y garantizá la eficiencia operativa.
-          </p>
+          
+          
+          
+          
         </div>
         
         <div ref={servicesGridRef} className="animate-from-right opacity-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-1 gap-y-0">
-          {ServiceItems.map((service, index) => <div key={index} className="flex flex-col items-center py-0.5 service-item opacity-0">
-              <div className="flex flex-col items-center justify-center px-[29px] py-[6px] my-[8px] mx-[3px]">
-                <img src={service.imageUrl} alt={service.title} className="h-14 w-14 mb-1 hover:scale-125 transition-transform duration-300" />
-                <h3 className="text-xs text-center font-medium text-gray-800 my-px px-[27px] py-[3px]">
-                  {service.title}
-                </h3>
-              </div>
-            </div>)}
+          {ServiceItems.map((service, index) => {})}
         </div>
         
         {/* Services Counter Section */}

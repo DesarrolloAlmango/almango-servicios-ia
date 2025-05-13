@@ -95,35 +95,31 @@ const Index = () => {
             (item as HTMLElement).style.animationDelay = `${delay}s`;
             item.classList.add('animate-item-appear');
           });
-          
+
           // Special animation for the contratar section steps
           const contratarItems = entry.target.querySelectorAll('.contratar-item');
           contratarItems.forEach((item, index) => {
             const delay = index * 0.5; // Half-second delay between items
             (item as HTMLElement).style.animationDelay = `${delay}s`;
             item.classList.add('animate-item-appear');
-            
+
             // Find icon and text within this item and apply cascading animation
             const icon = item.querySelector('.icon-container');
             const title = item.querySelector('.item-title');
             const desc = item.querySelector('.item-desc');
-            
             if (icon) {
               (icon as HTMLElement).style.animationDelay = `${delay}s`;
               icon.classList.add('animate-scale-in');
             }
-            
             if (title) {
               (title as HTMLElement).style.animationDelay = `${delay + 0.2}s`;
               title.classList.add('animate-fade-in');
             }
-            
             if (desc) {
               (desc as HTMLElement).style.animationDelay = `${delay + 0.4}s`;
               desc.classList.add('animate-fade-in');
             }
           });
-          
           sectionObserver.unobserve(entry.target);
         }
       });
@@ -216,32 +212,7 @@ const Index = () => {
         </section>
         <Separator className="h-1 bg-black" />
         
-        <section ref={quienesSomosSectionRef} id="quienes-somos" className="py-20 px-4 bg-white animate-from-left">
-          <div className="container mx-auto">
-            <h2 className="text-3xl font-bold mb-8 text-center text-secondary uppercase">¿Quiénes Somos?</h2>
-            <div className="max-w-4xl mx-auto">
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-full max-w-md mx-auto mb-4">
-                  
-                </div>
-                <div className="w-full max-w-3xl">
-                  <h3 className="text-xl font-semibold mb-3 text-primary anim-item opacity-0">ACERCA DE NOSOTROS</h3>
-                  <p className="text-lg text-gray-600 mb-6 anim-item opacity-0 text-justify">
-                    Somos una empresa tecnológica que brinda soluciones en la contratación de servicios y oficios, 
-                    conectando a personas y empresas con proveedores de servicio previamente validados.
-                  </p>
-                  <p className="text-lg text-gray-600 mb-6 anim-item opacity-0 text-justify">
-                    Aportamos valor agregado en el proceso de contratación de proveedores de servicios, 
-                    brindando garantía, cobertura ante daños, pago online, atención personalizada y mucho más.
-                  </p>
-                  <p className="text-lg text-gray-600 anim-item opacity-0 text-justify">
-                    Generamos nuevas oportunidades de negocio para comercios y proveedores de servicio a través de un modelo innovador.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        
         <Separator className="h-1 bg-black" />
         
         <section ref={formarParteSectionRef} id="formar-parte" className="py-20 px-4 bg-primary animate-from-right text-white">
