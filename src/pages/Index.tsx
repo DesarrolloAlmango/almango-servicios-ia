@@ -5,8 +5,8 @@ import ServicesShowcase from "@/components/ServicesShowcase";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import LogoCarousel from "@/components/LogoCarousel";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import ServiceCardsGrid from "@/components/ServiceCardsGrid";
 
 // First 8 logos
 const firstHalfLogos = [{
@@ -147,7 +147,10 @@ const Index = () => {
       <main className="flex-grow" id="inicio">
         <Hero />
         
-        <Separator className="h-1 bg-black" />
+        {/* Service Cards Grid - positioned to overlap with the hero section */}
+        <ServiceCardsGrid />
+        
+        <Separator className="h-1 bg-black mt-8" />
         <section id="nuestros-servicios">
           <ServicesShowcase />
         </section>
