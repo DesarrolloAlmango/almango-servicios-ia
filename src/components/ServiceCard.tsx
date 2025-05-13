@@ -1,17 +1,11 @@
-
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import CategoryCarousel from "@/components/CategoryCarousel";
-import { CartItem } from "@/pages/Servicios";
-import { toast } from "sonner";
-import { LucideIcon } from "lucide-react";
-import { Check } from "lucide-react";
-import { ShoppingCart } from "lucide-react";
-import { Skeleton, PriceSkeleton, TextSkeleton } from "@/components/ui/skeleton";
+import React, { useState, useCallback, forwardRef } from 'react';
+import { Button } from "./ui/button";
+import CategoryCarousel from "./CategoryCarousel";
+import ProductsList from "./ProductsList";
+import { ChevronDown, ChevronUp, LucideIcon, ExternalLink } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
+import { AspectRatio } from "./ui/aspect-ratio";
+import { cn } from "@/lib/utils";
 
 interface Category {
   id: string;
@@ -464,41 +458,32 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 interface ServiceCardProps {
   id?: string;
   name: string;
-  iconComponent: LucideIcon;
+  iconComponent?: LucideIcon;
   icon?: string;
-  addToCart: (item: CartItem) => void;
+  addToCart: (item: any) => void;
   externalUrl?: string;
-  onBeforeCardClick?: () => boolean;
   onCategorySelect?: (serviceId: string, categoryId: string, categoryName: string) => void;
-  purchaseLocation?: {
-    storeId: string;
-    storeName: string;
-    otherLocation?: string;
-    serviceId?: string;
-    departmentId?: string;
-    locationId?: string;
-    categoryId?: string;
-    categoryName?: string;
-  } | null;
+  purchaseLocation?: any;
   forceOpen?: boolean;
   circular?: boolean;
-  currentCartItems: CartItem[];
+  currentCartItems?: any[];
+  className?: string; // Added className prop
 }
 
-const ServiceCard: React.FC<ServiceCardProps> = ({ 
-  id, 
-  name, 
+const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
+  id = '',
+  name,
   iconComponent: IconComponent,
   icon,
-  addToCart, 
+  addToCart,
   externalUrl,
-  onBeforeCardClick,
   onCategorySelect,
   purchaseLocation,
   forceOpen = false,
   circular = false,
-  currentCartItems = []
-}) => {
+  currentCartItems = [],
+  className = "", // Default to empty string
+}, ref) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -667,7 +652,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const isShowingCategoryCarousel = !selectedCategory && !isLoading && !error;
 
   return (
-    <>
+    <div 
+      ref={ref}
+      className={cn(
+        "mb-6 mx-auto transition-all duration-500",
+        circular ? 'max-w-[220px]' : 'max-w-md',
+        className // Apply any additional className passed as prop
+      )}
+    >
       <Card 
         className={`${circular 
           ? "w-[220px] h-[220px] aspect-square rounded-full shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 overflow-hidden group"
@@ -764,8 +756,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           </div>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
-};
+});
+
+ServiceCard.displayName = "ServiceCard";
 
 export default ServiceCard;

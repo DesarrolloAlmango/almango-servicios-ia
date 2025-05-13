@@ -142,6 +142,7 @@ const Servicios = () => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState<{ serviceId: string, locationName: string } | null>(null);
   const [titleVisible, setTitleVisible] = useState(false);
+  const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -150,7 +151,7 @@ const Servicios = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // New effect to display toast message when a service is clicked
+  // Effect to display toast message and highlight the clicked service
   useEffect(() => {
     if (location.state && location.state.clickedService) {
       // Show toast with the clicked service name
@@ -159,10 +160,36 @@ const Servicios = () => {
         position: "top-center"
       });
       
+      // Find the service ID by name to highlight the corresponding card
+      const findServiceByName = () => {
+        const allServices = [
+          ...(services || fallbackServices),
+          ...(mudanzaServices || fallbackMudanzaServices)
+        ];
+        
+        const foundService = allServices.find(
+          service => service.name === location.state.clickedService
+        );
+        
+        if (foundService && foundService.id) {
+          setHighlightedServiceId(foundService.id);
+          
+          // Remove highlight after animation completes
+          setTimeout(() => {
+            setHighlightedServiceId(null);
+          }, 5000);
+        }
+      };
+      
+      // Execute after services are loaded
+      if (services || mudanzaServices) {
+        findServiceByName();
+      }
+      
       // Clear the state after displaying the toast
       window.history.replaceState({}, document.title);
     }
-  }, [location.state]);
+  }, [location.state, services, mudanzaServices]);
 
   const {
     data: services,
@@ -671,6 +698,7 @@ const Servicios = () => {
                 ))
               ) : displayedServices?.map((service, index) => {
                 const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
+                const isHighlighted = service.id === highlightedServiceId;
                 
                 return (
                   <ServiceCard 
@@ -686,6 +714,7 @@ const Servicios = () => {
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
                     circular={true}
                     currentCartItems={cartItems}
+                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#14162c] shadow-[0_0_15px_5px_rgba(14,165,233,0.6)] animate-pulse" : ""}
                   />
                 );
               })}
@@ -703,6 +732,7 @@ const Servicios = () => {
                 ))
               ) : displayedMudanzaServices?.map((service, index) => {
                 const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
+                const isHighlighted = service.id === highlightedServiceId;
                 
                 return (
                   <ServiceCard 
@@ -718,6 +748,7 @@ const Servicios = () => {
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
                     circular={true}
                     currentCartItems={cartItems}
+                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#14162c] shadow-[0_0_15px_5px_rgba(14,165,233,0.6)] animate-pulse" : ""}
                   />
                 );
               })}
