@@ -1,12 +1,16 @@
+
 import React, { useEffect, useRef } from 'react';
+
 interface ServiceItem {
   title: string;
   imageUrl: string;
 }
+
 interface SealItem {
   imageUrl: string;
   alt: string;
 }
+
 const ServiceItems: ServiceItem[] = [{
   title: "INSTALACIONES ELÉCTRICAS",
   imageUrl: "https://almango.com.uy/img/iconos/icono-almango-01.png"
@@ -68,6 +72,7 @@ const ServiceItems: ServiceItem[] = [{
   title: "CALEFACCIÓN",
   imageUrl: "https://almango.com.uy/img/iconos/icono-almango-18.png"
 }];
+
 const SealItems: SealItem[] = [{
   imageUrl: "https://almango.com.uy/img/caracteristicas/01-atencion-personalizada.svg",
   alt: "Atención personalizada"
@@ -87,12 +92,14 @@ const SealItems: SealItem[] = [{
   imageUrl: "https://almango.com.uy/img/caracteristicas/06-proveedores-verificados.svg",
   alt: "Proveedores verificados"
 }];
+
 const ServicesShowcase: React.FC = () => {
   // Create refs for each section to animate
   const servicesDescriptionRef = useRef<HTMLDivElement>(null);
   const servicesGridRef = useRef<HTMLDivElement>(null);
   const counterSectionRef = useRef<HTMLDivElement>(null);
   const sealsSectionRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const options = {
       root: null,
@@ -157,11 +164,13 @@ const ServicesShowcase: React.FC = () => {
       item.setAttribute('data-index', index.toString());
       itemObserver.observe(item);
     });
+
     return () => {
       sectionObserver.disconnect();
       itemObserver.disconnect();
     };
   }, []);
+
   return <section className="py-16 bg-[#F0F0F0]">
       <div className="container mx-auto">
         
@@ -175,7 +184,14 @@ const ServicesShowcase: React.FC = () => {
         </div>
         
         <div ref={servicesGridRef} className="animate-from-right opacity-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-1 gap-y-0">
-          {ServiceItems.map((service, index) => {})}
+          {ServiceItems.map((service, index) => (
+            <div key={index} className="service-item opacity-0 cursor-pointer transition-transform duration-300 hover:scale-110">
+              <div className="flex flex-col items-center p-3 text-center">
+                <img src={service.imageUrl} alt={service.title} className="w-16 h-16 mb-2" />
+                <h3 className="text-xs md:text-sm font-medium text-center">{service.title}</h3>
+              </div>
+            </div>
+          ))}
         </div>
         
         {/* Services Counter Section */}
@@ -206,4 +222,5 @@ const ServicesShowcase: React.FC = () => {
       </div>
     </section>;
 };
+
 export default ServicesShowcase;
