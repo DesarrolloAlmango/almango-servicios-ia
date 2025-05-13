@@ -1,3 +1,4 @@
+
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -41,18 +42,18 @@ const Hero = () => {
       {/* Tiras de Login y Registro */}
       <div className="absolute right-0 md:top-1/5 top-[12%] flex flex-col gap-2 z-20">
         <div className="login-strip animate-bounce-in">
-          <a href="https://app.almango.com.uy/wwpbaseobjects.login.aspx" target="_blank" rel="noopener noreferrer" className="flex items-center transition-all duration-300 cursor-pointer bg-[#008be1] hover:bg-[#0079c4] hover:shadow-lg hover:rotate-[-2deg] text-white py-2 pl-3 pr-3 sm:pr-4 rounded-l-md">
+          <a href="https://app.almango.com.uy/wwpbaseobjects.login.aspx" target="_blank" rel="noopener noreferrer" className="flex items-center transition-all duration-300 cursor-pointer bg-[#008be1] hover:bg-[#0079c4] hover:shadow-lg hover:rotate-[-2deg] text-white py-2 pl-3 pr-3 sm:pr-4 rounded-l-md font-display font-bold tracking-wider hover:tracking-widest">
             <UserRound size={20} className="hover:animate-[spin_1s_ease-in-out]" />
-            <span className="font-medium hover:animate-pulse hidden sm:inline ml-2">LOGIN</span>
+            <span className="font-bold hover:animate-pulse hidden sm:inline ml-2 text-shadow">LOGIN</span>
           </a>
         </div>
         
         <div className="register-strip animate-bounce-in" style={{
         animationDelay: '0.3s'
       }}>
-          <a href="https://almango.com.uy/altas/" target="_blank" rel="noopener noreferrer" className="flex items-center transition-all duration-300 cursor-pointer bg-primary hover:bg-primary/80 hover:shadow-lg hover:rotate-[-2deg] text-white py-2 pl-3 pr-3 sm:pr-4 rounded-l-md">
+          <a href="https://almango.com.uy/altas/" target="_blank" rel="noopener noreferrer" className="flex items-center transition-all duration-300 cursor-pointer bg-primary hover:bg-primary/80 hover:shadow-lg hover:rotate-[-2deg] text-white py-2 pl-3 pr-3 sm:pr-4 rounded-l-md font-display font-bold tracking-wider hover:tracking-widest">
             <UserRoundPlus size={20} className="hover:scale-125 transition-transform" />
-            <span className="font-medium hover:animate-pulse hidden sm:inline ml-2">REGISTRO</span>
+            <span className="font-bold hover:animate-pulse hidden sm:inline ml-2 text-shadow">REGISTRO</span>
           </a>
         </div>
       </div>

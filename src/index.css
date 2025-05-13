@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -447,4 +446,21 @@ html {
 /* Make carousel content fill entire width */
 .w-max {
   width: max-content;
+}
+
+/* New text shadow utility class for login/register buttons */
+.text-shadow {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Update button text for more fun typography */
+.login-strip a span,
+.register-strip a span {
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.login-strip a:hover span,
+.register-strip a:hover span {
+  letter-spacing: 2px;
 }
