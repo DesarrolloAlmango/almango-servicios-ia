@@ -120,9 +120,9 @@ const ServiceCardsGrid = () => {
     fetchServices();
   }, [toast]);
 
-  const handleServiceClick = (serviceId: string) => {
-    // Simple navigation without any additional parameters
-    navigate('/servicios');
+  const handleServiceClick = (serviceId: string, serviceName: string) => {
+    // Navigate to services page with the service name as state
+    navigate('/servicios', { state: { clickedService: serviceName } });
   };
 
   if (loading) {
@@ -145,7 +145,7 @@ const ServiceCardsGrid = () => {
       {services.map((service) => (
         <Card 
           key={service.id}
-          onClick={() => handleServiceClick(service.id)}
+          onClick={() => handleServiceClick(service.id, service.name)}
           className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 h-40"
         >
           <CardContent className="p-4 flex flex-col items-center justify-center h-full">

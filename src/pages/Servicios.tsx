@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -150,6 +149,20 @@ const Servicios = () => {
     }, 300);
     return () => clearTimeout(timer);
   }, []);
+
+  // New effect to display toast message when a service is clicked
+  useEffect(() => {
+    if (location.state && location.state.clickedService) {
+      // Show toast with the clicked service name
+      toast.success(`Has seleccionado: ${location.state.clickedService}`, {
+        duration: 4000,
+        position: "top-center"
+      });
+      
+      // Clear the state after displaying the toast
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const {
     data: services,
@@ -343,7 +356,7 @@ const Servicios = () => {
       setSelectedServiceName(service.name);
     }
     
-    // MODIFICACIÓN: Verificar si este SERVICIO ya tiene una ubicación configurada
+    // MODIFICACIÓN: Verificar si este SERVICIO ya tiene una ubicaci��n configurada
     // No importa la categoría, solo verificamos a nivel de servicio
     const existingLocation = purchaseLocations.find(loc => 
       loc.serviceId === serviceId && 
