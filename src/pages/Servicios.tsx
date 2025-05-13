@@ -143,6 +143,7 @@ const Servicios = () => {
   const [locationToDelete, setLocationToDelete] = useState<{ serviceId: string, locationName: string } | null>(null);
   const [titleVisible, setTitleVisible] = useState(false);
   const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(null);
+  const [autoClickTriggered, setAutoClickTriggered] = useState(false);
   
   // Create refs to store references to service cards
   const serviceCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -210,6 +211,7 @@ const Servicios = () => {
         
         if (foundService && foundService.id) {
           setHighlightedServiceId(foundService.id);
+          setAutoClickTriggered(false); // Reset this flag for new highlights
           
           // Remove highlight after animation completes
           setTimeout(() => {
@@ -230,11 +232,13 @@ const Servicios = () => {
 
   // New effect to automatically click on the highlighted service
   useEffect(() => {
-    if (highlightedServiceId && serviceCardRefs.current[highlightedServiceId]) {
+    if (highlightedServiceId && serviceCardRefs.current[highlightedServiceId] && !autoClickTriggered) {
       // Add a small delay to ensure the UI is fully rendered
       const timer = setTimeout(() => {
         const serviceCardElement = serviceCardRefs.current[highlightedServiceId];
         if (serviceCardElement) {
+          // Mark that we've triggered the auto-click to prevent repeated clicks
+          setAutoClickTriggered(true);
           // Trigger a click on the service card
           serviceCardElement.click();
           console.log("Auto-clicked on service:", highlightedServiceId);
@@ -243,7 +247,7 @@ const Servicios = () => {
       
       return () => clearTimeout(timer);
     }
-  }, [highlightedServiceId]);
+  }, [highlightedServiceId, autoClickTriggered]);
 
   useEffect(() => {
     const fetchStoreName = async () => {

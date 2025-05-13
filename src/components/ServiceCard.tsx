@@ -1,4 +1,4 @@
-import React, { useState, useCallback, forwardRef, useEffect } from 'react';
+import React, { useState, useCallback, forwardRef, useEffect, useRef } from 'react';
 import { Button } from "./ui/button";
 import CategoryCarousel from "./CategoryCarousel";
 import { ChevronDown, ChevronUp, LucideIcon, ExternalLink, ArrowLeft, ShoppingCart } from "lucide-react";
@@ -510,13 +510,19 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   const navigate = useNavigate();
   const location = useLocation();
   const [imageError, setImageError] = useState(false);
+  const dialogOpenRef = useRef(false);
   
   // Create a service object for the selectedService prop
   const currentService = { id, name };
   
   useEffect(() => {
+    // Track if dialog was just opened to prevent auto-reopen
+    if (isDialogOpen) {
+      dialogOpenRef.current = true;
+    }
+    
     // Modificamos esta función para llamar directamente a ObtenerNivel2 cuando tenemos categoryId
-    if (forceOpen && id && purchaseLocation) {
+    if (forceOpen && id && purchaseLocation && !dialogOpenRef.current) {
       setIsDialogOpen(true);
       
       // Si tenemos categoryId, cargar directamente los productos
@@ -526,11 +532,20 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
         // Solo si no hay categoryId, cargamos primero las categorías
         fetchCategories(id);
       }
-    } else if (forceOpen && id) {
+    } else if (forceOpen && id && !dialogOpenRef.current) {
       setIsDialogOpen(true);
       fetchCategories(id);
     }
-  }, [forceOpen, id, purchaseLocation]);
+    
+    // Reset the tracking ref when dialog closes
+    if (!isDialogOpen && dialogOpenRef.current) {
+      // Add a small delay to ensure we don't immediately reopen
+      const timer = setTimeout(() => {
+        dialogOpenRef.current = false;
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [forceOpen, id, purchaseLocation, isDialogOpen]);
 
   const fetchCategories = async (serviceId: string) => {
     setIsLoading(true);
@@ -626,7 +641,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       return;
     }
     
-    if (id) {
+    if (id && !dialogOpenRef.current) {
       setIsDialogOpen(true);
       fetchCategories(id);
     }
@@ -708,11 +723,23 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
         </CardContent>
       </Card>
       
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog 
+        open={isDialogOpen} 
+        onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          // If closing, make sure we reset the category
+          if (!open) {
+            // Optional: can add a small delay here if needed
+            setTimeout(() => {
+              setSelectedCategory(null);
+            }, 100);
+          }
+        }}
+      >
         <DialogContent 
           className={
             `max-w-[850px] w-full max-h-[90vh] overflow-y-auto p-0
-            ${isShowingCategoryCarousel ? 
+            ${!selectedCategory && !isLoading && !error ? 
               "sm:max-w-[850px] w-[100%] sm:w-auto rounded-none sm:rounded-lg"
               : "max-w-4xl"}`
           }
