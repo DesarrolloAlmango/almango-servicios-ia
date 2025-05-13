@@ -22,7 +22,7 @@ interface Category {
 
 interface CategoryCarouselProps {
   categories: Category[];
-  onSelectCategory: (categoryId: string, categoryName: string) => void;
+  onSelectCategory: (serviceId: string, categoryId: string, categoryName: string) => void;
   selectedService: {
     id?: string;
     name: string;
