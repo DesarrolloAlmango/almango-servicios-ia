@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
+import { useToast } from "@/hooks/use-toast";
 
 interface ServiceCard {
   id: number;
@@ -10,16 +11,57 @@ interface ServiceCard {
   imagen: string;
 }
 
+// Mock data for when API fails
+const mockServices: ServiceCard[] = [
+  {
+    id: 1,
+    nombre: "Plomería",
+    descripcion: "Servicios profesionales de plomería",
+    imagen: "https://almango.com.uy/img/iconos/icono-plomeria.png"
+  },
+  {
+    id: 2,
+    nombre: "Electricidad",
+    descripcion: "Instalaciones y reparaciones eléctricas",
+    imagen: "https://almango.com.uy/img/iconos/icono-electricidad.png"
+  },
+  {
+    id: 3,
+    nombre: "Herrería",
+    descripcion: "Servicios de herrería y cerrajería",
+    imagen: "https://almango.com.uy/img/iconos/icono-herreria.png"
+  },
+  {
+    id: 4,
+    nombre: "Carpintería",
+    descripcion: "Trabajos profesionales de carpintería",
+    imagen: "https://almango.com.uy/img/iconos/icono-carpinteria.png"
+  },
+  {
+    id: 5,
+    nombre: "Limpieza",
+    descripcion: "Servicios de limpieza profesional",
+    imagen: "https://almango.com.uy/img/iconos/icono-limpieza.png"
+  },
+  {
+    id: 6,
+    nombre: "Pintura",
+    descripcion: "Servicios profesionales de pintura",
+    imagen: "https://almango.com.uy/img/iconos/icono-pintura.png"
+  }
+];
+
 const ServiceCardsGrid = () => {
   const [services, setServices] = useState<ServiceCard[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        // Fetch services from the API
+        // Attempt to fetch services from the API
         const response = await fetch('https://almango.com.uy/api/Clientes/GetTarjetasServicios');
         
         if (!response.ok) {
@@ -30,14 +72,23 @@ const ServiceCardsGrid = () => {
         setServices(data);
       } catch (err) {
         console.error('Error fetching services:', err);
-        setError('Failed to load services. Please try again later.');
+        
+        // Use mock data as fallback
+        setServices(mockServices);
+        
+        // Show a toast notification
+        toast({
+          title: "No se pudieron cargar servicios desde el servidor",
+          description: "Mostrando servicios de ejemplo",
+          variant: "default",
+        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchServices();
-  }, []);
+  }, [toast]);
 
   const handleServiceClick = (serviceId: number) => {
     navigate(`/servicios?id=${serviceId}`);
@@ -56,10 +107,6 @@ const ServiceCardsGrid = () => {
         ))}
       </div>
     );
-  }
-
-  if (error) {
-    return <div className="text-center text-red-500 mt-4">{error}</div>;
   }
 
   return (
