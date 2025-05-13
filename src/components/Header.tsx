@@ -1,8 +1,9 @@
 
 import { useState, useEffect } from 'react';
-import { Facebook, Instagram, Menu } from 'lucide-react';
+import { Facebook, Instagram, Menu, Briefcase, Users, FileText, LogIn, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -70,6 +71,10 @@ const Header = () => {
     }
   };
 
+  const redirectToExternalURL = (url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
   return (
     <header className={cn('fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b font-sans', isScrolled ? 'bg-primary shadow-md py-0 border-black border-b-8' : 'bg-primary py-1 border-black border-b-8')}>
       <div className="container mx-auto flex justify-between items-center px-4 relative">
@@ -105,13 +110,63 @@ const Header = () => {
               <div className="mt-6 flex flex-col space-y-6">
                 <button 
                   onClick={() => scrollToSection('inicio')} 
-                  className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left"
+                  className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left flex items-center gap-2"
                 >
                   Inicio
                 </button>
+                
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value="formar-parte" className="border-b-0">
+                    <AccordionTrigger className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left flex items-center gap-2">
+                      <Briefcase size={18} />
+                      <span>Formar Parte</span>
+                    </AccordionTrigger>
+                    <AccordionContent className="pl-6">
+                      <button 
+                        onClick={() => redirectToExternalURL('https://almango.com.uy/altas/altacomercio.html')}
+                        className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left flex items-center gap-2 w-full"
+                      >
+                        <Briefcase size={16} />
+                        <span>Comercio</span>
+                      </button>
+                      <button 
+                        onClick={() => redirectToExternalURL('https://almango.com.uy/altas/altaprestador.html')}
+                        className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left flex items-center gap-2 w-full"
+                      >
+                        <Users size={16} />
+                        <span>Profesionales</span>
+                      </button>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+
+                <button 
+                  onClick={() => scrollToSection('nuestros-servicios')} 
+                  className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left flex items-center gap-2"
+                >
+                  <FileText size={18} />
+                  <span>Solicitar Servicio</span>
+                </button>
+                
+                <button 
+                  onClick={() => redirectToExternalURL('https://app.almango.com.uy/login')} 
+                  className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left flex items-center gap-2"
+                >
+                  <LogIn size={18} />
+                  <span>Login</span>
+                </button>
+                
+                <button 
+                  onClick={() => redirectToExternalURL('https://app.almango.com.uy/register')} 
+                  className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left flex items-center gap-2"
+                >
+                  <UserPlus size={18} />
+                  <span>Registro</span>
+                </button>
+                
                 <button 
                   onClick={() => scrollToSection('contacto')} 
-                  className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left"
+                  className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left flex items-center gap-2"
                 >
                   Contacto
                 </button>
