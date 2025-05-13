@@ -120,8 +120,15 @@ const ServiceCardsGrid = () => {
     fetchServices();
   }, [toast]);
 
-  const handleServiceClick = (serviceId: string) => {
-    navigate(`/servicios?id=${serviceId}`);
+  const handleServiceClick = (service: ServiceCard) => {
+    // Check if the service has a specific URL
+    if (service.url && service.url.trim() !== '') {
+      // Open external URLs in a new tab
+      window.open(service.url, '_blank');
+    } else {
+      // Navigate to internal service page with ID
+      navigate(`/servicios?id=${service.id}`);
+    }
   };
 
   if (loading) {
@@ -144,7 +151,7 @@ const ServiceCardsGrid = () => {
       {services.map((service) => (
         <Card 
           key={service.id}
-          onClick={() => handleServiceClick(service.id)}
+          onClick={() => handleServiceClick(service)}
           className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 h-40"
         >
           <CardContent className="p-4 flex flex-col items-center justify-center h-full">
