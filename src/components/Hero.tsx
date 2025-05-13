@@ -1,4 +1,3 @@
-
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -6,27 +5,21 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import ContactInfo from "@/components/ContactInfo";
 import { useEffect, useState } from "react";
 import LottieAnimation from "./LottieAnimation";
-
 const Hero = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [isLoaded, setIsLoaded] = useState(false);
-  
   useEffect(() => {
     // Set loaded state after initial render
     setIsLoaded(true);
   }, []);
-  
-  return (
-    <div className={`relative w-full overflow-hidden ${
-      isMobile ? "min-h-[calc(75vh-40px)]" : "min-h-[75vh] md:min-h-[82vh]"
-    } flex items-start pt-16 md:pt-20`}>
+  return <div className={`relative w-full overflow-hidden ${isMobile ? "min-h-[calc(75vh-40px)]" : "min-h-[75vh] md:min-h-[82vh]"} flex items-start pt-16 md:pt-20`}>
       {/* Hero background with primary colors */}
       <div className="absolute inset-0 z-0 bg-[#14162c]">
         <div className="absolute inset-0 z-1" style={{
-          background: "radial-gradient(circle at 20% 30%, #008be1 0%, transparent 40%), radial-gradient(circle at 80% 70%, #ff6900 0%, transparent 40%), radial-gradient(circle at 50% 50%, #0EA5E9 0%, transparent 30%)",
-          opacity: 0.8
-        }}></div>
+        background: "radial-gradient(circle at 20% 30%, #008be1 0%, transparent 40%), radial-gradient(circle at 80% 70%, #ff6900 0%, transparent 40%), radial-gradient(circle at 50% 50%, #0EA5E9 0%, transparent 30%)",
+        opacity: 0.8
+      }}></div>
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
       </div>
       
@@ -38,13 +31,9 @@ const Hero = () => {
         <p className="text-xl text-white mb-2 max-w-xl font-normal animate-fade-in drop-shadow-lg md:text-xl py-[4px] font-serif">
           RÁPIDO. FÁCIL. SEGURO. SIN VUELTAS.
         </p>
-        <Button 
-          onClick={() => navigate('/servicios')} 
-          className="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md text-lg shadow-lg flex items-center transition-all hover:scale-105 animate-fade-in my-0 mx-0 py-[20px] px-[21px] font-serif" 
-          style={{
-            animation: 'buttonGlow 2s infinite ease-in-out'
-          }}
-        >
+        <Button onClick={() => navigate('/servicios')} className="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md text-lg shadow-lg flex items-center transition-all hover:scale-105 animate-fade-in my-0 mx-0 py-[20px] px-[21px] font-serif" style={{
+        animation: 'buttonGlow 2s infinite ease-in-out'
+      }}>
           SOLICITAR SERVICIO <ArrowRight className="ml-2" size={18} />
         </Button>
       </div>
@@ -59,8 +48,8 @@ const Hero = () => {
         </div>
         
         <div className="register-strip animate-bounce-in" style={{
-          animationDelay: '0.3s'
-        }}>
+        animationDelay: '0.3s'
+      }}>
           <a href="https://almango.com.uy/altas/" target="_blank" rel="noopener noreferrer" className="flex items-center transition-all duration-300 cursor-pointer bg-primary hover:bg-primary/80 hover:shadow-lg hover:rotate-[-2deg] text-white py-2 pl-3 pr-3 sm:pr-4 rounded-l-md">
             <UserRoundPlus size={20} className="hover:scale-125 transition-transform" />
             <span className="font-medium hover:animate-pulse hidden sm:inline ml-2">REGISTRO</span>
@@ -69,8 +58,6 @@ const Hero = () => {
       </div>
 
       <ContactInfo />
-    </div>
-  );
+    </div>;
 };
-
 export default Hero;
