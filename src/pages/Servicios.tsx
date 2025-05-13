@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -143,6 +143,9 @@ const Servicios = () => {
   const [locationToDelete, setLocationToDelete] = useState<{ serviceId: string, locationName: string } | null>(null);
   const [titleVisible, setTitleVisible] = useState(false);
   const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(null);
+  
+  // Create refs to store references to service cards
+  const serviceCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const {
     data: services,
@@ -182,7 +185,7 @@ const Servicios = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Effect to display toast message and highlight the clicked service - NOW AFTER services are declared
+  // Effect to display toast message and highlight the clicked service
   useEffect(() => {
     if (location.state && location.state.clickedService) {
       // Show toast with the clicked service name
@@ -224,6 +227,23 @@ const Servicios = () => {
       window.history.replaceState({}, document.title);
     }
   }, [location.state, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza]);
+
+  // New effect to automatically click on the highlighted service
+  useEffect(() => {
+    if (highlightedServiceId && serviceCardRefs.current[highlightedServiceId]) {
+      // Add a small delay to ensure the UI is fully rendered
+      const timer = setTimeout(() => {
+        const serviceCardElement = serviceCardRefs.current[highlightedServiceId];
+        if (serviceCardElement) {
+          // Trigger a click on the service card
+          serviceCardElement.click();
+          console.log("Auto-clicked on service:", highlightedServiceId);
+        }
+      }, 800); // Delay to allow for the highlight effect to be visible
+      
+      return () => clearTimeout(timer);
+    }
+  }, [highlightedServiceId]);
 
   useEffect(() => {
     const fetchStoreName = async () => {
@@ -719,6 +739,11 @@ const Servicios = () => {
                     circular={true}
                     currentCartItems={cartItems}
                     className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#14162c] shadow-[0_0_15px_5px_rgba(14,165,233,0.6)] animate-pulse" : ""}
+                    ref={element => {
+                      if (service.id) {
+                        serviceCardRefs.current[service.id] = element;
+                      }
+                    }}
                   />
                 );
               })}
@@ -753,6 +778,11 @@ const Servicios = () => {
                     circular={true}
                     currentCartItems={cartItems}
                     className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#14162c] shadow-[0_0_15px_5px_rgba(14,165,233,0.6)] animate-pulse" : ""}
+                    ref={element => {
+                      if (service.id) {
+                        serviceCardRefs.current[service.id] = element;
+                      }
+                    }}
                   />
                 );
               })}

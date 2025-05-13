@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, forwardRef, useEffect } from 'react';
 import { Button } from "./ui/button";
 import CategoryCarousel from "./CategoryCarousel";
@@ -486,7 +485,7 @@ interface ServiceCardProps {
   forceOpen?: boolean;
   circular?: boolean;
   currentCartItems?: any[];
-  className?: string; // Added className prop
+  className?: string;
 }
 
 const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
@@ -501,7 +500,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   forceOpen = false,
   circular = false,
   currentCartItems = [],
-  className = "", // Default to empty string
+  className = "",
 }, ref) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -677,15 +676,15 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       className={cn(
         "mb-6 mx-auto transition-all duration-500",
         circular ? 'max-w-[220px]' : 'max-w-md',
-        className // Apply any additional className passed as prop
+        className
       )}
+      onClick={handleCardClick}
     >
       <Card 
         className={`${circular 
           ? "w-[220px] h-[220px] aspect-square rounded-full shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 overflow-hidden group"
           : "w-[280px] h-[200px] rounded-lg shadow-sm hover:shadow-lg transition-all transform hover:-translate-y-1 cursor-pointer border-0 overflow-hidden group"
         }`}
-        onClick={handleCardClick}
       >
         <CardContent className="p-0 flex flex-col items-center justify-end h-full relative">
           <div className="absolute inset-0 w-full h-full">
