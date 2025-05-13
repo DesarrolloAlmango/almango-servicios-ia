@@ -144,53 +144,6 @@ const Servicios = () => {
   const [titleVisible, setTitleVisible] = useState(false);
   const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setTitleVisible(true);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Effect to display toast message and highlight the clicked service
-  useEffect(() => {
-    if (location.state && location.state.clickedService) {
-      // Show toast with the clicked service name
-      toast.success(`Has seleccionado: ${location.state.clickedService}`, {
-        duration: 4000,
-        position: "top-center"
-      });
-      
-      // Find the service ID by name to highlight the corresponding card
-      const findServiceByName = () => {
-        const allServices = [
-          ...(services || fallbackServices),
-          ...(mudanzaServices || fallbackMudanzaServices)
-        ];
-        
-        const foundService = allServices.find(
-          service => service.name === location.state.clickedService
-        );
-        
-        if (foundService && foundService.id) {
-          setHighlightedServiceId(foundService.id);
-          
-          // Remove highlight after animation completes
-          setTimeout(() => {
-            setHighlightedServiceId(null);
-          }, 5000);
-        }
-      };
-      
-      // Execute after services are loaded
-      if (services || mudanzaServices) {
-        findServiceByName();
-      }
-      
-      // Clear the state after displaying the toast
-      window.history.replaceState({}, document.title);
-    }
-  }, [location.state, services, mudanzaServices]);
-
   const {
     data: services,
     isLoading: isServicesLoading,
@@ -220,6 +173,57 @@ const Servicios = () => {
       }
     }
   });
+
+  // Basic title animation effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setTitleVisible(true);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Effect to display toast message and highlight the clicked service - NOW AFTER services are declared
+  useEffect(() => {
+    if (location.state && location.state.clickedService) {
+      // Show toast with the clicked service name
+      toast.success(`Has seleccionado: ${location.state.clickedService}`, {
+        duration: 4000,
+        position: "top-center"
+      });
+      
+      // Find the service ID by name to highlight the corresponding card
+      const findServiceByName = () => {
+        const displayedServices = isServicesError ? fallbackServices : services;
+        const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
+        
+        const allServices = [
+          ...(displayedServices || []),
+          ...(displayedMudanzaServices || [])
+        ];
+        
+        const foundService = allServices.find(
+          service => service.name === location.state.clickedService
+        );
+        
+        if (foundService && foundService.id) {
+          setHighlightedServiceId(foundService.id);
+          
+          // Remove highlight after animation completes
+          setTimeout(() => {
+            setHighlightedServiceId(null);
+          }, 5000);
+        }
+      };
+      
+      // Execute after services are loaded
+      if (!isServicesLoading && !isLoadingMudanza) {
+        findServiceByName();
+      }
+      
+      // Clear the state after displaying the toast
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza]);
 
   useEffect(() => {
     const fetchStoreName = async () => {
