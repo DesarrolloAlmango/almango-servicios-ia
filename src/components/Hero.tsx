@@ -21,7 +21,7 @@ const Hero = () => {
         opacity: 0.8
       }}></div>
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#14162c] to-transparent z-2"></div>
+        
       </div>
       
       {/* Handshake animation - positioned at center-right */}
