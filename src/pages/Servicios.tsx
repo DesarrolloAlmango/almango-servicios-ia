@@ -213,10 +213,8 @@ const Servicios = () => {
           setHighlightedServiceId(foundService.id);
           setAutoClickTriggered(false); // Reset this flag for new highlights
           
-          // Remove highlight after animation completes
-          setTimeout(() => {
-            setHighlightedServiceId(null);
-          }, 5000);
+          // Remove highlight after service card is clicked instead of after time
+          // The highlight will be removed in the autoClick effect
         }
       };
       
@@ -239,11 +237,13 @@ const Servicios = () => {
         if (serviceCardElement) {
           // Mark that we've triggered the auto-click to prevent repeated clicks
           setAutoClickTriggered(true);
+          // Remove the highlight immediately when auto-clicking
+          setHighlightedServiceId(null);
           // Trigger a click on the service card
           serviceCardElement.click();
           console.log("Auto-clicked on service:", highlightedServiceId);
         }
-      }, 800); // Delay to allow for the highlight effect to be visible
+      }, 800); // Delay to allow for the highlight effect to be visible briefly
       
       return () => clearTimeout(timer);
     }
@@ -742,7 +742,7 @@ const Servicios = () => {
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
                     circular={true}
                     currentCartItems={cartItems}
-                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#14162c] shadow-[0_0_15px_5px_rgba(14,165,233,0.6)] animate-pulse" : ""}
+                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#14162c]" : ""}
                     ref={element => {
                       if (service.id) {
                         serviceCardRefs.current[service.id] = element;
@@ -781,7 +781,7 @@ const Servicios = () => {
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
                     circular={true}
                     currentCartItems={cartItems}
-                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#14162c] shadow-[0_0_15px_5px_rgba(14,165,233,0.6)] animate-pulse" : ""}
+                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#14162c]" : ""}
                     ref={element => {
                       if (service.id) {
                         serviceCardRefs.current[service.id] = element;
