@@ -13,7 +13,7 @@ interface CustomServiceCardProps {
   purchaseLocation: any;
   forceOpen?: boolean;
   circular?: boolean;
-  currentCartItems?: any[];
+  currentCartItems: any[]; // Removed the optional marker (?)
   customId?: string;
 }
 
