@@ -3,12 +3,21 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import CategoryCarousel from "@/components/CategoryCarousel";
 
 interface ServiceCard {
   id: string;
   name: string;
   icon: string;
   url: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  image: string;
+  products: any[];
 }
 
 // Mock data for when API fails
@@ -64,6 +73,10 @@ const mockMudanzaServices: ServiceCard[] = [
 const ServiceCardsGrid = () => {
   const [services, setServices] = useState<ServiceCard[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [selectedService, setSelectedService] = useState<ServiceCard | null>(null);
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categoriesLoading, setCategoriesLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -120,15 +133,55 @@ const ServiceCardsGrid = () => {
     fetchServices();
   }, [toast]);
 
+  const fetchCategories = async (serviceId: string) => {
+    setCategoriesLoading(true);
+    try {
+      const response = await fetch(`/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel1?Nivel0=${serviceId}`);
+      
+      if (!response.ok) {
+        throw new Error(`Error al cargar categorías: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      const transformedCategories = data.map((category: any) => ({
+        id: category.id || category.Nivel1Id,
+        name: category.name || category.Nivel1Descripcion,
+        image: category.image || category.Imagen || "",
+        products: []
+      }));
+      
+      setCategories(transformedCategories);
+      
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+      toast({
+        title: "Error al cargar categorías",
+        description: "Por favor intenta nuevamente",
+        variant: "destructive",
+      });
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
+
   const handleServiceClick = (service: ServiceCard) => {
-    // Check if the service has a specific URL
+    // Check if the service has a specific external URL
     if (service.url && service.url.trim() !== '') {
       // Open external URLs in a new tab
       window.open(service.url, '_blank');
     } else {
-      // Navigate to internal service page with ID
-      navigate(`/servicios?id=${service.id}`);
+      // Open dialog with categories for this service
+      setSelectedService(service);
+      setDialogOpen(true);
+      fetchCategories(service.id);
     }
+  };
+
+  const handleCategorySelect = (serviceId: string, categoryId: string, categoryName: string) => {
+    // Redirect to services page with both service and category ID
+    navigate(`/servicios?id=${serviceId}&categoryId=${categoryId}&categoryName=${encodeURIComponent(categoryName)}`);
+    setDialogOpen(false);
   };
 
   if (loading) {
@@ -147,27 +200,55 @@ const ServiceCardsGrid = () => {
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 -mt-10 z-10 relative px-4">
-      {services.map((service) => (
-        <Card 
-          key={service.id}
-          onClick={() => handleServiceClick(service)}
-          className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 h-40"
-        >
-          <CardContent className="p-4 flex flex-col items-center justify-center h-full">
-            <img 
-              src={service.icon} 
-              alt={service.name} 
-              className="w-16 h-16 object-contain mb-2"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = "https://almango.com.uy/img/iconos/icono-almango-01.png"; // Default image
-              }}
-            />
-            <h3 className="text-sm font-medium text-center text-gray-800">{service.name}</h3>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+    <>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 -mt-10 z-10 relative px-4">
+        {services.map((service) => (
+          <Card 
+            key={service.id}
+            onClick={() => handleServiceClick(service)}
+            className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 h-40"
+          >
+            <CardContent className="p-4 flex flex-col items-center justify-center h-full">
+              <img 
+                src={service.icon} 
+                alt={service.name} 
+                className="w-16 h-16 object-contain mb-2"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "https://almango.com.uy/img/iconos/icono-almango-01.png"; // Default image
+                }}
+              />
+              <h3 className="text-sm font-medium text-center text-gray-800">{service.name}</h3>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Dialog for service categories */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-[850px] w-full max-h-[90vh] overflow-y-auto p-0">
+          <DialogTitle className="sr-only">
+            {selectedService?.name || "Categorías de Servicio"}
+          </DialogTitle>
+          <div className="p-4 sm:p-6">
+            {selectedService && (
+              <>
+                <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4 text-center px-3 mx-auto text-orange-500 truncate">
+                  {selectedService.name}
+                </h2>
+                
+                <CategoryCarousel
+                  categories={categories}
+                  onSelectCategory={handleCategorySelect}
+                  selectedService={selectedService ? { id: selectedService.id, name: selectedService.name } : undefined}
+                  isLoading={categoriesLoading}
+                  cartItems={[]}
+                />
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
