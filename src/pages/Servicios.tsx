@@ -145,6 +145,7 @@ const Servicios = () => {
   const [titleVisible, setTitleVisible] = useState(false);
   const [servicesFullyLoaded, setServicesFullyLoaded] = useState(false);
   const [attemptedAutoOpen, setAttemptedAutoOpen] = useState(false);
+  const [hasAutoOpenFired, setHasAutoOpenFired] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -222,13 +223,14 @@ const Servicios = () => {
     fetchStoreName();
   }, [commerceId, services]);
 
+  // Detecta cuando los servicios están completamente cargados
   useEffect(() => {
     if (!isServicesLoading && !isLoadingMudanza) {
-      // Establecemos un pequeño retraso para asegurar que el DOM se ha actualizado
+      // Establecemos un retraso más largo para asegurar que el DOM se ha actualizado
       const timer = setTimeout(() => {
         console.log('Servicios completamente cargados y renderizados');
         setServicesFullyLoaded(true);
-      }, 500);
+      }, 1000); // Aumentado a 1000ms para dar más tiempo
       
       return () => clearTimeout(timer);
     }
@@ -261,59 +263,58 @@ const Servicios = () => {
     const params = new URLSearchParams(location.search);
     const serviceId = params.get('serviceId');
     const autoOpen = params.get('autoOpen');
+    const serviceName = params.get('serviceName');
     
     if (serviceId && autoOpen === 'true' && !attemptedAutoOpen) {
-      console.log('Auto-opening preparation for service:', serviceId);
+      console.log('Auto-opening preparation for service:', serviceId, 'with name:', serviceName);
       
-      // Solo detectamos el servicio y establecemos los estados necesarios
-      if (!isServicesLoading && !isLoadingMudanza && displayedServices) {
-        // Encontrar el servicio que coincida con el ID
-        const foundService = [...(displayedServices || []), ...(displayedMudanzaServices || [])]
-          .find(service => service.id === serviceId);
-        
-        if (foundService) {
-          console.log('Found service to prepare for auto-open:', foundService.name);
-          setSelectedServiceId(serviceId);
-          setSelectedServiceName(foundService.name);
-          // Marcamos que hemos detectado la necesidad de auto-abrir
-          setAttemptedAutoOpen(true);
-        }
-      }
+      // Marcamos que hemos detectado la necesidad de auto-abrir
+      setAttemptedAutoOpen(true);
+      setSelectedServiceId(serviceId);
+      setSelectedServiceName(serviceName || '');
     }
-  }, [location.search, isServicesLoading, isLoadingMudanza, displayedServices, displayedMudanzaServices, attemptedAutoOpen]);
+  }, [location.search, attemptedAutoOpen]);
   
-  // Este efecto se encarga de realizar el clic una vez que los servicios estén completamente cargados
+  // Este efecto realiza el clic cuando los servicios están completamente cargados
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const serviceId = params.get('serviceId');
-    const autoOpen = params.get('autoOpen');
-    const forceOpenCategories = params.get('forceOpenCategories');
-    
-    // Solo intentamos hacer clic cuando los servicios están completamente cargados
-    // y tenemos la marca de que se debe auto-abrir
-    if (servicesFullyLoaded && attemptedAutoOpen && serviceId && autoOpen === 'true' && forceOpenCategories === 'true') {
-      console.log('Services fully loaded, attempting to click service card');
+    if (servicesFullyLoaded && attemptedAutoOpen && selectedServiceId && !hasAutoOpenFired) {
+      console.log('Services fully loaded, attempting to click service card with ID:', selectedServiceId);
       
-      // Usamos un temporizador con un retraso más largo para asegurar que el DOM está listo
+      // Usamos un temporizador con un retraso más largo
       const clickTimer = setTimeout(() => {
-        const serviceCardElement = document.getElementById(`service-${serviceId}`);
-        if (serviceCardElement) {
-          console.log('Found and clicking on service card element:', serviceCardElement);
-          serviceCardElement.click();
-          // Notificamos al usuario que la acción se completó
-          toast.success(`Abriendo ${params.get('serviceName') || 'servicio'}`);
-        } else {
-          console.error('Service card element not found for ID:', `service-${serviceId}`);
-          // Buscamos todos los elementos con data-service-id para depuración
-          const allServiceElements = document.querySelectorAll('[data-service-id]');
-          console.log('Available service elements:', allServiceElements);
-          toast.error('No se pudo abrir el servicio automáticamente');
+        try {
+          const serviceCardElement = document.querySelector(`[data-service-id="${selectedServiceId}"]`);
+          if (serviceCardElement) {
+            console.log('Found service card element, clicking:', serviceCardElement);
+            
+            // Simular un evento de clic real
+            const clickEvent = new MouseEvent('click', {
+              view: window,
+              bubbles: true,
+              cancelable: true,
+            });
+            
+            serviceCardElement.dispatchEvent(clickEvent);
+            setHasAutoOpenFired(true);
+            
+            // Notificamos al usuario que la acción se completó
+            toast.success(`Abriendo ${selectedServiceName || 'servicio'}`);
+          } else {
+            console.error('Service card element not found for ID:', selectedServiceId);
+            // Buscamos todos los elementos con data-service-id para depuración
+            const allServiceElements = document.querySelectorAll('[data-service-id]');
+            console.log('Available service elements:', Array.from(allServiceElements).map(el => el.getAttribute('data-service-id')));
+            toast.error('No se pudo abrir el servicio automáticamente');
+          }
+        } catch (err) {
+          console.error('Error trying to click service card:', err);
+          toast.error('Error al intentar abrir el servicio');
         }
-      }, 800);  // Aumentamos el tiempo a 800ms
+      }, 1500);  // Aumentamos el tiempo a 1500ms
       
       return () => clearTimeout(clickTimer);
     }
-  }, [servicesFullyLoaded, attemptedAutoOpen]);
+  }, [servicesFullyLoaded, attemptedAutoOpen, selectedServiceId, selectedServiceName, hasAutoOpenFired, toast]);
   
   useEffect(() => {
     if (pendingServiceCardAction && selectedServiceId) {
@@ -371,6 +372,7 @@ const Servicios = () => {
   };
 
   const handleServiceCardClick = (serviceId: string | undefined, serviceName: string) => {
+    console.log(`handleServiceCardClick called with serviceId: ${serviceId}, name: ${serviceName}`);
     if (!serviceId) return false;
     
     if (commerceId) {
@@ -407,6 +409,7 @@ const Servicios = () => {
   };
 
   const handleCategorySelect = (serviceId: string, categoryId: string, categoryName: string) => {
+    console.log(`handleCategorySelect called with serviceId: ${serviceId}, categoryId: ${categoryId}, categoryName: ${categoryName}`);
     setSelectedServiceId(serviceId);
     setSelectedCategoryId(categoryId);
     setSelectedCategoryName(categoryName);

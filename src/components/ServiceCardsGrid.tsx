@@ -126,8 +126,11 @@ const ServiceCardsGrid = () => {
       // Open external URLs in a new tab
       window.open(service.url, '_blank');
     } else {
+      // Crear un timestamp único para evitar problemas de caché
+      const timestamp = new Date().getTime();
+      
       // Redirect to the services page with the service ID, auto-open flag and force category flag
-      navigate(`/servicios?serviceId=${service.id}&autoOpen=true&forceOpenCategories=true&serviceName=${encodeURIComponent(service.name)}`);
+      navigate(`/servicios?serviceId=${service.id}&autoOpen=true&forceOpenCategories=true&serviceName=${encodeURIComponent(service.name)}&_=${timestamp}`);
     }
   };
 
