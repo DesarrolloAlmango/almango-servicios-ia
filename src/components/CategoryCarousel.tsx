@@ -22,7 +22,7 @@ interface Category {
 
 interface CategoryCarouselProps {
   categories: Category[];
-  onSelectCategory: (serviceId: string, categoryId: string, categoryName: string) => void;
+  onSelectCategory: (categoryId: string, categoryName: string) => void;
   selectedService: {
     id?: string;
     name: string;
@@ -347,54 +347,56 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
             >
               <div 
                 className="cursor-pointer hover:scale-105 transition-transform"
-                onClick={() => onSelectCategory(selectedService?.id || '', category.id, category.name)}
+                onClick={() => onSelectCategory(category.id, category.name)}
               >
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
-                  {/* Mostrar skeleton mientras carga la imagen */}
-                  {loadingImages[category.id] && (
-                    <div className="absolute inset-0 flex items-center justify-center z-10">
-                      <Skeleton className="h-full w-full rounded-full" />
-                    </div>
-                  )}
-                  
-                  {/* Mostrar imagen desde caché si está disponible */}
-                  {cachedImages[category.id] && !failedImages[category.id] ? (
-                    <img
-                      src={cachedImages[category.id]}
-                      alt={category.name}
-                      className="w-full h-full object-cover"
-                      onError={() => handleImageError(category.id, category.image)}
-                      style={{ 
-                        opacity: loadingImages[category.id] ? 0 : 1,
-                        transition: 'opacity 0.3s ease-in-out'
-                      }}
-                    />
-                  ) : (
-                    <>
-                      {/* Mostrar imagen desde fuente original con lazy loading */}
-                      {getImageSource(category.image) && !failedImages[category.id] ? (
-                        <img
-                          ref={el => el && imageRefs.current.set(category.id, el)}
-                          data-category-id={category.id}
-                          src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" // placeholder transparente
-                          data-src={getImageSource(category.image)}
-                          alt={category.name}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                          onLoad={() => handleImageLoad(category.id)}
-                          onError={() => handleImageError(category.id, category.image)}
-                          style={{ 
-                            opacity: loadingImages[category.id] ? 0 : 1,
-                            transition: 'opacity 0.3s ease-in-out'
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-500 text-xs">Sin imagen</span>
-                        </div>
-                      )}
-                    </>
-                  )}
+                  <AspectRatio ratio={1} className="bg-gray-100">
+                    {/* Mostrar skeleton mientras carga la imagen */}
+                    {loadingImages[category.id] && (
+                      <div className="absolute inset-0 flex items-center justify-center z-10">
+                        <Skeleton className="h-full w-full rounded-full" />
+                      </div>
+                    )}
+                    
+                    {/* Mostrar imagen desde caché si está disponible */}
+                    {cachedImages[category.id] && !failedImages[category.id] ? (
+                      <img
+                        src={cachedImages[category.id]}
+                        alt={category.name}
+                        className="w-full h-full object-cover"
+                        onError={() => handleImageError(category.id, category.image)}
+                        style={{ 
+                          opacity: loadingImages[category.id] ? 0 : 1,
+                          transition: 'opacity 0.3s ease-in-out'
+                        }}
+                      />
+                    ) : (
+                      <>
+                        {/* Mostrar imagen desde fuente original con lazy loading */}
+                        {getImageSource(category.image) && !failedImages[category.id] ? (
+                          <img
+                            ref={el => el && imageRefs.current.set(category.id, el)}
+                            data-category-id={category.id}
+                            src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" // placeholder transparente
+                            data-src={getImageSource(category.image)}
+                            alt={category.name}
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                            onLoad={() => handleImageLoad(category.id)}
+                            onError={() => handleImageError(category.id, category.image)}
+                            style={{ 
+                              opacity: loadingImages[category.id] ? 0 : 1,
+                              transition: 'opacity 0.3s ease-in-out'
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-gray-500 text-xs">Sin imagen</span>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </AspectRatio>
                 </div>
                 <p className="text-center text-sm sm:text-base font-medium mt-1 sm:mt-2 line-clamp-2 px-1 
                   animate-in fade-in duration-300">{category.name}</p>

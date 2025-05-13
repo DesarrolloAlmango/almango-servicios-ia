@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+
+import React, { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "@/components/ServiceCard";
-import CustomServiceCard from "@/components/CustomServiceCard";
 import CartDrawer from "@/components/CartDrawer";
 import ServiceCarousel from "@/components/ServiceCarousel";
 import {
@@ -143,9 +143,6 @@ const Servicios = () => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [locationToDelete, setLocationToDelete] = useState<{ serviceId: string, locationName: string } | null>(null);
   const [titleVisible, setTitleVisible] = useState(false);
-  const [servicesFullyLoaded, setServicesFullyLoaded] = useState(false);
-  const [attemptedAutoOpen, setAttemptedAutoOpen] = useState(false);
-  const [hasAutoOpenFired, setHasAutoOpenFired] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -223,19 +220,6 @@ const Servicios = () => {
     fetchStoreName();
   }, [commerceId, services]);
 
-  // Detecta cuando los servicios están completamente cargados
-  useEffect(() => {
-    if (!isServicesLoading && !isLoadingMudanza) {
-      // Establecemos un retraso más largo para asegurar que el DOM se ha actualizado
-      const timer = setTimeout(() => {
-        console.log('Servicios completamente cargados y renderizados');
-        setServicesFullyLoaded(true);
-      }, 1000); // Aumentado a 1000ms para dar más tiempo
-      
-      return () => clearTimeout(timer);
-    }
-  }, [isServicesLoading, isLoadingMudanza]);
-
   const displayedServices = isServicesError ? fallbackServices : services;
   const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
 
@@ -255,67 +239,6 @@ const Servicios = () => {
     }
   }, [location.state]);
 
-  // Referencia para la tarjeta de servicio que queremos hacer clic automáticamente
-  const serviceCardRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-
-  // Nuevo useEffect para detectar parámetros de URL y abrir modal de categorías
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const serviceId = params.get('serviceId');
-    const autoOpen = params.get('autoOpen');
-    const serviceName = params.get('serviceName');
-    
-    if (serviceId && autoOpen === 'true' && !attemptedAutoOpen) {
-      console.log('Auto-opening preparation for service:', serviceId, 'with name:', serviceName);
-      
-      // Marcamos que hemos detectado la necesidad de auto-abrir
-      setAttemptedAutoOpen(true);
-      setSelectedServiceId(serviceId);
-      setSelectedServiceName(serviceName || '');
-    }
-  }, [location.search, attemptedAutoOpen]);
-  
-  // Este efecto realiza el clic cuando los servicios están completamente cargados
-  useEffect(() => {
-    if (servicesFullyLoaded && attemptedAutoOpen && selectedServiceId && !hasAutoOpenFired) {
-      console.log('Services fully loaded, attempting to click service card with ID:', selectedServiceId);
-      
-      // Usamos un temporizador con un retraso más largo
-      const clickTimer = setTimeout(() => {
-        try {
-          const serviceCardElement = document.querySelector(`[data-service-id="${selectedServiceId}"]`);
-          if (serviceCardElement) {
-            console.log('Found service card element, clicking:', serviceCardElement);
-            
-            // Simular un evento de clic real
-            const clickEvent = new MouseEvent('click', {
-              view: window,
-              bubbles: true,
-              cancelable: true,
-            });
-            
-            serviceCardElement.dispatchEvent(clickEvent);
-            setHasAutoOpenFired(true);
-            
-            // Notificamos al usuario que la acción se completó
-            toast.success(`Abriendo ${selectedServiceName || 'servicio'}`);
-          } else {
-            console.error('Service card element not found for ID:', selectedServiceId);
-            // Buscamos todos los elementos con data-service-id para depuración
-            const allServiceElements = document.querySelectorAll('[data-service-id]');
-            console.log('Available service elements:', Array.from(allServiceElements).map(el => el.getAttribute('data-service-id')));
-            toast.error('No se pudo abrir el servicio automáticamente');
-          }
-        } catch (err) {
-          console.error('Error trying to click service card:', err);
-          toast.error('Error al intentar abrir el servicio');
-        }
-      }, 1500);  // Aumentamos el tiempo a 1500ms
-      
-      return () => clearTimeout(clickTimer);
-    }
-  }, [servicesFullyLoaded, attemptedAutoOpen, selectedServiceId, selectedServiceName, hasAutoOpenFired, toast]);
-  
   useEffect(() => {
     if (pendingServiceCardAction && selectedServiceId) {
       const timer = setTimeout(() => {
@@ -372,7 +295,6 @@ const Servicios = () => {
   };
 
   const handleServiceCardClick = (serviceId: string | undefined, serviceName: string) => {
-    console.log(`handleServiceCardClick called with serviceId: ${serviceId}, name: ${serviceName}`);
     if (!serviceId) return false;
     
     if (commerceId) {
@@ -409,7 +331,6 @@ const Servicios = () => {
   };
 
   const handleCategorySelect = (serviceId: string, categoryId: string, categoryName: string) => {
-    console.log(`handleCategorySelect called with serviceId: ${serviceId}, categoryId: ${categoryId}, categoryName: ${categoryName}`);
     setSelectedServiceId(serviceId);
     setSelectedCategoryId(categoryId);
     setSelectedCategoryName(categoryName);
@@ -739,7 +660,7 @@ const Servicios = () => {
                 const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
                 
                 return (
-                  <CustomServiceCard 
+                  <ServiceCard 
                     key={index}
                     id={service.id}
                     name={service.name} 
@@ -752,7 +673,6 @@ const Servicios = () => {
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
                     circular={true}
                     currentCartItems={cartItems}
-                    customId={`service-${service.id}`}
                   />
                 );
               })}
@@ -772,7 +692,7 @@ const Servicios = () => {
                 const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
                 
                 return (
-                  <CustomServiceCard 
+                  <ServiceCard 
                     key={index}
                     id={service.id}
                     name={service.name} 
@@ -785,7 +705,6 @@ const Servicios = () => {
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
                     circular={true}
                     currentCartItems={cartItems}
-                    customId={`service-${service.id}`}
                   />
                 );
               })}
