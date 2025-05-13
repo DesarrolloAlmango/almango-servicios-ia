@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "@/components/ServiceCard";
+import CustomServiceCard from "@/components/CustomServiceCard";
 import CartDrawer from "@/components/CartDrawer";
 import ServiceCarousel from "@/components/ServiceCarousel";
 import {
@@ -660,7 +660,7 @@ const Servicios = () => {
                 const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
                 
                 return (
-                  <ServiceCard 
+                  <CustomServiceCard 
                     key={index}
                     id={service.id}
                     name={service.name} 
@@ -673,6 +673,7 @@ const Servicios = () => {
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
                     circular={true}
                     currentCartItems={cartItems}
+                    customId={`service-${service.id}`}
                   />
                 );
               })}
@@ -692,7 +693,7 @@ const Servicios = () => {
                 const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
                 
                 return (
-                  <ServiceCard 
+                  <CustomServiceCard 
                     key={index}
                     id={service.id}
                     name={service.name} 
@@ -705,6 +706,7 @@ const Servicios = () => {
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id}
                     circular={true}
                     currentCartItems={cartItems}
+                    customId={`service-${service.id}`}
                   />
                 );
               })}
