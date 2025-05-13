@@ -1,11 +1,12 @@
 
 import ServiceCard from './ServiceCard';
+import { LucideIcon } from 'lucide-react';
 
 interface CustomServiceCardProps {
   id?: string;
   name: string;
   icon?: string;
-  iconComponent?: React.ComponentType<any>;
+  iconComponent: LucideIcon;
   addToCart: (item: any) => void;
   externalUrl?: string;
   onCategorySelect: (serviceId: string, categoryId: string, categoryName: string) => void;
