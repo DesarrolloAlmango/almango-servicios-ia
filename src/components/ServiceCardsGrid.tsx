@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
@@ -125,8 +126,8 @@ const ServiceCardsGrid = () => {
       // Open external URLs in a new tab
       window.open(service.url, '_blank');
     } else {
-      // Redirect to the services page with the service ID and auto-open flag
-      navigate(`/servicios?serviceId=${service.id}&autoOpen=true&serviceName=${encodeURIComponent(service.name)}`);
+      // Redirect to the services page with the service ID, auto-open flag and force category flag
+      navigate(`/servicios?serviceId=${service.id}&autoOpen=true&forceOpenCategories=true&serviceName=${encodeURIComponent(service.name)}`);
     }
   };
 

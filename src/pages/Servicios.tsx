@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -239,6 +239,48 @@ const Servicios = () => {
     }
   }, [location.state]);
 
+  // Referencia para la tarjeta de servicio que queremos hacer clic automáticamente
+  const serviceCardRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  // Nuevo useEffect para detectar parámetros de URL y abrir modal de categorías
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const serviceId = params.get('serviceId');
+    const autoOpen = params.get('autoOpen');
+    const forceOpenCategories = params.get('forceOpenCategories');
+    
+    if (serviceId && autoOpen === 'true') {
+      console.log('Auto-opening service:', serviceId);
+      
+      // Esperar a que los servicios se carguen
+      if (!isServicesLoading && !isLoadingMudanza && displayedServices) {
+        // Encontrar el servicio que coincida con el ID
+        const foundService = [...(displayedServices || []), ...(displayedMudanzaServices || [])]
+          .find(service => service.id === serviceId);
+        
+        if (foundService) {
+          console.log('Found service to auto-open:', foundService.name);
+          setSelectedServiceId(serviceId);
+          setSelectedServiceName(foundService.name);
+          
+          // Si forceOpenCategories es true, esperamos a que se monte el DOM y luego simulamos un clic
+          if (forceOpenCategories === 'true') {
+            // Usar setTimeout para asegurar que el DOM esté completamente renderizado
+            setTimeout(() => {
+              const serviceCardElement = document.getElementById(`service-${serviceId}`);
+              if (serviceCardElement) {
+                console.log('Clicking on service card element:', serviceCardElement);
+                serviceCardElement.click();
+              } else {
+                console.log('Service card element not found for ID:', serviceId);
+              }
+            }, 300);
+          }
+        }
+      }
+    }
+  }, [location.search, isServicesLoading, isLoadingMudanza, displayedServices, displayedMudanzaServices]);
+  
   useEffect(() => {
     if (pendingServiceCardAction && selectedServiceId) {
       const timer = setTimeout(() => {

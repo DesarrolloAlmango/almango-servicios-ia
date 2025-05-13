@@ -19,7 +19,12 @@ interface CustomServiceCardProps {
 
 const CustomServiceCard: React.FC<CustomServiceCardProps> = ({ customId, ...props }) => {
   return (
-    <div id={customId || `custom-service-${props.id}`}>
+    <div 
+      id={customId || `custom-service-${props.id}`} 
+      className="service-card-wrapper cursor-pointer"
+      data-service-id={props.id}
+      data-service-name={props.name}
+    >
       <ServiceCard {...props} />
     </div>
   );
