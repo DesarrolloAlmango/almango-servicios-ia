@@ -29,7 +29,7 @@ const Hero = () => {
       
       {/* Contenedor principal con ajustes precisos de margen */}
       <div className="container relative z-10 mx-auto px-6 text-left pl-8 md:pl-12 mt-[66px] sm:mt-[50px] md:mt-[23px]">
-        <h1 className="text-3xl md:text-4xl font-bold text-white mb-[5px] max-w-xl animate-fade-in font-sans drop-shadow-lg px-0 py-0 my-0 lg:text-4xl">SOLICITÁ TU SERVICIO EN MINUTOS</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-white mb-[5px] max-w-xl animate-fade-in font-sans drop-shadow-lg px-0 py-0 my-0 lg:text-6xl">SOLICITÁ TU SERVICIO EN MINUTOS</h1>
         <p className="text-xl text-white mb-2 max-w-xl font-normal animate-fade-in drop-shadow-lg md:text-xl py-[4px]">RÁPIDO. FÁCIL. SEGURO. SIN VUELTAS.</p>
         <Button onClick={() => navigate('/servicios')} className="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md text-lg shadow-lg flex items-center transition-all hover:scale-105 animate-fade-in my-0 mx-0 py-[23px] px-[21px] font-serif" style={{
         animation: 'buttonGlow 2s infinite ease-in-out'
