@@ -1,11 +1,30 @@
-import React, { useState, useCallback, forwardRef } from 'react';
+
+import React, { useState, useCallback, forwardRef, useEffect } from 'react';
 import { Button } from "./ui/button";
 import CategoryCarousel from "./CategoryCarousel";
-import ProductsList from "./ProductsList";
-import { ChevronDown, ChevronUp, LucideIcon, ExternalLink } from "lucide-react";
+import { ChevronDown, ChevronUp, LucideIcon, ExternalLink, ArrowLeft, ShoppingCart } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { AspectRatio } from "./ui/aspect-ratio";
 import { cn } from "@/lib/utils";
+import { Skeleton, PriceSkeleton, TextSkeleton } from "./ui/skeleton";
+import { toast } from "sonner";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Dialog, DialogContent } from "./ui/dialog";
+
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  serviceCategory: string;
+  serviceId?: string;
+  categoryId?: string;
+  productId?: string;
+  departmentId?: string;
+  locationId?: string;
+  textosId?: string | null;
+}
 
 interface Category {
   id: string;
@@ -490,6 +509,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const [imageError, setImageError] = useState(false);
   
   // Create a service object for the selectedService prop

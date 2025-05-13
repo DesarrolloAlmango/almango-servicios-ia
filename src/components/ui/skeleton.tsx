@@ -1,4 +1,5 @@
 
+
 import { cn } from "@/lib/utils"
 import { Loader, LoaderCircle } from "lucide-react"
 
@@ -44,6 +45,7 @@ function TextSkeleton({
           <div className="h-2 w-2 rounded-full bg-primary" />
         </div>
       </div>
+      {text && <span className="text-sm text-gray-500">{text}</span>}
     </div>
   )
 }
@@ -67,3 +69,4 @@ function CategorySkeleton({
 }
 
 export { Skeleton, PriceSkeleton, TextSkeleton, CategorySkeleton }
+
