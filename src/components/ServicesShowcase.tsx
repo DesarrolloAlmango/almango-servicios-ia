@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 interface ServiceItem {
   title: string;
@@ -165,18 +166,25 @@ const ServicesShowcase: React.FC = () => {
   return <section className="py-16 bg-[#F0F0F0]">
       <div className="container mx-auto">
         
+        {/* Title for the Services Section - Adding it now */}
+        <div className="mb-12">
+          <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col">
+            <span className="bg-secondary py-5 px-8 rounded-md inline-block">
+              NUESTROS SERVICIOS
+            </span>
+          </h2>
+        </div>
         
         <div ref={servicesDescriptionRef} className="max-w-3xl mx-auto mt-8 mb-12 animate-from-left opacity-0">
-          
-          
-          
-          
-          
+          {/* Services Description Content */}
         </div>
         
         <div ref={servicesGridRef} className="animate-from-right opacity-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-1 gap-y-0">
           {ServiceItems.map((service, index) => <div key={index} className="service-item opacity-0 cursor-pointer transition-transform duration-300 hover:scale-110">
-              
+              <div className="flex flex-col items-center p-4">
+                <img src={service.imageUrl} alt={service.title} className="h-12 w-12 mb-3" />
+                <h3 className="text-xs text-center font-medium">{service.title}</h3>
+              </div>
             </div>)}
         </div>
         
@@ -202,6 +210,7 @@ const ServicesShowcase: React.FC = () => {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 md:gap-6">
             {SealItems.map((seal, index) => <div key={index} className="flex flex-col items-center seal-item opacity-0">
                 <img src={seal.imageUrl} alt={seal.alt} className="h-28 w-28 mb-2 transition-transform hover:scale-110 duration-300" />
+                <p className="text-center text-sm">{seal.alt}</p>
               </div>)}
           </div>
         </div>
