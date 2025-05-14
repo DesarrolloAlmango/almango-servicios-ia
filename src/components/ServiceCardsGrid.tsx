@@ -113,16 +113,7 @@ const ServiceCardsGrid = () => {
   };
   if (loading) {
     return <div className="container mx-auto px-24 sm:px-28 md:px-32">
-        {/* Updated title position and styling with gradient and white text border */}
-        <h2 className="text-center font-bold text-4xl mb-6 -mt-40 relative z-20 py-2 px-4 mx-auto w-fit" style={{
-        background: "linear-gradient(to right, #ff6900, #008be1)",
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent",
-        textShadow: "0px 2px 4px rgba(0,0,0,0.3), 0 0 2px #fff, 0 0 3px #fff"
-      }}>
-          SERVICIOS DESTACADOS
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 -mt-6 z-10 relative justify-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 -mt-10 z-10 relative justify-center">
           {[...Array(6)].map((_, index) => <Card key={`skeleton-${index}`} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 h-40 animate-pulse w-full max-w-md mx-auto">
               <CardContent className="p-4 flex flex-col items-center justify-center h-full">
                 <div className="w-16 h-16 bg-gray-200 rounded-md mb-2"></div>
@@ -133,16 +124,7 @@ const ServiceCardsGrid = () => {
       </div>;
   }
   return <div className="container mx-auto px-24 sm:px-28 md:px-32">
-      {/* Updated title position and styling with gradient and white text border */}
-      <h2 style={{
-      background: "linear-gradient(to right, #ff6900, #008be1)",
-      WebkitBackgroundClip: "text",
-      WebkitTextFillColor: "transparent",
-      textShadow: "0px 2px 4px rgba(0,0,0,0.3), 0 0 2px #fff, 0 0 3px #fff"
-    }} className="text-center font-bold text-4xl mb-6 -mt-40 relative z-20 py-2 px-4 mx-auto w-fit">
-        SERVICIOS DESTACADOS
-      </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 -mt-6 z-10 relative justify-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 -mt-10 z-10 relative justify-center">
         {services.map(service => <Card key={service.id} onClick={() => handleServiceClick(service.id, service.name)} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 h-40 overflow-hidden w-full max-w-md mx-auto">
             <CardContent className="p-0 flex flex-col items-center justify-center h-full relative">
               {/* Use AspectRatio to maintain image proportions */}
