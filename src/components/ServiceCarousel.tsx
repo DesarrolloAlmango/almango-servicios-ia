@@ -28,7 +28,7 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
   
   return (
     <div className="w-full max-w-screen-xl mx-auto">
-      {title && <h2 className="text-2xl font-semibold text-center mb-6 text-[#ff6900]">{title}</h2>}
+      {title && <h2 className="text-2xl font-semibold text-center mb-6 text-[#ff6900] uppercase">{title}</h2>}
       
       <Carousel 
         opts={{

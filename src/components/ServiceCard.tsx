@@ -703,11 +703,11 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       >
         <CardContent className="p-0 flex flex-col items-center justify-end h-full relative">
           <div className="absolute inset-0 w-full h-full">
-            <div className={`w-full h-full ${circular ? 'bg-gradient-to-t from-black/80 to-transparent' : 'bg-gradient-to-t from-black/60 to-transparent'} absolute inset-0 z-10`} />
+            <div className={`w-full h-full ${circular ? 'bg-gradient-to-t from-black/90 via-black/60 to-transparent' : 'bg-gradient-to-t from-black/80 via-black/60 to-transparent'} absolute inset-0 z-10`} />
             <img 
               src={backgroundImage}
               alt={name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 brightness-95 group-hover:brightness-100"
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 brightness-90 group-hover:brightness-95"
               onError={(e) => {
                 console.error("Image failed to load:", backgroundImage);
                 e.currentTarget.src = "/placeholder.svg";
@@ -716,7 +716,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
             />
           </div>
           <div className="relative z-20 px-3 text-center w-full absolute bottom-[30%] transition-transform duration-300 transform group-hover:translate-y-[-8px]">
-            <h3 className={`${circular ? 'text-base' : 'text-xl'} font-bold text-center text-white drop-shadow-md transition-all duration-300 group-hover:text-[#ff6900] line-clamp-2`}>
+            <h3 className={`${circular ? 'text-base' : 'text-xl'} font-bold text-center text-white drop-shadow-md transition-all duration-300 group-hover:text-[#ff6900] line-clamp-2 uppercase`}>
               {name}
             </h3>
           </div>

@@ -716,7 +716,7 @@ const Servicios = () => {
           )}
           
           <div className="mb-12">
-            <ServiceCarousel title="Servicios de Armado e Instalación">
+            <ServiceCarousel title="ARMADO E INSTALACIÓN">
               {isServicesLoading ? (
                 // Mostrar skeletons mientras se cargan los servicios
                 Array(4).fill(0).map((_, index) => (
@@ -755,7 +755,7 @@ const Servicios = () => {
           </div>
           
           <div className="mb-12">
-            <ServiceCarousel title="Servicios de Mudanza">
+            <ServiceCarousel title="FLETES Y MUDANZAS">
               {isLoadingMudanza ? (
                 // Mostrar skeletons mientras se cargan los servicios de mudanza
                 Array(4).fill(0).map((_, index) => (
