@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 interface ServiceItem {
   title: string;
@@ -182,8 +183,8 @@ const ServicesShowcase: React.FC = () => {
             </div>)}
         </div>
         
-        {/* Services Counter Section */}
-        <div ref={counterSectionRef} className="mt-20 flex flex-col md:flex-row items-center justify-center gap-6 animate-from-left opacity-0">
+        {/* Services Counter Section - Reduced spacing from mt-20 to mt-12 */}
+        <div ref={counterSectionRef} className="mt-12 flex flex-col md:flex-row items-center justify-center gap-6 animate-from-left opacity-0">
           <div className="text-secondary text-2xl md:text-3xl font-bold uppercase">
             SERVICIOS REALIZADOS
           </div>
