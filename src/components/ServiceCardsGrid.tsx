@@ -114,8 +114,14 @@ const ServiceCardsGrid = () => {
   if (loading) {
     return (
       <div className="container mx-auto px-24 sm:px-28 md:px-32">
-        {/* Title added over the loading state as well */}
-        <h2 className="text-center text-white font-bold text-3xl mb-4 -mt-24 relative z-20 drop-shadow-lg">
+        {/* Updated title position and styling with gradient */}
+        <h2 className="text-center font-bold text-4xl mb-6 -mt-32 relative z-20 py-2 px-4 mx-auto w-fit"
+            style={{ 
+              background: "linear-gradient(to right, #ff6900, #008be1)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              textShadow: "0px 2px 4px rgba(0,0,0,0.3)"
+            }}>
           SERVICIOS DESTACADOS
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 -mt-6 z-10 relative justify-center">
@@ -131,8 +137,14 @@ const ServiceCardsGrid = () => {
   }
   return (
     <div className="container mx-auto px-24 sm:px-28 md:px-32">
-      {/* Added title above the cards with styling to make it stand out */}
-      <h2 className="text-center text-white font-bold text-3xl mb-4 -mt-24 relative z-20 drop-shadow-lg">
+      {/* Updated title position and styling with gradient */}
+      <h2 className="text-center font-bold text-4xl mb-6 -mt-32 relative z-20 py-2 px-4 mx-auto w-fit"
+          style={{ 
+            background: "linear-gradient(to right, #ff6900, #008be1)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            textShadow: "0px 2px 4px rgba(0,0,0,0.3)"
+          }}>
         SERVICIOS DESTACADOS
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 -mt-6 z-10 relative justify-center">
