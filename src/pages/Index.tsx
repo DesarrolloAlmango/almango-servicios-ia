@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -151,11 +152,12 @@ const Index = () => {
         <ServiceCardsGrid />
         
         {/* Partners Section - Moved here to be right after service cards */}
-        <section ref={partnersSectionRef} className="bg-[#F0F0F0] py-8 animate-from-left w-full">
-          <div className="bg-[#F97316] mb-8 -mt-8 px-0 mx-0 py-[46px] w-full">
-            <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col">
-              <span className="px-[20px]">ALGUNOS DE NUESTROS CLIENTES</span>
-              <span className="px-[20px]">Y ALIANZAS COMERCIALES</span>
+        <section ref={partnersSectionRef} className="bg-[#F0F0F0] py-16 animate-from-left w-full">
+          <div className="container mx-auto">
+            <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col mb-10">
+              <span className="bg-secondary py-5 px-8 rounded-md inline-block">
+                ALGUNOS DE NUESTROS CLIENTES Y ALIANZAS COMERCIALES
+              </span>
             </h2>
           </div>
           
