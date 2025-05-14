@@ -497,7 +497,7 @@ const Servicios = () => {
               </div>
             </div>
             
-            <h1 className="text-3xl font-normal mb-12 text-center text-[#008be1] uppercase font-display opacity-0 transition-opacity duration-500">
+            <h1 className="text-4xl md:text-5xl font-bold mb-12 text-center text-[#008be1] uppercase font-display opacity-0 transition-opacity duration-500">
               Nuestros Servicios
             </h1>
             
@@ -623,7 +623,7 @@ const Servicios = () => {
           <div id="armado-instalacion" className="mb-12 relative">
             <ServiceCarousel 
               title={
-                <span>
+                <span className="font-bold">
                   <span className="text-[#f06900]">ARMADO</span>{' '}
                   <span className="text-[#008be1]">E INSTALACIÓN</span>
                 </span>
