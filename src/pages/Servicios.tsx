@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -523,9 +522,9 @@ const Servicios = () => {
     <div className="min-h-screen flex flex-col relative">
       {/* Split background color - natural grayish on top, orange on bottom */}
       <div className="absolute inset-0 z-0">
-        {/* Top half - natural grayish color */}
-        <div className="absolute inset-x-0 top-0 h-1/3 bg-[#FDE1D3]"></div>
-        {/* Bottom half - orange color - starting higher up now */}
+        {/* Top half - natural grayish color (more clear now) */}
+        <div className="absolute inset-x-0 top-0 h-1/3 bg-[#F8F4F0]"></div>
+        {/* Bottom half - orange color */}
         <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[#f06900]"></div>
       </div>
       
@@ -550,8 +549,9 @@ const Servicios = () => {
             </div>
           </div>
           
-          <h1 className={`text-3xl font-bold mb-12 text-center text-gray-800 uppercase font-display transition-all duration-1000 transform ${titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-            Nuestros Servicios
+          <h1 className={`text-4xl md:text-5xl font-bold mb-12 text-center uppercase font-display transition-all duration-1000 transform ${titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+            <span className="text-gray-800">NUESTROS</span>{' '}
+            <span className="text-[#008be1]">SERVICIOS</span>
           </h1>
           
           {isServicesError && (
@@ -621,7 +621,14 @@ const Servicios = () => {
           )}
           
           <div id="armado-instalacion" className="mb-12 relative">
-            <ServiceCarousel title="ARMADO E INSTALACIÓN">
+            <ServiceCarousel 
+              title={
+                <span>
+                  <span className="text-[#f06900]">ARMADO</span>{' '}
+                  <span className="text-[#008be1]">E INSTALACIÓN</span>
+                </span>
+              }
+            >
               {isServicesLoading ? (
                 Array(4).fill(0).map((_, index) => (
                   <div key={index} className="w-[220px] h-[220px]">
@@ -645,7 +652,7 @@ const Servicios = () => {
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id} 
                     circular={true} 
                     currentCartItems={cartItems} 
-                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#FDE1D3]" : ""} 
+                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#F8F4F0]" : ""} 
                     ref={element => {
                       if (service.id) {
                         serviceCardRefs.current[service.id] = element;
@@ -754,16 +761,18 @@ const Servicios = () => {
         .servicios-page h2 {
           position: relative;
           z-index: 10;
+          font-size: 1.75rem;
+          font-weight: 600;
         }
         
-        /* Style for ARMADO E INSTALACIÓN title - above the orange background */
+        /* Style for ARMADO E INSTALACIÓN title */
         #armado-instalacion h2 {
           color: #333333;
         }
         
         /* Style for FLETES Y MUDANZAS title - on orange background */
         #armado-instalacion + div h2 {
-          color: #498bdd;
+          color: white;
           font-weight: 600;
         }
 
