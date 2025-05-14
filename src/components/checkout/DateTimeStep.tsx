@@ -44,8 +44,8 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
     
     if (day === 6) { // Sábado
       setAvailableTimeSlots([
-        "08:00 - 12:00",
-        "12:00 - 16:00"
+        "08:00 - 14:00", // Updated time slot for Saturday
+        "14:00 - 20:00"  // Updated time slot for Saturday
       ]);
     } else if (day !== 0) { // Cualquier día menos domingo
       setAvailableTimeSlots([
@@ -148,5 +148,5 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
     </div>
   );
 };
-/**/ 
+
 export default DateTimeStep;

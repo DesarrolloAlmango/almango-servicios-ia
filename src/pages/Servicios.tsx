@@ -631,7 +631,7 @@ const Servicios = () => {
               className="relative hover:text-gray-300 text-white"
               onClick={() => setIsCartOpen(true)}
             >
-              <ShoppingCart size={24} />
+              <ShoppingCart size={30} />
               {getCartItemsCount() > 0 && (
                 <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                   {getCartItemsCount()}
