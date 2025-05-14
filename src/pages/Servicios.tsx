@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -472,19 +471,24 @@ const Servicios = () => {
   if (isServicesLoading && isLoadingMudanza) {
     return (
       <div className="min-h-screen flex flex-col">
-        <div className="absolute inset-0 z-0 bg-[#FDE1D3]">
-          <div className="absolute inset-x-0 top-1/2 bottom-0 bg-[#F97316] z-1"></div>
+        <div className="absolute inset-0 z-0 bg-[#14162c]">
+          <div className="absolute inset-0 z-1" style={{
+            background: "radial-gradient(circle at 20% 30%, #008be1 0%, transparent 40%), radial-gradient(circle at 80% 70%, #ff6900 0%, transparent 40%), radial-gradient(circle at 50% 50%, #0EA5E9 0%, transparent 30%)",
+            opacity: 0.8
+          }}></div>
+          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#14162c] to-transparent z-2"></div>
         </div>
         <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
           <div className="container mx-auto">
             <div className="flex justify-between items-center mb-8 mt-4">
-              <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 hover:text-gray-300 text-black">
+              <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 hover:text-gray-300 text-white">
                 <ArrowLeft size={20} />
                 <span>Volver</span>
               </Button>
               
               <div className="relative cursor-pointer" onClick={() => setIsCartOpen(true)}>
-                <ShoppingCart size={40} className="text-black" />
+                <ShoppingCart size={24} className="text-white" />
                 {getCartItemsCount() > 0 && (
                   <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {getCartItemsCount()}
@@ -516,16 +520,19 @@ const Servicios = () => {
 
   return (
     <div className="min-h-screen flex flex-col relative">
-      <div className="absolute inset-0 z-0">
-        {/* Background split exactly at the middle of service cards */}
-        <div className="absolute inset-x-0 top-0 h-[calc(50%+90px)] bg-[#FDE1D3] z-1"></div>
-        <div className="absolute inset-x-0 top-[calc(50%+90px)] bottom-0 bg-[#F97316] z-1"></div>
+      <div className="absolute inset-0 z-0 bg-[#14162c]">
+        <div className="absolute inset-0 z-1" style={{
+          background: "radial-gradient(circle at 20% 30%, #008be1 0%, transparent 40%), radial-gradient(circle at 80% 70%, #ff6900 0%, transparent 40%), radial-gradient(circle at 50% 50%, #0EA5E9 0%, transparent 30%)",
+          opacity: 0.8
+        }}></div>
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#14162c] to-transparent z-2"></div>
       </div>
       
       <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-8 mt-4">
-            <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 hover:text-gray-300 text-black">
+            <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 hover:text-gray-300 text-white">
               <ArrowLeft size={20} />
               <span>Volver</span>
             </Button>
@@ -534,16 +541,16 @@ const Servicios = () => {
               className="relative cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => setIsCartOpen(true)}
             >
-              <ShoppingCart size={40} className="text-black" />
+              <ShoppingCart size={40} className="text-white" />
               {getCartItemsCount() > 0 && (
-                <span className="absolute -top-2 -right-2 bg-primary text-white text-sm rounded-full h-6 w-6 flex items-center justify-center border-2 border-white">
+                <span className="absolute -top-2 -right-2 bg-primary text-white text-sm rounded-full h-6 w-6 flex items-center justify-center border-2 border-[#14162c]">
                   {getCartItemsCount()}
                 </span>
               )}
             </div>
           </div>
           
-          <h1 className={`text-3xl font-bold mb-12 text-center text-black uppercase font-display transition-all duration-1000 transform ${titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+          <h1 className={`text-3xl font-bold mb-12 text-center text-white uppercase font-display transition-all duration-1000 transform ${titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
             Nuestros Servicios
           </h1>
           
@@ -557,17 +564,17 @@ const Servicios = () => {
           
           {commerceId && storeName && (
             <div className="mb-6 bg-blue-900/30 p-3 rounded-lg border border-blue-500/30">
-              <h3 className="font-medium text-blue-100 mb-2">Lugar de compra fijo:</h3>
+              <h3 className="font-medium text-blue-300 mb-2">Lugar de compra fijo:</h3>
               <div className="flex items-center gap-2">
-                <MapPin className="text-blue-100" size={16} />
-                <span className="text-blue-100">{storeName}</span>
+                <MapPin className="text-blue-300" size={16} />
+                <span className="text-blue-200">{storeName}</span>
               </div>
             </div>
           )}
           
           {!commerceId && purchaseLocations.length > 0 && (
             <div className="mb-6 bg-blue-900/30 p-3 rounded-lg border border-blue-500/30">
-              <h3 className="font-medium text-blue-100 mb-2">Lugares de compra registrados:</h3>
+              <h3 className="font-medium text-blue-300 mb-2">Lugares de compra registrados:</h3>
               <div className="space-y-2">
                 {Object.values(purchaseLocations.reduce((grouped, location) => {
                   if (!location.serviceId || !location.serviceName) return grouped;
@@ -586,13 +593,13 @@ const Servicios = () => {
                   locations: PurchaseLocation[];
                 }>)).map((serviceGroup, index) => (
                   <div key={index} className="text-sm">
-                    <div className="font-medium text-blue-100">{serviceGroup.serviceName}:</div>
+                    <div className="font-medium text-blue-300">{serviceGroup.serviceName}:</div>
                     {serviceGroup.locations.map((location, locIndex) => (
-                      <div key={locIndex} className="flex items-center ml-4 mt-1 text-blue-100">
+                      <div key={locIndex} className="flex items-center ml-4 mt-1 text-blue-200">
                         <span>
                           {location.storeId === "other" ? location.otherLocation : location.storeName}
                           {location.departmentName && location.locationName && (
-                            <span className="text-blue-200">
+                            <span className="text-blue-300">
                               ({location.departmentName}, {location.locationName})
                             </span>
                           )}
@@ -638,7 +645,7 @@ const Servicios = () => {
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id} 
                     circular={true} 
                     currentCartItems={cartItems} 
-                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#FDE1D3]" : ""} 
+                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#14162c]" : ""} 
                     ref={element => {
                       if (service.id) {
                         serviceCardRefs.current[service.id] = element;
@@ -675,7 +682,7 @@ const Servicios = () => {
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id} 
                     circular={true} 
                     currentCartItems={cartItems} 
-                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#F97316]" : ""}
+                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#14162c]" : ""} 
                     ref={element => {
                       if (service.id) {
                         serviceCardRefs.current[service.id] = element;
@@ -743,25 +750,22 @@ const Servicios = () => {
 
       <style>
         {`
-        .servicios-page .service-card-hover,
-        .servicios-page [data-component="service-card"] {
-          background-color: rgba(255, 255, 255, 0.1);
-          border-color: rgba(255, 105, 0, 0.5);
+        @media (min-width: 640px) and (max-width: 1023px) {
+          .grid-cols-2 > div:nth-child(odd):last-child {
+            grid-column: 1 / span 2;
+            justify-self: center;
+          }
         }
         
-        .servicios-page .service-card-hover:hover,
-        .servicios-page [data-component="service-card"]:hover {
-          background-color: rgba(255, 166, 0, 0.15) !important;
-        }
-        
-        .servicios-page .carousel-title {
-          color: #000000;
-          font-weight: bold;
-        }
-        
-        /* Override for the second carousel title that falls in the orange section */
-        .servicios-page .mb-12:nth-of-type(2) .carousel-title {
-          color: #ffffff;
+        @media (min-width: 1024px) {
+          .grid-cols-3 > div:nth-last-child(1):nth-child(3n-1),
+          .grid-cols-3 > div:nth-last-child(2):nth-child(3n-1) {
+            margin-left: calc(100% / 3);
+          }
+          
+          .grid-cols-3 > div:nth-last-child(1):nth-child(3n-2) {
+            margin-left: calc(100% / 3);
+          }
         }
         `}
       </style>
