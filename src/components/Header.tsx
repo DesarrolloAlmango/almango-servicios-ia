@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Menu, Briefcase, Users, FileText, LogIn, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -6,21 +7,38 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   // Handle scroll event
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 10) {
+      const currentScrollY = window.scrollY;
+      
+      // Determine if scrolled beyond threshold
+      if (currentScrollY > 10) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
       }
+      
+      // Hide header when scrolling down, show when scrolling up
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down
+        setIsVisible(false);
+      } else {
+        // Scrolling up or at the top
+        setIsVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
     };
+    
     window.addEventListener('scroll', handleScroll);
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [lastScrollY]);
 
   const scrollToSection = (id: string) => {
     if (id === 'inicio') {
@@ -75,7 +93,13 @@ const Header = () => {
   };
 
   return (
-    <header className={cn('fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b font-sans', isScrolled ? 'bg-primary shadow-md py-0 border-black border-b-8' : 'bg-primary py-1 border-black border-b-8')}>
+    <header 
+      className={cn(
+        'top-0 left-0 right-0 z-50 transition-all duration-300 border-b font-sans', 
+        isScrolled ? 'bg-primary shadow-md py-0 border-black border-b-8' : 'bg-primary py-1 border-black border-b-8',
+        isVisible ? 'fixed' : 'fixed -translate-y-full'
+      )}
+    >
       <div className="container mx-auto flex justify-between items-center px-4 relative">
         {/* Logo */}
         <div className="flex items-center overflow-visible -ml-2">
