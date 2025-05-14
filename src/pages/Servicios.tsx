@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -515,9 +516,10 @@ const Servicios = () => {
 
   return (
     <div className="min-h-screen flex flex-col relative">
-      <div className="absolute inset-0 z-0 bg-[#FDE1D3]">
-        {/* Simple split background - natural color on top, orange on bottom */}
-        <div className="absolute inset-x-0 top-1/2 bottom-0 bg-[#F97316] z-1"></div>
+      <div className="absolute inset-0 z-0">
+        {/* Background split exactly at the middle of service cards */}
+        <div className="absolute inset-x-0 top-0 h-[calc(50%+90px)] bg-[#FDE1D3] z-1"></div>
+        <div className="absolute inset-x-0 top-[calc(50%+90px)] bottom-0 bg-[#F97316] z-1"></div>
       </div>
       
       <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
@@ -555,17 +557,17 @@ const Servicios = () => {
           
           {commerceId && storeName && (
             <div className="mb-6 bg-blue-900/30 p-3 rounded-lg border border-blue-500/30">
-              <h3 className="font-medium text-blue-300 mb-2">Lugar de compra fijo:</h3>
+              <h3 className="font-medium text-blue-100 mb-2">Lugar de compra fijo:</h3>
               <div className="flex items-center gap-2">
-                <MapPin className="text-blue-300" size={16} />
-                <span className="text-blue-200">{storeName}</span>
+                <MapPin className="text-blue-100" size={16} />
+                <span className="text-blue-100">{storeName}</span>
               </div>
             </div>
           )}
           
           {!commerceId && purchaseLocations.length > 0 && (
             <div className="mb-6 bg-blue-900/30 p-3 rounded-lg border border-blue-500/30">
-              <h3 className="font-medium text-blue-300 mb-2">Lugares de compra registrados:</h3>
+              <h3 className="font-medium text-blue-100 mb-2">Lugares de compra registrados:</h3>
               <div className="space-y-2">
                 {Object.values(purchaseLocations.reduce((grouped, location) => {
                   if (!location.serviceId || !location.serviceName) return grouped;
@@ -584,13 +586,13 @@ const Servicios = () => {
                   locations: PurchaseLocation[];
                 }>)).map((serviceGroup, index) => (
                   <div key={index} className="text-sm">
-                    <div className="font-medium text-blue-300">{serviceGroup.serviceName}:</div>
+                    <div className="font-medium text-blue-100">{serviceGroup.serviceName}:</div>
                     {serviceGroup.locations.map((location, locIndex) => (
-                      <div key={locIndex} className="flex items-center ml-4 mt-1 text-blue-200">
+                      <div key={locIndex} className="flex items-center ml-4 mt-1 text-blue-100">
                         <span>
                           {location.storeId === "other" ? location.otherLocation : location.storeName}
                           {location.departmentName && location.locationName && (
-                            <span className="text-blue-300">
+                            <span className="text-blue-200">
                               ({location.departmentName}, {location.locationName})
                             </span>
                           )}
@@ -673,7 +675,7 @@ const Servicios = () => {
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id} 
                     circular={true} 
                     currentCartItems={cartItems} 
-                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#F97316]" : ""} 
+                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#F97316]" : ""}
                     ref={element => {
                       if (service.id) {
                         serviceCardRefs.current[service.id] = element;
@@ -741,22 +743,25 @@ const Servicios = () => {
 
       <style>
         {`
-        @media (min-width: 640px) and (max-width: 1023px) {
-          .grid-cols-2 > div:nth-child(odd):last-child {
-            grid-column: 1 / span 2;
-            justify-self: center;
-          }
+        .servicios-page .service-card-hover,
+        .servicios-page [data-component="service-card"] {
+          background-color: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 105, 0, 0.5);
         }
         
-        @media (min-width: 1024px) {
-          .grid-cols-3 > div:nth-last-child(1):nth-child(3n-1),
-          .grid-cols-3 > div:nth-last-child(2):nth-child(3n-1) {
-            margin-left: calc(100% / 3);
-          }
-          
-          .grid-cols-3 > div:nth-last-child(1):nth-child(3n-2) {
-            margin-left: calc(100% / 3);
-          }
+        .servicios-page .service-card-hover:hover,
+        .servicios-page [data-component="service-card"]:hover {
+          background-color: rgba(255, 166, 0, 0.15) !important;
+        }
+        
+        .servicios-page .carousel-title {
+          color: #000000;
+          font-weight: bold;
+        }
+        
+        /* Override for the second carousel title that falls in the orange section */
+        .servicios-page .mb-12:nth-of-type(2) .carousel-title {
+          color: #ffffff;
         }
         `}
       </style>
