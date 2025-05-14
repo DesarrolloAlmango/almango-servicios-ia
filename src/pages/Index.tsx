@@ -142,6 +142,7 @@ const Index = () => {
       sectionObserver.disconnect();
     };
   }, []);
+  
   return <div className="min-h-screen flex flex-col">
       <Header />
       <main id="inicio" className="flex-grow">
@@ -166,8 +167,6 @@ const Index = () => {
             </div>
           </div>
         </section>
-        
-        <Separator className="h-1 bg-black mt-8" />
         
         <section id="nuestros-servicios">
           <ServicesShowcase />
