@@ -128,8 +128,8 @@ const ServiceCardsGrid = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-6 -mt-10 z-10 relative px-8">
+      <div className="container mx-auto px-12 sm:px-16 md:px-20">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-6 -mt-10 z-10 relative justify-center">
           {[...Array(6)].map((_, index) => (
             <Card key={`skeleton-${index}`} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 h-40 animate-pulse">
               <CardContent className="p-4 flex flex-col items-center justify-center h-full">
@@ -144,8 +144,8 @@ const ServiceCardsGrid = () => {
   }
 
   return (
-    <div className="container mx-auto">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-6 -mt-10 z-10 relative px-8">
+    <div className="container mx-auto px-12 sm:px-16 md:px-20">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-6 -mt-10 z-10 relative justify-center">
         {services.map((service) => (
           <Card 
             key={service.id}
@@ -166,9 +166,9 @@ const ServiceCardsGrid = () => {
                 {/* Dark overlay for better text visibility */}
                 <div className="absolute inset-0 bg-black/50"></div>
               </AspectRatio>
-              {/* Text positioned over the image */}
+              {/* Text positioned over the image with uppercase transformation */}
               <div className="absolute inset-0 flex flex-col items-center justify-center p-3">
-                <h3 className="text-sm font-medium text-center text-white">{service.name}</h3>
+                <h3 className="text-sm font-medium text-center text-white uppercase">{service.name}</h3>
               </div>
             </CardContent>
           </Card>
