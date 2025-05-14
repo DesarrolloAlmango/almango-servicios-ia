@@ -70,7 +70,6 @@ const Index = () => {
   const quienesSomosSectionRef = useRef<HTMLElement>(null);
   const formarParteSectionRef = useRef<HTMLElement>(null);
   const partnersSectionRef = useRef<HTMLElement>(null);
-  
   useEffect(() => {
     const options = {
       root: null,
@@ -145,7 +144,7 @@ const Index = () => {
   }, []);
   return <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow" id="inicio">
+      <main id="inicio" className="flex-grow">
         <Hero />
         
         {/* Service Cards Grid - positioned to overlap with the hero section */}

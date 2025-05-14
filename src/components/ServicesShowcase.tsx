@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 interface ServiceItem {
   title: string;
@@ -181,10 +180,7 @@ const ServicesShowcase: React.FC = () => {
         
         <div ref={servicesGridRef} className="animate-from-right opacity-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-1 gap-y-0">
           {ServiceItems.map((service, index) => <div key={index} className="service-item opacity-0 cursor-pointer transition-transform duration-300 hover:scale-110">
-              <div className="flex flex-col items-center p-4">
-                <img src={service.imageUrl} alt={service.title} className="h-12 w-12 mb-3" />
-                <h3 className="text-xs text-center font-medium">{service.title}</h3>
-              </div>
+              
             </div>)}
         </div>
         
