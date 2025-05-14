@@ -112,16 +112,14 @@ const ServiceCardsGrid = () => {
     });
   };
   if (loading) {
-    return (
-      <div className="container mx-auto px-24 sm:px-28 md:px-32">
+    return <div className="container mx-auto px-24 sm:px-28 md:px-32">
         {/* Updated title position and styling with gradient and white text border */}
-        <h2 className="text-center font-bold text-4xl mb-6 -mt-40 relative z-20 py-2 px-4 mx-auto w-fit"
-            style={{ 
-              background: "linear-gradient(to right, #ff6900, #008be1)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              textShadow: "0px 2px 4px rgba(0,0,0,0.3), 0 0 2px #fff, 0 0 3px #fff"
-            }}>
+        <h2 className="text-center font-bold text-4xl mb-6 -mt-40 relative z-20 py-2 px-4 mx-auto w-fit" style={{
+        background: "linear-gradient(to right, #ff6900, #008be1)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        textShadow: "0px 2px 4px rgba(0,0,0,0.3), 0 0 2px #fff, 0 0 3px #fff"
+      }}>
           SERVICIOS DESTACADOS
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 -mt-6 z-10 relative justify-center">
@@ -132,19 +130,16 @@ const ServiceCardsGrid = () => {
               </CardContent>
             </Card>)}
         </div>
-      </div>
-    );
+      </div>;
   }
-  return (
-    <div className="container mx-auto px-24 sm:px-28 md:px-32">
+  return <div className="container mx-auto px-24 sm:px-28 md:px-32">
       {/* Updated title position and styling with gradient and white text border */}
-      <h2 className="text-center font-bold text-4xl mb-6 -mt-40 relative z-20 py-2 px-4 mx-auto w-fit"
-          style={{ 
-            background: "linear-gradient(to right, #ff6900, #008be1)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            textShadow: "0px 2px 4px rgba(0,0,0,0.3), 0 0 2px #fff, 0 0 3px #fff"
-          }}>
+      <h2 style={{
+      background: "linear-gradient(to right, #ff6900, #008be1)",
+      WebkitBackgroundClip: "text",
+      WebkitTextFillColor: "transparent",
+      textShadow: "0px 2px 4px rgba(0,0,0,0.3), 0 0 2px #fff, 0 0 3px #fff"
+    }} className="text-center font-bold text-4xl mb-6 -mt-40 relative z-20 py-2 px-4 mx-auto w-fit">
         SERVICIOS DESTACADOS
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 -mt-6 z-10 relative justify-center">
@@ -165,8 +160,6 @@ const ServiceCardsGrid = () => {
             </CardContent>
           </Card>)}
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default ServiceCardsGrid;
