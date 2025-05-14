@@ -550,9 +550,14 @@ const Servicios = () => {
               <span>Volver</span>
             </Button>
             
-            <Button variant="ghost" onClick={() => setIsCartOpen(true)} className="relative hover:text-gray-300 text-white text-lg">
-              <ShoppingCart size={40} />
-              {getCartItemsCount() > 0 && <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-6 w-6 flex items-center justify-center">
+            <Button 
+              variant="ghost" 
+              onClick={() => setIsCartOpen(true)} 
+              className="relative hover:text-gray-300 text-white" 
+              style={{ width: "80px", height: "80px" }}
+            >
+              <ShoppingCart size={64} />
+              {getCartItemsCount() > 0 && <span className="absolute -top-2 -right-2 bg-primary text-white text-sm rounded-full h-8 w-8 flex items-center justify-center">
                   {getCartItemsCount()}
                 </span>}
             </Button>
