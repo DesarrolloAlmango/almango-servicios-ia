@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -620,7 +619,7 @@ const Servicios = () => {
             </div>
           )}
           
-          <div id="armado-instalacion" className="mb-12">
+          <div id="armado-instalacion" className="mb-12 relative">
             <ServiceCarousel title="ARMADO E INSTALACIÓN">
               {isServicesLoading ? (
                 Array(4).fill(0).map((_, index) => (
@@ -748,7 +747,8 @@ const Servicios = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      <style jsx>{`
+      <style>
+        {`
         /* Add custom styling for section titles */
         .servicios-page h2 {
           position: relative;
@@ -783,7 +783,8 @@ const Servicios = () => {
             margin-left: calc(100% / 3);
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
