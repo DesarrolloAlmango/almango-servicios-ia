@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 interface ServiceCard {
   id: string;
@@ -127,40 +128,52 @@ const ServiceCardsGrid = () => {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 -mt-10 z-10 relative px-4">
-        {[...Array(6)].map((_, index) => (
-          <Card key={`skeleton-${index}`} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 h-40 animate-pulse">
-            <CardContent className="p-4 flex flex-col items-center justify-center h-full">
-              <div className="w-16 h-16 bg-gray-200 rounded-md mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="container mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-6 -mt-10 z-10 relative px-8">
+          {[...Array(6)].map((_, index) => (
+            <Card key={`skeleton-${index}`} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 h-40 animate-pulse">
+              <CardContent className="p-4 flex flex-col items-center justify-center h-full">
+                <div className="w-16 h-16 bg-gray-200 rounded-md mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 -mt-10 z-10 relative px-4">
-      {services.map((service) => (
-        <Card 
-          key={service.id}
-          onClick={() => handleServiceClick(service.id, service.name)}
-          className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 h-40"
-        >
-          <CardContent className="p-4 flex flex-col items-center justify-center h-full">
-            <img 
-              src={service.icon} 
-              alt={service.name} 
-              className="w-16 h-16 object-contain mb-2"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = "https://almango.com.uy/img/iconos/icono-almango-01.png"; // Default image
-              }}
-            />
-            <h3 className="text-sm font-medium text-center text-gray-800">{service.name}</h3>
-          </CardContent>
-        </Card>
-      ))}
+    <div className="container mx-auto">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-6 -mt-10 z-10 relative px-8">
+        {services.map((service) => (
+          <Card 
+            key={service.id}
+            onClick={() => handleServiceClick(service.id, service.name)}
+            className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 h-40 overflow-hidden"
+          >
+            <CardContent className="p-0 flex flex-col items-center justify-center h-full relative">
+              {/* Use AspectRatio to maintain image proportions */}
+              <AspectRatio ratio={1/1} className="w-full h-full">
+                <img 
+                  src={service.icon} 
+                  alt={service.name} 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "https://almango.com.uy/img/iconos/icono-almango-01.png"; // Default image
+                  }}
+                />
+                {/* Dark overlay for better text visibility */}
+                <div className="absolute inset-0 bg-black/50"></div>
+              </AspectRatio>
+              {/* Text positioned over the image */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center p-3">
+                <h3 className="text-sm font-medium text-center text-white">{service.name}</h3>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 };
