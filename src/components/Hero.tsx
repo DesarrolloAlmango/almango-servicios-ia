@@ -1,4 +1,3 @@
-
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -6,17 +5,14 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import ContactInfo from "@/components/ContactInfo";
 import { useEffect, useState } from "react";
 import LottieAnimation from "./LottieAnimation";
-
 const Hero = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [isLoaded, setIsLoaded] = useState(false);
-  
   useEffect(() => {
     // Set loaded state after initial render
     setIsLoaded(true);
   }, []);
-  
   return <div className={`relative w-full overflow-hidden ${isMobile ? "min-h-[calc(75vh-40px)]" : "min-h-[75vh] md:min-h-[82vh]"} flex items-start pt-16 md:pt-20`}>
       {/* Hero background with primary colors */}
       <div className="absolute inset-0 z-0 bg-[#14162c]">
@@ -45,10 +41,7 @@ const Hero = () => {
       {/* Tiras de Login y Registro posicionadas en el centro vertical */}
       <div className="absolute right-0 top-1/2 transform -translate-y-1/2 flex flex-col gap-2 z-20">
         <div className="login-strip animate-bounce-in">
-          <a href="https://app.almango.com.uy/wwpbaseobjects.login.aspx" target="_blank" rel="noopener noreferrer" className="flex items-center transition-all duration-300 cursor-pointer bg-[#008be1] hover:bg-[#0079c4] hover:shadow-lg hover:rotate-[-2deg] text-white py-2 pl-3 pr-3 sm:pr-4 rounded-l-md font-display font-bold tracking-wider hover:tracking-widest">
-            <UserRound size={20} className="hover:animate-[spin_1s_ease-in-out]" />
-            <span className="font-bold hover:animate-pulse hidden sm:inline ml-2 text-shadow">LOGIN</span>
-          </a>
+          
         </div>
         
         <div className="register-strip animate-bounce-in" style={{
@@ -64,5 +57,4 @@ const Hero = () => {
       <ContactInfo />
     </div>;
 };
-
 export default Hero;
