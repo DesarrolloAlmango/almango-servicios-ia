@@ -745,7 +745,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
           }
         >
           <div className="p-4 sm:p-6">
-            <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4 text-center px-3 mx-auto text-orange-500 truncate">{name}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4 text-center px-3 mx-auto text-orange-500 truncate uppercase">{name}</h2>
             
             {purchaseLocation && selectedCategory && (
               <div className="mb-4 bg-blue-50 p-3 rounded-lg border border-blue-200 text-sm">
