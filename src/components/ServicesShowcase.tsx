@@ -168,9 +168,7 @@ const ServicesShowcase: React.FC = () => {
         {/* Title for the Services Section - Adding it now */}
         <div className="mb-12">
           <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col">
-            <span className="bg-secondary py-5 px-8 rounded-md inline-block">
-              NUESTROS SERVICIOS
-            </span>
+            <span className="bg-secondary py-5 px-8 rounded-md inline-block">SERVICIOS REALIZADOS</span>
           </h2>
         </div>
         
