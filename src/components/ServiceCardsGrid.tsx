@@ -112,8 +112,13 @@ const ServiceCardsGrid = () => {
     });
   };
   if (loading) {
-    return <div className="container mx-auto px-24 sm:px-28 md:px-32">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 -mt-10 z-10 relative justify-center">
+    return (
+      <div className="container mx-auto px-24 sm:px-28 md:px-32">
+        {/* Title added over the loading state as well */}
+        <h2 className="text-center text-white font-bold text-3xl mb-4 -mt-24 relative z-20 drop-shadow-lg">
+          SERVICIOS DESTACADOS
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 -mt-6 z-10 relative justify-center">
           {[...Array(6)].map((_, index) => <Card key={`skeleton-${index}`} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 h-40 animate-pulse w-full max-w-md mx-auto">
               <CardContent className="p-4 flex flex-col items-center justify-center h-full">
                 <div className="w-16 h-16 bg-gray-200 rounded-md mb-2"></div>
@@ -121,10 +126,16 @@ const ServiceCardsGrid = () => {
               </CardContent>
             </Card>)}
         </div>
-      </div>;
+      </div>
+    );
   }
-  return <div className="container mx-auto px-24 sm:px-28 md:px-32">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 -mt-10 z-10 relative justify-center">
+  return (
+    <div className="container mx-auto px-24 sm:px-28 md:px-32">
+      {/* Added title above the cards with styling to make it stand out */}
+      <h2 className="text-center text-white font-bold text-3xl mb-4 -mt-24 relative z-20 drop-shadow-lg">
+        SERVICIOS DESTACADOS
+      </h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 -mt-6 z-10 relative justify-center">
         {services.map(service => <Card key={service.id} onClick={() => handleServiceClick(service.id, service.name)} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 h-40 overflow-hidden w-full max-w-md mx-auto">
             <CardContent className="p-0 flex flex-col items-center justify-center h-full relative">
               {/* Use AspectRatio to maintain image proportions */}
@@ -142,6 +153,8 @@ const ServiceCardsGrid = () => {
             </CardContent>
           </Card>)}
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default ServiceCardsGrid;
