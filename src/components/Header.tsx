@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from 'react';
-import { Facebook, Instagram, Menu, Briefcase, Users, FileText, LogIn, UserPlus } from 'lucide-react';
+import { Menu, Briefcase, Users, FileText, LogIn, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -87,16 +86,6 @@ const Header = () => {
           />
         </div>
         
-        {/* Desktop Social Links (always visible) */}
-        <div className="hidden md:flex items-center space-x-4">
-          <a href="https://www.facebook.com/almango.com.uy" target="_blank" rel="noreferrer" className="text-white hover:text-gray-900 transition-colors" aria-label="Facebook">
-            <Facebook size={20} />
-          </a>
-          <a href="https://www.instagram.com/almangoservicios/" target="_blank" rel="noreferrer" className="text-white hover:text-gray-900 transition-colors" aria-label="Instagram">
-            <Instagram size={20} />
-          </a>
-        </div>
-        
         {/* Hamburger menu for both mobile and desktop */}
         <Sheet>
           <SheetTrigger asChild>
@@ -170,16 +159,6 @@ const Header = () => {
                 >
                   Contacto
                 </button>
-              </div>
-              
-              {/* Social links in the drawer */}
-              <div className="flex space-x-4 mt-auto pt-6">
-                <a href="https://www.facebook.com/almango.com.uy" target="_blank" rel="noreferrer" className="text-white hover:text-gray-900 transition-colors" aria-label="Facebook">
-                  <Facebook size={20} />
-                </a>
-                <a href="https://www.instagram.com/almangoservicios/" target="_blank" rel="noreferrer" className="text-white hover:text-gray-900 transition-colors" aria-label="Instagram">
-                  <Instagram size={20} />
-                </a>
               </div>
             </div>
           </SheetContent>
