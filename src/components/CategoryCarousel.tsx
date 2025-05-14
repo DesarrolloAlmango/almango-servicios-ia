@@ -311,7 +311,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       </div>;
   }
   return <div className="py-4 sm:py-6 w-full">
-      <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 truncate mx-auto">Seleccioná una categoría</h3>
+      <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 truncate mx-auto">SELECCIONÁ UNA CATEGORÍA</h3>
       
       <Carousel className="w-full max-w-xs xs:max-w-sm sm:max-w-md md:max-w-xl lg:max-w-3xl mx-auto" opts={{
       align: "center",
