@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -520,19 +521,18 @@ const Servicios = () => {
 
   return (
     <div className="min-h-screen flex flex-col relative">
-      <div className="absolute inset-0 z-0 bg-[#14162c]">
-        <div className="absolute inset-0 z-1" style={{
-          background: "radial-gradient(circle at 20% 30%, #008be1 0%, transparent 40%), radial-gradient(circle at 80% 70%, #ff6900 0%, transparent 40%), radial-gradient(circle at 50% 50%, #0EA5E9 0%, transparent 30%)",
-          opacity: 0.8
-        }}></div>
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#14162c] to-transparent z-2"></div>
+      {/* Split background color - natural grayish on top, orange on bottom */}
+      <div className="absolute inset-0 z-0">
+        {/* Top half - natural grayish color */}
+        <div className="absolute inset-x-0 top-0 h-1/2 bg-[#FDE1D3]"></div>
+        {/* Bottom half - orange color */}
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[#f06900]"></div>
       </div>
       
       <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-8 mt-4">
-            <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 hover:text-gray-300 text-white">
+            <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 text-gray-800">
               <ArrowLeft size={20} />
               <span>Volver</span>
             </Button>
@@ -541,16 +541,16 @@ const Servicios = () => {
               className="relative cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => setIsCartOpen(true)}
             >
-              <ShoppingCart size={40} className="text-white" />
+              <ShoppingCart size={40} className="text-gray-800" />
               {getCartItemsCount() > 0 && (
-                <span className="absolute -top-2 -right-2 bg-primary text-white text-sm rounded-full h-6 w-6 flex items-center justify-center border-2 border-[#14162c]">
+                <span className="absolute -top-2 -right-2 bg-primary text-white text-sm rounded-full h-6 w-6 flex items-center justify-center border-2 border-[#FDE1D3]">
                   {getCartItemsCount()}
                 </span>
               )}
             </div>
           </div>
           
-          <h1 className={`text-3xl font-bold mb-12 text-center text-white uppercase font-display transition-all duration-1000 transform ${titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+          <h1 className={`text-3xl font-bold mb-12 text-center text-gray-800 uppercase font-display transition-all duration-1000 transform ${titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
             Nuestros Servicios
           </h1>
           
@@ -563,18 +563,18 @@ const Servicios = () => {
           )}
           
           {commerceId && storeName && (
-            <div className="mb-6 bg-blue-900/30 p-3 rounded-lg border border-blue-500/30">
-              <h3 className="font-medium text-blue-300 mb-2">Lugar de compra fijo:</h3>
+            <div className="mb-6 bg-white/70 p-3 rounded-lg border border-gray-300">
+              <h3 className="font-medium text-gray-800 mb-2">Lugar de compra fijo:</h3>
               <div className="flex items-center gap-2">
-                <MapPin className="text-blue-300" size={16} />
-                <span className="text-blue-200">{storeName}</span>
+                <MapPin className="text-gray-800" size={16} />
+                <span className="text-gray-700">{storeName}</span>
               </div>
             </div>
           )}
           
           {!commerceId && purchaseLocations.length > 0 && (
-            <div className="mb-6 bg-blue-900/30 p-3 rounded-lg border border-blue-500/30">
-              <h3 className="font-medium text-blue-300 mb-2">Lugares de compra registrados:</h3>
+            <div className="mb-6 bg-white/70 p-3 rounded-lg border border-gray-300">
+              <h3 className="font-medium text-gray-800 mb-2">Lugares de compra registrados:</h3>
               <div className="space-y-2">
                 {Object.values(purchaseLocations.reduce((grouped, location) => {
                   if (!location.serviceId || !location.serviceName) return grouped;
@@ -593,13 +593,13 @@ const Servicios = () => {
                   locations: PurchaseLocation[];
                 }>)).map((serviceGroup, index) => (
                   <div key={index} className="text-sm">
-                    <div className="font-medium text-blue-300">{serviceGroup.serviceName}:</div>
+                    <div className="font-medium text-gray-800">{serviceGroup.serviceName}:</div>
                     {serviceGroup.locations.map((location, locIndex) => (
-                      <div key={locIndex} className="flex items-center ml-4 mt-1 text-blue-200">
+                      <div key={locIndex} className="flex items-center ml-4 mt-1 text-gray-700">
                         <span>
                           {location.storeId === "other" ? location.otherLocation : location.storeName}
                           {location.departmentName && location.locationName && (
-                            <span className="text-blue-300">
+                            <span className="text-gray-600">
                               ({location.departmentName}, {location.locationName})
                             </span>
                           )}
@@ -608,7 +608,7 @@ const Servicios = () => {
                           variant="ghost" 
                           size="sm" 
                           onClick={() => clearPurchaseLocation(location.serviceId || "", location.categoryId)} 
-                          className="h-5 w-5 p-0 text-blue-300 hover:bg-blue-800/30 ml-1"
+                          className="h-5 w-5 p-0 text-gray-600 hover:bg-gray-200 ml-1"
                         >
                           <X size={12} />
                         </Button>
@@ -620,7 +620,7 @@ const Servicios = () => {
             </div>
           )}
           
-          <div className="mb-12">
+          <div id="armado-instalacion" className="mb-12">
             <ServiceCarousel title="ARMADO E INSTALACIÓN">
               {isServicesLoading ? (
                 Array(4).fill(0).map((_, index) => (
@@ -645,7 +645,7 @@ const Servicios = () => {
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id} 
                     circular={true} 
                     currentCartItems={cartItems} 
-                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#14162c]" : ""} 
+                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#FDE1D3]" : ""} 
                     ref={element => {
                       if (service.id) {
                         serviceCardRefs.current[service.id] = element;
@@ -658,7 +658,7 @@ const Servicios = () => {
           </div>
           
           <div className="mb-12">
-            <ServiceCarousel title="FLETES Y MUDANZAS">
+            <ServiceCarousel title="FLETES Y MUDANZAS" showLoadingNames={false} loadingItems={[]}>
               {isLoadingMudanza ? (
                 Array(4).fill(0).map((_, index) => (
                   <div key={index} className="w-[220px] h-[220px]">
@@ -682,7 +682,7 @@ const Servicios = () => {
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id} 
                     circular={true} 
                     currentCartItems={cartItems} 
-                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#14162c]" : ""} 
+                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#f06900]" : ""} 
                     ref={element => {
                       if (service.id) {
                         serviceCardRefs.current[service.id] = element;
@@ -748,8 +748,24 @@ const Servicios = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      <style>
-        {`
+      <style jsx>{`
+        /* Add custom styling for section titles */
+        .servicios-page h2 {
+          position: relative;
+          z-index: 10;
+        }
+        
+        /* Style for ARMADO E INSTALACIÓN title - above the orange background */
+        #armado-instalacion h2 {
+          color: #333333;
+        }
+        
+        /* Style for FLETES Y MUDANZAS title - on orange background */
+        #armado-instalacion + div h2 {
+          color: #498bdd;
+          font-weight: 600;
+        }
+
         @media (min-width: 640px) and (max-width: 1023px) {
           .grid-cols-2 > div:nth-child(odd):last-child {
             grid-column: 1 / span 2;
@@ -767,8 +783,7 @@ const Servicios = () => {
             margin-left: calc(100% / 3);
           }
         }
-        `}
-      </style>
+      `}</style>
     </div>
   );
 };
