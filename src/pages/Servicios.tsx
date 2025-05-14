@@ -471,24 +471,19 @@ const Servicios = () => {
   if (isServicesLoading && isLoadingMudanza) {
     return (
       <div className="min-h-screen flex flex-col">
-        <div className="absolute inset-0 z-0 bg-[#14162c]">
-          <div className="absolute inset-0 z-1" style={{
-            background: "radial-gradient(circle at 20% 30%, #008be1 0%, transparent 40%), radial-gradient(circle at 80% 70%, #ff6900 0%, transparent 40%), radial-gradient(circle at 50% 50%, #0EA5E9 0%, transparent 30%)",
-            opacity: 0.8
-          }}></div>
-          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
-          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#14162c] to-transparent z-2"></div>
+        <div className="absolute inset-0 z-0 bg-[#FDE1D3]">
+          <div className="absolute inset-x-0 top-1/2 bottom-0 bg-[#F97316] z-1"></div>
         </div>
         <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
           <div className="container mx-auto">
             <div className="flex justify-between items-center mb-8 mt-4">
-              <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 hover:text-gray-300 text-white">
+              <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 hover:text-gray-300 text-black">
                 <ArrowLeft size={20} />
                 <span>Volver</span>
               </Button>
               
               <div className="relative cursor-pointer" onClick={() => setIsCartOpen(true)}>
-                <ShoppingCart size={24} className="text-white" />
+                <ShoppingCart size={40} className="text-black" />
                 {getCartItemsCount() > 0 && (
                   <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {getCartItemsCount()}
@@ -520,19 +515,15 @@ const Servicios = () => {
 
   return (
     <div className="min-h-screen flex flex-col relative">
-      <div className="absolute inset-0 z-0 bg-[#14162c]">
-        <div className="absolute inset-0 z-1" style={{
-          background: "radial-gradient(circle at 20% 30%, #008be1 0%, transparent 40%), radial-gradient(circle at 80% 70%, #ff6900 0%, transparent 40%), radial-gradient(circle at 50% 50%, #0EA5E9 0%, transparent 30%)",
-          opacity: 0.8
-        }}></div>
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#14162c] to-transparent z-2"></div>
+      <div className="absolute inset-0 z-0 bg-[#FDE1D3]">
+        {/* Simple split background - natural color on top, orange on bottom */}
+        <div className="absolute inset-x-0 top-1/2 bottom-0 bg-[#F97316] z-1"></div>
       </div>
       
       <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
         <div className="container mx-auto">
           <div className="flex justify-between items-center mb-8 mt-4">
-            <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 hover:text-gray-300 text-white">
+            <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 hover:text-gray-300 text-black">
               <ArrowLeft size={20} />
               <span>Volver</span>
             </Button>
@@ -541,16 +532,16 @@ const Servicios = () => {
               className="relative cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => setIsCartOpen(true)}
             >
-              <ShoppingCart size={40} className="text-white" />
+              <ShoppingCart size={40} className="text-black" />
               {getCartItemsCount() > 0 && (
-                <span className="absolute -top-2 -right-2 bg-primary text-white text-sm rounded-full h-6 w-6 flex items-center justify-center border-2 border-[#14162c]">
+                <span className="absolute -top-2 -right-2 bg-primary text-white text-sm rounded-full h-6 w-6 flex items-center justify-center border-2 border-white">
                   {getCartItemsCount()}
                 </span>
               )}
             </div>
           </div>
           
-          <h1 className={`text-3xl font-bold mb-12 text-center text-white uppercase font-display transition-all duration-1000 transform ${titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+          <h1 className={`text-3xl font-bold mb-12 text-center text-black uppercase font-display transition-all duration-1000 transform ${titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
             Nuestros Servicios
           </h1>
           
@@ -645,7 +636,7 @@ const Servicios = () => {
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id} 
                     circular={true} 
                     currentCartItems={cartItems} 
-                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#14162c]" : ""} 
+                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#FDE1D3]" : ""} 
                     ref={element => {
                       if (service.id) {
                         serviceCardRefs.current[service.id] = element;
@@ -682,7 +673,7 @@ const Servicios = () => {
                     forceOpen={pendingServiceCardAction && selectedServiceId === service.id} 
                     circular={true} 
                     currentCartItems={cartItems} 
-                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#14162c]" : ""} 
+                    className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#F97316]" : ""} 
                     ref={element => {
                       if (service.id) {
                         serviceCardRefs.current[service.id] = element;
