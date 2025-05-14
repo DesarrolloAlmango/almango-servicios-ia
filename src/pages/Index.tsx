@@ -154,8 +154,8 @@ const Index = () => {
         <section ref={partnersSectionRef} className="bg-[#F0F0F0] py-8 animate-from-left w-full">
           <div className="bg-[#F97316] mb-8 -mt-8 px-0 mx-0 py-[46px] w-full">
             <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col">
-              <span className="px-[25px]">ALGUNOS DE NUESTROS CLIENTES</span>
-              <span className="px-[25px]">Y ALIANZAS COMERCIALES</span>
+              <span className="px-[20px]">ALGUNOS DE NUESTROS CLIENTES</span>
+              <span className="px-[20px]">Y ALIANZAS COMERCIALES</span>
             </h2>
           </div>
           
