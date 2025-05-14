@@ -114,13 +114,13 @@ const ServiceCardsGrid = () => {
   if (loading) {
     return (
       <div className="container mx-auto px-24 sm:px-28 md:px-32">
-        {/* Updated title position and styling with gradient */}
-        <h2 className="text-center font-bold text-4xl mb-6 -mt-32 relative z-20 py-2 px-4 mx-auto w-fit"
+        {/* Updated title position and styling with gradient and white text border */}
+        <h2 className="text-center font-bold text-4xl mb-6 -mt-40 relative z-20 py-2 px-4 mx-auto w-fit"
             style={{ 
               background: "linear-gradient(to right, #ff6900, #008be1)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
-              textShadow: "0px 2px 4px rgba(0,0,0,0.3)"
+              textShadow: "0px 2px 4px rgba(0,0,0,0.3), 0 0 2px #fff, 0 0 3px #fff"
             }}>
           SERVICIOS DESTACADOS
         </h2>
@@ -137,13 +137,13 @@ const ServiceCardsGrid = () => {
   }
   return (
     <div className="container mx-auto px-24 sm:px-28 md:px-32">
-      {/* Updated title position and styling with gradient */}
-      <h2 className="text-center font-bold text-4xl mb-6 -mt-32 relative z-20 py-2 px-4 mx-auto w-fit"
+      {/* Updated title position and styling with gradient and white text border */}
+      <h2 className="text-center font-bold text-4xl mb-6 -mt-40 relative z-20 py-2 px-4 mx-auto w-fit"
           style={{ 
             background: "linear-gradient(to right, #ff6900, #008be1)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
-            textShadow: "0px 2px 4px rgba(0,0,0,0.3)"
+            textShadow: "0px 2px 4px rgba(0,0,0,0.3), 0 0 2px #fff, 0 0 3px #fff"
           }}>
         SERVICIOS DESTACADOS
       </h2>
