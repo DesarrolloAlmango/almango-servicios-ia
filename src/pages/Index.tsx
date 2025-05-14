@@ -7,6 +7,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import LogoCarousel from "@/components/LogoCarousel";
 import { Separator } from "@/components/ui/separator";
 import ServiceCardsGrid from "@/components/ServiceCardsGrid";
+import CounterAndSeals from "@/components/CounterAndSeals";
 
 // First 8 logos
 const firstHalfLogos = [{
@@ -64,12 +65,14 @@ const secondHalfLogos = [{
 
 // Combine all logos into a single array for the carousel
 const allLogos = [...firstHalfLogos, ...secondHalfLogos];
+
 const Index = () => {
   // Create refs for each section to animate
   const contratarSectionRef = useRef<HTMLElement>(null);
   const quienesSomosSectionRef = useRef<HTMLElement>(null);
   const formarParteSectionRef = useRef<HTMLElement>(null);
   const partnersSectionRef = useRef<HTMLElement>(null);
+  
   useEffect(() => {
     const options = {
       root: null,
@@ -151,12 +154,18 @@ const Index = () => {
         <ServiceCardsGrid />
         
         <Separator className="h-1 bg-black mt-8" />
+        
+        {/* Counter and Seals section - MOVED UP */}
+        <CounterAndSeals />
+        <Separator className="h-1 bg-black" />
+        
+        {/* Services Showcase section */}
         <section id="nuestros-servicios">
           <ServicesShowcase />
         </section>
         <Separator className="h-1 bg-black" />
         
-        {/* Partners Section */}
+        {/* Partners Section - MOVED DOWN */}
         <section ref={partnersSectionRef} className="bg-[#F0F0F0] py-8 animate-from-left w-full">
           <div className="bg-[#F97316] mb-8 -mt-8 px-0 mx-0 py-[46px] w-full">
             <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col">
@@ -215,14 +224,11 @@ const Index = () => {
         </section>
         <Separator className="h-1 bg-black" />
         
-        
-        <Separator className="h-1 bg-black" />
-        
-        
       </main>
       
       <Footer />
       <WhatsAppButton />
     </div>;
 };
+
 export default Index;

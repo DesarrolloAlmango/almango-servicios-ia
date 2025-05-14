@@ -1,12 +1,10 @@
+
 import React, { useEffect, useRef } from 'react';
 interface ServiceItem {
   title: string;
   imageUrl: string;
 }
-interface SealItem {
-  imageUrl: string;
-  alt: string;
-}
+
 const ServiceItems: ServiceItem[] = [{
   title: "INSTALACIONES ELÉCTRICAS",
   imageUrl: "https://almango.com.uy/img/iconos/icono-almango-01.png"
@@ -68,31 +66,12 @@ const ServiceItems: ServiceItem[] = [{
   title: "CALEFACCIÓN",
   imageUrl: "https://almango.com.uy/img/iconos/icono-almango-18.png"
 }];
-const SealItems: SealItem[] = [{
-  imageUrl: "https://almango.com.uy/img/caracteristicas/01-atencion-personalizada.svg",
-  alt: "Atención personalizada"
-}, {
-  imageUrl: "https://almango.com.uy/img/caracteristicas/02-servicios-seguros.svg",
-  alt: "Servicios seguros"
-}, {
-  imageUrl: "https://almango.com.uy/img/caracteristicas/03-profesionales-calificados.svg",
-  alt: "Profesionales calificados"
-}, {
-  imageUrl: "https://almango.com.uy/img/caracteristicas/04-pago-online.svg",
-  alt: "Pago online"
-}, {
-  imageUrl: "https://almango.com.uy/img/caracteristicas/05-garantia-de-instalacion.svg",
-  alt: "Garantía de instalación"
-}, {
-  imageUrl: "https://almango.com.uy/img/caracteristicas/06-proveedores-verificados.svg",
-  alt: "Proveedores verificados"
-}];
+
 const ServicesShowcase: React.FC = () => {
   // Create refs for each section to animate
   const servicesDescriptionRef = useRef<HTMLDivElement>(null);
   const servicesGridRef = useRef<HTMLDivElement>(null);
-  const counterSectionRef = useRef<HTMLDivElement>(null);
-  const sealsSectionRef = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
     const options = {
       root: null,
@@ -138,12 +117,6 @@ const ServicesShowcase: React.FC = () => {
     if (servicesGridRef.current) {
       sectionObserver.observe(servicesGridRef.current);
     }
-    if (counterSectionRef.current) {
-      sectionObserver.observe(counterSectionRef.current);
-    }
-    if (sealsSectionRef.current) {
-      sectionObserver.observe(sealsSectionRef.current);
-    }
 
     // Observe each service item
     document.querySelectorAll('.service-item').forEach((item, index) => {
@@ -152,58 +125,20 @@ const ServicesShowcase: React.FC = () => {
       itemObserver.observe(item);
     });
 
-    // Observe each seal item
-    document.querySelectorAll('.seal-item').forEach((item, index) => {
-      item.setAttribute('data-index', index.toString());
-      itemObserver.observe(item);
-    });
     return () => {
       sectionObserver.disconnect();
       itemObserver.disconnect();
     };
   }, []);
+  
   return <section className="py-16 bg-[#F0F0F0]">
       <div className="container mx-auto">
-        
-        
         <div ref={servicesDescriptionRef} className="max-w-3xl mx-auto mt-8 mb-12 animate-from-left opacity-0">
-          
-          
-          
-          
-          
         </div>
         
         <div ref={servicesGridRef} className="animate-from-right opacity-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-1 gap-y-0">
           {ServiceItems.map((service, index) => <div key={index} className="service-item opacity-0 cursor-pointer transition-transform duration-300 hover:scale-110">
-              
             </div>)}
-        </div>
-        
-        {/* Services Counter Section */}
-        <div ref={counterSectionRef} className="mt-20 flex flex-col md:flex-row items-center justify-center gap-6 animate-from-left opacity-0">
-          <div className="text-secondary text-2xl md:text-3xl font-bold uppercase">
-            SERVICIOS REALIZADOS
-          </div>
-          
-          <div className="flex">
-            {[0, 9, 8, 8, 0, 0].map((digit, index) => <div key={index} className="bg-[#1A1F2C] text-white w-10 h-14 md:w-12 md:h-16 flex items-center justify-center text-xl md:text-2xl font-bold mx-0.5 service-item opacity-0">
-                {digit}
-              </div>)}
-          </div>
-          
-          <div className="text-secondary text-2xl md:text-3xl font-bold uppercase">
-            Y CONTANDO...
-          </div>
-        </div>
-        
-        {/* Seals Section */}
-        <div ref={sealsSectionRef} className="mt-16 animate-from-right opacity-0">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 md:gap-6">
-            {SealItems.map((seal, index) => <div key={index} className="flex flex-col items-center seal-item opacity-0">
-                <img src={seal.imageUrl} alt={seal.alt} className="h-28 w-28 mb-2 transition-transform hover:scale-110 duration-300" />
-              </div>)}
-          </div>
         </div>
       </div>
     </section>;
