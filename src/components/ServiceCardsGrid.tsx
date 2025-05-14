@@ -112,9 +112,9 @@ const ServiceCardsGrid = () => {
     });
   };
   if (loading) {
-    return <div className="container mx-auto px-12 sm:px-16 md:px-20">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-6 -mt-10 z-10 relative justify-center">
-          {[...Array(6)].map((_, index) => <Card key={`skeleton-${index}`} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 h-40 animate-pulse">
+    return <div className="container mx-auto px-24 sm:px-28 md:px-32">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 -mt-10 z-10 relative justify-center">
+          {[...Array(6)].map((_, index) => <Card key={`skeleton-${index}`} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 h-40 animate-pulse w-full max-w-md mx-auto">
               <CardContent className="p-4 flex flex-col items-center justify-center h-full">
                 <div className="w-16 h-16 bg-gray-200 rounded-md mb-2"></div>
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -123,9 +123,9 @@ const ServiceCardsGrid = () => {
         </div>
       </div>;
   }
-  return <div className="container mx-auto px-12 sm:px-16 md:px-20">
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-6 -mt-10 z-10 relative justify-center">
-        {services.map(service => <Card key={service.id} onClick={() => handleServiceClick(service.id, service.name)} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 h-40 overflow-hidden">
+  return <div className="container mx-auto px-24 sm:px-28 md:px-32">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 -mt-10 z-10 relative justify-center">
+        {services.map(service => <Card key={service.id} onClick={() => handleServiceClick(service.id, service.name)} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 h-40 overflow-hidden w-full max-w-md mx-auto">
             <CardContent className="p-0 flex flex-col items-center justify-center h-full relative">
               {/* Use AspectRatio to maintain image proportions */}
               <AspectRatio ratio={1 / 1} className="w-full h-full">
@@ -137,7 +137,7 @@ const ServiceCardsGrid = () => {
               </AspectRatio>
               {/* Text positioned over the image with uppercase transformation */}
               <div className="absolute inset-0 flex flex-col items-center justify-center p-3">
-                <h3 className="text-sm font-medium text-center text-white uppercase">{service.name}</h3>
+                <h3 className="text-base sm:text-lg font-bold text-center text-white uppercase">{service.name}</h3>
               </div>
             </CardContent>
           </Card>)}
