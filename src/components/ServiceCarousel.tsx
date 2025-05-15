@@ -5,13 +5,15 @@ import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext
 interface ServiceCarouselProps {
   children: React.ReactNode[];
   title?: string;
-  showLoadingNames?: boolean; // Prop for showing loading names
-  loadingItems?: string[]; // Names to display during loading
+  titleClassName?: string; // Added this property
+  showLoadingNames?: boolean;
+  loadingItems?: string[];
 }
 
 const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
   children,
   title,
+  titleClassName = "", // Default value is an empty string
   showLoadingNames = false,
   loadingItems = [
     "Peluquería", "Manicura", "Pedicura", "Masajes",
@@ -28,7 +30,7 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
   
   return (
     <div className="w-full max-w-screen-xl mx-auto">
-      {title && <h2 className="text-2xl font-semibold text-center mb-6 text-[#ff6900] uppercase">{title}</h2>}
+      {title && <h2 className={`text-2xl font-semibold text-center mb-6 text-[#ff6900] uppercase ${titleClassName}`}>{title}</h2>}
       
       <Carousel 
         opts={{
