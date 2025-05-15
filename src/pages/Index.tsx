@@ -142,7 +142,6 @@ const Index = () => {
       sectionObserver.disconnect();
     };
   }, []);
-  
   return <div className="min-h-screen flex flex-col">
       <Header />
       <main id="inicio" className="flex-grow">
@@ -174,46 +173,7 @@ const Index = () => {
         
         <Separator className="h-1 bg-black" />
         
-        <section ref={contratarSectionRef} id="como-contratar" className="py-20 px-4 bg-primary text-white animate-from-right">
-          <div className="container mx-auto">
-            <h2 className="text-3xl font-bold mb-4 text-center uppercase">¿CÓMO CONTRATAR?</h2>
-            <h3 className="text-xl font-medium mb-12 text-center">PROCESO DE CONTRATACIÓN</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl mx-auto">
-              <div className="text-center flex flex-col items-center contratar-item opacity-0">
-                <div className="mb-4 transition-all duration-300 transform hover:scale-110 icon-container opacity-0">
-                  <img src="https://almango.com.uy/img/agenda-almango.svg" alt="Agenda" className="h-16 w-16 mx-auto" />
-                </div>
-                <h4 className="text-lg font-semibold mb-2 item-title opacity-0">Agendá fecha y hora</h4>
-                <p className="text-white/90 item-desc opacity-0">Coordinación inmediata.</p>
-              </div>
-              
-              <div className="text-center flex flex-col items-center contratar-item opacity-0">
-                <div className="mb-4 transition-all duration-300 transform hover:scale-110 icon-container opacity-0">
-                  <img src="https://almango.com.uy/img/pago-almango.svg" alt="Recibir técnico" className="h-16 w-16 mx-auto" />
-                </div>
-                <h4 className="text-lg font-semibold mb-2 item-title opacity-0">Recibí al técnico</h4>
-                <p className="text-white/90 item-desc opacity-0">Un profesional calificado realizará el trabajo.</p>
-              </div>
-              
-              <div className="text-center flex flex-col items-center contratar-item opacity-0">
-                <div className="mb-4 transition-all duration-300 transform hover:scale-110 icon-container opacity-0">
-                  <img src="https://almango.com.uy/img/pago-almango.svg" alt="Pago" className="h-16 w-16 mx-auto" />
-                </div>
-                <h4 className="text-lg font-semibold mb-2 item-title opacity-0">Realizá el pago al finalizar</h4>
-                <p className="text-white/90 item-desc opacity-0">Seleccioná el medio que más te convenga.</p>
-              </div>
-              
-              <div className="text-center flex flex-col items-center contratar-item opacity-0">
-                <div className="mb-4 transition-all duration-300 transform hover:scale-110 icon-container opacity-0">
-                  <img src="https://almango.com.uy/img/valora-almango.svg" alt="Valoración" className="h-16 w-16 mx-auto" />
-                </div>
-                <h4 className="text-lg font-semibold mb-2 item-title opacity-0">Ayudanos a mejorar</h4>
-                <p className="text-white/90 item-desc opacity-0">Calificá el servicio, tus comentarios importan.</p>
-              </div>
-            </div>
-          </div>
-        </section>
+        
         
         <Separator className="h-1 bg-black" />
       </main>
