@@ -520,12 +520,12 @@ const Servicios = () => {
 
   return (
     <div className="min-h-screen flex flex-col relative">
-      {/* Split background color - natural grayish on top, orange on bottom */}
+      {/* Split background color - natural grayish on top, orange on bottom, adjusted to start below first service cards */}
       <div className="absolute inset-0 z-0">
-        {/* Top half - natural grayish color (more clear now) */}
-        <div className="absolute inset-x-0 top-0 h-1/3 bg-[#F8F4F0]"></div>
-        {/* Bottom half - orange color */}
-        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[#f06900]"></div>
+        {/* Top half - natural grayish color (more clear now) - extended */}
+        <div className="absolute inset-x-0 top-0 h-2/3 bg-[#F8F4F0]"></div>
+        {/* Bottom half - orange color - starts below "ARMADO E INSTALACIÓN" title */}
+        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-[#f06900]"></div>
       </div>
       
       <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
@@ -802,8 +802,7 @@ const Servicios = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      <style>
-        {`
+      <style jsx>{`
         /* Add custom styling for section titles */
         .servicios-page h2 {
           position: relative;
@@ -840,10 +839,9 @@ const Servicios = () => {
             margin-left: calc(100% / 3);
           }
         }
-        `}
-      </style>
+      `}</style>
     </div>
   );
 };
-/**/
+
 export default Servicios;
