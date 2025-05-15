@@ -606,7 +606,11 @@ const Servicios = () => {
             </div>}
           
           <div id="armado-instalacion" className="mb-12 relative">
-            <ServiceCarousel title="ARMADO E INSTALACIÓN" titleClassName="font-bold">
+            <ServiceCarousel 
+              primaryTitlePart="ARMADO" 
+              secondaryTitlePart=" E INSTALACIÓN"
+              titleClassName="font-bold"
+            >
               {isServicesLoading ? Array(4).fill(0).map((_, index) => <div key={index} className="w-[220px] h-[220px]">
                     <Skeleton className="w-full h-full rounded-full" />
                   </div>) : displayedServices?.map((service, index) => {
@@ -627,7 +631,12 @@ const Servicios = () => {
           </div>
           
           <div className="mb-12">
-            <ServiceCarousel title="FLETES Y MUDANZAS" showLoadingNames={false} loadingItems={[]}>
+            <ServiceCarousel 
+              primaryTitlePart="FLETES Y" 
+              secondaryTitlePart=" MUDANZAS"
+              showLoadingNames={false} 
+              loadingItems={[]}
+            >
               {isLoadingMudanza ? Array(4).fill(0).map((_, index) => <div key={index} className="w-[220px] h-[220px]">
                     <Skeleton className="w-full h-full rounded-full" />
                   </div>) : displayedMudanzaServices?.map((service, index) => {

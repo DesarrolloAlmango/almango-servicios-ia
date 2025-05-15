@@ -5,21 +5,25 @@ import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext
 interface ServiceCarouselProps {
   children: React.ReactNode[];
   title?: string;
-  titleClassName?: string; // Added this property
+  titleClassName?: string;
   showLoadingNames?: boolean;
   loadingItems?: string[];
+  primaryTitlePart?: string;
+  secondaryTitlePart?: string;
 }
 
 const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
   children,
   title,
-  titleClassName = "", // Default value is an empty string
+  titleClassName = "",
   showLoadingNames = false,
   loadingItems = [
     "Peluquería", "Manicura", "Pedicura", "Masajes",
     "Depilación", "Tratamiento facial", "Corte de cabello",
     "Tintura", "Maquillaje", "Estética corporal"
-  ] // Default random service names for demonstration
+  ],
+  primaryTitlePart,
+  secondaryTitlePart
 }) => {
   if (!children || children.length === 0) {
     return <div className="text-center py-8">No hay servicios disponibles</div>;
@@ -30,7 +34,18 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
   
   return (
     <div className="w-full max-w-screen-xl mx-auto">
-      {title && <h2 className={`text-2xl font-semibold text-center mb-6 text-[#ff6900] uppercase ${titleClassName}`}>{title}</h2>}
+      {title && !primaryTitlePart && (
+        <h2 className={`text-2xl md:text-3xl font-semibold text-center mb-6 text-[#ff6900] uppercase ${titleClassName}`}>
+          {title}
+        </h2>
+      )}
+      
+      {primaryTitlePart && secondaryTitlePart && (
+        <h2 className={`text-2xl md:text-3xl font-semibold text-center mb-6 uppercase ${titleClassName}`}>
+          <span className="text-[#ff6900]">{primaryTitlePart}</span>
+          <span className="text-[#008be1]">{secondaryTitlePart}</span>
+        </h2>
+      )}
       
       <Carousel 
         opts={{
