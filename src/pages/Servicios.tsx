@@ -487,9 +487,9 @@ const Servicios = () => {
       {/* Split background color - adjusted for mobile devices */}
       <div className="absolute inset-0 z-0">
         {/* Top half - natural grayish color - smaller for mobile */}
-        <div className={`absolute inset-x-0 top-0 ${isMobile ? 'h-[60%]' : 'h-[53%]'} bg-[#F8F4F0]`}></div>
+        <div className={`absolute inset-x-0 top-0 ${isMobile ? 'h-[67%]' : 'h-[53%]'} bg-[#F8F4F0]`}></div>
         {/* Bottom half - orange color - starts lower for mobile */}
-        <div className={`absolute inset-x-0 bottom-0 ${isMobile ? 'h-[40%]' : 'h-[47%]'} bg-[#f06900]`}></div>
+        <div className={`absolute inset-x-0 bottom-0 ${isMobile ? 'h-[33%]' : 'h-[47%]'} bg-[#f06900]`}></div>
       </div>
       
       <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
