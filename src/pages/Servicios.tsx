@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -523,9 +524,9 @@ const Servicios = () => {
       {/* Split background color - natural grayish on top, orange on bottom */}
       <div className="absolute inset-0 z-0">
         {/* Top half - natural grayish color */}
-        <div className="absolute inset-x-0 top-0 h-1/2 bg-[#FDE1D3]"></div>
-        {/* Bottom half - orange color */}
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-[#f06900]"></div>
+        <div className="absolute inset-x-0 top-0 h-1/3 bg-[#FDE1D3]"></div>
+        {/* Bottom half - orange color - starting higher up now */}
+        <div className="absolute inset-x-0 bottom-0 h-2/3 bg-[#f06900]"></div>
       </div>
       
       <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
