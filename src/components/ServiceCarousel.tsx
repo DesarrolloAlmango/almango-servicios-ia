@@ -10,6 +10,7 @@ interface ServiceCarouselProps {
   loadingItems?: string[];
   primaryTitlePart?: string;
   secondaryTitlePart?: string;
+  lightTitle?: boolean;
 }
 
 const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
@@ -23,7 +24,8 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
     "Tintura", "Maquillaje", "Estética corporal"
   ],
   primaryTitlePart,
-  secondaryTitlePart
+  secondaryTitlePart,
+  lightTitle = false
 }) => {
   if (!children || children.length === 0) {
     return <div className="text-center py-8">No hay servicios disponibles</div>;
@@ -40,10 +42,16 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
         </h2>
       )}
       
-      {primaryTitlePart && secondaryTitlePart && (
+      {primaryTitlePart && secondaryTitlePart && !lightTitle && (
         <h2 className={`text-2xl md:text-3xl font-semibold text-center mb-6 uppercase ${titleClassName}`}>
           <span className="text-[#ff6900]">{primaryTitlePart}</span>
           <span className="text-[#008be1]">{secondaryTitlePart}</span>
+        </h2>
+      )}
+
+      {primaryTitlePart && secondaryTitlePart && lightTitle && (
+        <h2 className={`text-2xl md:text-3xl font-semibold text-center mb-6 uppercase text-white ${titleClassName}`}>
+          {primaryTitlePart}{secondaryTitlePart}
         </h2>
       )}
       

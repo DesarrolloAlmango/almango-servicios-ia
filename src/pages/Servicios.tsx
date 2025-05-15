@@ -636,6 +636,7 @@ const Servicios = () => {
               secondaryTitlePart=" MUDANZAS"
               showLoadingNames={false} 
               loadingItems={[]}
+              lightTitle={true}
             >
               {isLoadingMudanza ? Array(4).fill(0).map((_, index) => <div key={index} className="w-[220px] h-[220px]">
                     <Skeleton className="w-full h-full rounded-full" />
