@@ -12,7 +12,6 @@ import { toast } from "sonner";
 import PurchaseLocationModal from "@/components/PurchaseLocationModal";
 import { Separator } from "@/components/ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
-
 export interface CartItem {
   id: string;
   name: string;
@@ -140,7 +139,6 @@ const Servicios = () => {
     commerceId
   } = useParams();
   const isMobile = useIsMobile();
-  
   const [storeName, setStoreName] = useState<string>("");
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -487,9 +485,9 @@ const Servicios = () => {
       {/* Split background color - adjusted for mobile devices */}
       <div className="absolute inset-0 z-0">
         {/* Top half - natural grayish color - smaller for mobile */}
-        <div className={`absolute inset-x-0 top-0 ${isMobile ? 'h-[67%]' : 'h-[53%]'} bg-[#F8F4F0]`}></div>
+        <div className={`absolute inset-x-0 top-0 ${isMobile ? 'h-[60%]' : 'h-[53%]'} bg-[#F8F4F0]`}></div>
         {/* Bottom half - orange color - starts lower for mobile */}
-        <div className={`absolute inset-x-0 bottom-0 ${isMobile ? 'h-[33%]' : 'h-[47%]'} bg-[#f06900]`}></div>
+        <div className={`absolute inset-x-0 bottom-0 ${isMobile ? 'h-[40%]' : 'h-[47%]'} bg-[#f06900]`}></div>
       </div>
       
       <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
@@ -557,7 +555,7 @@ const Servicios = () => {
           </div>
           
           <h1 className={`text-4xl md:text-5xl font-bold mb-12 text-center uppercase font-display transition-all duration-1000 transform ${titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-            <span className="text-gray-800 text-6xl">NUESTROS SERVICIOS</span>
+            <span className="text-gray-800 text-5xl">NUESTROS SERVICIOS</span>
           </h1>
           
           {isServicesError && <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6 rounded-md">
@@ -610,11 +608,7 @@ const Servicios = () => {
             </div>}
           
           <div id="armado-instalacion" className="mb-12 relative">
-            <ServiceCarousel 
-              primaryTitlePart="ARMADO" 
-              secondaryTitlePart=" E INSTALACIÓN"
-              titleClassName="font-bold"
-            >
+            <ServiceCarousel primaryTitlePart="ARMADO" secondaryTitlePart=" E INSTALACIÓN" titleClassName="font-bold">
               {isServicesLoading ? Array(4).fill(0).map((_, index) => <div key={index} className="w-[220px] h-[220px]">
                     <Skeleton className="w-full h-full rounded-full" />
                   </div>) : displayedServices?.map((service, index) => {
@@ -635,13 +629,7 @@ const Servicios = () => {
           </div>
           
           <div className="mb-12">
-            <ServiceCarousel 
-              primaryTitlePart="FLETES Y" 
-              secondaryTitlePart=" MUDANZAS"
-              showLoadingNames={false} 
-              loadingItems={[]}
-              lightTitle={true}
-            >
+            <ServiceCarousel primaryTitlePart="FLETES Y" secondaryTitlePart=" MUDANZAS" showLoadingNames={false} loadingItems={[]} lightTitle={true}>
               {isLoadingMudanza ? Array(4).fill(0).map((_, index) => <div key={index} className="w-[220px] h-[220px]">
                     <Skeleton className="w-full h-full rounded-full" />
                   </div>) : displayedMudanzaServices?.map((service, index) => {
