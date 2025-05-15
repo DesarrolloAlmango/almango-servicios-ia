@@ -202,7 +202,7 @@ const ServicesShowcase: React.FC = () => {
         {/* Seals Section */}
         <div ref={sealsSectionRef} className="mt-16 animate-from-right opacity-0">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 md:gap-6">
-            {SealItems.map((seal, index) => <div key={index} className="flex flex-col items-center seal-item opacity-0">
+            {SealItems.map((seal, index) => <div key={index} className="flex flex-col items-center seal-item opacity-0 my-[13px]">
                 <img src={seal.imageUrl} alt={seal.alt} className="h-28 w-28 mb-2 transition-transform hover:scale-110 duration-300" />
                 <p className="text-center text-sm">{seal.alt}</p>
               </div>)}
