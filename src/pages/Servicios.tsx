@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import PurchaseLocationModal from "@/components/PurchaseLocationModal";
+import { Separator } from "@/components/ui/separator";
 
 export interface CartItem {
   id: string;
@@ -711,6 +712,11 @@ const Servicios = () => {
             </ServiceCarousel>
           </div>
           
+          {/* Add a subtle separator line between carousels */}
+          <div className="flex justify-center mb-12">
+            <Separator className="w-4/5 bg-gray-300 opacity-60" />
+          </div>
+          
           <div className="mb-12">
             <ServiceCarousel title="FLETES Y MUDANZAS" showLoadingNames={false} loadingItems={[]}>
               {isLoadingMudanza ? (
@@ -802,7 +808,7 @@ const Servicios = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      <style jsx>{`
+      <style>{`
         /* Add custom styling for section titles */
         .servicios-page h2 {
           position: relative;
@@ -817,7 +823,7 @@ const Servicios = () => {
         }
         
         /* Style for FLETES Y MUDANZAS title - on orange background */
-        #armado-instalacion + div h2 {
+        #armado-instalacion + div + div h2 {
           color: white;
           font-weight: 600;
         }
