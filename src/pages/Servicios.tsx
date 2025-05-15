@@ -520,12 +520,12 @@ const Servicios = () => {
 
   return (
     <div className="min-h-screen flex flex-col relative">
-      {/* Split background color - natural grayish on top, orange on bottom, adjusted to start below first service cards */}
+      {/* Split background color - natural grayish on top, orange on bottom, adjusted to start at center of service cards */}
       <div className="absolute inset-0 z-0">
-        {/* Top half - natural grayish color (more clear now) - extended */}
-        <div className="absolute inset-x-0 top-0 h-2/3 bg-[#F8F4F0]"></div>
-        {/* Bottom half - orange color - starts below "ARMADO E INSTALACIÓN" title */}
-        <div className="absolute inset-x-0 bottom-0 h-1/3 bg-[#f06900]"></div>
+        {/* Top half - natural grayish color - now smaller (40%) */}
+        <div className="absolute inset-x-0 top-0 h-[53%] bg-[#F8F4F0]"></div>
+        {/* Bottom half - orange color - starts higher (60%) */}
+        <div className="absolute inset-x-0 bottom-0 h-[47%] bg-[#f06900]"></div>
       </div>
       
       <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
