@@ -1,12 +1,16 @@
+
 import React, { useEffect, useRef } from 'react';
+
 interface ServiceItem {
   title: string;
   imageUrl: string;
 }
+
 interface SealItem {
   imageUrl: string;
   alt: string;
 }
+
 const ServiceItems: ServiceItem[] = [{
   title: "INSTALACIONES ELÉCTRICAS",
   imageUrl: "https://almango.com.uy/img/iconos/icono-almango-01.png"
@@ -68,6 +72,7 @@ const ServiceItems: ServiceItem[] = [{
   title: "CALEFACCIÓN",
   imageUrl: "https://almango.com.uy/img/iconos/icono-almango-18.png"
 }];
+
 const SealItems: SealItem[] = [{
   imageUrl: "https://almango.com.uy/img/caracteristicas/01-atencion-personalizada.svg",
   alt: "Atención personalizada"
@@ -87,12 +92,14 @@ const SealItems: SealItem[] = [{
   imageUrl: "https://almango.com.uy/img/caracteristicas/06-proveedores-verificados.svg",
   alt: "Proveedores verificados"
 }];
+
 const ServicesShowcase: React.FC = () => {
   // Create refs for each section to animate
   const servicesDescriptionRef = useRef<HTMLDivElement>(null);
   const servicesGridRef = useRef<HTMLDivElement>(null);
   const counterSectionRef = useRef<HTMLDivElement>(null);
   const sealsSectionRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const options = {
       root: null,
@@ -162,36 +169,54 @@ const ServicesShowcase: React.FC = () => {
       itemObserver.disconnect();
     };
   }, []);
-  return <section className="py-16 bg-[#F0F0F0]">
+
+  return (
+    <section className="py-16 bg-[#F0F0F0]">
       <div className="container mx-auto">
         
-        {/* Title for the Services Section - Adding it now */}
-        <div className="mb-12">
-          <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col">
-            <span className="bg-secondary py-5 px-8 rounded-md inline-block">SERVICIOS REALIZADOS</span>
-          </h2>
+        {/* Title for the Services Section - Updated with enhanced styling */}
+        <div className="mb-12 relative">
+          <div className="w-full max-w-3xl mx-auto">
+            <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col">
+              <span className="bg-secondary py-5 px-8 rounded-md inline-block shadow-lg relative overflow-hidden">
+                <span className="relative z-10">SERVICIOS REALIZADOS</span>
+                <span className="absolute inset-0 bg-gradient-to-r from-secondary to-secondary/80 z-0"></span>
+              </span>
+            </h2>
+          </div>
         </div>
         
         <div ref={servicesDescriptionRef} className="max-w-3xl mx-auto mt-8 mb-12 animate-from-left opacity-0">
           {/* Services Description Content */}
         </div>
         
+        {/* Updated grid with visual improvements */}
         <div ref={servicesGridRef} className="animate-from-right opacity-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-1 gap-y-0">
-          {ServiceItems.map((service, index) => <div key={index} className="service-item opacity-0 cursor-pointer transition-transform duration-300 hover:scale-110">
-              
-            </div>)}
+          {ServiceItems.map((service, index) => (
+            <div key={index} className="service-item opacity-0 cursor-pointer transition-transform duration-300 hover:scale-110 p-2">
+              <div className="bg-white rounded-lg p-2 h-full shadow-sm flex flex-col items-center justify-center hover:shadow-md transition-all">
+                <img src={service.imageUrl} alt={service.title} className="h-16 w-16 object-contain" />
+                <p className="text-xs font-semibold text-center mt-2 text-gray-800">{service.title}</p>
+              </div>
+            </div>
+          ))}
         </div>
         
-        {/* Services Counter Section - Reduced spacing from mt-20 to mt-12 */}
+        {/* Services Counter Section - Updated styling with blue emphasis */}
         <div ref={counterSectionRef} className="mt-12 flex flex-col md:flex-row items-center justify-center gap-6 animate-from-left opacity-0">
           <div className="text-secondary text-2xl md:text-3xl font-bold uppercase">
             SERVICIOS REALIZADOS
           </div>
           
           <div className="flex">
-            {[0, 9, 8, 8, 0, 0].map((digit, index) => <div key={index} className="bg-[#1A1F2C] text-white w-10 h-14 md:w-12 md:h-16 flex items-center justify-center text-xl md:text-2xl font-bold mx-0.5 service-item opacity-0">
+            {[0, 9, 8, 8, 0, 0].map((digit, index) => (
+              <div 
+                key={index} 
+                className="service-item opacity-0 bg-secondary text-white w-10 h-14 md:w-12 md:h-16 flex items-center justify-center text-xl md:text-2xl font-bold mx-0.5 rounded-md shadow-md"
+              >
                 {digit}
-              </div>)}
+              </div>
+            ))}
           </div>
           
           <div className="text-secondary text-2xl md:text-3xl font-bold uppercase">
@@ -199,16 +224,28 @@ const ServicesShowcase: React.FC = () => {
           </div>
         </div>
         
-        {/* Seals Section */}
+        {/* Seals Section - Updated with more consistent styling */}
         <div ref={sealsSectionRef} className="mt-16 animate-from-right opacity-0">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 md:gap-6">
-            {SealItems.map((seal, index) => <div key={index} className="flex flex-col items-center seal-item opacity-0 my-[13px]">
-                <img src={seal.imageUrl} alt={seal.alt} className="h-28 w-28 mb-2 transition-transform hover:scale-110 duration-300" />
-                <p className="text-center text-sm">{seal.alt}</p>
-              </div>)}
+          <div className="bg-white py-8 px-4 rounded-lg shadow-md">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 md:gap-6">
+              {SealItems.map((seal, index) => (
+                <div key={index} className="flex flex-col items-center seal-item opacity-0 my-[13px]">
+                  <div className="h-28 w-28 p-2 rounded-full bg-white shadow-sm border border-secondary/20 flex items-center justify-center mb-3">
+                    <img 
+                      src={seal.imageUrl} 
+                      alt={seal.alt} 
+                      className="h-20 w-20 transition-transform hover:scale-110 duration-300" 
+                    />
+                  </div>
+                  <p className="text-center text-sm font-medium text-gray-700">{seal.alt}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
+
 export default ServicesShowcase;

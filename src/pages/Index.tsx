@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -64,12 +65,14 @@ const secondHalfLogos = [{
 
 // Combine all logos into a single array for the carousel
 const allLogos = [...firstHalfLogos, ...secondHalfLogos];
+
 const Index = () => {
   // Create refs for each section to animate
   const contratarSectionRef = useRef<HTMLElement>(null);
   const quienesSomosSectionRef = useRef<HTMLElement>(null);
   const formarParteSectionRef = useRef<HTMLElement>(null);
   const partnersSectionRef = useRef<HTMLElement>(null);
+
   useEffect(() => {
     const options = {
       root: null,
@@ -142,7 +145,9 @@ const Index = () => {
       sectionObserver.disconnect();
     };
   }, []);
-  return <div className="min-h-screen flex flex-col">
+
+  return (
+    <div className="min-h-screen flex flex-col">
       <Header />
       <main id="inicio" className="flex-grow">
         <Hero />
@@ -150,17 +155,22 @@ const Index = () => {
         {/* Service Cards Grid - positioned to overlap with the hero section */}
         <ServiceCardsGrid />
         
-        {/* Partners Section - Moved here to be right after service cards */}
+        {/* Partners Section - Updated with more elegant styling */}
         <section ref={partnersSectionRef} className="bg-[#F0F0F0] py-16 animate-from-left w-full">
           <div className="container mx-auto">
-            <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col mb-10">
-              <span className="bg-secondary py-5 px-8 rounded-md inline-block">
-                ALGUNOS DE NUESTROS CLIENTES Y ALIANZAS COMERCIALES
-              </span>
-            </h2>
+            <div className="relative mb-12">
+              <div className="w-full max-w-3xl mx-auto">
+                <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col">
+                  <span className="bg-secondary py-5 px-8 rounded-md inline-block shadow-lg relative overflow-hidden">
+                    <span className="relative z-10">ALGUNOS DE NUESTROS CLIENTES Y ALIANZAS COMERCIALES</span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-secondary to-secondary/80 z-0"></span>
+                  </span>
+                </h2>
+              </div>
+            </div>
           </div>
           
-          <div className="w-full px-0">
+          <div className="w-full px-0 bg-white py-6 shadow-inner">
             <div className="w-full overflow-hidden">
               <LogoCarousel logos={allLogos} direction="rtl" speed="normal" />
             </div>
@@ -180,6 +190,8 @@ const Index = () => {
       
       <Footer />
       <WhatsAppButton />
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
