@@ -550,8 +550,7 @@ const Servicios = () => {
           </div>
           
           <h1 className={`text-4xl md:text-5xl font-bold mb-12 text-center uppercase font-display transition-all duration-1000 transform ${titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
-            <span className="text-gray-800">NUESTROS</span>{' '}
-            <span className="text-[#008be1]">SERVICIOS</span>
+            <span className="text-gray-800">NUESTROS SERVICIOS</span>
           </h1>
           
           {isServicesError && (
