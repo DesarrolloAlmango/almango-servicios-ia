@@ -669,12 +669,7 @@ const Servicios = () => {
           
           <div id="armado-instalacion" className="mb-12 relative">
             <ServiceCarousel 
-              title={
-                <span className="font-bold">
-                  <span className="text-[#f06900]">ARMADO</span>{' '}
-                  <span className="text-[#008be1]">E INSTALACIÓN</span>
-                </span>
-              }
+              title="ARMADO E INSTALACIÓN"
             >
               {isServicesLoading ? (
                 Array(4).fill(0).map((_, index) => (
@@ -802,7 +797,8 @@ const Servicios = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      <style jsx>{`
+      <style>
+        {`
         /* Add custom styling for section titles */
         .servicios-page h2 {
           position: relative;
@@ -839,7 +835,8 @@ const Servicios = () => {
             margin-left: calc(100% / 3);
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
