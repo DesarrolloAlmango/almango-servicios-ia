@@ -670,12 +670,8 @@ const Servicios = () => {
           
           <div id="armado-instalacion" className="mb-12 relative">
             <ServiceCarousel 
-              title={
-                <span className="font-bold">
-                  <span className="text-[#f06900]">ARMADO</span>{' '}
-                  <span className="text-[#008be1]">E INSTALACIÓN</span>
-                </span>
-              }
+              title="ARMADO E INSTALACIÓN"
+              titleClassName="font-bold"
             >
               {isServicesLoading ? (
                 Array(4).fill(0).map((_, index) => (
