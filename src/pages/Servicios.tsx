@@ -539,7 +539,7 @@ const Servicios = () => {
                   </div>
                 </div>
                 <h4 className="text-lg font-semibold mb-2 text-[#498bdd]">Realizá el pago al finalizar</h4>
-                <p className="text-gray-700">Seleccioná el medio que más te convenga.</p>
+                <p className="text-gray-700">Elegí cómo querés pagar. Online hasta 12 cuotas, o directo al Profesional al finalizar.</p>
               </div>
               
               <div className="text-center flex flex-col items-center opacity-100">
