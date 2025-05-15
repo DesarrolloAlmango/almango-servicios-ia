@@ -11,6 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 import PurchaseLocationModal from "@/components/PurchaseLocationModal";
 import { Separator } from "@/components/ui/separator";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 export interface CartItem {
   id: string;
   name: string;
@@ -137,6 +139,8 @@ const Servicios = () => {
   const {
     commerceId
   } = useParams();
+  const isMobile = useIsMobile();
+  
   const [storeName, setStoreName] = useState<string>("");
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -480,12 +484,12 @@ const Servicios = () => {
       </div>;
   }
   return <div className="min-h-screen flex flex-col relative">
-      {/* Split background color - natural grayish on top, orange on bottom, adjusted to start at center of service cards */}
+      {/* Split background color - adjusted for mobile devices */}
       <div className="absolute inset-0 z-0">
-        {/* Top half - natural grayish color - now smaller (40%) */}
-        <div className="absolute inset-x-0 top-0 h-[53%] bg-[#F8F4F0]"></div>
-        {/* Bottom half - orange color - starts higher (60%) */}
-        <div className="absolute inset-x-0 bottom-0 h-[47%] bg-[#f06900]"></div>
+        {/* Top half - natural grayish color - smaller for mobile */}
+        <div className={`absolute inset-x-0 top-0 ${isMobile ? 'h-[60%]' : 'h-[53%]'} bg-[#F8F4F0]`}></div>
+        {/* Bottom half - orange color - starts lower for mobile */}
+        <div className={`absolute inset-x-0 bottom-0 ${isMobile ? 'h-[40%]' : 'h-[47%]'} bg-[#f06900]`}></div>
       </div>
       
       <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
