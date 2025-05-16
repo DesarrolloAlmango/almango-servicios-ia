@@ -8,7 +8,7 @@ interface LogoCarouselProps {
     alt: string;
   }[];
   direction?: "ltr" | "rtl";
-  speed?: "normal" | "fast" | "super-fast" | "ultra-fast";
+  speed?: "normal" | "fast" | "super-fast" | "ultra-fast" | "slow" | "super-slow";
 }
 
 const LogoCarousel: React.FC<LogoCarouselProps> = ({
@@ -30,6 +30,8 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
       case "fast": return "animate-[infinite-scroll-reverse_25s_linear_infinite]";
       case "super-fast": return "animate-[infinite-scroll-reverse_20s_linear_infinite]";
       case "ultra-fast": return "animate-[infinite-scroll-reverse_15s_linear_infinite]";
+      case "slow": return "animate-[infinite-scroll-reverse_45s_linear_infinite]";
+      case "super-slow": return "animate-[infinite-scroll-reverse_60s_linear_infinite]";
       default: return "animate-[infinite-scroll-reverse_30s_linear_infinite]";
     }
   };

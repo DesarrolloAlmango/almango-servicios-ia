@@ -9,58 +9,76 @@ import { Separator } from "@/components/ui/separator";
 import ServiceCardsGrid from "@/components/ServiceCardsGrid";
 
 // First 8 logos
-const firstHalfLogos = [{
-  url: "https://almango.com.uy/img/logos/logo-sodimac.png",
-  alt: "Sodimac"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-devoto.png",
-  alt: "Devoto"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-disco.png",
-  alt: "Disco"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-geant.png",
-  alt: "Geant"
-}, {
-  url: "https://almango.com.uy/img/logos/Logos-Almango-03.png",
-  alt: "Almango"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-lacueva.png",
-  alt: "La Cueva"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-lamulata.png",
-  alt: "La Mulata"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-prontometal.png",
-  alt: "Pronto Metal"
-}];
+const firstHalfLogos = [
+  {
+    url: "https://almango.com.uy/img/logos/logo-sodimac.png",
+    alt: "Sodimac"
+  },
+  {
+    url: "https://almango.com.uy/img/logos/logo-devoto.png",
+    alt: "Devoto"
+  },
+  {
+    url: "https://almango.com.uy/img/logos/logo-disco.png",
+    alt: "Disco"
+  },
+  {
+    url: "https://almango.com.uy/img/logos/logo-geant.png",
+    alt: "Geant"
+  },
+  {
+    url: "https://almango.com.uy/img/logos/Logos-Almango-03.png",
+    alt: "Almango"
+  },
+  {
+    url: "https://almango.com.uy/img/logos/logo-lacueva.png",
+    alt: "La Cueva"
+  },
+  {
+    url: "https://almango.com.uy/img/logos/logo-lamulata.png",
+    alt: "La Mulata"
+  },
+  {
+    url: "https://almango.com.uy/img/logos/logo-prontometal.png",
+    alt: "Pronto Metal"
+  }
+];
 
 // Last 8 logos
-const secondHalfLogos = [{
-  url: "https://almango.com.uy/img/logos/logo-arte.png",
-  alt: "Arte"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-cimarron.png",
-  alt: "Cimarron"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-ferrobasso.png",
-  alt: "Ferro Basso"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-elombu.png",
-  alt: "El Ombu"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-adi.png",
-  alt: "ADI"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-volkers.png",
-  alt: "Volkers"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-tiendamia.png",
-  alt: "Tienda Mia"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-blanes.png",
-  alt: "Blanes"
-}];
+const secondHalfLogos = [
+  {
+    url: "https://almango.com.uy/img/logos/logo-arte.png",
+    alt: "Arte"
+  },
+  {
+    url: "https://almango.com.uy/img/logos/logo-cimarron.png",
+    alt: "Cimarron"
+  },
+  {
+    url: "https://almango.com.uy/img/logos/logo-ferrobasso.png",
+    alt: "Ferro Basso"
+  },
+  {
+    url: "https://almango.com.uy/img/logos/logo-elombu.png",
+    alt: "El Ombu"
+  },
+  {
+    url: "https://almango.com.uy/img/logos/logo-adi.png",
+    alt: "ADI"
+  },
+  {
+    url: "https://almango.com.uy/img/logos/logo-volkers.png",
+    alt: "Volkers"
+  },
+  {
+    url: "https://almango.com.uy/img/logos/logo-tiendamia.png",
+    alt: "Tienda Mia"
+  },
+  {
+    url: "https://almango.com.uy/img/logos/logo-blanes.png",
+    alt: "Blanes"
+  }
+];
 
 // Combine all logos into a single array for the carousel
 const allLogos = [...firstHalfLogos, ...secondHalfLogos];
@@ -154,8 +172,11 @@ const Index = () => {
         {/* Service Cards Grid - positioned to overlap with the hero section */}
         <ServiceCardsGrid />
         
-        {/* Partners Section - Updated with blue-focused design */}
-        <section ref={partnersSectionRef} className="bg-gradient-to-b from-secondary/10 to-secondary/30 py-12 animate-from-left w-full">
+        {/* Dark mode transition effect - starts after the ServiceCardsGrid */}
+        <div className="w-full h-32 bg-gradient-to-b from-[#F0F0F0] to-gray-900"></div>
+        
+        {/* Partners Section - Updated with dark mode design */}
+        <section ref={partnersSectionRef} className="bg-gray-900 py-12 animate-from-left w-full">
           <div className="container mx-auto px-4">
             <div className="relative mb-8">
               <div className="w-full max-w-3xl mx-auto">
@@ -170,12 +191,12 @@ const Index = () => {
           
           <div className="w-full px-4 py-6">
             <div className="w-full overflow-hidden max-w-6xl mx-auto">
-              <LogoCarousel logos={allLogos} direction="rtl" speed="normal" />
+              <LogoCarousel logos={allLogos} direction="rtl" speed="super-slow" />
             </div>
           </div>
         </section>
         
-        <section id="nuestros-servicios">
+        <section id="nuestros-servicios" className="bg-gray-900">
           <ServicesShowcase />
         </section>
         
