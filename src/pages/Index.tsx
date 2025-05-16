@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -8,7 +7,6 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import LogoCarousel from "@/components/LogoCarousel";
 import { Separator } from "@/components/ui/separator";
 import ServiceCardsGrid from "@/components/ServiceCardsGrid";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 // First 8 logos
 const firstHalfLogos = [{
@@ -67,7 +65,6 @@ const secondHalfLogos = [{
 // Combine all logos into a single array for the carousel
 const allLogos = [...firstHalfLogos, ...secondHalfLogos];
 const Index = () => {
-  const isMobile = useIsMobile();
   // Create refs for each section to animate
   const contratarSectionRef = useRef<HTMLElement>(null);
   const quienesSomosSectionRef = useRef<HTMLElement>(null);
@@ -145,11 +142,9 @@ const Index = () => {
       sectionObserver.disconnect();
     };
   }, []);
-  
-  return (
-    <div className="min-h-screen flex flex-col overflow-x-hidden">
+  return <div className="min-h-screen flex flex-col">
       <Header />
-      <main id="inicio" className="flex-grow bg-zinc-200 mx-0 my-0 overflow-x-hidden">
+      <main id="inicio" className="flex-grow bg-zinc-200 mx-0 my-0">
         <Hero />
         
         {/* Service Cards Grid - positioned to overlap with the hero section */}
@@ -159,7 +154,7 @@ const Index = () => {
         <Separator className="h-0.5 bg-primary/30 my-4 mx-auto w-[80%] rounded-full" />
         
         {/* Partners Section - Updated with light background */}
-        <section ref={partnersSectionRef} className="bg-[#F0F0F0] py-12 animate-from-left w-full overflow-x-hidden">
+        <section ref={partnersSectionRef} className="bg-[#F0F0F0] py-12 animate-from-left w-full">
           <div className="container mx-auto px-4">
             <div className="relative mb-8">
               <div className="w-full max-w-3xl mx-auto">
@@ -172,7 +167,7 @@ const Index = () => {
             </div>
           </div>
           
-          <div className="w-full px-4 py-6 overflow-hidden">
+          <div className="w-full px-4 py-6">
             <div className="w-full overflow-hidden max-w-6xl mx-auto">
               <LogoCarousel logos={allLogos} direction="rtl" speed="super-slow" />
             </div>
@@ -182,7 +177,7 @@ const Index = () => {
         {/* Subtle separator */}
         <Separator className="h-0.5 bg-primary/30 my-4 mx-auto w-[80%] rounded-full" />
         
-        <section id="nuestros-servicios" className="bg-[#F0F0F0] overflow-x-hidden">
+        <section id="nuestros-servicios" className="bg-[#F0F0F0]">
           <ServicesShowcase />
         </section>
         
@@ -192,7 +187,6 @@ const Index = () => {
       
       <Footer />
       <WhatsAppButton />
-    </div>
-  );
+    </div>;
 };
 export default Index;

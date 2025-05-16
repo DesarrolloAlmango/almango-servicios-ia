@@ -1,4 +1,3 @@
-
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -38,6 +37,9 @@ const Hero = () => {
           SOLICITAR SERVICIO <ArrowRight className="ml-2" size={18} />
         </Button>
       </div>
+
+      {/* Tiras de Login y Registro posicionadas en el centro vertical */}
+      
 
       <ContactInfo />
     </div>;
