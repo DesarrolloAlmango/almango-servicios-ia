@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -172,17 +173,14 @@ const Index = () => {
         {/* Service Cards Grid - positioned to overlap with the hero section */}
         <ServiceCardsGrid />
         
-        {/* Dark mode transition effect - a much more gradual transition */}
-        <div className="w-full h-64 bg-gradient-to-b from-[#F0F0F0] via-gray-400 to-gray-900"></div>
-        
-        {/* Partners Section - Updated with dark mode design */}
-        <section ref={partnersSectionRef} className="bg-gray-900 py-12 animate-from-left w-full">
+        {/* Partners Section - Updated with light background */}
+        <section ref={partnersSectionRef} className="bg-[#F0F0F0] py-12 animate-from-left w-full">
           <div className="container mx-auto px-4">
             <div className="relative mb-8">
               <div className="w-full max-w-3xl mx-auto">
-                <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col">
+                <h2 className="font-bold text-center text-gray-800 uppercase text-2xl flex flex-col">
                   <span className="bg-gradient-to-r from-secondary to-secondary/80 py-5 px-8 rounded-md inline-block shadow-lg relative overflow-hidden border-l-4 border-primary">
-                    <span className="relative z-10">ALGUNOS DE NUESTROS CLIENTES Y ALIANZAS COMERCIALES</span>
+                    <span className="relative z-10 text-white">ALGUNOS DE NUESTROS CLIENTES Y ALIANZAS COMERCIALES</span>
                   </span>
                 </h2>
               </div>
@@ -196,7 +194,7 @@ const Index = () => {
           </div>
         </section>
         
-        <section id="nuestros-servicios" className="bg-gray-900">
+        <section id="nuestros-servicios" className="bg-[#F0F0F0]">
           <ServicesShowcase />
         </section>
         

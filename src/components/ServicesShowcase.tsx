@@ -70,12 +70,30 @@ const ServicesShowcase: React.FC = () => {
       threshold: 0.1
     });
 
+    // Special observer for counter digits to animate them individually
+    const counterObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const counters = entry.target.querySelectorAll('.service-item');
+          counters.forEach((item, index) => {
+            const delay = index * 0.1;
+            (item as HTMLElement).style.animationDelay = `${delay}s`;
+            item.classList.add('animate-item-appear');
+          });
+          counterObserver.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.1
+    });
+
     // Observe sections
     if (servicesDescriptionRef.current) {
       sectionObserver.observe(servicesDescriptionRef.current);
     }
     if (counterSectionRef.current) {
       sectionObserver.observe(counterSectionRef.current);
+      counterObserver.observe(counterSectionRef.current);
     }
     if (sealsSectionRef.current) {
       sectionObserver.observe(sealsSectionRef.current);
@@ -89,19 +107,20 @@ const ServicesShowcase: React.FC = () => {
     return () => {
       sectionObserver.disconnect();
       itemObserver.disconnect();
+      counterObserver.disconnect();
     };
   }, []);
 
   return (
-    <section className="py-16 bg-gradient-to-b from-gray-900 to-gray-900">
+    <section className="py-16 bg-[#F0F0F0]">
       <div className="container mx-auto px-4">
         
         {/* Title for the Services Section - Updated with enhanced styling */}
         <div className="mb-12 relative">
           <div className="w-full max-w-3xl mx-auto">
-            <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col">
+            <h2 className="font-bold text-center text-gray-800 uppercase text-2xl flex flex-col">
               <span className="bg-gradient-to-r from-secondary to-secondary/80 py-5 px-8 rounded-md inline-block shadow-lg relative overflow-hidden border-l-4 border-primary">
-                <span className="relative z-10">SERVICIOS REALIZADOS</span>
+                <span className="relative z-10 text-white">SERVICIOS REALIZADOS</span>
               </span>
             </h2>
           </div>
@@ -111,9 +130,9 @@ const ServicesShowcase: React.FC = () => {
           {/* Services Description Content */}
         </div>
         
-        {/* Services Counter Section - Updated with gradient blue background */}
-        <div ref={counterSectionRef} className="mt-14 flex flex-col md:flex-row items-center justify-center gap-6 animate-from-left opacity-0 bg-secondary/70 py-6 px-4 rounded-md shadow-md">
-          <div className="text-white text-2xl md:text-3xl font-bold uppercase">
+        {/* Services Counter Section - Updated with orange and blue colors */}
+        <div ref={counterSectionRef} className="mt-14 flex flex-col md:flex-row items-center justify-center gap-6 animate-from-left opacity-0 bg-white/80 py-6 px-4 rounded-md shadow-md">
+          <div className="text-gray-800 text-2xl md:text-3xl font-bold uppercase">
             SERVICIOS REALIZADOS
           </div>
           
@@ -121,19 +140,20 @@ const ServicesShowcase: React.FC = () => {
             {[0, 9, 8, 8, 0, 0].map((digit, index) => (
               <div 
                 key={index} 
-                className="service-item opacity-0 bg-primary text-white w-10 h-14 md:w-12 md:h-16 flex items-center justify-center text-xl md:text-2xl font-bold mx-1 rounded-md shadow-md"
+                className="service-item opacity-0 bg-gradient-to-r from-primary to-primary/80 text-white w-10 h-14 md:w-12 md:h-16 flex items-center justify-center text-xl md:text-2xl font-bold mx-1 rounded-md shadow-md"
+                style={{background: index % 2 === 0 ? 'var(--primary)' : 'var(--secondary)'}}
               >
                 {digit}
               </div>
             ))}
           </div>
           
-          <div className="text-white text-2xl md:text-3xl font-bold uppercase">
+          <div className="text-gray-800 text-2xl md:text-3xl font-bold uppercase">
             Y CONTANDO...
           </div>
         </div>
         
-        {/* Seals Section - Updated with blue gradient background */}
+        {/* Seals Section - Updated with blue and white background */}
         <div ref={sealsSectionRef} className="mt-16 animate-from-right opacity-0">
           <div className="bg-gradient-to-r from-secondary/90 to-secondary/70 py-10 px-6 rounded-lg shadow-md">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 md:gap-6">
