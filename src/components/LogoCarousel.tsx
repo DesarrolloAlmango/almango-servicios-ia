@@ -8,7 +8,7 @@ interface LogoCarouselProps {
     alt: string;
   }[];
   direction?: "ltr" | "rtl";
-  speed?: "normal" | "fast" | "super-fast" | "ultra-fast";
+  speed?: "very-slow" | "slow" | "normal" | "fast" | "super-fast" | "ultra-fast";
 }
 
 const LogoCarousel: React.FC<LogoCarouselProps> = ({
@@ -27,15 +27,17 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
   // Calculate animation speed class based on the speed prop
   const getSpeedClass = () => {
     switch(speed) {
+      case "very-slow": return "animate-[infinite-scroll-reverse_60s_linear_infinite]";
+      case "slow": return "animate-[infinite-scroll-reverse_45s_linear_infinite]";
       case "fast": return "animate-[infinite-scroll-reverse_25s_linear_infinite]";
       case "super-fast": return "animate-[infinite-scroll-reverse_20s_linear_infinite]";
       case "ultra-fast": return "animate-[infinite-scroll-reverse_15s_linear_infinite]";
-      default: return "animate-[infinite-scroll-reverse_30s_linear_infinite]";
+      default: return "animate-[infinite-scroll-reverse_35s_linear_infinite]";
     }
   };
 
   return (
-    <div className="overflow-hidden w-full bg-secondary/90 py-5 rounded-md">
+    <div className="overflow-hidden w-full bg-gray-700/90 py-5 rounded-md">
       <Carousel 
         opts={{
           align: "start",
@@ -47,14 +49,14 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
       >
         <CarouselContent 
           className={`
-            ${direction === "rtl" ? getSpeedClass() : "animate-[infinite-scroll_30s_linear_infinite]"}
+            ${direction === "rtl" ? getSpeedClass() : "animate-[infinite-scroll_45s_linear_infinite]"}
             flex ${direction === "rtl" ? "flex-row-reverse" : "flex-row"} w-max gap-0
           `}
         >
           {extendedLogos.map((logo, index) => (
             <CarouselItem key={index} className="min-w-0 pl-0 basis-auto flex-shrink-0">
               <div className="h-28 flex items-center justify-center p-1 transition-all hover:scale-105 my-4 px-2">
-                <div className="bg-white/90 backdrop-blur-sm p-3 rounded-lg shadow-md border border-primary/20 h-full w-full flex items-center justify-center transform hover:rotate-2 hover:shadow-lg transition-all duration-300">
+                <div className="bg-gray-800/90 backdrop-blur-sm p-3 rounded-lg shadow-md border border-primary/20 h-full w-full flex items-center justify-center transform hover:rotate-2 hover:shadow-lg transition-all duration-300">
                   <img 
                     src={logo.url} 
                     alt={logo.alt} 

@@ -6,7 +6,6 @@ import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import LogoCarousel from "@/components/LogoCarousel";
 import { Separator } from "@/components/ui/separator";
-import ServiceCardsGrid from "@/components/ServiceCardsGrid";
 
 // First 8 logos
 const firstHalfLogos = [{
@@ -154,13 +153,13 @@ const Index = () => {
         {/* Service Cards Grid - positioned to overlap with the hero section */}
         <ServiceCardsGrid />
         
-        {/* Partners Section - Updated with blue-focused design */}
-        <section ref={partnersSectionRef} className="bg-gradient-to-b from-secondary/10 to-secondary/30 py-12 animate-from-left w-full">
+        {/* Partners Section - Updated with gray background */}
+        <section ref={partnersSectionRef} className="bg-gradient-to-b from-gray-800/80 to-gray-700/90 py-12 animate-from-left w-full">
           <div className="container mx-auto px-4">
             <div className="relative mb-8">
               <div className="w-full max-w-3xl mx-auto">
                 <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col">
-                  <span className="bg-gradient-to-r from-secondary to-secondary/80 py-5 px-8 rounded-md inline-block shadow-lg relative overflow-hidden border-l-4 border-primary">
+                  <span className="bg-gradient-to-r from-gray-800 to-gray-700 py-5 px-8 rounded-md inline-block shadow-lg relative overflow-hidden border-l-4 border-primary">
                     <span className="relative z-10">ALGUNOS DE NUESTROS CLIENTES Y ALIANZAS COMERCIALES</span>
                   </span>
                 </h2>
@@ -170,7 +169,7 @@ const Index = () => {
           
           <div className="w-full px-4 py-6">
             <div className="w-full overflow-hidden max-w-6xl mx-auto">
-              <LogoCarousel logos={allLogos} direction="rtl" speed="normal" />
+              <LogoCarousel logos={allLogos} direction="rtl" speed="slow" />
             </div>
           </div>
         </section>
@@ -180,8 +179,6 @@ const Index = () => {
         </section>
         
         <Separator className="h-1 bg-black" />
-        
-        
         
         <Separator className="h-1 bg-black" />
       </main>
