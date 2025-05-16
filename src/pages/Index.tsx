@@ -150,10 +150,7 @@ const Index = () => {
       <main id="inicio" className="flex-grow">
         <Hero />
         
-        {/* Service Cards Grid - positioned to overlap with the hero section */}
-        <ServiceCardsGrid />
-        
-        {/* Partners Section - Updated with gray background */}
+        {/* Partners Section - With gray background */}
         <section ref={partnersSectionRef} className="bg-gradient-to-b from-gray-800/80 to-gray-700/90 py-12 animate-from-left w-full">
           <div className="container mx-auto px-4">
             <div className="relative mb-8">
