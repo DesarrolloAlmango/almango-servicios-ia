@@ -139,15 +139,15 @@ const ServiceCardsGrid = () => {
   return (
     <div className="bg-[#F0F0F0] py-8 relative">
       <div className="container mx-auto px-24 sm:px-28 md:px-32 relative">
-        {/* Left side rotated "DESTACADOS" text - moved closer to the left */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 origin-center">
+        {/* Left side rotated "DESTACADOS" text - moved further left */}
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-20 origin-center">
           <p style={{ whiteSpace: 'nowrap' }} className="transform -rotate-90 text-4xl font-bold tracking-widest text-secondary">
             DESTACADOS
           </p>
         </div>
 
-        {/* Right side rotated "DESTACADOS" text - moved closer to the right */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 origin-center">
+        {/* Right side rotated "DESTACADOS" text - moved further right */}
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-20 origin-center">
           <p style={{ whiteSpace: 'nowrap' }} className="transform rotate-90 text-4xl font-bold tracking-widest text-primary">
             DESTACADOS
           </p>
