@@ -130,8 +130,8 @@ const ServicesShowcase: React.FC = () => {
           {/* Services Description Content */}
         </div>
         
-        {/* Services Counter Section - Updated with orange and blue colors */}
-        <div ref={counterSectionRef} className="mt-14 flex flex-col md:flex-row items-center justify-center gap-6 animate-from-left opacity-0 bg-white/80 py-6 px-4 rounded-md shadow-md">
+        {/* Services Counter Section - Updated with proper orange and blue colors */}
+        <div ref={counterSectionRef} className="mt-14 flex flex-col md:flex-row items-center justify-center gap-6 animate-from-left opacity-0 bg-white/80 py-8 px-6 rounded-md shadow-md">
           <div className="text-gray-800 text-2xl md:text-3xl font-bold uppercase">
             SERVICIOS REALIZADOS
           </div>
@@ -140,8 +140,8 @@ const ServicesShowcase: React.FC = () => {
             {[0, 9, 8, 8, 0, 0].map((digit, index) => (
               <div 
                 key={index} 
-                className="service-item opacity-0 bg-gradient-to-r from-primary to-primary/80 text-white w-10 h-14 md:w-12 md:h-16 flex items-center justify-center text-xl md:text-2xl font-bold mx-1 rounded-md shadow-md"
-                style={{background: index % 2 === 0 ? 'var(--primary)' : 'var(--secondary)'}}
+                className="service-item opacity-0 text-white w-10 h-14 md:w-12 md:h-16 flex items-center justify-center text-xl md:text-2xl font-bold mx-1 rounded-md shadow-md"
+                style={{backgroundColor: index % 2 === 0 ? '#ff6900' : '#008be1'}}
               >
                 {digit}
               </div>

@@ -173,6 +173,9 @@ const Index = () => {
         {/* Service Cards Grid - positioned to overlap with the hero section */}
         <ServiceCardsGrid />
         
+        {/* Subtle separator */}
+        <Separator className="h-0.5 bg-primary/30 my-4 mx-auto w-[80%] rounded-full" />
+        
         {/* Partners Section - Updated with light background */}
         <section ref={partnersSectionRef} className="bg-[#F0F0F0] py-12 animate-from-left w-full">
           <div className="container mx-auto px-4">
@@ -194,13 +197,15 @@ const Index = () => {
           </div>
         </section>
         
+        {/* Subtle separator */}
+        <Separator className="h-0.5 bg-primary/30 my-4 mx-auto w-[80%] rounded-full" />
+        
         <section id="nuestros-servicios" className="bg-[#F0F0F0]">
           <ServicesShowcase />
         </section>
         
-        <Separator className="h-1 bg-black" />
-        
-        <Separator className="h-1 bg-black" />
+        {/* Subtle separator */}
+        <Separator className="h-0.5 bg-primary/30 my-4 mx-auto w-[80%] rounded-full" />
       </main>
       
       <Footer />
