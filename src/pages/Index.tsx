@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -10,87 +9,67 @@ import { Separator } from "@/components/ui/separator";
 import ServiceCardsGrid from "@/components/ServiceCardsGrid";
 
 // First 8 logos
-const firstHalfLogos = [
-  {
-    url: "https://almango.com.uy/img/logos/logo-sodimac.png",
-    alt: "Sodimac"
-  },
-  {
-    url: "https://almango.com.uy/img/logos/logo-devoto.png",
-    alt: "Devoto"
-  },
-  {
-    url: "https://almango.com.uy/img/logos/logo-disco.png",
-    alt: "Disco"
-  },
-  {
-    url: "https://almango.com.uy/img/logos/logo-geant.png",
-    alt: "Geant"
-  },
-  {
-    url: "https://almango.com.uy/img/logos/Logos-Almango-03.png",
-    alt: "Almango"
-  },
-  {
-    url: "https://almango.com.uy/img/logos/logo-lacueva.png",
-    alt: "La Cueva"
-  },
-  {
-    url: "https://almango.com.uy/img/logos/logo-lamulata.png",
-    alt: "La Mulata"
-  },
-  {
-    url: "https://almango.com.uy/img/logos/logo-prontometal.png",
-    alt: "Pronto Metal"
-  }
-];
+const firstHalfLogos = [{
+  url: "https://almango.com.uy/img/logos/logo-sodimac.png",
+  alt: "Sodimac"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-devoto.png",
+  alt: "Devoto"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-disco.png",
+  alt: "Disco"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-geant.png",
+  alt: "Geant"
+}, {
+  url: "https://almango.com.uy/img/logos/Logos-Almango-03.png",
+  alt: "Almango"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-lacueva.png",
+  alt: "La Cueva"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-lamulata.png",
+  alt: "La Mulata"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-prontometal.png",
+  alt: "Pronto Metal"
+}];
 
 // Last 8 logos
-const secondHalfLogos = [
-  {
-    url: "https://almango.com.uy/img/logos/logo-arte.png",
-    alt: "Arte"
-  },
-  {
-    url: "https://almango.com.uy/img/logos/logo-cimarron.png",
-    alt: "Cimarron"
-  },
-  {
-    url: "https://almango.com.uy/img/logos/logo-ferrobasso.png",
-    alt: "Ferro Basso"
-  },
-  {
-    url: "https://almango.com.uy/img/logos/logo-elombu.png",
-    alt: "El Ombu"
-  },
-  {
-    url: "https://almango.com.uy/img/logos/logo-adi.png",
-    alt: "ADI"
-  },
-  {
-    url: "https://almango.com.uy/img/logos/logo-volkers.png",
-    alt: "Volkers"
-  },
-  {
-    url: "https://almango.com.uy/img/logos/logo-tiendamia.png",
-    alt: "Tienda Mia"
-  },
-  {
-    url: "https://almango.com.uy/img/logos/logo-blanes.png",
-    alt: "Blanes"
-  }
-];
+const secondHalfLogos = [{
+  url: "https://almango.com.uy/img/logos/logo-arte.png",
+  alt: "Arte"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-cimarron.png",
+  alt: "Cimarron"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-ferrobasso.png",
+  alt: "Ferro Basso"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-elombu.png",
+  alt: "El Ombu"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-adi.png",
+  alt: "ADI"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-volkers.png",
+  alt: "Volkers"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-tiendamia.png",
+  alt: "Tienda Mia"
+}, {
+  url: "https://almango.com.uy/img/logos/logo-blanes.png",
+  alt: "Blanes"
+}];
 
 // Combine all logos into a single array for the carousel
 const allLogos = [...firstHalfLogos, ...secondHalfLogos];
-
 const Index = () => {
   // Create refs for each section to animate
   const contratarSectionRef = useRef<HTMLElement>(null);
   const quienesSomosSectionRef = useRef<HTMLElement>(null);
   const formarParteSectionRef = useRef<HTMLElement>(null);
   const partnersSectionRef = useRef<HTMLElement>(null);
-
   useEffect(() => {
     const options = {
       root: null,
@@ -163,11 +142,9 @@ const Index = () => {
       sectionObserver.disconnect();
     };
   }, []);
-
-  return (
-    <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col">
       <Header />
-      <main id="inicio" className="flex-grow">
+      <main id="inicio" className="flex-grow bg-zinc-200 mx-0 my-0">
         <Hero />
         
         {/* Service Cards Grid - positioned to overlap with the hero section */}
@@ -210,8 +187,6 @@ const Index = () => {
       
       <Footer />
       <WhatsAppButton />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
