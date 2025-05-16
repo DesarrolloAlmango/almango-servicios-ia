@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -155,23 +154,22 @@ const Index = () => {
         {/* Service Cards Grid - positioned to overlap with the hero section */}
         <ServiceCardsGrid />
         
-        {/* Partners Section - Updated with more elegant styling */}
-        <section ref={partnersSectionRef} className="bg-[#F0F0F0] py-16 animate-from-left w-full">
-          <div className="container mx-auto">
-            <div className="relative mb-12">
+        {/* Partners Section - Updated with blue-focused design */}
+        <section ref={partnersSectionRef} className="bg-gradient-to-b from-secondary/10 to-secondary/30 py-12 animate-from-left w-full">
+          <div className="container mx-auto px-4">
+            <div className="relative mb-8">
               <div className="w-full max-w-3xl mx-auto">
                 <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col">
-                  <span className="bg-secondary py-5 px-8 rounded-md inline-block shadow-lg relative overflow-hidden">
+                  <span className="bg-gradient-to-r from-secondary to-secondary/80 py-5 px-8 rounded-md inline-block shadow-lg relative overflow-hidden border-l-4 border-primary">
                     <span className="relative z-10">ALGUNOS DE NUESTROS CLIENTES Y ALIANZAS COMERCIALES</span>
-                    <span className="absolute inset-0 bg-gradient-to-r from-secondary to-secondary/80 z-0"></span>
                   </span>
                 </h2>
               </div>
             </div>
           </div>
           
-          <div className="w-full px-0 bg-white py-6 shadow-inner">
-            <div className="w-full overflow-hidden">
+          <div className="w-full px-4 py-6">
+            <div className="w-full overflow-hidden max-w-6xl mx-auto">
               <LogoCarousel logos={allLogos} direction="rtl" speed="normal" />
             </div>
           </div>
