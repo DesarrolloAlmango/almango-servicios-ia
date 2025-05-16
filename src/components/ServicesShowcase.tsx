@@ -1,76 +1,10 @@
-import React, { useEffect, useRef } from 'react';
 
-interface ServiceItem {
-  title: string;
-  imageUrl: string;
-}
+import React, { useEffect, useRef } from 'react';
 
 interface SealItem {
   imageUrl: string;
   alt: string;
 }
-
-const ServiceItems: ServiceItem[] = [{
-  title: "INSTALACIONES ELÉCTRICAS",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-01.png"
-}, {
-  title: "ARMADO DE MUEBLES",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-04.png"
-}, {
-  title: "INSTALACIONES SANITARIAS",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-02.png"
-}, {
-  title: "SERVICIO DE A/A",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-05.png"
-}, {
-  title: "MUDANZAS",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-03.png"
-}, {
-  title: "INSTALACIÓN DE ELECTRO DOMÉSTICOS",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-06.png"
-}, {
-  title: "JARDINERÍA",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-07.png"
-}, {
-  title: "ALBAÑILERÍA",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-11.png"
-}, {
-  title: "REVESTIMIENTO",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-08.png"
-}, {
-  title: "PINTURA",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-12.png"
-}, {
-  title: "SISTEMAS DE SEGURIDAD",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-09.png"
-}, {
-  title: "CERRAJERÍA",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-09.png"
-}, {
-  title: "DECO HOGAR",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-10.png"
-}, {
-  title: "HERRERÍA",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-14.png"
-}, {
-  title: "LIMPIEZA",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-15.png"
-}, {
-  title: "FUMIGACIÓN",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-16.png"
-}, {
-  title: "SERVICIO TÉCNICO",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-17.png"
-}, {
-  title: "STEEL FRAMING",
-  imageUrl: "https://almango.com.uy/img/iconos/icon-steelframing.png"
-}, {
-  title: "MONTAJES PARA DEPÓSITOS",
-  imageUrl: "https://almango.com.uy/img/iconos/icon-depositos.png"
-}, {
-  title: "CALEFACCIÓN",
-  imageUrl: "https://almango.com.uy/img/iconos/icono-almango-18.png"
-}];
 
 const SealItems: SealItem[] = [{
   imageUrl: "https://almango.com.uy/img/caracteristicas/01-atencion-personalizada.svg",
@@ -95,7 +29,6 @@ const SealItems: SealItem[] = [{
 const ServicesShowcase: React.FC = () => {
   // Create refs for each section to animate
   const servicesDescriptionRef = useRef<HTMLDivElement>(null);
-  const servicesGridRef = useRef<HTMLDivElement>(null);
   const counterSectionRef = useRef<HTMLDivElement>(null);
   const sealsSectionRef = useRef<HTMLDivElement>(null);
 
@@ -141,22 +74,12 @@ const ServicesShowcase: React.FC = () => {
     if (servicesDescriptionRef.current) {
       sectionObserver.observe(servicesDescriptionRef.current);
     }
-    if (servicesGridRef.current) {
-      sectionObserver.observe(servicesGridRef.current);
-    }
     if (counterSectionRef.current) {
       sectionObserver.observe(counterSectionRef.current);
     }
     if (sealsSectionRef.current) {
       sectionObserver.observe(sealsSectionRef.current);
     }
-
-    // Observe each service item
-    document.querySelectorAll('.service-item').forEach((item, index) => {
-      // Store index for staggered delay
-      item.setAttribute('data-index', index.toString());
-      itemObserver.observe(item);
-    });
 
     // Observe each seal item
     document.querySelectorAll('.seal-item').forEach((item, index) => {
@@ -170,7 +93,7 @@ const ServicesShowcase: React.FC = () => {
   }, []);
 
   return (
-    <section className="py-16 bg-gradient-to-b from-secondary/30 to-secondary/10">
+    <section className="py-16 bg-gradient-to-b from-gray-900 to-gray-900">
       <div className="container mx-auto px-4">
         
         {/* Title for the Services Section - Updated with enhanced styling */}
@@ -186,20 +109,6 @@ const ServicesShowcase: React.FC = () => {
         
         <div ref={servicesDescriptionRef} className="max-w-3xl mx-auto mt-8 mb-12 animate-from-left opacity-0">
           {/* Services Description Content */}
-        </div>
-        
-        {/* Updated grid with blue backgrounds and orange accents */}
-        <div ref={servicesGridRef} className="animate-from-right opacity-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-          {ServiceItems.map((service, index) => (
-            <div key={index} className="service-item opacity-0 cursor-pointer transition-transform duration-300 hover:scale-105 p-2">
-              <div className="bg-secondary/80 rounded-lg p-3 h-full shadow-md flex flex-col items-center justify-center hover:shadow-lg transition-all border-t-2 border-primary/70">
-                <div className="bg-white/90 rounded-full p-2 mb-2">
-                  <img src={service.imageUrl} alt={service.title} className="h-12 w-12 object-contain" />
-                </div>
-                <p className="text-xs font-semibold text-center mt-1 text-white">{service.title}</p>
-              </div>
-            </div>
-          ))}
         </div>
         
         {/* Services Counter Section - Updated with gradient blue background */}

@@ -172,8 +172,8 @@ const Index = () => {
         {/* Service Cards Grid - positioned to overlap with the hero section */}
         <ServiceCardsGrid />
         
-        {/* Dark mode transition effect - starts after the ServiceCardsGrid */}
-        <div className="w-full h-32 bg-gradient-to-b from-[#F0F0F0] to-gray-900"></div>
+        {/* Dark mode transition effect - a much more gradual transition */}
+        <div className="w-full h-64 bg-gradient-to-b from-[#F0F0F0] via-gray-400 to-gray-900"></div>
         
         {/* Partners Section - Updated with dark mode design */}
         <section ref={partnersSectionRef} className="bg-gray-900 py-12 animate-from-left w-full">
@@ -201,8 +201,6 @@ const Index = () => {
         </section>
         
         <Separator className="h-1 bg-black" />
-        
-        
         
         <Separator className="h-1 bg-black" />
       </main>
