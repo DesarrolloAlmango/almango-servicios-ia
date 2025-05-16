@@ -170,14 +170,14 @@ const ServicesShowcase: React.FC = () => {
   }, []);
 
   return (
-    <section className="py-16 bg-gradient-to-b from-gray-800/80 to-gray-700/90">
+    <section className="py-16 bg-gradient-to-b from-secondary/30 to-secondary/10">
       <div className="container mx-auto px-4">
         
-        {/* Title for the Services Section - Updated with gray styling */}
+        {/* Title for the Services Section - Updated with enhanced styling */}
         <div className="mb-12 relative">
           <div className="w-full max-w-3xl mx-auto">
             <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col">
-              <span className="bg-gradient-to-r from-gray-800 to-gray-700 py-5 px-8 rounded-md inline-block shadow-lg relative overflow-hidden border-l-4 border-primary">
+              <span className="bg-gradient-to-r from-secondary to-secondary/80 py-5 px-8 rounded-md inline-block shadow-lg relative overflow-hidden border-l-4 border-primary">
                 <span className="relative z-10">SERVICIOS REALIZADOS</span>
               </span>
             </h2>
@@ -188,12 +188,12 @@ const ServicesShowcase: React.FC = () => {
           {/* Services Description Content */}
         </div>
         
-        {/* Updated grid with gray backgrounds and orange accents */}
+        {/* Updated grid with blue backgrounds and orange accents */}
         <div ref={servicesGridRef} className="animate-from-right opacity-0 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           {ServiceItems.map((service, index) => (
             <div key={index} className="service-item opacity-0 cursor-pointer transition-transform duration-300 hover:scale-105 p-2">
-              <div className="bg-gray-800/90 rounded-lg p-3 h-full shadow-md flex flex-col items-center justify-center hover:shadow-lg transition-all border-t-2 border-primary/70">
-                <div className="bg-gray-700/90 rounded-full p-2 mb-2">
+              <div className="bg-secondary/80 rounded-lg p-3 h-full shadow-md flex flex-col items-center justify-center hover:shadow-lg transition-all border-t-2 border-primary/70">
+                <div className="bg-white/90 rounded-full p-2 mb-2">
                   <img src={service.imageUrl} alt={service.title} className="h-12 w-12 object-contain" />
                 </div>
                 <p className="text-xs font-semibold text-center mt-1 text-white">{service.title}</p>
@@ -202,8 +202,8 @@ const ServicesShowcase: React.FC = () => {
           ))}
         </div>
         
-        {/* Services Counter Section - Updated with gray gradient background */}
-        <div ref={counterSectionRef} className="mt-14 flex flex-col md:flex-row items-center justify-center gap-6 animate-from-left opacity-0 bg-gray-800/90 py-6 px-4 rounded-md shadow-md">
+        {/* Services Counter Section - Updated with gradient blue background */}
+        <div ref={counterSectionRef} className="mt-14 flex flex-col md:flex-row items-center justify-center gap-6 animate-from-left opacity-0 bg-secondary/70 py-6 px-4 rounded-md shadow-md">
           <div className="text-white text-2xl md:text-3xl font-bold uppercase">
             SERVICIOS REALIZADOS
           </div>
@@ -224,13 +224,13 @@ const ServicesShowcase: React.FC = () => {
           </div>
         </div>
         
-        {/* Seals Section - Updated with gray gradient background */}
+        {/* Seals Section - Updated with blue gradient background */}
         <div ref={sealsSectionRef} className="mt-16 animate-from-right opacity-0">
-          <div className="bg-gradient-to-r from-gray-800/95 to-gray-700/90 py-10 px-6 rounded-lg shadow-md">
+          <div className="bg-gradient-to-r from-secondary/90 to-secondary/70 py-10 px-6 rounded-lg shadow-md">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 md:gap-6">
               {SealItems.map((seal, index) => (
                 <div key={index} className="flex flex-col items-center seal-item opacity-0">
-                  <div className="h-28 w-28 p-3 rounded-full bg-gray-900/70 shadow-md border border-primary/40 flex items-center justify-center mb-3 hover:shadow-lg transition-all duration-300 transform hover:rotate-6">
+                  <div className="h-28 w-28 p-3 rounded-full bg-white/90 shadow-md border border-primary/40 flex items-center justify-center mb-3 hover:shadow-lg transition-all duration-300 transform hover:rotate-6">
                     <img 
                       src={seal.imageUrl} 
                       alt={seal.alt} 
