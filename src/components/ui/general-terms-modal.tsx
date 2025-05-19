@@ -77,7 +77,7 @@ export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
         {loading ? (
           <div className="flex justify-center items-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            <span className="ml-2">Cargando términos y condiciones...</span>
+            <span className="ml-2">Cargando...</span>
           </div>
         ) : (
           <div 

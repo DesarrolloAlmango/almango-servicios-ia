@@ -77,7 +77,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
             disabled={loading.departments}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={loading.departments ? "Cargando departamentos..." : "Selecciona un departamento"} />
+              <SelectValue placeholder={loading.departments ? "Cargando..." : "Selecciona un departamento"} />
             </SelectTrigger>
             <SelectContent>
               {loading.departments ? (
@@ -106,7 +106,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder={
-                loading.municipalities ? "Cargando localidades..." : 
+                loading.municipalities ? "Cargando..." : 
                 !selectedDepartment ? "Selecciona un departamento primero" : 
                 currentMunicipalities.length === 0 ? "No hay localidades disponibles" :
                 "Selecciona una localidad"
