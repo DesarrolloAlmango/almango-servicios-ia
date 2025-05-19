@@ -352,6 +352,12 @@ const Servicios = () => {
       setSelectedServiceName(service.name);
     }
     
+    // Show toast with service ID
+    toast.info(`Servicio seleccionado: ${serviceId}`, {
+      duration: 3000,
+      position: "top-center"
+    });
+    
     // Check if location exists for this service
     const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
     
