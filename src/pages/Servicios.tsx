@@ -1,3 +1,7 @@
+<think>
+
+</think>
+
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin, CalendarClock, UserCheck, CreditCard, Star } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -376,12 +380,11 @@ const Servicios = () => {
         });
       });
       
-      // Set pendingServiceCardAction to true to trigger product selection
-      // This ensures the products are loaded using ObtenerNivel2 endpoint
+      // Set pendingServiceCardAction to true to trigger product grid opening
       setPendingServiceCardAction(true);
       
       // Show feedback to user that category was selected and products are loading
-      toast.success(`Cargando productos de ${categoryName}`);
+      toast.success(`Cargando precios de productos para ${categoryName}`);
       
       console.log("Loading products with parameters:", {
         serviceId,
@@ -391,9 +394,9 @@ const Servicios = () => {
         locationId: existingLocation.locationId
       });
       
-      // Important: Don't close the modal/popup - let it stay open to show products
-      // Here you would typically call your ObtenerNivel2 endpoint
-      // fetchProductsNivel2(serviceId, categoryId, existingLocation.storeId, existingLocation.departmentId, existingLocation.locationId);
+      // Don't close the modal/popup - let it stay open to show product prices
+      // The ServiceCard component will open the product grid because forceOpen is true
+      return;
     } else {
       // If there's no location yet, open the location modal
       setIsLocationModalOpen(true);

@@ -312,8 +312,10 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   }
 
   // Handle category click without closing modal
-  const handleCategoryClick = (categoryId: string, categoryName: string) => {
-    // Prevent default event behavior to avoid modal closing
+  const handleCategoryClick = (categoryId: string, categoryName: string, e: React.MouseEvent) => {
+    // Prevent event bubbling to stop modal closing
+    e.stopPropagation();
+    // Call the parent component's handler
     onSelectCategory(categoryId, categoryName);
   };
 
@@ -326,11 +328,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }}>
         <CarouselContent className="-ml-2 sm:-ml-4">
           {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="\n                basis-1/2 \n                sm:basis-1/3 \n                lg:basis-1/4\n                pl-2 sm:pl-4\nmx-1\n              ">
-              <div onClick={(e) => {
-                // Prevent event bubbling to stop modal closing
-                e.stopPropagation();
-                handleCategoryClick(category.id, category.name);
-              }} 
+              <div onClick={(e) => handleCategoryClick(category.id, category.name, e)} 
               className="cursor-pointer hover:scale-105 transition-transform mx-5px">
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                   <AspectRatio ratio={1} className="bg-gray-100">
