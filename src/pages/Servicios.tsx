@@ -313,6 +313,7 @@ const Servicios = () => {
   };
   const handleServiceCardClick = (serviceId: string | undefined, serviceName: string) => {
     if (!serviceId) return false;
+    
     if (commerceId) {
       const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId && loc.departmentId && loc.locationId);
       if (existingLocation) {
@@ -324,9 +325,11 @@ const Servicios = () => {
         return false;
       }
     }
+    
     if (isLocationModalOpen) {
       return false;
     }
+    
     const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
     if (existingLocation) {
       return true;
@@ -337,16 +340,21 @@ const Servicios = () => {
       return false;
     }
   };
+
   const handleCategorySelect = (serviceId: string, categoryId: string, categoryName: string) => {
     setSelectedServiceId(serviceId);
     setSelectedCategoryId(categoryId);
     setSelectedCategoryName(categoryName);
+    
     const service = [...(displayedServices || []), ...(displayedMudanzaServices || [])].find(s => s.id === serviceId);
     if (service) {
       setSelectedServiceName(service.name);
     }
+    
     const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId && loc.departmentId && loc.locationId);
+    
     if (existingLocation) {
+      // Update the existing location with the selected category but don't close the modal
       setPurchaseLocations(prev => {
         return prev.map(loc => {
           if (loc.serviceId === serviceId) {
@@ -359,11 +367,15 @@ const Servicios = () => {
           return loc;
         });
       });
+      
+      // Set pendingServiceCardAction to true to trigger product selection
       setPendingServiceCardAction(true);
     } else {
+      // If there's no location yet, open the location modal
       setIsLocationModalOpen(true);
     }
   };
+
   const handleLocationSelect = (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string) => {
     if (selectedServiceId && selectedServiceName) {
       const newLocation: PurchaseLocation = {
