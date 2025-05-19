@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { Skeleton, PriceSkeleton, TextSkeleton } from "./ui/skeleton";
 import { toast } from "sonner";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent } from "./ui/dialog";
 
 interface CartItem {
   id: string;
@@ -218,8 +218,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   useEffect(() => {
     // Set initial state with product base data
     if (category.products.length > 0 && !pricesFetched) {
-      console.log(`Loading products for category: ${category.name}, serviceId: ${serviceId}, locationId: ${purchaseLocationId}`);
-      
       // Initialize all products with their default prices first
       const initialProducts = category.products.map(product => ({ 
         ...product, 
@@ -523,20 +521,20 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       dialogOpenRef.current = true;
     }
     
-    // This effect triggers when forceOpen becomes true
-    // or when purchaseLocation changes and contains a categoryId
-    if (forceOpen && id && !dialogOpenRef.current) {
-      console.log("forceOpen triggered, opening dialog", { forceOpen, id, purchaseLocation });
+    // Modificamos esta función para llamar directamente a ObtenerNivel2 cuando tenemos categoryId
+    if (forceOpen && id && purchaseLocation && !dialogOpenRef.current) {
       setIsDialogOpen(true);
       
-      // If we have a purchase location with categoryId, we can load products directly
-      if (purchaseLocation?.categoryId) {
-        console.log("Loading products for category", purchaseLocation.categoryId);
+      // Si tenemos categoryId, cargar directamente los productos
+      if (purchaseLocation.categoryId) {
         fetchProducts(id, purchaseLocation.categoryId);
       } else {
-        // Otherwise load categories first
+        // Solo si no hay categoryId, cargamos primero las categorías
         fetchCategories(id);
       }
+    } else if (forceOpen && id && !dialogOpenRef.current) {
+      setIsDialogOpen(true);
+      fetchCategories(id);
     }
     
     // Reset the tracking ref when dialog closes
@@ -651,18 +649,10 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   
   const handleCategorySelect = (category: Category) => {
     if (id && onCategorySelect) {
-      console.log("Category selected in ServiceCard:", category.id, category.name);
-      // Notify the parent component to handle location selection if needed
+      // Notificamos al componente padre para que muestre el modal de ubicación o los productos
       onCategorySelect(id, category.id, category.name);
-      
-      // Don't close dialog here - let parent component decide
-      // Parent will set forceOpen to true if products should be shown
-      
-      // Only if we already have products, show them directly
-      if (category.products && category.products.length > 0) {
-        setSelectedCategory(category);
-      }
-    } else if (category.products && category.products.length > 0) {
+      setIsDialogOpen(false);
+    } else if (category.products.length > 0) {
       setSelectedCategory(category);
     } else if (id) {
       fetchProducts(id, category.id);
@@ -754,7 +744,6 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
               : "max-w-4xl"}`
           }
         >
-          <DialogTitle className="sr-only">{name}</DialogTitle>
           <div className="p-4 sm:p-6">
             <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4 text-center px-3 mx-auto text-orange-500 truncate uppercase">{name}</h2>
             

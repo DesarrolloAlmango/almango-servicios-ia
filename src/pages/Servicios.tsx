@@ -343,7 +343,6 @@ const Servicios = () => {
   };
 
   const handleCategorySelect = (serviceId: string, categoryId: string, categoryName: string) => {
-    console.log("Category selected in Servicios:", serviceId, categoryId, categoryName);
     setSelectedServiceId(serviceId);
     setSelectedCategoryId(categoryId);
     setSelectedCategoryName(categoryName);
@@ -352,6 +351,12 @@ const Servicios = () => {
     if (service) {
       setSelectedServiceName(service.name);
     }
+    
+    // Show toast with service ID
+    toast.info(`Servicio seleccionado: ${serviceId}`, {
+      duration: 3000,
+      position: "top-center"
+    });
     
     // Check if location exists for this service
     const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
@@ -371,10 +376,11 @@ const Servicios = () => {
         });
       });
       
-      // Set pendingServiceCardAction to true to trigger product grid opening
+      // Set pendingServiceCardAction to true to trigger product selection
+      // This ensures the products are loaded using ObtenerNivel2 endpoint
       setPendingServiceCardAction(true);
       
-      // Show feedback to user that products are loading
+      // Show feedback to user that category was selected and products are loading
       toast.success(`Cargando productos de ${categoryName}`);
       
       console.log("Loading products with parameters:", {
@@ -385,28 +391,16 @@ const Servicios = () => {
         locationId: existingLocation.locationId
       });
       
-      // The service card component will open the product grid because pendingServiceCardAction is true
-      // and we have updated the purchase location with the new categoryId
-      return;
+      // Here you would typically call your ObtenerNivel2 endpoint
+      // fetchProductsNivel2(serviceId, categoryId, existingLocation.storeId, existingLocation.departmentId, existingLocation.locationId);
     } else {
-      // If there's no location yet for this service, open the location modal
+      // If there's no location yet, open the location modal
       setIsLocationModalOpen(true);
     }
   };
 
   const handleLocationSelect = (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string) => {
     if (selectedServiceId && selectedServiceName) {
-      console.log("Location selected:", {
-        storeId, 
-        storeName, 
-        departmentId, 
-        departmentName, 
-        locationId, 
-        locationName,
-        selectedServiceId,
-        selectedCategoryId
-      });
-      
       const newLocation: PurchaseLocation = {
         storeId,
         storeName,
@@ -420,7 +414,6 @@ const Servicios = () => {
         categoryId: selectedCategoryId || undefined,
         categoryName: selectedCategoryName || undefined
       };
-      
       const existingLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
       setPurchaseLocations(prev => {
         if (existingLocation) {
@@ -431,26 +424,19 @@ const Servicios = () => {
           return [...prev, newLocation];
         }
       });
-      
       setIsLocationModalOpen(false);
-      
       let successMessage = "";
       if (selectedCategoryId && selectedCategoryName) {
         successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName} - ${selectedCategoryName}`;
       } else {
         successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName}`;
       }
-      
       toast.success(successMessage);
-      
-      // If a category was selected, trigger the product grid to open
       if (selectedCategoryId) {
-        console.log("Setting pendingServiceCardAction to true to open product grid");
         setPendingServiceCardAction(true);
       }
     }
   };
-
   const clearPurchaseLocation = (serviceId: string, categoryId?: string) => {
     if (commerceId) return;
     const locationsToRemove = categoryId ? purchaseLocations.filter(loc => loc.serviceId === serviceId && loc.categoryId === categoryId) : purchaseLocations.filter(loc => loc.serviceId === serviceId);
@@ -477,7 +463,6 @@ const Servicios = () => {
       toast.success("Lugar de compra eliminado");
     }
   };
-
   const confirmDeleteLocation = () => {
     if (!locationToDelete) return;
     setCartItems(prev => prev.filter(item => item.serviceId !== locationToDelete.serviceId));
@@ -486,7 +471,6 @@ const Servicios = () => {
     setLocationToDelete(null);
     toast.success("Lugar de compra y productos asociados eliminados");
   };
-
   if (isServicesLoading && isLoadingMudanza) {
     return <div className="min-h-screen flex flex-col">
         <div className="absolute inset-0 z-0 bg-[#14162c]">
