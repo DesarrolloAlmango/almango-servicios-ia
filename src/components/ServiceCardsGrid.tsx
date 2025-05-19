@@ -149,9 +149,9 @@ const ServiceCardsGrid = () => {
             </p>
           </div>}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 -mt-24 relative justify-center" style={{
+        <div style={{
         zIndex: 60
-      }}>
+      }} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 relative justify-center">
           {services.map(service => <Card key={service.id} onClick={() => handleServiceClick(service.id, service.name)} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 h-40 overflow-hidden w-full max-w-md mx-auto">
               <CardContent className="p-0 flex flex-col items-center justify-center h-full relative">
                 {/* Use AspectRatio to maintain image proportions */}
