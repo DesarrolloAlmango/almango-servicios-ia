@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -144,11 +145,15 @@ const Index = () => {
   }, []);
   return <div className="min-h-screen flex flex-col overflow-x-hidden">
       <Header />
-      <main id="inicio" className="flex-grow bg-zinc-200 mx-0 my-0 overflow-x-hidden">
-        <Hero />
+      <main id="inicio" className="flex-grow bg-zinc-200 mx-0 my-0 overflow-x-hidden relative">
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <Hero />
+        </div>
         
-        {/* Service Cards Grid - positioned to overlap with the hero section */}
-        <ServiceCardsGrid />
+        {/* Service Cards Grid - positioned to overlap with the hero section with higher z-index */}
+        <div style={{ position: 'relative', zIndex: 10 }}>
+          <ServiceCardsGrid />
+        </div>
         
         {/* Subtle separator */}
         <Separator className="h-0.5 bg-primary/30 my-4 mx-auto w-[80%] rounded-full" />

@@ -17,7 +17,7 @@ const Hero = () => {
     setIsLoaded(true);
   }, []);
   
-  return <div className={`relative w-full overflow-hidden overflow-x-hidden ${isMobile ? "min-h-[calc(75vh-40px)]" : "min-h-[75vh] md:min-h-[82vh]"} flex items-start pt-16 md:pt-20`}>
+  return <div className={`relative w-full overflow-hidden overflow-x-hidden ${isMobile ? "min-h-[calc(75vh-40px)]" : "min-h-[75vh] md:min-h-[82vh]"} flex items-start pt-16 md:pt-20`} style={{ zIndex: 1 }}>
       {/* Hero background with primary colors */}
       <div className="absolute inset-0 z-0 bg-[#14162c]">
         <div className="absolute inset-0 z-1" style={{

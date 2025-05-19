@@ -123,8 +123,8 @@ const ServiceCardsGrid = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-24 bg-[#F0F0F0] overflow-hidden">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 -mt-24 z-20 relative justify-center">
+      <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-24 bg-[#F0F0F0] overflow-hidden" style={{ zIndex: 50 }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 -mt-24 z-50 relative justify-center">
           {[...Array(6)].map((_, index) => (
             <Card key={`skeleton-${index}`} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 h-40 animate-pulse w-full max-w-md mx-auto">
               <CardContent className="p-4 flex flex-col items-center justify-center h-full">
@@ -139,7 +139,7 @@ const ServiceCardsGrid = () => {
   }
 
   return (
-    <div className="bg-[#F0F0F0] py-8 relative overflow-hidden overflow-x-hidden z-30">
+    <div className="bg-[#F0F0F0] py-8 relative overflow-hidden overflow-x-hidden" style={{ zIndex: 50 }}>
       <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-24 relative">
         {/* Left side rotated "DESTACADOS" text - visible only on non-mobile */}
         {!isMobile && (
@@ -159,7 +159,7 @@ const ServiceCardsGrid = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 -mt-24 z-40 relative justify-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 -mt-24 relative justify-center" style={{ zIndex: 60 }}>
           {services.map(service => (
             <Card
               key={service.id}
