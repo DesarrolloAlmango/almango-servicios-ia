@@ -44,7 +44,7 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
       align: shouldCenter ? "center" : "start",
       loop: children.length > 2,
       containScroll: "trimSnaps"
-    }} showLoadingNames={showLoadingNames} loadingItems={loadingItems} className="">
+    }} className="w-full relative overflow-visible" showLoadingNames={showLoadingNames} loadingItems={loadingItems}>
         <CarouselContent className="-ml-2 sm:-ml-4 overflow-visible">
           {children.map((child, index) => <CarouselItem key={index} className={`pl-2 sm:pl-4 
                 basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 
