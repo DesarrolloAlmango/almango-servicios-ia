@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { useIsMobile } from "@/hooks/use-mobile";
-
 interface ServiceCard {
   id: string;
   name: string;
@@ -52,7 +51,6 @@ const mockMudanzaServices: ServiceCard[] = [{
   icon: "https://tn.com.ar/resizer/v2/en-febrero-hacer-una-mudanza-en-el-amba-puede-costar-hasta-500000-foto-blogdeseguroscom-R76YF6LYRVFEHIWDAB5QT4S2EM.png?auth=0e45d37cfd3288d80391fb141181b48361378c8617a55a19aed4d0348d10ac9a&width=1440",
   url: "https://app.almango.com.uy/mudanza.aspx?Mode=INS&MudanzaId=0&ProveedorId=0&SecUserId=0"
 }];
-
 const ServiceCardsGrid = () => {
   const [services, setServices] = useState<ServiceCard[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -132,7 +130,9 @@ const ServiceCardsGrid = () => {
   return <div className="bg-[#F0F0F0] py-8 relative overflow-hidden overflow-x-hidden" style={{
     zIndex: 100
   }}>
-      <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-24 relative" style={{ zIndex: 80 }}>
+      <div style={{
+      zIndex: 80
+    }} className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-24 relative z-2">
         {/* Left side rotated "DESTACADOS" text - visible only on non-mobile */}
         {!isMobile && <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-20 origin-center hidden md:block">
             <p style={{
@@ -174,5 +174,4 @@ const ServiceCardsGrid = () => {
       </div>
     </div>;
 };
-
 export default ServiceCardsGrid;
