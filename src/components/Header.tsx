@@ -97,6 +97,15 @@ const Header = () => {
     setIsSheetOpen(false);
   };
 
+  // Handle navigation to the services page
+  const navigateToServices = () => {
+    // Navigate to the services page - using window.location.href for a full page navigation
+    window.location.href = '/servicios';
+    
+    // Close the sheet when a navigation option is clicked
+    setIsSheetOpen(false);
+  };
+
   return <header className={cn('top-0 left-0 right-0 z-50 transition-all duration-300 border-b font-sans', isScrolled ? 'bg-primary shadow-md py-0 border-black border-b-8' : 'bg-primary py-1 border-black border-b-8', isVisible ? 'fixed' : 'fixed -translate-y-full')}>
       <div className="container mx-auto flex justify-between items-center px-4 relative">
         {/* Logo */}
@@ -138,17 +147,17 @@ const Header = () => {
                   </AccordionItem>
                 </Accordion>
 
-                <button onClick={() => scrollToSection('nuestros-servicios')} className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left flex items-center gap-2">
+                <button onClick={() => navigateToServices()} className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left flex items-center gap-2">
                   <FileText size={18} />
                   <span>Solicitar Servicio</span>
                 </button>
                 
-                <button onClick={() => redirectToExternalURL('https://app.almango.com.uy/login')} className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left flex items-center gap-2">
+                <button onClick={() => redirectToExternalURL('https://app.almango.com.uy/wwpbaseobjects.login.aspx')} className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left flex items-center gap-2">
                   <LogIn size={18} />
                   <span>Login</span>
                 </button>
                 
-                <button onClick={() => redirectToExternalURL('https://app.almango.com.uy/register')} className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left flex items-center gap-2">
+                <button onClick={() => redirectToExternalURL('https://almango.com.uy/altas/')} className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left flex items-center gap-2">
                   <UserPlus size={18} />
                   <span>Registro</span>
                 </button>
