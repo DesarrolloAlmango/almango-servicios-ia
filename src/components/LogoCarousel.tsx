@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 interface LogoCarouselProps {
@@ -45,7 +44,7 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
       containScroll: false,
       dragFree: true,
       loop: true
-    }} className="w-full overflow-hidden">
+    }} className="w-full">
         <CarouselContent className={`
             ${direction === "rtl" ? getSpeedClass() : "animate-[infinite-scroll_30s_linear_infinite]"}
             flex ${direction === "rtl" ? "flex-row-reverse" : "flex-row"} w-max gap-0
