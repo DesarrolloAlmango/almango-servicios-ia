@@ -760,7 +760,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
             
             {isLoading ? (
               <div className="flex justify-center items-center h-40">
-                <TextSkeleton text="Cargando productos..." />
+                <TextSkeleton text="Cargando..." />
               </div>
             ) : error ? (
               <div className="bg-red-50 p-4 rounded-md border border-red-200 text-red-700">
