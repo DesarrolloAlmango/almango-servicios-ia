@@ -362,6 +362,8 @@ const Servicios = () => {
     const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
     
     if (existingLocation) {
+      console.log("Found existing purchase location for service:", serviceId);
+      
       // Update the existing location with the selected category 
       setPurchaseLocations(prev => {
         return prev.map(loc => {
@@ -378,6 +380,7 @@ const Servicios = () => {
       
       // Set pendingServiceCardAction to true to trigger product selection
       // This ensures the products are loaded using ObtenerNivel2 endpoint
+      console.log("Setting pendingServiceCardAction to true to force product loading");
       setPendingServiceCardAction(true);
       
       // Show feedback to user that category was selected and products are loading
@@ -390,17 +393,29 @@ const Servicios = () => {
         departmentId: existingLocation.departmentId,
         locationId: existingLocation.locationId
       });
-      
-      // Here you would typically call your ObtenerNivel2 endpoint
-      // fetchProductsNivel2(serviceId, categoryId, existingLocation.storeId, existingLocation.departmentId, existingLocation.locationId);
     } else {
       // If there's no location yet, open the location modal
+      console.log("No existing purchase location, opening location modal");
       setIsLocationModalOpen(true);
     }
   };
 
   const handleLocationSelect = (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string) => {
     if (selectedServiceId && selectedServiceName) {
+      console.log("Location selected:", {
+        storeId,
+        storeName,
+        departmentId,
+        departmentName,
+        locationId,
+        locationName,
+        otherLocation,
+        selectedServiceId,
+        selectedServiceName,
+        selectedCategoryId,
+        selectedCategoryName
+      });
+      
       const newLocation: PurchaseLocation = {
         storeId,
         storeName,
@@ -414,6 +429,7 @@ const Servicios = () => {
         categoryId: selectedCategoryId || undefined,
         categoryName: selectedCategoryName || undefined
       };
+      
       const existingLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
       setPurchaseLocations(prev => {
         if (existingLocation) {
@@ -424,19 +440,31 @@ const Servicios = () => {
           return [...prev, newLocation];
         }
       });
+      
       setIsLocationModalOpen(false);
+      
       let successMessage = "";
       if (selectedCategoryId && selectedCategoryName) {
         successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName} - ${selectedCategoryName}`;
       } else {
         successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName}`;
       }
+      
       toast.success(successMessage);
+      
+      // Important! This triggers the product grid to load after location is set
       if (selectedCategoryId) {
+        console.log("Setting pendingServiceCardAction to true after location selection");
         setPendingServiceCardAction(true);
+        
+        // Force a small delay to ensure the state updates properly
+        setTimeout(() => {
+          console.log("pendingServiceCardAction should now be true, selectedServiceId:", selectedServiceId);
+        }, 100);
       }
     }
   };
+
   const clearPurchaseLocation = (serviceId: string, categoryId?: string) => {
     if (commerceId) return;
     const locationsToRemove = categoryId ? purchaseLocations.filter(loc => loc.serviceId === serviceId && loc.categoryId === categoryId) : purchaseLocations.filter(loc => loc.serviceId === serviceId);

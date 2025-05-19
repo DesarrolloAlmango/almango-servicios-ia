@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, forwardRef, useEffect, useRef } from 'react';
 import { Button } from "./ui/button";
 import CategoryCarousel from "./CategoryCarousel";
@@ -9,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { Skeleton, PriceSkeleton, TextSkeleton } from "./ui/skeleton";
 import { toast } from "sonner";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Dialog, DialogContent } from "./ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 
 interface CartItem {
   id: string;
@@ -788,6 +787,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
               : "max-w-4xl"}`
           }
         >
+          <DialogTitle className="sr-only">{name}</DialogTitle>
           <div className="p-4 sm:p-6">
             <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4 text-center px-3 mx-auto text-orange-500 truncate uppercase">{name}</h2>
             
