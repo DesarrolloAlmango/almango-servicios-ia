@@ -1,9 +1,9 @@
-
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ServiceCard {
   id: string;
@@ -62,6 +62,7 @@ const ServiceCardsGrid = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -121,8 +122,8 @@ const ServiceCardsGrid = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-24 sm:px-28 md:px-32 bg-[#F0F0F0]">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 -mt-24 z-10 relative justify-center">
+      <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-24 bg-[#F0F0F0] overflow-hidden">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 -mt-24 z-20 relative justify-center">
           {[...Array(6)].map((_, index) => (
             <Card key={`skeleton-${index}`} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 h-40 animate-pulse w-full max-w-md mx-auto">
               <CardContent className="p-4 flex flex-col items-center justify-center h-full">
@@ -137,23 +138,27 @@ const ServiceCardsGrid = () => {
   }
 
   return (
-    <div className="bg-[#F0F0F0] py-8 relative">
-      <div className="container mx-auto px-24 sm:px-28 md:px-32 relative">
-        {/* Left side rotated "DESTACADOS" text - moved further left */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-20 origin-center">
-          <p style={{ whiteSpace: 'nowrap' }} className="transform -rotate-90 text-4xl font-bold tracking-widest text-secondary">
-            DESTACADOS
-          </p>
-        </div>
+    <div className="bg-[#F0F0F0] py-8 relative overflow-hidden">
+      <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-24 relative">
+        {/* Left side rotated "DESTACADOS" text - visible only on non-mobile */}
+        {!isMobile && (
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-20 origin-center hidden md:block">
+            <p style={{ whiteSpace: 'nowrap' }} className="transform -rotate-90 text-4xl font-bold tracking-widest text-secondary">
+              DESTACADOS
+            </p>
+          </div>
+        )}
 
-        {/* Right side rotated "DESTACADOS" text - moved further right */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-20 origin-center">
-          <p style={{ whiteSpace: 'nowrap' }} className="transform rotate-90 text-4xl font-bold tracking-widest text-primary">
-            DESTACADOS
-          </p>
-        </div>
+        {/* Right side rotated "DESTACADOS" text - visible only on non-mobile */}
+        {!isMobile && (
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-20 origin-center hidden md:block">
+            <p style={{ whiteSpace: 'nowrap' }} className="transform rotate-90 text-4xl font-bold tracking-widest text-primary">
+              DESTACADOS
+            </p>
+          </div>
+        )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 -mt-24 z-10 relative justify-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 -mt-24 z-20 relative justify-center">
           {services.map(service => (
             <Card
               key={service.id}
