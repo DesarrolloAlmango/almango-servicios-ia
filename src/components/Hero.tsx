@@ -24,9 +24,7 @@ const Hero = () => {
       </div>
       
       {/* Handshake image */}
-      <div className="absolute right-[85px] bottom-0 w-1/2 h-1/2 z-5 flex items-end justify-end overflow-hidden">
-        <img src="/lovable-uploads/00d23798-525f-4215-a397-82cc8d06e5ed.png" alt="Handshake representing partnership and service" className="object-contain max-w-full max-h-full -translate-x-[-100px] -translate-y-[35px]" />
-      </div>
+      
       
       {/* Contenedor principal con ajuste de margen para bajar el texto */}
       <div className="container relative z-10 mx-auto px-6 text-left pl-8 md:pl-12 mt-[100px] sm:mt-[90px] md:mt-[80px]">
