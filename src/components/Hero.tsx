@@ -27,6 +27,15 @@ const Hero = () => {
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
       </div>
       
+      {/* Handshake image */}
+      <div className="absolute right-0 bottom-0 w-1/2 h-1/2 z-5 flex items-end justify-end overflow-hidden">
+        <img 
+          src="/lovable-uploads/00d23798-525f-4215-a397-82cc8d06e5ed.png" 
+          alt="Handshake representing partnership and service" 
+          className="object-contain max-w-full max-h-full"
+        />
+      </div>
+      
       {/* Contenedor principal con ajuste de margen para bajar el texto */}
       <div className="container relative z-10 mx-auto px-6 text-left pl-8 md:pl-12 mt-[100px] sm:mt-[90px] md:mt-[80px]">
         <h1 className="text-3xl md:text-4xl font-bold text-white mb-[5px] max-w-xl animate-fade-in font-sans drop-shadow-lg px-0 py-0 my-0 lg:text-5xl tracking-tight">
