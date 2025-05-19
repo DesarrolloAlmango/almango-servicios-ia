@@ -391,6 +391,7 @@ const Servicios = () => {
         locationId: existingLocation.locationId
       });
       
+      // Important: Don't close the modal/popup - let it stay open to show products
       // Here you would typically call your ObtenerNivel2 endpoint
       // fetchProductsNivel2(serviceId, categoryId, existingLocation.storeId, existingLocation.departmentId, existingLocation.locationId);
     } else {
