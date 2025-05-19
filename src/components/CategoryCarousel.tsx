@@ -324,7 +324,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
                 lg:basis-1/4
                 pl-2 sm:pl-4
               " ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id}>
-              <div className="cursor-pointer hover:scale-105 transition-transform" onClick={() => onSelectCategory(category.id, category.name)}>
+              <div onClick={() => onSelectCategory(category.id, category.name)} className="cursor-pointer hover:scale-105 transition-transform mx-5px">
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                   <AspectRatio ratio={1} className="bg-gray-100">
                     {/* Mostrar skeleton mientras carga la imagen */}
