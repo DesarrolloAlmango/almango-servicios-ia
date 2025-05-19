@@ -516,6 +516,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   const location = useLocation();
   const [imageError, setImageError] = useState(false);
   const dialogOpenRef = useRef(false);
+  const categorySelectionInProgressRef = useRef(false);
   
   // Create a service object for the selectedService prop
   const currentService = { id, name };
@@ -551,6 +552,8 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       // Add a small delay to ensure we don't immediately reopen
       const timer = setTimeout(() => {
         dialogOpenRef.current = false;
+        // Also reset category selection flag when dialog is closed
+        categorySelectionInProgressRef.current = false;
       }, 300);
       return () => clearTimeout(timer);
     }
@@ -653,6 +656,8 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       console.error("Error fetching products:", err);
     } finally {
       setIsLoading(false);
+      // Reset the category selection flag once products are loaded
+      categorySelectionInProgressRef.current = false;
     }
   };
 
@@ -671,13 +676,19 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   const handleCategorySelect = (category: Category) => {
     console.log("Category selected:", category);
     
-    if (id && onCategorySelect) {
-      // Notificamos al componente padre para que muestre el modal de ubicación o los productos
-      console.log("Calling onCategorySelect from parent");
+    // Set the flag to prevent closing the dialog while loading products
+    categorySelectionInProgressRef.current = true;
+    
+    if (id && onCategorySelect && !purchaseLocation) {
+      // Solo notificamos al padre para mostrar modal de ubicación si NO hay un lugar de compra guardado
+      console.log("Calling onCategorySelect from parent - no purchase location exists");
       onCategorySelect(id, category.id, category.name);
-      setIsDialogOpen(false);
+      // No cerramos el diálogo si estamos en proceso de seleccionar una categoría
+      return;
     } else if (id) {
-      console.log("Fetching products for category:", category.id);
+      // Si ya hay un lugar de compra O no necesitamos mostrar el modal de ubicación,
+      // cargamos los productos directamente
+      console.log("Fetching products for category - purchase location exists or no location needed:", category.id);
       fetchProducts(id, category.id);
     }
   };
@@ -749,7 +760,14 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       <Dialog 
         open={isDialogOpen} 
         onOpenChange={(open) => {
-          console.log("Dialog open change:", open);
+          console.log("Dialog open change:", open, "Category selection in progress:", categorySelectionInProgressRef.current);
+          
+          // If a category selection is in progress and trying to close, prevent it
+          if (!open && categorySelectionInProgressRef.current) {
+            console.log("Preventing dialog from closing during category selection");
+            return;
+          }
+          
           setIsDialogOpen(open);
           // If closing, make sure we reset the category with a delay
           if (!open) {
@@ -769,6 +787,8 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
               "sm:max-w-[850px] w-[100%] sm:w-auto rounded-none sm:rounded-lg"
               : "max-w-4xl"}`
           }
+          // Disable auto-close during category selection
+          hideCloseButton={categorySelectionInProgressRef.current}
         >
           {/* Add DialogTitle for accessibility */}
           <DialogTitle className="sr-only">{name}</DialogTitle>
@@ -815,6 +835,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
                 selectedService={currentService}
                 isLoading={isLoading}
                 cartItems={currentCartItems}
+                purchaseLocation={purchaseLocation}
               />
             ) : (
               <ProductGrid 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -6,6 +5,7 @@ import { CircleEllipsis } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+
 interface Category {
   id: string;
   name: string;
@@ -13,6 +13,7 @@ interface Category {
   price?: number;
   count?: number;
 }
+
 interface CategoryCarouselProps {
   categories: Category[];
   onSelectCategory: (categoryId: string, categoryName: string) => void;
@@ -22,7 +23,9 @@ interface CategoryCarouselProps {
   };
   isLoading?: boolean;
   cartItems?: any[];
+  purchaseLocation?: any; // Added purchaseLocation prop
 }
+
 const IMAGE_CACHE_KEY = 'category_images_cache';
 const IMAGE_CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
 const COMPRESSION_QUALITY = 0.6; // Reducir calidad para mejorar rendimiento
@@ -34,7 +37,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   onSelectCategory,
   selectedService,
   isLoading = false,
-  cartItems = []
+  cartItems = [],
+  purchaseLocation // Added purchaseLocation prop
 }) => {
   const isMobile = useIsMobile();
   const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
@@ -44,6 +48,13 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  // Log when purchaseLocation changes to aid debugging
+  useEffect(() => {
+    if (purchaseLocation) {
+      console.log("CategoryCarousel - Purchase location received:", purchaseLocation);
+    }
+  }, [purchaseLocation]);
 
   // Función optimizada para obtener la URL de la imagen
   const getImageSource = useMemo(() => (imageStr: string) => {
@@ -288,6 +299,14 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }
   };
 
+  // Handle category selection with awareness of purchase location
+  const handleCategoryClick = (category: Category) => {
+    console.log("Category clicked:", category.name, "Purchase location:", purchaseLocation ? "exists" : "does not exist");
+    
+    // Call the parent's onSelectCategory function
+    onSelectCategory(category.id, category.name);
+  };
+
   // Extraer solo los nombres de categorías para mostrar durante la carga
   const categoryNames = useMemo(() => isLoading ? DEMO_SERVICE_NAMES : categories.map(category => category.name), [categories, isLoading]);
   if (isLoading) {
@@ -320,7 +339,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }}>
         <CarouselContent className="-ml-2 sm:-ml-4">
           {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="\n                basis-1/2 \n                sm:basis-1/3 \n                lg:basis-1/4\n                pl-2 sm:pl-4\nmx-1\n              ">
-              <div onClick={() => onSelectCategory(category.id, category.name)} className="cursor-pointer hover:scale-105 transition-transform mx-5px">
+              <div onClick={() => handleCategoryClick(category)} className="cursor-pointer hover:scale-105 transition-transform mx-5px">
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                   <AspectRatio ratio={1} className="bg-gray-100">
                     {/* Mostrar skeleton mientras carga la imagen */}
@@ -356,4 +375,5 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       </Carousel>
     </div>;
 };
+
 export default CategoryCarousel;
