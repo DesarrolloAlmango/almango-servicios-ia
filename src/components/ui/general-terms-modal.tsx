@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -66,7 +67,7 @@ export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl max-h-screen overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-screen overflow-y-auto sm:min-w-[450px]">
         <DialogHeader>
           <DialogTitle className="text-center text-xl">
             Términos y Condiciones
