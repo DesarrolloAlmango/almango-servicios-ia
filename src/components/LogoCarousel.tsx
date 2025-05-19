@@ -38,7 +38,7 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
         return "animate-[infinite-scroll-reverse_30s_linear_infinite]";
     }
   };
-  return <div className="overflow-hidden w-full py-5 rounded-md bg-[#f06900]">
+  return <div className="overflow-hidden w-full py-5 rounded-md bg-gray-300">
       <Carousel opts={{
       align: "start",
       containScroll: false,
