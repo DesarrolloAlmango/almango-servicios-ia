@@ -61,7 +61,7 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
           loop: children.length > 2,
           containScroll: "trimSnaps"
         }} 
-        className="w-full relative overflow-visible z-10"
+        className="w-full relative overflow-visible"
         showLoadingNames={showLoadingNames}
         loadingItems={loadingItems}
       >
@@ -73,9 +73,9 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
                 basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 
                 ${shouldCenter ? "mx-auto" : ""} overflow-visible`}
             >
-              <div className="flex items-center justify-center py-4 relative overflow-visible z-20">
+              <div className="flex items-center justify-center py-4 relative overflow-visible">
                 {/* Apply orange border with transparency to child elements */}
-                <div className="border-2 border-orange-500/50 rounded-full overflow-visible z-30">
+                <div className="border-2 border-orange-500/50 rounded-full overflow-visible">
                   {child}
                 </div>
               </div>
