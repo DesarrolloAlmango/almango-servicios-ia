@@ -318,12 +318,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       loop: true
     }}>
         <CarouselContent className="-ml-2 sm:-ml-4">
-          {categories.map(category => <CarouselItem key={category.id} className="
-                basis-1/2 
-                sm:basis-1/3 
-                lg:basis-1/4
-                pl-2 sm:pl-4
-              " ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id}>
+          {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="\n                basis-1/2 \n                sm:basis-1/3 \n                lg:basis-1/4\n                pl-2 sm:pl-4\nmx-1\n              ">
               <div onClick={() => onSelectCategory(category.id, category.name)} className="cursor-pointer hover:scale-105 transition-transform mx-5px">
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                   <AspectRatio ratio={1} className="bg-gray-100">
