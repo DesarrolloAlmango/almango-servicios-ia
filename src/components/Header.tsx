@@ -100,7 +100,7 @@ const Header = () => {
             </button>
           </SheetTrigger>
           <SheetContent side="left" className="bg-primary text-white border-r border-black/30 p-0">
-            <div className="flex flex-col py-4 px-6 h-full z-100">
+            <div className="flex flex-col py-4 px-6 h-full z-9999">
               {/* Navigation links */}
               <div className="mt-6 flex flex-col space-y-6">
                 <button onClick={() => scrollToSection('inicio')} className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left flex items-center gap-2">
