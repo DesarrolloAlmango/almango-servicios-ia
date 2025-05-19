@@ -11,6 +11,7 @@ interface ServiceCarouselProps {
   primaryTitlePart?: string;
   secondaryTitlePart?: string;
   lightTitle?: boolean;
+  showBorder?: boolean;
 }
 
 const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
@@ -25,7 +26,8 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
   ],
   primaryTitlePart,
   secondaryTitlePart,
-  lightTitle = false
+  lightTitle = false,
+  showBorder = true
 }) => {
   if (!children || children.length === 0) {
     return <div className="text-center py-8">No hay servicios disponibles</div>;
@@ -74,10 +76,14 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
                 ${shouldCenter ? "mx-auto" : ""} overflow-visible`}
             >
               <div className="flex items-center justify-center py-4 relative overflow-visible">
-                {/* Apply orange border with transparency to child elements */}
-                <div className="border-2 border-orange-500/50 rounded-full overflow-visible">
-                  {child}
-                </div>
+                {/* Apply orange border with transparency to child elements if showBorder is true */}
+                {showBorder ? (
+                  <div className="border-2 border-orange-500/50 rounded-full overflow-visible">
+                    {child}
+                  </div>
+                ) : (
+                  child
+                )}
               </div>
             </CarouselItem>
           ))}
