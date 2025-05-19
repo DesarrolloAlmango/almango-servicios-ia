@@ -1,6 +1,4 @@
-
 import { Phone, Mail, MapPin, Facebook, Instagram } from 'lucide-react';
-
 const Footer = () => {
   return <footer id="contacto" className="bg-secondary text-white py-10 font-serif">
       <div className="container mx-auto my-[11px] px-4 md:px-[71px]">
@@ -29,7 +27,7 @@ const Footer = () => {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <MapPin size={20} className="text-white" />
-                <span>Montevideo, Uruguay</span>
+                <span>Montevideo, Uruguay.</span>
               </div>
               
               <div className="flex items-center gap-2">
