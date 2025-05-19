@@ -1,3 +1,4 @@
+
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -5,14 +6,17 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import ContactInfo from "@/components/ContactInfo";
 import { useEffect, useState } from "react";
 import LottieAnimation from "./LottieAnimation";
+
 const Hero = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [isLoaded, setIsLoaded] = useState(false);
+  
   useEffect(() => {
     // Set loaded state after initial render
     setIsLoaded(true);
   }, []);
+  
   return <div className={`relative w-full overflow-hidden ${isMobile ? "min-h-[calc(75vh-40px)]" : "min-h-[75vh] md:min-h-[82vh]"} flex items-start pt-16 md:pt-20`}>
       {/* Hero background with primary colors */}
       <div className="absolute inset-0 z-0 bg-[#14162c]">
@@ -21,11 +25,6 @@ const Hero = () => {
         opacity: 0.8
       }}></div>
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
-      </div>
-      
-      {/* Handshake image */}
-      <div className="absolute right-[85px] bottom-0 w-1/2 h-1/2 z-5 flex items-end justify-end overflow-hidden">
-        <img src="/lovable-uploads/00d23798-525f-4215-a397-82cc8d06e5ed.png" alt="Handshake representing partnership and service" className="object-contain max-w-full max-h-full -translate-x-[-100px] -translate-y-[35px]" />
       </div>
       
       {/* Contenedor principal con ajuste de margen para bajar el texto */}
@@ -46,4 +45,5 @@ const Hero = () => {
       <ContactInfo />
     </div>;
 };
+
 export default Hero;
