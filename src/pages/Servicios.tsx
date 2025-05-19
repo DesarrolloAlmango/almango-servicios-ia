@@ -491,7 +491,7 @@ const Servicios = () => {
       </div>
       
       <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
-        <div className="container">
+        <div className="container mx-auto">
           <div className="flex justify-between items-center mb-8 mt-4">
             <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 text-gray-800">
               <ArrowLeft size={20} />
