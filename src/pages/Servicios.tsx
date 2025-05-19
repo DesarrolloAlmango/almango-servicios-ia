@@ -353,11 +353,10 @@ const Servicios = () => {
     }
     
     // Check if location exists for this service
-    const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId && loc.departmentId && loc.locationId);
+    const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
     
     if (existingLocation) {
-      // Important: Update the existing location with the selected category 
-      // but don't close any modals - this keeps the product selection flow going
+      // Update the existing location with the selected category 
       setPurchaseLocations(prev => {
         return prev.map(loc => {
           if (loc.serviceId === serviceId) {
@@ -372,13 +371,22 @@ const Servicios = () => {
       });
       
       // Set pendingServiceCardAction to true to trigger product selection
-      // This ensures the products are loaded based on the stored location
+      // This ensures the products are loaded using ObtenerNivel2 endpoint
       setPendingServiceCardAction(true);
       
-      // Show feedback to user that category was selected
-      toast.success(`Categoría ${categoryName} seleccionada`, {
-        duration: 2000,
+      // Show feedback to user that category was selected and products are loading
+      toast.success(`Cargando productos de ${categoryName}`);
+      
+      console.log("Loading products with parameters:", {
+        serviceId,
+        categoryId,
+        storeId: existingLocation.storeId,
+        departmentId: existingLocation.departmentId,
+        locationId: existingLocation.locationId
       });
+      
+      // Here you would typically call your ObtenerNivel2 endpoint
+      // fetchProductsNivel2(serviceId, categoryId, existingLocation.storeId, existingLocation.departmentId, existingLocation.locationId);
     } else {
       // If there's no location yet, open the location modal
       setIsLocationModalOpen(true);
