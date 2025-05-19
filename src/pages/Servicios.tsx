@@ -352,12 +352,6 @@ const Servicios = () => {
       setSelectedServiceName(service.name);
     }
     
-    // Show toast with service ID
-    toast.info(`Servicio seleccionado: ${serviceId}`, {
-      duration: 3000,
-      position: "top-center"
-    });
-    
     // Check if location exists for this service
     const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
     
@@ -379,8 +373,8 @@ const Servicios = () => {
       // Set pendingServiceCardAction to true to trigger product grid opening
       setPendingServiceCardAction(true);
       
-      // Show feedback to user that category was selected and products are loading
-      toast.success(`Cargando precios de productos para ${categoryName}`);
+      // Show feedback to user that products are loading
+      toast.success(`Cargando productos de ${categoryName}`);
       
       console.log("Loading products with parameters:", {
         serviceId,
@@ -390,11 +384,11 @@ const Servicios = () => {
         locationId: existingLocation.locationId
       });
       
-      // Don't close the modal/popup - let it stay open to show product prices
-      // The ServiceCard component will open the product grid because forceOpen is true
+      // The service card component will open the product grid because pendingServiceCardAction is true
+      // and we have updated the purchase location with the new categoryId
       return;
     } else {
-      // If there's no location yet, open the location modal
+      // If there's no location yet for this service, open the location modal
       setIsLocationModalOpen(true);
     }
   };
@@ -414,6 +408,7 @@ const Servicios = () => {
         categoryId: selectedCategoryId || undefined,
         categoryName: selectedCategoryName || undefined
       };
+      
       const existingLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
       setPurchaseLocations(prev => {
         if (existingLocation) {
@@ -424,19 +419,25 @@ const Servicios = () => {
           return [...prev, newLocation];
         }
       });
+      
       setIsLocationModalOpen(false);
+      
       let successMessage = "";
       if (selectedCategoryId && selectedCategoryName) {
         successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName} - ${selectedCategoryName}`;
       } else {
         successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName}`;
       }
+      
       toast.success(successMessage);
+      
+      // If a category was selected, trigger the product grid to open
       if (selectedCategoryId) {
         setPendingServiceCardAction(true);
       }
     }
   };
+
   const clearPurchaseLocation = (serviceId: string, categoryId?: string) => {
     if (commerceId) return;
     const locationsToRemove = categoryId ? purchaseLocations.filter(loc => loc.serviceId === serviceId && loc.categoryId === categoryId) : purchaseLocations.filter(loc => loc.serviceId === serviceId);
@@ -463,6 +464,7 @@ const Servicios = () => {
       toast.success("Lugar de compra eliminado");
     }
   };
+
   const confirmDeleteLocation = () => {
     if (!locationToDelete) return;
     setCartItems(prev => prev.filter(item => item.serviceId !== locationToDelete.serviceId));
@@ -471,6 +473,7 @@ const Servicios = () => {
     setLocationToDelete(null);
     toast.success("Lugar de compra y productos asociados eliminados");
   };
+
   if (isServicesLoading && isLoadingMudanza) {
     return <div className="min-h-screen flex flex-col">
         <div className="absolute inset-0 z-0 bg-[#14162c]">

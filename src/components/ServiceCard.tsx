@@ -521,20 +521,18 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       dialogOpenRef.current = true;
     }
     
-    // Modificamos esta función para llamar directamente a ObtenerNivel2 cuando tenemos categoryId
-    if (forceOpen && id && purchaseLocation && !dialogOpenRef.current) {
+    // This effect triggers when forceOpen becomes true
+    // or when purchaseLocation changes and contains a categoryId
+    if (forceOpen && id && !dialogOpenRef.current) {
       setIsDialogOpen(true);
       
-      // Si tenemos categoryId, cargar directamente los productos
-      if (purchaseLocation.categoryId) {
+      // If we have a purchase location with categoryId, we can load products directly
+      if (purchaseLocation?.categoryId) {
         fetchProducts(id, purchaseLocation.categoryId);
       } else {
-        // Solo si no hay categoryId, cargamos primero las categorías
+        // Otherwise load categories first
         fetchCategories(id);
       }
-    } else if (forceOpen && id && !dialogOpenRef.current) {
-      setIsDialogOpen(true);
-      fetchCategories(id);
     }
     
     // Reset the tracking ref when dialog closes
@@ -649,10 +647,17 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   
   const handleCategorySelect = (category: Category) => {
     if (id && onCategorySelect) {
-      // Notificamos al componente padre para que muestre el modal de ubicación o los productos
+      // Notify the parent component to handle location selection if needed
       onCategorySelect(id, category.id, category.name);
-      setIsDialogOpen(false);
-    } else if (category.products.length > 0) {
+      
+      // Don't close dialog here - let parent component decide
+      // Parent will set forceOpen to true if products should be shown
+      
+      // Only if we already have products, show them directly
+      if (category.products && category.products.length > 0) {
+        setSelectedCategory(category);
+      }
+    } else if (category.products && category.products.length > 0) {
       setSelectedCategory(category);
     } else if (id) {
       fetchProducts(id, category.id);
