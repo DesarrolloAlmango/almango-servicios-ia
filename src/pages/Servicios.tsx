@@ -351,10 +351,12 @@ const Servicios = () => {
       setSelectedServiceName(service.name);
     }
     
+    // Check if location exists for this service
     const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId && loc.departmentId && loc.locationId);
     
     if (existingLocation) {
-      // Update the existing location with the selected category but don't close the modal
+      // Important: Update the existing location with the selected category 
+      // but don't close any modals - this keeps the product selection flow going
       setPurchaseLocations(prev => {
         return prev.map(loc => {
           if (loc.serviceId === serviceId) {
@@ -369,7 +371,13 @@ const Servicios = () => {
       });
       
       // Set pendingServiceCardAction to true to trigger product selection
+      // This ensures the products are loaded based on the stored location
       setPendingServiceCardAction(true);
+      
+      // Show feedback to user that category was selected
+      toast.success(`Categoría ${categoryName} seleccionada`, {
+        duration: 2000,
+      });
     } else {
       // If there's no location yet, open the location modal
       setIsLocationModalOpen(true);

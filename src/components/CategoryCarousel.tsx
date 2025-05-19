@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -311,6 +310,13 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
         </Carousel>
       </div>;
   }
+
+  // Handle category click without closing modal
+  const handleCategoryClick = (categoryId: string, categoryName: string) => {
+    // Prevent default event behavior to avoid modal closing
+    onSelectCategory(categoryId, categoryName);
+  };
+
   return <div className="py-4 sm:py-6 w-full">
       <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 truncate mx-auto">SELECCIONÁ UNA CATEGORÍA</h3>
       
@@ -320,7 +326,12 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }}>
         <CarouselContent className="-ml-2 sm:-ml-4">
           {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="\n                basis-1/2 \n                sm:basis-1/3 \n                lg:basis-1/4\n                pl-2 sm:pl-4\nmx-1\n              ">
-              <div onClick={() => onSelectCategory(category.id, category.name)} className="cursor-pointer hover:scale-105 transition-transform mx-5px">
+              <div onClick={(e) => {
+                // Prevent event bubbling to stop modal closing
+                e.stopPropagation();
+                handleCategoryClick(category.id, category.name);
+              }} 
+              className="cursor-pointer hover:scale-105 transition-transform mx-5px">
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                   <AspectRatio ratio={1} className="bg-gray-100">
                     {/* Mostrar skeleton mientras carga la imagen */}
