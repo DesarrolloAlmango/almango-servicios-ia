@@ -138,7 +138,7 @@ const ServiceCardsGrid = () => {
         <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-10 sm:translate-x-20 origin-center">
           <p style={{
           whiteSpace: 'nowrap'
-        }} className="transform rotate-90 text-4xl font-bold tracking-widest text-primary hidden sm:block">
+        }} className="transform rotate-90 text-4xl font-bold tracking-widest text-primary hidden sm:block translate-x-[15px]">
             DESTACADOS
           </p>
         </div>
