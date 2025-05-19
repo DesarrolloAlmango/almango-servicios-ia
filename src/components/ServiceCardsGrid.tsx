@@ -130,7 +130,7 @@ const ServiceCardsGrid = () => {
   return <div className="bg-[#F0F0F0] py-8 relative overflow-hidden overflow-x-hidden" style={{
     zIndex: 50
   }}>
-      <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-24 relative">
+      <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-24 relative" style={{ zIndex: 30 }}>
         {/* Left side rotated "DESTACADOS" text - visible only on non-mobile */}
         {!isMobile && <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-20 origin-center hidden md:block">
             <p style={{
@@ -150,7 +150,7 @@ const ServiceCardsGrid = () => {
           </div>}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 -mt-24 relative justify-center" style={{
-        zIndex: 60
+        zIndex: 40
       }}>
           {services.map(service => <Card key={service.id} onClick={() => handleServiceClick(service.id, service.name)} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 h-40 overflow-hidden w-full max-w-md mx-auto">
               <CardContent className="p-0 flex flex-col items-center justify-center h-full relative">

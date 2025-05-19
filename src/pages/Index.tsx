@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -146,7 +145,7 @@ const Index = () => {
   return <div className="min-h-screen flex flex-col overflow-x-hidden">
       <Header />
       <main id="inicio" className="flex-grow bg-zinc-200 mx-0 my-0 overflow-x-hidden relative">
-        <div style={{ position: 'relative', zIndex: 1 }}>
+        <div style={{ position: 'relative', zIndex: 0 }}>
           <Hero />
         </div>
         
