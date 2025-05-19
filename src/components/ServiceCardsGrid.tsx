@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
@@ -138,7 +139,7 @@ const ServiceCardsGrid = () => {
   }
 
   return (
-    <div className="bg-[#F0F0F0] py-8 relative overflow-hidden">
+    <div className="bg-[#F0F0F0] py-8 relative overflow-hidden overflow-x-hidden z-30">
       <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-24 relative">
         {/* Left side rotated "DESTACADOS" text - visible only on non-mobile */}
         {!isMobile && (
@@ -158,7 +159,7 @@ const ServiceCardsGrid = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 -mt-24 z-20 relative justify-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 -mt-24 z-40 relative justify-center">
           {services.map(service => (
             <Card
               key={service.id}
