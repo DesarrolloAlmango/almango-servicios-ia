@@ -1,7 +1,3 @@
-<think>
-
-</think>
-
 import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin, CalendarClock, UserCheck, CreditCard, Star } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
