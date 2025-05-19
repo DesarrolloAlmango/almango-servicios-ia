@@ -284,66 +284,13 @@ const Servicios = () => {
   const handleBackToHome = () => {
     navigate('/');
   };
-  const handleLocationSelect = (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string) => {
-    if (selectedServiceId && selectedServiceName) {
-      const newLocation: PurchaseLocation = {
-        storeId,
-        storeName,
-        otherLocation,
-        serviceId: selectedServiceId,
-        serviceName: selectedServiceName,
-        departmentId,
-        departmentName,
-        locationId,
-        locationName,
-        categoryId: selectedCategoryId || undefined,
-        categoryName: selectedCategoryName || undefined
-      };
-      
-      // Create a temporary location object but don't add it to purchaseLocations yet
-      const tempLocation = { ...newLocation };
-      
-      // Store this temporary location in session storage so it can be retrieved when a product is added
-      sessionStorage.setItem(`temp_location_${selectedServiceId}`, JSON.stringify(tempLocation));
-      
-      setIsLocationModalOpen(false);
-      
-      // Don't show a toast for location registration (will show when product is added)
-      
-      if (selectedCategoryId) {
-        setPendingServiceCardAction(true);
-      }
-    }
-  };
   const addToCart = (item: CartItem) => {
-    // Check if we have a temporary location stored for this service
-    const tempLocationJson = sessionStorage.getItem(`temp_location_${item.serviceId}`);
-    let serviceLocation = purchaseLocations.find(loc => loc.serviceId === item.serviceId);
-    
-    // If we have a temporary location and no existing location, register it now
-    if (tempLocationJson && !serviceLocation) {
-      const tempLocation = JSON.parse(tempLocationJson);
-      setPurchaseLocations(prev => [...prev, tempLocation]);
-      serviceLocation = tempLocation;
-      
-      // Clear the temporary location
-      sessionStorage.removeItem(`temp_location_${item.serviceId}`);
-      
-      // Show success toast for location registration when adding a product
-      if (tempLocation.categoryName) {
-        toast.success(`Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${tempLocation.serviceName} - ${tempLocation.categoryName}`);
-      } else {
-        toast.success(`Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${tempLocation.serviceName}`);
-      }
-    }
-    
-    // Continue with the original addToCart logic
+    const serviceLocation = purchaseLocations.find(loc => loc.serviceId === item.serviceId);
     const itemWithLocation = serviceLocation ? {
       ...item,
       departmentId: serviceLocation.departmentId,
       locationId: serviceLocation.locationId
     } : item;
-    
     setCartItems(prevItems => {
       const filteredItems = prevItems.filter(i => !(i.serviceId === itemWithLocation.serviceId && i.categoryId === itemWithLocation.categoryId && i.productId === itemWithLocation.productId));
       if (itemWithLocation.quantity > 0) {
@@ -353,30 +300,10 @@ const Servicios = () => {
     });
   };
   const updateCartItem = (id: string, quantity: number) => {
-    setCartItems(prevItems => {
-      const updatedItems = prevItems.map(item => 
-        item.id === id ? { ...item, quantity: Math.max(0, quantity) } : item
-      ).filter(item => item.quantity > 0);
-      
-      // Check if we need to update purchase locations
-      const removedItem = quantity <= 0 ? prevItems.find(item => item.id === id) : null;
-      if (removedItem) {
-        const serviceId = removedItem.serviceId;
-        
-        if (serviceId) {
-          // Check if there are any items left for this service
-          const hasRemainingItems = updatedItems.some(item => item.serviceId === serviceId);
-          
-          if (!hasRemainingItems) {
-            // Remove the purchase location if no items remain for this service
-            setPurchaseLocations(prev => prev.filter(loc => loc.serviceId !== serviceId));
-            console.log(`Purchase location removed for service ${serviceId} as it has no items`);
-          }
-        }
-      }
-      
-      return updatedItems;
-    });
+    setCartItems(prevItems => prevItems.map(item => item.id === id ? {
+      ...item,
+      quantity: Math.max(0, quantity)
+    } : item).filter(item => item.quantity > 0));
   };
   const getCartTotal = () => {
     return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
@@ -437,64 +364,70 @@ const Servicios = () => {
       setIsLocationModalOpen(true);
     }
   };
+  const handleLocationSelect = (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string) => {
+    if (selectedServiceId && selectedServiceName) {
+      const newLocation: PurchaseLocation = {
+        storeId,
+        storeName,
+        otherLocation,
+        serviceId: selectedServiceId,
+        serviceName: selectedServiceName,
+        departmentId,
+        departmentName,
+        locationId,
+        locationName,
+        categoryId: selectedCategoryId || undefined,
+        categoryName: selectedCategoryName || undefined
+      };
+      const existingLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
+      setPurchaseLocations(prev => {
+        if (existingLocation) {
+          return prev.map(loc => loc.serviceId === selectedServiceId ? {
+            ...newLocation
+          } : loc);
+        } else {
+          return [...prev, newLocation];
+        }
+      });
+      setIsLocationModalOpen(false);
+      let successMessage = "";
+      if (selectedCategoryId && selectedCategoryName) {
+        successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName} - ${selectedCategoryName}`;
+      } else {
+        successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName}`;
+      }
+      toast.success(successMessage);
+      if (selectedCategoryId) {
+        setPendingServiceCardAction(true);
+      }
+    }
+  };
   const clearPurchaseLocation = (serviceId: string, categoryId?: string) => {
     if (commerceId) return;
-    
-    // Check if there are any items in the cart for this service
+    const locationsToRemove = categoryId ? purchaseLocations.filter(loc => loc.serviceId === serviceId && loc.categoryId === categoryId) : purchaseLocations.filter(loc => loc.serviceId === serviceId);
+    if (locationsToRemove.length === 0) return;
     const hasAssociatedItems = cartItems.some(item => {
       if (categoryId) {
         return item.serviceId === serviceId && item.categoryId === categoryId;
       }
       return item.serviceId === serviceId;
     });
-    
-    if (!hasAssociatedItems) {
-      // If there are no items, simply remove the location
-      if (categoryId) {
-        setPurchaseLocations(prev => prev.filter(loc => !(loc.serviceId === serviceId && loc.categoryId === categoryId)));
-      } else {
-        setPurchaseLocations(prev => prev.filter(loc => loc.serviceId !== serviceId));
-      }
-      
-      // Also remove any temporary location
-      sessionStorage.removeItem(`temp_location_${serviceId}`);
-      
-      toast.success("Lugar de compra eliminado");
-    } else {
-      // If there are items, show confirmation dialog
-      const locationsToRemove = categoryId 
-        ? purchaseLocations.filter(loc => loc.serviceId === serviceId && loc.categoryId === categoryId) 
-        : purchaseLocations.filter(loc => loc.serviceId === serviceId);
-        
-      if (locationsToRemove.length === 0) return;
-      
+    if (hasAssociatedItems) {
       const location = locationsToRemove[0];
       setLocationToDelete({
         serviceId,
         locationName: location.storeId === "other" ? location.otherLocation! : location.storeName
       });
       setShowDeleteConfirmation(true);
+    } else {
+      if (categoryId) {
+        setPurchaseLocations(prev => prev.filter(loc => !(loc.serviceId === serviceId && loc.categoryId === categoryId)));
+      } else {
+        setPurchaseLocations(prev => prev.filter(loc => loc.serviceId !== serviceId));
+      }
+      toast.success("Lugar de compra eliminado");
     }
   };
-  
-  // Add a function to check and update purchase locations when items are removed
-  const updatePurchaseLocationsAfterRemoval = () => {
-    // Find services that no longer have items in the cart
-    const servicesToCheck = purchaseLocations.map(loc => loc.serviceId);
-    
-    servicesToCheck.forEach(serviceId => {
-      if (serviceId) {
-        const hasItems = cartItems.some(item => item.serviceId === serviceId);
-        
-        if (!hasItems) {
-          // Remove the purchase location if there are no items for this service
-          setPurchaseLocations(prev => prev.filter(loc => loc.serviceId !== serviceId));
-          console.log(`Purchase location removed for service ${serviceId} as it has no items`);
-        }
-      }
-    });
-  };
-  
   const confirmDeleteLocation = () => {
     if (!locationToDelete) return;
     setCartItems(prev => prev.filter(item => item.serviceId !== locationToDelete.serviceId));
