@@ -618,6 +618,9 @@ const Servicios = () => {
                           {location.departmentName && location.locationName && <span className="text-gray-600">
                               ({location.departmentName}, {location.locationName})
                             </span>}
+                          {location.categoryId && <span className="text-gray-500 font-mono text-xs ml-1">
+                              (Cat ID: {location.categoryId})
+                            </span>}
                         </span>
                         <Button variant="ghost" size="sm" onClick={() => clearPurchaseLocation(location.serviceId || "", location.categoryId)} className="h-5 w-5 p-0 text-gray-600 hover:bg-gray-200 ml-1">
                           <X size={12} />
