@@ -343,6 +343,7 @@ const Servicios = () => {
   };
 
   const handleCategorySelect = (serviceId: string, categoryId: string, categoryName: string) => {
+    console.log("Category selected in Servicios:", serviceId, categoryId, categoryName);
     setSelectedServiceId(serviceId);
     setSelectedCategoryId(categoryId);
     setSelectedCategoryName(categoryName);
@@ -395,6 +396,17 @@ const Servicios = () => {
 
   const handleLocationSelect = (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string) => {
     if (selectedServiceId && selectedServiceName) {
+      console.log("Location selected:", {
+        storeId, 
+        storeName, 
+        departmentId, 
+        departmentName, 
+        locationId, 
+        locationName,
+        selectedServiceId,
+        selectedCategoryId
+      });
+      
       const newLocation: PurchaseLocation = {
         storeId,
         storeName,
@@ -433,6 +445,7 @@ const Servicios = () => {
       
       // If a category was selected, trigger the product grid to open
       if (selectedCategoryId) {
+        console.log("Setting pendingServiceCardAction to true to open product grid");
         setPendingServiceCardAction(true);
       }
     }

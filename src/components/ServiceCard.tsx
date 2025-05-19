@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { Skeleton, PriceSkeleton, TextSkeleton } from "./ui/skeleton";
 import { toast } from "sonner";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Dialog, DialogContent } from "./ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 
 interface CartItem {
   id: string;
@@ -218,6 +218,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   useEffect(() => {
     // Set initial state with product base data
     if (category.products.length > 0 && !pricesFetched) {
+      console.log(`Loading products for category: ${category.name}, serviceId: ${serviceId}, locationId: ${purchaseLocationId}`);
+      
       // Initialize all products with their default prices first
       const initialProducts = category.products.map(product => ({ 
         ...product, 
@@ -524,10 +526,12 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     // This effect triggers when forceOpen becomes true
     // or when purchaseLocation changes and contains a categoryId
     if (forceOpen && id && !dialogOpenRef.current) {
+      console.log("forceOpen triggered, opening dialog", { forceOpen, id, purchaseLocation });
       setIsDialogOpen(true);
       
       // If we have a purchase location with categoryId, we can load products directly
       if (purchaseLocation?.categoryId) {
+        console.log("Loading products for category", purchaseLocation.categoryId);
         fetchProducts(id, purchaseLocation.categoryId);
       } else {
         // Otherwise load categories first
@@ -647,6 +651,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   
   const handleCategorySelect = (category: Category) => {
     if (id && onCategorySelect) {
+      console.log("Category selected in ServiceCard:", category.id, category.name);
       // Notify the parent component to handle location selection if needed
       onCategorySelect(id, category.id, category.name);
       
@@ -749,6 +754,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
               : "max-w-4xl"}`
           }
         >
+          <DialogTitle className="sr-only">{name}</DialogTitle>
           <div className="p-4 sm:p-6">
             <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4 text-center px-3 mx-auto text-orange-500 truncate uppercase">{name}</h2>
             
