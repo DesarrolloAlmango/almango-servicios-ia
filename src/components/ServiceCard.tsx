@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, forwardRef, useEffect, useRef } from 'react';
 import { Button } from "./ui/button";
 import CategoryCarousel from "./CategoryCarousel";
@@ -9,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { Skeleton, PriceSkeleton, TextSkeleton } from "./ui/skeleton";
 import { toast } from "sonner";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent } from "./ui/dialog";
 
 interface CartItem {
   id: string;
@@ -41,14 +40,6 @@ interface Product {
   category: string;
   defaultPrice?: number;
   textosId?: string;
-}
-
-// Extended service interface with price and image fields that might be used elsewhere
-interface ServiceDetails {
-  id: string;
-  name: string;
-  price?: number;
-  image?: string;
 }
 
 interface ProductCardProps {
@@ -202,9 +193,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
 
     try {
-      // Log the API call to help with debugging
-      console.log(`Fetching price for: serviceId=${serviceId}, categoryId=${category.id}, productId=${product.id}, locationId=${purchaseLocationId}`);
-      
       const response = await fetch(
         `/api/AlmangoXV1NETFramework/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`
       );
@@ -214,7 +202,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       }
       
       const data = await response.json();
-      console.log(`Price data received for ${product.id}:`, data);
       return { 
         id: product.id,
         price: data.Precio > 0 ? data.Precio : (product.defaultPrice || product.price) 
@@ -499,8 +486,6 @@ interface ServiceCardProps {
   circular?: boolean;
   currentCartItems?: any[];
   className?: string;
-  pendingCategoryId?: string;  
-  pendingCategoryName?: string;
 }
 
 const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
@@ -516,8 +501,6 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   circular = false,
   currentCartItems = [],
   className = "",
-  pendingCategoryId,
-  pendingCategoryName
 }, ref) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -528,10 +511,9 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   const location = useLocation();
   const [imageError, setImageError] = useState(false);
   const dialogOpenRef = useRef(false);
-  const categorySelectionInProgressRef = useRef(false);
   
   // Create a service object for the selectedService prop
-  const currentService: ServiceDetails = { id, name };
+  const currentService = { id, name };
   
   useEffect(() => {
     // Track if dialog was just opened to prevent auto-reopen
@@ -539,33 +521,18 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       dialogOpenRef.current = true;
     }
     
-    // Special handling for when we have purchase location and pending category ID
-    if (isDialogOpen && id && purchaseLocation && pendingCategoryId) {
-      console.log("Loading products for pending category with existing purchase location:", {
-        serviceId: id,
-        categoryId: pendingCategoryId,
-        categoryName: pendingCategoryName
-      });
-      
-      // Directly fetch products for the pending category
-      fetchProducts(id, pendingCategoryId);
-    }
-    // Normal dialog open handling
-    else if (forceOpen && id && purchaseLocation && !dialogOpenRef.current) {
-      console.log("Force open dialog with purchase location:", purchaseLocation);
+    // Modificamos esta función para llamar directamente a ObtenerNivel2 cuando tenemos categoryId
+    if (forceOpen && id && purchaseLocation && !dialogOpenRef.current) {
       setIsDialogOpen(true);
       
       // Si tenemos categoryId, cargar directamente los productos
       if (purchaseLocation.categoryId) {
-        console.log("Category ID found, fetching products directly:", purchaseLocation.categoryId);
         fetchProducts(id, purchaseLocation.categoryId);
       } else {
         // Solo si no hay categoryId, cargamos primero las categorías
-        console.log("No category ID, loading categories first");
         fetchCategories(id);
       }
     } else if (forceOpen && id && !dialogOpenRef.current) {
-      console.log("Force open dialog without purchase location");
       setIsDialogOpen(true);
       fetchCategories(id);
     }
@@ -575,15 +542,12 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       // Add a small delay to ensure we don't immediately reopen
       const timer = setTimeout(() => {
         dialogOpenRef.current = false;
-        // Also reset category selection flag when dialog is closed
-        categorySelectionInProgressRef.current = false;
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [forceOpen, id, purchaseLocation, isDialogOpen, pendingCategoryId, pendingCategoryName]);
+  }, [forceOpen, id, purchaseLocation, isDialogOpen]);
 
   const fetchCategories = async (serviceId: string) => {
-    console.log("Fetching categories for service:", serviceId);
     setIsLoading(true);
     setError(null);
     try {
@@ -594,7 +558,6 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       }
       
       const data = await response.json();
-      console.log("Categories data received:", data);
       
       const transformedCategories = data.map((category: any) => ({
         id: category.id || category.Nivel1Id,
@@ -615,10 +578,10 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   };
 
   const fetchProducts = async (serviceId: string, categoryId: string) => {
-    console.log(`Fetching products for service ${serviceId} and category ${categoryId}`);
     setIsLoading(true);
     try {
       // Llamada directa a ObtenerNivel2
+      console.log(`Fetching products directly for service ${serviceId} and category ${categoryId}`);
       const response = await fetch(
         `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`
       );
@@ -628,7 +591,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       }
       
       const data = await response.json();
-      console.log('Products data received:', data);
+      console.log('Products data:', data);
       
       const transformedProducts = data.map((product: any) => ({
         id: product.id || product.Nivel2Id,
@@ -639,39 +602,29 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
         textosId: product.TextosId || null
       }));
       
-      // Buscar la categoría existente o crear una temporal
-      let categoryToUpdate: Category | undefined = categories.find(cat => cat.id === categoryId);
-      
-      if (!categoryToUpdate) {
-        // Si la categoría no existe en el estado, crear una temporal
-        console.log("Category not found in state, creating temporary one");
-        const categoryName = pendingCategoryName || purchaseLocation?.categoryName || "Productos";
-        categoryToUpdate = {
+      // Crear una categoría temporal si no existe en el estado
+      if (!categories.some(cat => cat.id === categoryId)) {
+        const categoryName = purchaseLocation?.categoryName || "Productos";
+        const tempCategory: Category = {
           id: categoryId,
           name: categoryName,
           image: "",
           products: transformedProducts
         };
         
-        // Actualizar el estado de categorías
-        setCategories(prev => [...prev, categoryToUpdate!]);
+        setCategories(prev => [...prev, tempCategory]);
+        setSelectedCategory(tempCategory);
       } else {
-        // Si la categoría existe, actualizar sus productos
-        console.log("Category found in state, updating products");
-        categoryToUpdate = {
-          ...categoryToUpdate,
-          products: transformedProducts
-        };
-        
-        // Actualizar el estado de categorías
+        // Actualizar la categoría existente con los productos
         setCategories(prev => prev.map(cat => 
-          cat.id === categoryId ? categoryToUpdate! : cat
+          cat.id === categoryId ? { ...cat, products: transformedProducts } : cat
         ));
+        
+        const updatedCategory = categories.find(cat => cat.id === categoryId);
+        if (updatedCategory) {
+          setSelectedCategory({ ...updatedCategory, products: transformedProducts });
+        }
       }
-      
-      // Siempre actualizar selectedCategory para mostrar los productos
-      console.log("Setting selected category:", categoryToUpdate);
-      setSelectedCategory(categoryToUpdate);
       
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar productos');
@@ -679,8 +632,6 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       console.error("Error fetching products:", err);
     } finally {
       setIsLoading(false);
-      // Reset the category selection flag once products are loaded
-      categorySelectionInProgressRef.current = false;
     }
   };
 
@@ -697,26 +648,15 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   };
   
   const handleCategorySelect = (category: Category) => {
-    console.log("Category selected:", category);
-    
-    // Set the flag to prevent closing the dialog while loading products
-    categorySelectionInProgressRef.current = true;
-    
-    if (id && onCategorySelect && !purchaseLocation) {
-      // Solo notificamos al padre para mostrar modal de ubicación si NO hay un lugar de compra guardado
-      console.log("Calling onCategorySelect from parent - no purchase location exists");
+    if (id && onCategorySelect) {
+      // Notificamos al componente padre para que muestre el modal de ubicación o los productos
       onCategorySelect(id, category.id, category.name);
-      // No cerramos el diálogo si estamos en proceso de seleccionar una categoría
-      return false; // Return false to indicate dialog shouldn't close
+      setIsDialogOpen(false);
+    } else if (category.products.length > 0) {
+      setSelectedCategory(category);
     } else if (id) {
-      // Si ya hay un lugar de compra O no necesitamos mostrar el modal de ubicación,
-      // cargamos los productos directamente
-      console.log("Fetching products for category - purchase location exists or no location needed:", category.id);
       fetchProducts(id, category.id);
-      return true; // Return true to indicate successful processing
     }
-    
-    return true; // Default return value
   };
 
   const purchaseLocationId = purchaseLocation ? purchaseLocation.storeId : undefined;
@@ -743,6 +683,8 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
 
   const backgroundImage = getCardBackground();
 
+  const isShowingCategoryCarousel = !selectedCategory && !isLoading && !error;
+
   return (
     <div 
       ref={ref}
@@ -761,11 +703,11 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       >
         <CardContent className="p-0 flex flex-col items-center justify-end h-full relative">
           <div className="absolute inset-0 w-full h-full">
-            <div className={`w-full h-full ${circular ? 'bg-gradient-to-t from-black/90 via-black/60 to-transparent' : 'bg-gradient-to-t from-black/80 via-black/60 to-transparent'} absolute inset-0 z-10`} />
+            <div className={`w-full h-full ${circular ? 'bg-gradient-to-t from-black/80 to-transparent' : 'bg-gradient-to-t from-black/60 to-transparent'} absolute inset-0 z-10`} />
             <img 
               src={backgroundImage}
               alt={name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 brightness-90 group-hover:brightness-95"
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 brightness-95 group-hover:brightness-100"
               onError={(e) => {
                 console.error("Image failed to load:", backgroundImage);
                 e.currentTarget.src = "/placeholder.svg";
@@ -774,7 +716,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
             />
           </div>
           <div className="relative z-20 px-3 text-center w-full absolute bottom-[30%] transition-transform duration-300 transform group-hover:translate-y-[-8px]">
-            <h3 className={`${circular ? 'text-base' : 'text-xl'} font-bold text-center text-white drop-shadow-md transition-all duration-300 group-hover:text-[#ff6900] line-clamp-2 uppercase`}>
+            <h3 className={`${circular ? 'text-base' : 'text-xl'} font-bold text-center text-white drop-shadow-md transition-all duration-300 group-hover:text-[#ff6900] line-clamp-2`}>
               {name}
             </h3>
           </div>
@@ -784,23 +726,13 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       <Dialog 
         open={isDialogOpen} 
         onOpenChange={(open) => {
-          console.log("Dialog open change:", open, "Category selection in progress:", categorySelectionInProgressRef.current);
-          
-          // If a category selection is in progress and trying to close, prevent it
-          if (!open && categorySelectionInProgressRef.current) {
-            console.log("Preventing dialog from closing during category selection");
-            return;
-          }
-          
           setIsDialogOpen(open);
-          // If closing, make sure we reset the category with a delay
+          // If closing, make sure we reset the category
           if (!open) {
-            console.log("Dialog closing, will reset selected category after delay");
-            // Add a delay to prevent issues with transitions
+            // Optional: can add a small delay here if needed
             setTimeout(() => {
               setSelectedCategory(null);
-              console.log("Selected category reset to null");
-            }, 300);
+            }, 100);
           }
         }}
       >
@@ -811,14 +743,9 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
               "sm:max-w-[850px] w-[100%] sm:w-auto rounded-none sm:rounded-lg"
               : "max-w-4xl"}`
           }
-          // Disable auto-close during category selection
-          hideCloseButton={categorySelectionInProgressRef.current}
         >
-          {/* Add DialogTitle for accessibility */}
-          <DialogTitle className="sr-only">{name}</DialogTitle>
-          
           <div className="p-4 sm:p-6">
-            <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4 text-center px-3 mx-auto text-orange-500 truncate uppercase">{name}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4 text-center px-3 mx-auto text-orange-500 truncate">{name}</h2>
             
             {purchaseLocation && selectedCategory && (
               <div className="mb-4 bg-blue-50 p-3 rounded-lg border border-blue-200 text-sm">
@@ -833,7 +760,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
             
             {isLoading ? (
               <div className="flex justify-center items-center h-40">
-                <TextSkeleton text="Cargando..." />
+                <TextSkeleton text="Cargando productos..." />
               </div>
             ) : error ? (
               <div className="bg-red-50 p-4 rounded-md border border-red-200 text-red-700">
@@ -859,21 +786,14 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
                 selectedService={currentService}
                 isLoading={isLoading}
                 cartItems={currentCartItems}
-                purchaseLocation={purchaseLocation}
               />
             ) : (
               <ProductGrid 
                 category={selectedCategory} 
                 addToCart={addToCart}
-                onBack={() => {
-                  console.log("Back to categories clicked");
-                  setSelectedCategory(null);
-                }}
+                onBack={() => setSelectedCategory(null)}
                 serviceName={name}
-                closeDialog={() => {
-                  console.log("Close dialog requested from ProductGrid");
-                  setIsDialogOpen(false);
-                }}
+                closeDialog={() => setIsDialogOpen(false)}
                 serviceId={id}
                 purchaseLocationId={purchaseLocationId}
                 currentCartItems={currentCartItems}
