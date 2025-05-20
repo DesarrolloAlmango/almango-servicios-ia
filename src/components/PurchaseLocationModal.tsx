@@ -488,31 +488,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     let products = [];
     let prices = {};
     
-    // Pre-fetch products and prices before closing the modal
-    if (finalServiceId && finalCategoryId) {
-      globalLastSelectedCategory = {
-        serviceId: finalServiceId,
-        categoryId: finalCategoryId,
-        categoryName: finalCategoryName
-      };
-      
-      console.log("Pre-fetching products and prices...");
-      setLoadingPrices(true);
-      
-      try {
-        const result = await fetchProductsForCategory(storeId, finalServiceId, finalCategoryId);
-        if (result) {
-          products = result.products;
-          prices = result.prices;
-        }
-      } catch (error) {
-        console.error("Error pre-fetching products:", error);
-      } finally {
-        setLoadingPrices(false);
-      }
-    }
-    
-    // Call onSelectLocation to update the location
+    // Call onSelectLocation to update the location first
     onSelectLocation(
       storeId, 
       storeName,
@@ -552,6 +528,27 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         }
       });
       document.dispatchEvent(openCategoryEvent);
+      
+      // Fetch products and prices in background after modal is already opened
+      setTimeout(async () => {
+        if (finalServiceId && finalCategoryId) {
+          try {
+            const result = await fetchProductsForCategory(storeId, finalServiceId, finalCategoryId);
+            if (result) {
+              // Update the already open modal with the fetched data
+              const updateProductsEvent = new CustomEvent('updateProductsData', {
+                detail: {
+                  products: result.products,
+                  prices: result.prices
+                }
+              });
+              document.dispatchEvent(updateProductsEvent);
+            }
+          } catch (error) {
+            console.error("Error fetching products:", error);
+          }
+        }
+      }, 100);
       
       // Highlight the selected category
       setTimeout(() => {
@@ -634,7 +631,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                 ¿Dónde realizaste la compra?
               </h3>
               {serviceName && (
-                <p className="text-muted-foreground text-sm">
+                <p className="text-sm text-muted-foreground">
                   Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
                 </p>
               )}
@@ -795,15 +792,10 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             </Button>
             <Button 
               onClick={handleConfirm}
-              disabled={!isFormValid || loading || loadingPrices}
+              disabled={!isFormValid || loading}
               className="bg-orange-500 hover:bg-orange-600"
             >
-              {loadingPrices ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Calculando precios...
-                </>
-              ) : "Confirmar"}
+              Confirmar
             </Button>
           </DialogFooter>
         )}
