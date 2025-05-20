@@ -27,6 +27,7 @@ interface LocationStepProps {
   buttonText?: string;
   showStoreSection?: boolean;
   storeName?: string;
+  categoryId?: string; // Added for debugging
 }
 
 const LocationStep: React.FC<LocationStepProps> = ({
@@ -42,7 +43,8 @@ const LocationStep: React.FC<LocationStepProps> = ({
   description = "Selecciona la ubicación donde necesitas el servicio",
   buttonText = "Siguiente",
   showStoreSection = false,
-  storeName
+  storeName,
+  categoryId // Debug parameter
 }) => {
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartment(value);
@@ -57,6 +59,11 @@ const LocationStep: React.FC<LocationStepProps> = ({
         <MapPin className="h-12 w-12 mx-auto text-primary mb-2" />
         <h3 className="text-xl font-semibold">{title}</h3>
         <p className="text-muted-foreground">{description}</p>
+        {categoryId && (
+          <div className="mt-2 p-1 bg-black text-white text-sm inline-block rounded">
+            Category ID: {categoryId}
+          </div>
+        )}
       </div>
 
       {showStoreSection && storeName && (
@@ -129,7 +136,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
           disabled={!selectedDepartment || !selectedLocation || loading.municipalities || loading.departments}
           className="bg-primary hover:bg-primary-dark"
         >
-          {buttonText}
+          {buttonText} {categoryId && `(Cat ID: ${categoryId})`}
         </Button>
       </div>
     </div>
