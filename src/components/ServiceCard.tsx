@@ -192,10 +192,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
   const [pricesFetched, setPricesFetched] = useState<boolean>(false);
 
-  const getPurchaseLocationForService = (serviceId: string) => {
-    return null;
-  };
-
   const fetchUpdatedPrice = async (product: Product): Promise<{id: string, price: number}> => {
     if (!purchaseLocationId || !serviceId || !category.id) {
       return { id: product.id, price: product.defaultPrice || product.price };
@@ -230,7 +226,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   useEffect(() => {
     // Set initial state with product base data
-    if (category.products.length > 0 && !pricesFetched) {
+    if (category.products.length > 0 && !pricesFetched && purchaseLocationId) {
       // Initialize all products with their default prices first
       const initialProducts = category.products.map(product => ({ 
         ...product, 
@@ -285,6 +281,23 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       });
       
       // Mark prices as fetched to prevent refetching
+      setPricesFetched(true);
+    } else if (category.products.length > 0 && !pricesFetched) {
+      // If we don't have a purchase location ID yet, just display products with original prices
+      setProducts(category.products);
+      
+      // Setup initial quantities based on cart items
+      const initialQuantities: Record<string, number> = {};
+      category.products.forEach(product => {
+        const cartItem = currentCartItems.find(item => 
+          item.productId === product.id && 
+          item.categoryId === category.id &&
+          item.serviceId === serviceId
+        );
+        
+        initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
+      });
+      setProductQuantities(initialQuantities);
       setPricesFetched(true);
     }
   }, [category, purchaseLocationId, serviceId, currentCartItems, pricesFetched]);
@@ -529,6 +542,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   const [imageError, setImageError] = useState(false);
   const dialogOpenRef = useRef(false);
   const categorySelectionInProgressRef = useRef(false);
+  const pendingCategoryDataRef = useRef<{id: string, name: string} | null>(null);
   
   // Create a service object for the selectedService prop
   const currentService: ServiceDetails = { id, name };
@@ -604,6 +618,13 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       }));
       
       setCategories(transformedCategories);
+      
+      // If we have a pending category, fetch its products immediately
+      if (pendingCategoryDataRef.current) {
+        const pendingCat = pendingCategoryDataRef.current;
+        pendingCategoryDataRef.current = null;
+        fetchProducts(serviceId, pendingCat.id);
+      }
       
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
@@ -697,20 +718,31 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   };
   
   const handleCategorySelect = (category: Category) => {
-    console.log("Category selected:", category);
+    console.log("Category selected:", category.name, "Purchase location:", purchaseLocation ? "exists" : "does not exist", "Category ID:", category.id);
+    
+    // Store category info in case we need it after location selection
+    window.lastSelectedServiceId = id;
+    window.lastSelectedCategoryName = category.name;
     
     // Set the flag to prevent closing the dialog while loading products
     categorySelectionInProgressRef.current = true;
     
     if (id && onCategorySelect && !purchaseLocation) {
-      // Solo notificamos al padre para mostrar modal de ubicación si NO hay un lugar de compra guardado
+      // Save the category info to use after location selection
+      pendingCategoryDataRef.current = {
+        id: category.id,
+        name: category.name
+      };
+      
+      // We should first prompt for location since we don't have purchase location yet
       console.log("Calling onCategorySelect from parent - no purchase location exists");
       onCategorySelect(id, category.id, category.name);
+      
       // No cerramos el diálogo si estamos en proceso de seleccionar una categoría
       return false; // Return false to indicate dialog shouldn't close
     } else if (id) {
-      // Si ya hay un lugar de compra O no necesitamos mostrar el modal de ubicación,
-      // cargamos los productos directamente
+      // If we already have purchase location OR location selection isn't needed,
+      // we can load products directly
       console.log("Fetching products for category - purchase location exists or no location needed:", category.id);
       fetchProducts(id, category.id);
       return true; // Return true to indicate successful processing
@@ -820,7 +852,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
           <div className="p-4 sm:p-6">
             <h2 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-4 text-center px-3 mx-auto text-orange-500 truncate uppercase">{name}</h2>
             
-            {purchaseLocation && selectedCategory && (
+            {purchaseLocation && (
               <div className="mb-4 bg-blue-50 p-3 rounded-lg border border-blue-200 text-sm">
                 <span className="font-medium text-blue-700">Lugar de compra: </span>
                 <span className="text-blue-600">
