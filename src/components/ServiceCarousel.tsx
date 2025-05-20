@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 
 interface ServiceCarouselProps {
@@ -45,14 +45,58 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
     const handleOpenCategoryEvent = (e: Event) => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail) {
-        const { categoryId } = customEvent.detail;
-        console.log("ServiceCarousel received openCategory event for:", categoryId);
+        const { categoryId, serviceId, categoryName } = customEvent.detail;
+        console.log("ServiceCarousel received openCategory event for:", categoryId, "Service:", serviceId, "Name:", categoryName);
         
         // Forward the event to CategoryCarousel components
+        // We do this because ServiceCarousel might be the parent of multiple CategoryCarousels
         const forwardEvent = new CustomEvent('openCategory', { 
           detail: customEvent.detail 
         });
         document.dispatchEvent(forwardEvent);
+        
+        // Ensure a category card is highlighted visually
+        setTimeout(() => {
+          console.log("ServiceCarousel: Trying to highlight category card after location selection");
+          
+          // Try to find the category element by different selectors
+          const selectors = [
+            `[data-category-id="${categoryId}"]`,
+            `.category-item-${categoryId}`,
+            `[data-category="${categoryId}"]`
+          ];
+          
+          let categoryElement = null;
+          for (const selector of selectors) {
+            const element = document.querySelector(selector);
+            if (element) {
+              categoryElement = element;
+              console.log(`ServiceCarousel: Found category element with selector: ${selector}`);
+              break;
+            }
+          }
+          
+          if (categoryElement) {
+            // Find the clickable card within the category element
+            const clickableCard = categoryElement.querySelector('.cursor-pointer');
+            if (clickableCard) {
+              console.log("ServiceCarousel: Found clickable element, highlighting");
+              
+              // Apply visual highlighting
+              clickableCard.classList.add('ring-4', 'ring-orange-500', 'scale-110', 'bg-orange-50');
+              
+              // Scroll the element into view for better visibility
+              categoryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              
+              // Remove scale and background after animation completes
+              setTimeout(() => {
+                clickableCard.classList.remove('scale-110', 'bg-orange-50');
+              }, 2000);
+            }
+          } else {
+            console.error("ServiceCarousel: Couldn't find any category element to highlight");
+          }
+        }, 500);
       }
     };
     
@@ -100,7 +144,7 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
               key={index} 
               className={`pl-2 sm:pl-4 
                 basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 
-                ${shouldCenter ? "mx-auto" : ""} overflow-visible`}
+                ${shouldCenter ? "mx-auto" : ""} overflow-visible carousel-item`}
             >
               <div className="flex items-center justify-center py-4 relative overflow-visible">
                 {/* Apply orange border with transparency to child elements if showBorder is true */}

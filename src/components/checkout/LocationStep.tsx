@@ -78,36 +78,85 @@ const LocationStep: React.FC<LocationStepProps> = ({
         });
         document.dispatchEvent(openCategoryEvent);
         
-        // Also try to directly trigger a click on the category card if it exists
+        // Try multiple methods to highlight and click the category
         setTimeout(() => {
+          // Method 1: Try by data-category-id attribute
           const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
           if (categoryElement) {
-            console.log("LocationStep: Found category element:", categoryId);
+            console.log("LocationStep: Found category element by data-category-id:", categoryId);
             
             // Find the clickable element within the category card
             const clickableCard = categoryElement.querySelector('.cursor-pointer');
             if (clickableCard && clickableCard instanceof HTMLElement) {
               console.log("LocationStep: Directly clicking category card for:", categoryId);
+              
+              // Add visual highlight effect
+              clickableCard.classList.add('ring-4', 'ring-orange-500', 'scale-110', 'bg-orange-50');
+              
+              // Click the element programmatically
               clickableCard.click();
               
               // Also focus the element to make the selection visible
               clickableCard.focus();
+              
+              // Remove scale effect after animation
+              setTimeout(() => {
+                clickableCard.classList.remove('scale-110', 'bg-orange-50');
+              }, 2000);
             } else {
               console.error("LocationStep: Couldn't find clickable element in category card");
             }
           } else {
             console.error("LocationStep: Couldn't find category element with ID:", categoryId);
             
-            // Fallback - try to find by different selector
+            // Method 2: Try by class that includes category ID
             const alternativeSelector = `.category-item-${categoryId}`;
             const altElement = document.querySelector(alternativeSelector);
-            if (altElement && altElement instanceof HTMLElement) {
-              console.log("LocationStep: Found category by alternative selector, clicking");
-              altElement.click();
+            if (altElement) {
+              console.log("LocationStep: Found category by alternative selector:", alternativeSelector);
+              
+              // Find clickable element
+              const clickableDiv = altElement.querySelector('div[class*="cursor-pointer"]');
+              if (clickableDiv && clickableDiv instanceof HTMLElement) {
+                console.log("LocationStep: Clicking alternative category element");
+                
+                // Add visual highlight effect
+                clickableDiv.classList.add('ring-4', 'ring-orange-500', 'scale-110', 'bg-orange-50');
+                
+                // Click the element programmatically
+                clickableDiv.click();
+                
+                // Remove scale effect after animation
+                setTimeout(() => {
+                  clickableDiv.classList.remove('scale-110', 'bg-orange-50');
+                }, 2000);
+              } else {
+                console.error("LocationStep: Couldn't find clickable div in alternative element");
+              }
+            } else {
+              // Method 3: Try broadcast method to all category items
+              console.log("LocationStep: Trying broadcast method to find category", categoryId);
+              const allCategoryItems = document.querySelectorAll('.carousel-item[data-category-id]');
+              
+              allCategoryItems.forEach(item => {
+                const itemId = item.getAttribute('data-category-id');
+                if (itemId === categoryId && item instanceof HTMLElement) {
+                  console.log("LocationStep: Found category in global search");
+                  const clickTarget = item.querySelector('.cursor-pointer');
+                  if (clickTarget && clickTarget instanceof HTMLElement) {
+                    console.log("LocationStep: Clicking from broadcast method");
+                    clickTarget.classList.add('ring-4', 'ring-orange-500', 'scale-110', 'bg-orange-50');
+                    clickTarget.click();
+                    setTimeout(() => {
+                      clickTarget.classList.remove('scale-110', 'bg-orange-50');
+                    }, 2000);
+                  }
+                }
+              });
             }
           }
         }, 300); // Small additional delay to ensure the event handlers are ready
-      }, 1000);  // 1 second delay before triggering category click
+      }, 800);  // Reduced delay before triggering category click for faster response
     }
   };
 

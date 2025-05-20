@@ -27,8 +27,25 @@ const App = () => {
     window.lastSelectedServiceId = undefined;
     window.lastSelectedCategoryName = undefined;
     
+    // Add global event to handle category selection (for debugging purposes)
+    const handleCategorySelected = (e: CustomEvent) => {
+      console.log("App received category selected event:", e.detail);
+    };
+    
+    const handleOpenCategory = (e: CustomEvent) => {
+      console.log("App received open category event:", e.detail);
+    };
+    
+    document.addEventListener('categorySelected', handleCategorySelected as EventListener);
+    document.addEventListener('openCategory', handleOpenCategory as EventListener);
+    
     // Handle any global initialization
-    console.log("App initialized");
+    console.log("App initialized with event listeners");
+    
+    return () => {
+      document.removeEventListener('categorySelected', handleCategorySelected as EventListener);
+      document.removeEventListener('openCategory', handleOpenCategory as EventListener);
+    };
   }, []);
 
   return (
