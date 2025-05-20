@@ -12,6 +12,9 @@ import { toast } from "sonner";
 import PurchaseLocationModal, { globalLastSelectedCategory } from "@/components/PurchaseLocationModal";
 import { Separator } from "@/components/ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
 export interface CartItem {
   id: string;
   name: string;
@@ -528,9 +531,10 @@ const Servicios = () => {
         <div className={`absolute inset-x-0 bottom-0 ${isMobile ? 'h-[33%]' : 'h-[47%]'} bg-[#f06900]`}></div>
       </div>
       
-      <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
+      {/* Fixed header with Back button and Shopping Cart */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-[#F8F4F0] shadow-md">
         <div className="container mx-auto">
-          <div className="flex justify-between items-center mb-8 mt-4">
+          <div className="flex justify-between items-center py-4 px-4">
             <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 text-gray-800">
               <ArrowLeft size={20} />
               <span>Volver</span>
@@ -543,7 +547,11 @@ const Servicios = () => {
                 </span>}
             </div>
           </div>
-          
+        </div>
+      </div>
+      
+      <main className="flex-grow py-8 px-4 relative z-10 servicios-page mt-16">
+        <div className="container mx-auto">
           {/* ¿CÓMO CONTRATAR? Section - Added from Home page */}
           <div className="py-10 px-4 bg-[#F8F4F0] rounded-lg mb-12">
             <h2 className="text-3xl font-bold mb-4 text-center uppercase text-[#f06900]">¿CÓMO CONTRATAR?</h2>
@@ -685,6 +693,9 @@ const Servicios = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* WhatsApp Button */}
+      <WhatsAppButton />
 
       <style>{`
         /* Add custom styling for section titles */
