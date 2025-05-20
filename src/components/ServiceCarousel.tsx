@@ -12,7 +12,6 @@ interface ServiceCarouselProps {
   secondaryTitlePart?: string;
   lightTitle?: boolean;
   showBorder?: boolean;
-  enableCategoryAutoClick?: boolean;
 }
 
 const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
@@ -28,8 +27,7 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
   primaryTitlePart,
   secondaryTitlePart,
   lightTitle = false,
-  showBorder = true,
-  enableCategoryAutoClick = true
+  showBorder = true
 }) => {
   if (!children || children.length === 0) {
     return <div className="text-center py-8">No hay servicios disponibles</div>;
@@ -37,31 +35,6 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
 
   // Determinar si debe centrarse (cuando hay pocos elementos)
   const shouldCenter = children.length <= 2;
-  
-  React.useEffect(() => {
-    // Only add this listener if auto-click is enabled
-    if (!enableCategoryAutoClick) return;
-
-    const handleOpenCategoryEvent = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail) {
-        const { categoryId } = customEvent.detail;
-        console.log("ServiceCarousel received openCategory event for:", categoryId);
-        
-        // Forward the event to CategoryCarousel components
-        const forwardEvent = new CustomEvent('openCategory', { 
-          detail: customEvent.detail 
-        });
-        document.dispatchEvent(forwardEvent);
-      }
-    };
-    
-    document.addEventListener('openCategory', handleOpenCategoryEvent);
-    
-    return () => {
-      document.removeEventListener('openCategory', handleOpenCategoryEvent);
-    };
-  }, [enableCategoryAutoClick]);
   
   return (
     <div className="w-full max-w-screen-xl mx-auto overflow-visible">

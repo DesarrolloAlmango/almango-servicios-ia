@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -33,10 +34,6 @@ const COMPRESSION_QUALITY = 0.6;
 
 // Random service names for demonstration
 const DEMO_SERVICE_NAMES = ["Corte de pelo", "Peinado", "Coloración", "Maquillaje", "Tratamiento facial", "Depilación", "Manicura premium", "Masaje relajante", "Pedicura", "Limpieza facial", "Alisado", "Extensiones", "Uñas acrílicas", "Cejas y pestañas"];
-
-// Global variable for storing the last selected category ID
-export let lastSelectedCategoryId: string | null = null;
-export let lastSelectedCategoryName: string | null = null;
 
 const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   categories,
@@ -117,65 +114,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       autoSelectionAttemptsRef.current = 0;
     }
   }, [categories, purchaseLocation]);
-
-  // Add listener for custom openCategory events - IMPROVED IMPLEMENTATION
-  useEffect(() => {
-    const handleOpenCategoryEvent = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail) {
-        const { serviceId, categoryId, categoryName } = customEvent.detail;
-        
-        console.log("CategoryCarousel received openCategory event:", categoryId, categoryName);
-        
-        // Find the category we want to select
-        const categoryToSelect = categories.find(cat => cat.id === categoryId);
-        
-        if (categoryToSelect && selectedService.id === serviceId) {
-          console.log("Found matching category, auto-clicking:", categoryToSelect.name);
-          
-          // Small delay to ensure UI is ready
-          setTimeout(() => {
-            // First, handle the data selection through the normal flow
-            handleCategoryClick(categoryToSelect);
-            
-            // CRITICAL FIX: Directly find and click the DOM element for the category
-            const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
-            if (categoryElement) {
-              // Find the clickable card within the category element
-              const clickableCard = categoryElement.querySelector('.cursor-pointer');
-              if (clickableCard && clickableCard instanceof HTMLElement) {
-                console.log("Programmatically clicking on category card:", categoryToSelect.name);
-                // Simulate a real click on the element
-                clickableCard.click();
-                // Also try to focus and give it visual highlight
-                clickableCard.focus();
-                clickableCard.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
-                setTimeout(() => {
-                  clickableCard.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
-                }, 2000);
-              } else {
-                console.error("Failed to find clickable element within category card", categoryId);
-              }
-            } else {
-              console.error("Failed to find category element with ID:", categoryId);
-            }
-          }, 200);
-        } else {
-          console.log("Category not found or service ID mismatch", {
-            foundCategory: !!categoryToSelect,
-            expectedServiceId: serviceId, 
-            actualServiceId: selectedService.id
-          });
-        }
-      }
-    };
-    
-    document.addEventListener('openCategory', handleOpenCategoryEvent);
-    
-    return () => {
-      document.removeEventListener('openCategory', handleOpenCategoryEvent);
-    };
-  }, [categories, selectedService.id, onSelectCategory]);
 
   // Log when purchaseLocation changes to aid debugging
   useEffect(() => {
@@ -447,35 +385,15 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }
   };
 
-  // Handle category selection with global variable storage
+  // Handle category selection with awareness of purchase location
   const handleCategoryClick = (category: Category) => {
-    console.log("Category clicked:", category.name, "Purchase location:", purchaseLocation ? "exists" : "does not exist", "Category ID:", category.id);
-    
-    // Store the selected category ID and name in global variables
-    lastSelectedCategoryId = category.id;
-    lastSelectedCategoryName = category.name;
-    console.log("Saved last selected category:", lastSelectedCategoryId, lastSelectedCategoryName);
-    
-    // Dispatch a custom event to notify any listening components about the category selection
-    const categorySelectedEvent = new CustomEvent('categorySelected', { 
-      detail: { 
-        categoryId: category.id,
-        categoryName: category.name,
-        serviceId: selectedService.id 
-      } 
-    });
-    document.dispatchEvent(categorySelectedEvent);
+    console.log("Category clicked:", category.name, "Purchase location:", purchaseLocation ? "exists" : "does not exist");
     
     // Preload product data in the background
     preloadProductData(category.id);
     
     // Call the parent's onSelectCategory function
     onSelectCategory(category.id, category.name);
-  };
-
-  // Check if this category is the auto-selected one
-  const isSelectedCategory = (categoryId: string) => {
-    return autoSelectCategoryId === categoryId;
   };
 
   // Extraer solo los nombres de categorías para mostrar durante la carga
@@ -509,9 +427,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       loop: true
     }}>
         <CarouselContent className="-ml-2 sm:-ml-4">
-          {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="basis-1/2 sm:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4 mx-1">
-              <div onClick={() => handleCategoryClick(category)} className={`cursor-pointer hover:scale-105 transition-transform mx-5px ${isSelectedCategory(category.id) ? 'ring-4 ring-orange-500 rounded-full' : ''}`}>
-                <div className={`overflow-hidden rounded-full border-2 ${isSelectedCategory(category.id) ? 'border-orange-500' : 'border-primary'} mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative`}>
+          {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="\n                basis-1/2 \n                sm:basis-1/3 \n                lg:basis-1/4\n                pl-2 sm:pl-4\nmx-1\n              ">
+              <div onClick={() => handleCategoryClick(category)} className="cursor-pointer hover:scale-105 transition-transform mx-5px">
+                <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                   <AspectRatio ratio={1} className="bg-gray-100">
                     {/* Mostrar skeleton mientras carga la imagen */}
                     {loadingImages[category.id] && <div className="absolute inset-0 flex items-center justify-center z-10">
@@ -534,9 +452,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
                       </>}
                   </AspectRatio>
                 </div>
-                
-                <p className={`text-center text-sm sm:text-base font-medium mt-1 sm:mt-2 line-clamp-2 px-1 
-                  animate-in fade-in duration-300 ${isSelectedCategory(category.id) ? 'text-orange-500 font-bold' : ''}`}>{category.name}</p>
+                <p className="text-center text-sm sm:text-base font-medium mt-1 sm:mt-2 line-clamp-2 px-1 
+                  animate-in fade-in duration-300">{category.name}</p>
               </div>
             </CarouselItem>)}
         </CarouselContent>
