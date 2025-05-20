@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -53,29 +54,48 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const hasAutoSelectedRef = useRef(false);
   const autoSelectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const autoSelectionAttemptsRef = useRef(0);
 
-  // Enhanced auto-select effect with more robust handling
+  // Enhanced auto-select effect with more robust handling and retry logic
   useEffect(() => {
     // Clear any pending auto-select timeout when dependencies change
     if (autoSelectTimeoutRef.current) {
       clearTimeout(autoSelectTimeoutRef.current);
     }
 
+    // Only attempt auto-selection if we have all required data and haven't already selected
     if (autoSelectCategoryId && categories.length > 0 && purchaseLocation) {
-      console.log("Checking for auto-selection. Category ID:", autoSelectCategoryId, "Has already selected:", hasAutoSelectedRef.current);
+      console.log("Checking for auto-selection. Category ID:", autoSelectCategoryId, 
+                 "Has already selected:", hasAutoSelectedRef.current,
+                 "Categories available:", categories.length);
       
-      if (!hasAutoSelectedRef.current) {
-        // Add a small delay to ensure the component is fully rendered
+      // Find the category we want to select
+      const categoryToSelect = categories.find(cat => cat.id === autoSelectCategoryId);
+      
+      if (categoryToSelect && !hasAutoSelectedRef.current) {
+        // Increment attempt counter
+        autoSelectionAttemptsRef.current += 1;
+        
+        // Progressive backoff for retries (100ms, 200ms, 300ms, etc.)
+        const delay = Math.min(100 * autoSelectionAttemptsRef.current, 1000);
+        
+        console.log(`Attempting auto-selection in ${delay}ms (attempt ${autoSelectionAttemptsRef.current})`);
+        
         autoSelectTimeoutRef.current = setTimeout(() => {
-          const categoryToSelect = categories.find(cat => cat.id === autoSelectCategoryId);
-          if (categoryToSelect) {
-            console.log("Auto-selecting category:", categoryToSelect.name);
-            hasAutoSelectedRef.current = true;
-            handleCategoryClick(categoryToSelect);
-          } else {
-            console.log("Category not found for auto-selection:", autoSelectCategoryId);
-          }
-        }, 100);
+          console.log("Auto-selecting category:", categoryToSelect.name);
+          
+          // Mark as selected to prevent multiple selections
+          hasAutoSelectedRef.current = true;
+          
+          // Trigger the category selection
+          handleCategoryClick(categoryToSelect);
+          
+          // Reset attempt counter after successful selection
+          autoSelectionAttemptsRef.current = 0;
+        }, delay);
+      } else if (!categoryToSelect && autoSelectCategoryId) {
+        console.log("Category not found for auto-selection:", autoSelectCategoryId, 
+                   "Available categories:", categories.map(c => `${c.id}:${c.name}`).join(', '));
       }
     }
 
@@ -88,7 +108,11 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
 
   // Reset auto-selection flag when key dependencies change
   useEffect(() => {
-    hasAutoSelectedRef.current = false;
+    if (categories.length > 0) {
+      console.log("Resetting auto-selection state due to dependency change");
+      hasAutoSelectedRef.current = false;
+      autoSelectionAttemptsRef.current = 0;
+    }
   }, [categories, purchaseLocation]);
 
   // Log when purchaseLocation changes to aid debugging
@@ -97,6 +121,26 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       console.log("CategoryCarousel - Purchase location received:", purchaseLocation);
     }
   }, [purchaseLocation]);
+
+  // Function to preload product data when a category is selected
+  const preloadProductData = async (categoryId: string) => {
+    if (!selectedService.id) return;
+    
+    try {
+      const endpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${selectedService.id}&Nivel1=${categoryId}`;
+      console.log(`Preloading products for service ${selectedService.id}, category ${categoryId}`);
+      
+      const response = await fetch(endpoint);
+      if (!response.ok) {
+        console.error(`Error preloading products: ${response.status}`);
+      } else {
+        const data = await response.json();
+        console.log(`Preloaded ${data.length} products successfully`);
+      }
+    } catch (error) {
+      console.error("Error preloading product data:", error);
+    }
+  };
 
   // Función optimizada para obtener la URL de la imagen
   const getImageSource = useMemo(() => (imageStr: string) => {
@@ -344,6 +388,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   // Handle category selection with awareness of purchase location
   const handleCategoryClick = (category: Category) => {
     console.log("Category clicked:", category.name, "Purchase location:", purchaseLocation ? "exists" : "does not exist");
+    
+    // Preload product data in the background
+    preloadProductData(category.id);
     
     // Call the parent's onSelectCategory function
     onSelectCategory(category.id, category.name);

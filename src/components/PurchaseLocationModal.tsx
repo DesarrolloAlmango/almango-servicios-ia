@@ -273,6 +273,28 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     e.preventDefault();
   };
 
+  // Helper function to fetch product categories after location confirmation
+  const fetchProductsForCategory = async (storeId: string, serviceId?: string, categoryId?: string) => {
+    if (!serviceId || !categoryId) return;
+    
+    try {
+      console.log(`Fetching products for store: ${storeId}, service: ${serviceId}, category: ${categoryId}`);
+      // This simulates clicking on a category to show products
+      const endpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
+      
+      // We're making this call here just to ensure the request is processed
+      // The actual data handling happens in the ServiceCard component
+      const response = await fetch(endpoint);
+      if (!response.ok) {
+        console.error(`Error fetching products: ${response.status}`);
+      } else {
+        console.log("Products fetched successfully");
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
+
   const handleConfirm = () => {
     if (!commerceId) {
       if (!selectedStore && searchQuery) {
@@ -308,6 +330,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     const selectedLocationObj = currentMunicipalities.find(mun => mun.id === selectedLocation);
 
     console.log("Confirming location with category info:", { serviceId, categoryId, categoryName });
+    
+    // Pre-fetch products if we have both serviceId and categoryId
+    if (serviceId && categoryId) {
+      fetchProductsForCategory(storeId, serviceId, categoryId);
+    }
     
     // We add a small timeout to ensure the modal closes properly before triggering the callback
     // This helps prevent potential race conditions in the UI update cycle
