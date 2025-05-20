@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -57,11 +56,14 @@ const LocationStep: React.FC<LocationStepProps> = ({
   };
 
   const handleNextWithDelay = () => {
+    // First trigger onNext to save the location
     onNext();
     
+    // Then trigger additional actions if we have a category ID
     if (categoryId && window.lastSelectedServiceId) {
       console.log("LocationStep: Triggering product price recalculation for category:", categoryId);
       
+      // First trigger price update - this is important before opening modal
       const updatePricesEvent = new CustomEvent('updateProductPrices', { 
         detail: { 
           categoryId,
@@ -73,6 +75,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
       });
       document.dispatchEvent(updatePricesEvent);
       
+      // After a delay to allow prices to update, trigger category opening
       setTimeout(() => {
         const openCategoryEvent = new CustomEvent('openCategory', { 
           detail: { 
@@ -85,6 +88,16 @@ const LocationStep: React.FC<LocationStepProps> = ({
         });
         document.dispatchEvent(openCategoryEvent);
         
+        // Add data attribute to indicate this service has a location
+        if (window.lastSelectedServiceId) {
+          const markerDiv = document.createElement('div');
+          markerDiv.dataset.serviceId = window.lastSelectedServiceId;
+          markerDiv.dataset.hasLocation = 'true';
+          markerDiv.style.display = 'none';
+          document.body.appendChild(markerDiv);
+        }
+        
+        // After another small delay, scroll to and highlight the category
         setTimeout(() => {
           const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
           if (categoryElement) {

@@ -473,6 +473,16 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     // Set global window variables for cross-component access
     window.lastSelectedCategoryName = category.name;
     
+    // Check if we have a purchase location - this is the key change
+    if (!purchaseLocation) {
+      console.log("No purchase location, requesting location selection");
+      // If no purchase location, don't preload products - let the location modal handle it
+    } else {
+      // Only preload product data if we have a location
+      console.log("Purchase location exists, preloading product data");
+      preloadProductData(category.id);
+    }
+    
     // Dispatch a custom event to notify any listening components about the category selection
     const categorySelectedEvent = new CustomEvent('categorySelected', { 
       detail: { 
@@ -482,9 +492,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       } 
     });
     document.dispatchEvent(categorySelectedEvent);
-    
-    // Preload product data in the background
-    preloadProductData(category.id);
     
     // Call the parent's onSelectCategory function
     onSelectCategory(category.id, category.name);

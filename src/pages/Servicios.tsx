@@ -382,8 +382,12 @@ const Servicios = () => {
     if (service) {
       setSelectedServiceName(service.name);
     }
+    
+    // Check if there's an existing location for this service
     const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId && loc.departmentId && loc.locationId);
+    
     if (existingLocation) {
+      // If we have a location, update it with category info
       setPurchaseLocations(prev => {
         return prev.map(loc => {
           if (loc.serviceId === serviceId) {
@@ -396,9 +400,13 @@ const Servicios = () => {
           return loc;
         });
       });
+      // Set pending action flag to trigger product modal only if location exists
       setPendingServiceCardAction(true);
     } else {
+      // If no location exists, open location modal instead
+      // This prevents product modal from opening prematurely
       setIsLocationModalOpen(true);
+      // Do NOT set pendingServiceCardAction here
     }
   };
   const handleLocationSelect = (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string) => {

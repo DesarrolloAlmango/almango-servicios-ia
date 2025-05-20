@@ -48,6 +48,25 @@ const DialogContent = React.forwardRef<
         // Prevent autofocus for debugging purposes
         if (props.id === 'product-dialog' || (typeof props.id === 'string' && props.id.includes('product-dialog'))) {
           e.preventDefault();
+          
+          // Check if this product dialog is being opened without a location
+          const serviceIdMatch = props.id && typeof props.id === 'string' ? props.id.match(/product-dialog-(\w+)-/) : null;
+          if (serviceIdMatch && serviceIdMatch[1]) {
+            const serviceId = serviceIdMatch[1];
+            // Check global window object for location
+            const hasLocation = document.querySelector(`[data-service-id="${serviceId}"][data-has-location="true"]`);
+            
+            if (!hasLocation) {
+              console.log("Product dialog opened without location, will close immediately");
+              // Close this dialog after a short delay
+              setTimeout(() => {
+                const closeButton = document.querySelector(`#${props.id} [data-dialog-close]`);
+                if (closeButton && closeButton instanceof HTMLElement) {
+                  closeButton.click();
+                }
+              }, 100);
+            }
+          }
         }
       }}
       onPointerDownOutside={(e) => {
