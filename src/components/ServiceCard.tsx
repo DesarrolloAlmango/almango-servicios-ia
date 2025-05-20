@@ -491,6 +491,8 @@ interface ServiceCardProps {
   circular?: boolean;
   currentCartItems?: any[];
   className?: string;
+  pendingCategoryId?: string;  // Added to track which category to load after location selection
+  pendingCategoryName?: string; // Added to track category name for display
 }
 
 const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
@@ -506,6 +508,8 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   circular = false,
   currentCartItems = [],
   className = "",
+  pendingCategoryId,
+  pendingCategoryName
 }, ref) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -527,8 +531,19 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       dialogOpenRef.current = true;
     }
     
-    // Modificamos esta función para llamar directamente a ObtenerNivel2 cuando tenemos categoryId
-    if (forceOpen && id && purchaseLocation && !dialogOpenRef.current) {
+    // Special handling for when we have purchase location and pending category ID
+    if (isDialogOpen && id && purchaseLocation && pendingCategoryId) {
+      console.log("Loading products for pending category with existing purchase location:", {
+        serviceId: id,
+        categoryId: pendingCategoryId,
+        categoryName: pendingCategoryName
+      });
+      
+      // Directly fetch products for the pending category
+      fetchProducts(id, pendingCategoryId);
+    }
+    // Normal dialog open handling
+    else if (forceOpen && id && purchaseLocation && !dialogOpenRef.current) {
       console.log("Force open dialog with purchase location:", purchaseLocation);
       setIsDialogOpen(true);
       
@@ -557,7 +572,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [forceOpen, id, purchaseLocation, isDialogOpen]);
+  }, [forceOpen, id, purchaseLocation, isDialogOpen, pendingCategoryId, pendingCategoryName]);
 
   const fetchCategories = async (serviceId: string) => {
     console.log("Fetching categories for service:", serviceId);
@@ -622,7 +637,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       if (!categoryToUpdate) {
         // Si la categoría no existe en el estado, crear una temporal
         console.log("Category not found in state, creating temporary one");
-        const categoryName = purchaseLocation?.categoryName || "Productos";
+        const categoryName = pendingCategoryName || purchaseLocation?.categoryName || "Productos";
         categoryToUpdate = {
           id: categoryId,
           name: categoryName,

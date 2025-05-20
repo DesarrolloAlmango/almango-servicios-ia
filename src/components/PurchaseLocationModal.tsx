@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,10 @@ interface PurchaseLocationModalProps {
   serviceName?: string;
   commerceId?: string;
   commerceName?: string;
+  // Adding new props to handle category information
+  serviceId?: string;
+  categoryId?: string;
+  categoryName?: string;
 }
 
 interface Department {
@@ -50,7 +55,10 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   stores = [],
   serviceName,
   commerceId,
-  commerceName
+  commerceName,
+  serviceId,
+  categoryId,
+  categoryName
 }) => {
   const [selectedStore, setSelectedStore] = useState<string>("");
   const [otherStore, setOtherStore] = useState<string>("");
@@ -300,6 +308,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     const selectedDepartmentObj = departments.find(dept => dept.id === selectedDepartment);
     const selectedLocationObj = currentMunicipalities.find(mun => mun.id === selectedLocation);
 
+    console.log("Confirming location with category info:", { serviceId, categoryId, categoryName });
+
     onSelectLocation(
       storeId, 
       storeName,
@@ -309,6 +319,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       selectedLocationObj?.name || "",
       selectedStore === "other" ? otherStore || searchQuery : undefined
     );
+    
     onClose();
   };
 
@@ -374,6 +385,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
               {serviceName && (
                 <p className="text-muted-foreground text-sm">
                   Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
+                  {categoryName && (
+                    <> - Categoría: <span className="font-semibold text-orange-500">{categoryName}</span></>
+                  )}
                 </p>
               )}
               <label className="block text-sm font-medium">
