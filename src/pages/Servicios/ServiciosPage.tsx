@@ -43,10 +43,12 @@ const ServiciosPage = () => {
   const [titleVisible, setTitleVisible] = useState(false);
   const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(null);
   const [autoClickTriggered, setAutoClickTriggered] = useState(false);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   
   // Refs
   const serviceCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const pendingCategoryAutoClickRef = useRef<boolean>(false);
+  const pendingProductFetchRef = useRef<boolean>(false);
 
   // Queries for services data
   const {
@@ -127,37 +129,78 @@ const ServiciosPage = () => {
     }
   }, [highlightedServiceId, autoClickTriggered]);
 
-  // Handle pending category auto-click
+  // Modified effect to handle pending category auto-click and product loading
   useEffect(() => {
-    if (pendingCategoryAutoClickRef.current && selectedServiceId && selectedCategoryId) {
-      console.log("Processing pending category auto-click:", {
+    if (pendingProductFetchRef.current && selectedServiceId && selectedCategoryId) {
+      console.log("Initiating automatic product fetch:", {
         serviceId: selectedServiceId,
         categoryId: selectedCategoryId,
-        categoryName: selectedCategoryName
       });
-
+      
       // Reset the flag
-      pendingCategoryAutoClickRef.current = false;
-
-      // Small delay to ensure service card has been clicked
-      const timer = setTimeout(() => {
-        // Dispatch a direct product fetch
-        const serviceLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
-        if (serviceLocation) {
-          console.log("Forcing product fetch for:", {
-            serviceId: selectedServiceId,
-            categoryId: selectedCategoryId
+      pendingProductFetchRef.current = false;
+      
+      // Find the service location for the selected service
+      const serviceLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
+      
+      if (serviceLocation?.departmentId && serviceLocation?.locationId) {
+        console.log("Found location info, proceeding with product fetch:", {
+          serviceId: selectedServiceId,
+          categoryId: selectedCategoryId,
+          locationId: serviceLocation.locationId,
+          departmentId: serviceLocation.departmentId
+        });
+        
+        // Set loading state
+        setIsLoadingProducts(true);
+        
+        // Direct API call to fetch products with prices
+        fetch(`/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${selectedServiceId}&Nivel1=${selectedCategoryId}`)
+          .then(response => response.json())
+          .then(products => {
+            console.log(`Fetched ${products.length} products for category ${selectedCategoryId}`);
+            
+            if (products.length > 0) {
+              // For each product, fetch its price
+              const pricePromises = products.map(product => 
+                fetch(`/api/AlmangoXV1NETFramework/WebAPI/ObtenerPrecio?DepartamentoId=${serviceLocation.departmentId}&LocalidadId=${serviceLocation.locationId}&ArticuloId=${product.id}`)
+                  .then(res => res.json())
+                  .then(priceData => ({
+                    ...product,
+                    price: priceData.price || 0
+                  }))
+              );
+              
+              // Wait for all price fetch operations to complete
+              return Promise.all(pricePromises);
+            }
+            return products;
+          })
+          .then(productsWithPrices => {
+            console.log("Products with prices loaded:", productsWithPrices);
+            // Here you would update your state with the products
+            // This could be dispatching an event or updating local state
+            
+            // Fire an event with the products data for ServiceCard to consume
+            const productLoadedEvent = new CustomEvent('productsLoaded', {
+              detail: {
+                serviceId: selectedServiceId,
+                categoryId: selectedCategoryId,
+                products: productsWithPrices
+              }
+            });
+            document.dispatchEvent(productLoadedEvent);
+            
+            toast.success(`Productos cargados para ${selectedCategoryName || 'la categoría seleccionada'}`);
+          })
+          .catch(error => {
+            console.error("Error fetching products or prices:", error);
+            toast.error("Error al cargar los productos. Intente nuevamente.");
+          })
+          .finally(() => {
+            setIsLoadingProducts(false);
           });
-
-          // Direct API call to fetch products
-          fetch(`/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${selectedServiceId}&Nivel1=${selectedCategoryId}`).then(response => response.json()).then(data => {
-            console.log(`Fetched ${data.length} products for category ${selectedCategoryId}`);
-          }).catch(error => {
-            console.error("Error fetching products:", error);
-          });
-        }
-      }, 300);
-      return () => clearTimeout(timer);
+      }
     }
   }, [purchaseLocations, selectedServiceId, selectedCategoryId, selectedCategoryName]);
 
@@ -325,16 +368,31 @@ const ServiciosPage = () => {
     }
   };
   
+  // Modified to handle the new flow
   const handleCategorySelect = (serviceId: string, categoryId: string, categoryName: string) => {
     setSelectedServiceId(serviceId);
     setSelectedCategoryId(categoryId);
     setSelectedCategoryName(categoryName);
+    
     const service = [...(displayedServices || []), ...(displayedMudanzaServices || [])].find(s => s.id === serviceId);
     if (service) {
       setSelectedServiceName(service.name);
     }
-    const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId && loc.departmentId && loc.locationId);
+    
+    // Check if there's an existing purchase location with department and location IDs
+    const existingLocation = purchaseLocations.find(
+      loc => loc.serviceId === serviceId && loc.departmentId && loc.locationId
+    );
+    
     if (existingLocation) {
+      console.log("Location already exists, updating with category and proceeding to fetch products:", {
+        serviceId,
+        categoryId,
+        categoryName,
+        location: existingLocation
+      });
+      
+      // Update the existing location with the new category info
       setPurchaseLocations(prev => {
         return prev.map(loc => {
           if (loc.serviceId === serviceId) {
@@ -347,12 +405,22 @@ const ServiciosPage = () => {
           return loc;
         });
       });
-      setPendingServiceCardAction(true);
+      
+      // Set the pending product fetch flag to trigger the automatic product loading
+      pendingProductFetchRef.current = true;
     } else {
+      console.log("No location found, opening location modal for:", {
+        serviceId,
+        categoryId,
+        categoryName
+      });
+      
+      // No existing location, open the modal to select a location
       setIsLocationModalOpen(true);
     }
   };
   
+  // Modified to handle automatic product loading after location selection
   const handleLocationSelect = (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string) => {
     if (selectedServiceId && selectedServiceName) {
       const newLocation: PurchaseLocation = {
@@ -368,7 +436,9 @@ const ServiciosPage = () => {
         categoryId: selectedCategoryId || globalLastSelectedCategory.categoryId || undefined,
         categoryName: selectedCategoryName || globalLastSelectedCategory.categoryName || undefined
       };
+      
       const existingLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
+      
       setPurchaseLocations(prev => {
         if (existingLocation) {
           return prev.map(loc => loc.serviceId === selectedServiceId ? {
@@ -378,21 +448,21 @@ const ServiciosPage = () => {
           return [...prev, newLocation];
         }
       });
+      
       setIsLocationModalOpen(false);
+      
       let successMessage = "";
       if (selectedCategoryId && selectedCategoryName) {
         successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName} - ${selectedCategoryName}`;
       } else {
         successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName}`;
       }
+      
       toast.success(successMessage);
+      
       if (selectedCategoryId) {
-        setPendingServiceCardAction(true);
-
-        // If this is the first time registering this service/category, trigger auto-click
-        if (!existingLocation || existingLocation.categoryId !== selectedCategoryId) {
-          pendingCategoryAutoClickRef.current = true;
-        }
+        // If a category was already selected, trigger automatic product loading
+        pendingProductFetchRef.current = true;
       }
     }
   };
@@ -465,8 +535,20 @@ const ServiciosPage = () => {
               </p>
             </div>}
           
-          {/* Store information for commerce ID */}
-          <StoreInfo commerceId={commerceId} storeName={storeName} />
+          {/* Store information for commerce ID or selected service */}
+          <StoreInfo 
+            commerceId={commerceId} 
+            storeName={storeName} 
+            selectedService={selectedServiceId ? { 
+              id: selectedServiceId, 
+              name: selectedServiceName || "" 
+            } : undefined}
+            selectedCategory={selectedCategoryId ? {
+              id: selectedCategoryId,
+              name: selectedCategoryName || ""
+            } : undefined}
+            isLoadingProducts={isLoadingProducts}
+          />
           
           <ServicesList
             services={displayedServices}
