@@ -27,7 +27,7 @@ const Footer = () => {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <MapPin size={20} className="text-white" />
-                <span>Montevideo, Uruguay.</span>
+                <span>Montevideo, Uruguay</span>
               </div>
               
               <div className="flex items-center gap-2">
