@@ -56,14 +56,23 @@ const LocationStep: React.FC<LocationStepProps> = ({
     // Call the original onNext function first
     onNext();
     
-    // If we have a categoryId, trigger a click on that category after a delay
-    if (categoryId) {
-      console.log("LocationStep: Scheduling auto-click for category:", categoryId);
+    // If we have a categoryId, trigger a recalculation of prices
+    if (categoryId && window.lastSelectedServiceId) {
+      console.log("LocationStep: Triggering product price recalculation for category:", categoryId);
       
-      // Ensure window globals are available for the event
-      if (window.lastSelectedServiceId) {
-        console.log("Using stored service ID:", window.lastSelectedServiceId);
-      }
+      // Find any dialogs that might be open
+      const openDialogs = document.querySelectorAll('[role="dialog"]');
+      let productDialogFound = false;
+      
+      // First dispatch the category update event
+      const updatePricesEvent = new CustomEvent('updateProductPrices', { 
+        detail: { 
+          categoryId,
+          serviceId: window.lastSelectedServiceId,
+          forceRefresh: true
+        } 
+      });
+      document.dispatchEvent(updatePricesEvent);
       
       setTimeout(() => {
         console.log("LocationStep: Dispatching openCategory event for:", categoryId);
@@ -78,87 +87,72 @@ const LocationStep: React.FC<LocationStepProps> = ({
         });
         document.dispatchEvent(openCategoryEvent);
         
-        // Try multiple methods to highlight and click the category
+        // Apply visual highlight to the category card
         setTimeout(() => {
-          // Method 1: Try by data-category-id attribute
-          const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
+          // Find the category element by various selectors
+          const selectors = [
+            `[data-category-id="${categoryId}"]`,
+            `.category-item-${categoryId}`,
+            `[data-category="${categoryId}"]`
+          ];
+          
+          let categoryElement = null;
+          for (const selector of selectors) {
+            const element = document.querySelector(selector);
+            if (element) {
+              categoryElement = element;
+              console.log(`LocationStep: Found category element with selector: ${selector}`);
+              break;
+            }
+          }
+          
           if (categoryElement) {
-            console.log("LocationStep: Found category element by data-category-id:", categoryId);
-            
-            // Find the clickable element within the category card
+            // Find the clickable card within the category element
             const clickableCard = categoryElement.querySelector('.cursor-pointer');
-            if (clickableCard && clickableCard instanceof HTMLElement) {
-              console.log("LocationStep: Directly clicking category card for:", categoryId);
+            if (clickableCard) {
+              console.log("LocationStep: Found clickable element, highlighting");
               
-              // Add visual highlight effect
+              // Apply visual highlighting with animation
               clickableCard.classList.add('ring-4', 'ring-orange-500', 'scale-110', 'bg-orange-50');
+              categoryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
               
-              // Click the element programmatically
-              clickableCard.click();
-              
-              // Also focus the element to make the selection visible
-              clickableCard.focus();
-              
-              // Remove scale effect after animation
+              // Remove scale and background after animation completes
               setTimeout(() => {
                 clickableCard.classList.remove('scale-110', 'bg-orange-50');
               }, 2000);
-            } else {
-              console.error("LocationStep: Couldn't find clickable element in category card");
-            }
-          } else {
-            console.error("LocationStep: Couldn't find category element with ID:", categoryId);
-            
-            // Method 2: Try by class that includes category ID
-            const alternativeSelector = `.category-item-${categoryId}`;
-            const altElement = document.querySelector(alternativeSelector);
-            if (altElement) {
-              console.log("LocationStep: Found category by alternative selector:", alternativeSelector);
-              
-              // Find clickable element
-              const clickableDiv = altElement.querySelector('div[class*="cursor-pointer"]');
-              if (clickableDiv && clickableDiv instanceof HTMLElement) {
-                console.log("LocationStep: Clicking alternative category element");
-                
-                // Add visual highlight effect
-                clickableDiv.classList.add('ring-4', 'ring-orange-500', 'scale-110', 'bg-orange-50');
-                
-                // Click the element programmatically
-                clickableDiv.click();
-                
-                // Remove scale effect after animation
-                setTimeout(() => {
-                  clickableDiv.classList.remove('scale-110', 'bg-orange-50');
-                }, 2000);
-              } else {
-                console.error("LocationStep: Couldn't find clickable div in alternative element");
-              }
-            } else {
-              // Method 3: Try broadcast method to all category items
-              console.log("LocationStep: Trying broadcast method to find category", categoryId);
-              const allCategoryItems = document.querySelectorAll('.carousel-item[data-category-id]');
-              
-              allCategoryItems.forEach(item => {
-                const itemId = item.getAttribute('data-category-id');
-                if (itemId === categoryId && item instanceof HTMLElement) {
-                  console.log("LocationStep: Found category in global search");
-                  const clickTarget = item.querySelector('.cursor-pointer');
-                  if (clickTarget && clickTarget instanceof HTMLElement) {
-                    console.log("LocationStep: Clicking from broadcast method");
-                    clickTarget.classList.add('ring-4', 'ring-orange-500', 'scale-110', 'bg-orange-50');
-                    clickTarget.click();
-                    setTimeout(() => {
-                      clickTarget.classList.remove('scale-110', 'bg-orange-50');
-                    }, 2000);
-                  }
-                }
-              });
             }
           }
-        }, 300); // Small additional delay to ensure the event handlers are ready
-      }, 800);  // Reduced delay before triggering category click for faster response
+        }, 300);
+      }, 500);
     }
   };
+
+  // Add listener for if location modal is closed without confirming
+  useEffect(() => {
+    // Function to handle closing the products dialog if the location modal closes without confirming
+    const handleLocationModalClosed = () => {
+      // Find all dialogs
+      const dialogs = document.querySelectorAll('[role="dialog"]');
+      dialogs.forEach(dialog => {
+        // Only target product dialogs (those containing product grids)
+        if (dialog.querySelector('.product-grid')) {
+          // Get close button
+          const closeButton = dialog.querySelector('[data-dialog-close]');
+          if (closeButton && closeButton instanceof HTMLElement) {
+            console.log('LocationStep: Location modal closed without confirming, closing product dialog');
+            closeButton.click();
+          }
+        }
+      });
+    };
+
+    // Add custom event listener for location modal closed events
+    document.addEventListener('locationModalClosed', handleLocationModalClosed);
+    
+    return () => {
+      document.removeEventListener('locationModalClosed', handleLocationModalClosed);
+    };
+  }, []);
 
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
 

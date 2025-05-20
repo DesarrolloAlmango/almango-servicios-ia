@@ -36,8 +36,18 @@ const App = () => {
       console.log("App received open category event:", e.detail);
     };
     
+    const handleUpdateProductPrices = (e: CustomEvent) => {
+      console.log("App received update product prices event:", e.detail);
+    };
+    
+    const handleLocationModalClosed = (e: CustomEvent) => {
+      console.log("App received location modal closed event:", e.detail);
+    };
+    
     document.addEventListener('categorySelected', handleCategorySelected as EventListener);
     document.addEventListener('openCategory', handleOpenCategory as EventListener);
+    document.addEventListener('updateProductPrices', handleUpdateProductPrices as EventListener);
+    document.addEventListener('locationModalClosed', handleLocationModalClosed as EventListener);
     
     // Handle any global initialization
     console.log("App initialized with event listeners");
@@ -45,6 +55,8 @@ const App = () => {
     return () => {
       document.removeEventListener('categorySelected', handleCategorySelected as EventListener);
       document.removeEventListener('openCategory', handleOpenCategory as EventListener);
+      document.removeEventListener('updateProductPrices', handleUpdateProductPrices as EventListener);
+      document.removeEventListener('locationModalClosed', handleLocationModalClosed as EventListener);
     };
   }, []);
 

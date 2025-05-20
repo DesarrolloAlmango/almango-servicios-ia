@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, forwardRef, useEffect, useRef } from 'react';
 import { Button } from "./ui/button";
 import CategoryCarousel from "./CategoryCarousel";
@@ -225,8 +224,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   };
 
   useEffect(() => {
-    // Set initial state with product base data
-    if (category.products.length > 0 && !pricesFetched && purchaseLocationId) {
+    // Set initial state with product base data without waiting for prices
+    if (category.products.length > 0 && !pricesFetched) {
       // Initialize all products with their default prices first
       const initialProducts = category.products.map(product => ({ 
         ...product, 
@@ -246,59 +245,43 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
       });
       setProductQuantities(initialQuantities);
-      
-      // Mark all products as loading prices
-      const loadingIds = new Set(initialProducts.map(p => p.id));
-      setLoadingProductIds(loadingIds);
-      
-      // Fetch updated prices individually
-      initialProducts.forEach(async (product) => {
-        try {
-          const updatedPrice = await fetchUpdatedPrice(product);
-          
-          // Update the specific product price as it becomes available
-          setProducts(prevProducts => 
-            prevProducts.map(p => 
-              p.id === updatedPrice.id ? { ...p, price: updatedPrice.price } : p
-            )
-          );
-          
-          // Mark this product as no longer loading
-          setLoadingProductIds(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(updatedPrice.id);
-            return newSet;
-          });
-        } catch (error) {
-          console.error(`Error al actualizar precio para ${product.id}:`, error);
-          // Even on error, mark the product as no longer loading to show default price
-          setLoadingProductIds(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(product.id);
-            return newSet;
-          });
-        }
-      });
-      
-      // Mark prices as fetched to prevent refetching
       setPricesFetched(true);
-    } else if (category.products.length > 0 && !pricesFetched) {
-      // If we don't have a purchase location ID yet, just display products with original prices
-      setProducts(category.products);
       
-      // Setup initial quantities based on cart items
-      const initialQuantities: Record<string, number> = {};
-      category.products.forEach(product => {
-        const cartItem = currentCartItems.find(item => 
-          item.productId === product.id && 
-          item.categoryId === category.id &&
-          item.serviceId === serviceId
-        );
+      // Only fetch prices if we have a purchaseLocationId
+      if (purchaseLocationId) {
+        // Mark all products as loading prices
+        const loadingIds = new Set(initialProducts.map(p => p.id));
+        setLoadingProductIds(loadingIds);
         
-        initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
-      });
-      setProductQuantities(initialQuantities);
-      setPricesFetched(true);
+        // Fetch updated prices individually
+        initialProducts.forEach(async (product) => {
+          try {
+            const updatedPrice = await fetchUpdatedPrice(product);
+            
+            // Update the specific product price as it becomes available
+            setProducts(prevProducts => 
+              prevProducts.map(p => 
+                p.id === updatedPrice.id ? { ...p, price: updatedPrice.price } : p
+              )
+            );
+            
+            // Mark this product as no longer loading
+            setLoadingProductIds(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(updatedPrice.id);
+              return newSet;
+            });
+          } catch (error) {
+            console.error(`Error al actualizar precio para ${product.id}:`, error);
+            // Even on error, mark the product as no longer loading to show default price
+            setLoadingProductIds(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(product.id);
+              return newSet;
+            });
+          }
+        });
+      }
     }
   }, [category, purchaseLocationId, serviceId, currentCartItems, pricesFetched]);
 
@@ -724,6 +707,10 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     window.lastSelectedServiceId = id;
     window.lastSelectedCategoryName = category.name;
     
+    // First, let's show the products immediately without waiting for prices
+    console.log("Fetching products immediately without waiting for purchase location");
+    fetchProducts(id, category.id);
+    
     // Set the flag to prevent closing the dialog while loading products
     categorySelectionInProgressRef.current = true;
     
@@ -734,17 +721,18 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
         name: category.name
       };
       
-      // We should first prompt for location since we don't have purchase location yet
-      console.log("Calling onCategorySelect from parent - no purchase location exists");
-      onCategorySelect(id, category.id, category.name);
+      // Call onCategorySelect with a small delay to allow products to load first
+      setTimeout(() => {
+        console.log("Calling onCategorySelect after small delay - no purchase location exists");
+        if (onCategorySelect) {
+          onCategorySelect(id, category.id, category.name);
+        }
+      }, 300);
       
-      // No cerramos el diálogo si estamos en proceso de seleccionar una categoría
-      return false; // Return false to indicate dialog shouldn't close
+      return true; // Return true so dialog stays open with products showing
     } else if (id) {
-      // If we already have purchase location OR location selection isn't needed,
-      // we can load products directly
-      console.log("Fetching products for category - purchase location exists or no location needed:", category.id);
-      fetchProducts(id, category.id);
+      // If we already have purchase location, we can load products directly
+      console.log("Products already loaded, purchase location exists:", category.id);
       return true; // Return true to indicate successful processing
     }
     
@@ -774,6 +762,28 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   };
 
   const backgroundImage = getCardBackground();
+
+  // Handle dialog close when location modal is canceled
+  const handleDialogOpenChange = (open: boolean) => {
+    console.log("Dialog open change:", open, "Category selection in progress:", categorySelectionInProgressRef.current);
+    
+    // If a category selection is in progress and trying to close, prevent it
+    if (!open && categorySelectionInProgressRef.current) {
+      console.log("Preventing dialog from closing during category selection");
+      return;
+    }
+    
+    setIsDialogOpen(open);
+    // If closing, make sure we reset the category with a delay
+    if (!open) {
+      console.log("Dialog closing, will reset selected category after delay");
+      // Add a delay to prevent issues with transitions
+      setTimeout(() => {
+        setSelectedCategory(null);
+        console.log("Selected category reset to null");
+      }, 300);
+    }
+  };
 
   return (
     <div 
@@ -815,26 +825,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       
       <Dialog 
         open={isDialogOpen} 
-        onOpenChange={(open) => {
-          console.log("Dialog open change:", open, "Category selection in progress:", categorySelectionInProgressRef.current);
-          
-          // If a category selection is in progress and trying to close, prevent it
-          if (!open && categorySelectionInProgressRef.current) {
-            console.log("Preventing dialog from closing during category selection");
-            return;
-          }
-          
-          setIsDialogOpen(open);
-          // If closing, make sure we reset the category with a delay
-          if (!open) {
-            console.log("Dialog closing, will reset selected category after delay");
-            // Add a delay to prevent issues with transitions
-            setTimeout(() => {
-              setSelectedCategory(null);
-              console.log("Selected category reset to null");
-            }, 300);
-          }
-        }}
+        onOpenChange={handleDialogOpenChange}
       >
         <DialogContent 
           className={
