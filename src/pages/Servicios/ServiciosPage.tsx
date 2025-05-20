@@ -583,7 +583,7 @@ const ServiciosPage = () => {
                       <button 
                         className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm"
                         onClick={() => {
-                          // Add to cart
+                          // Add to cart with all required properties of CartItem
                           const newItem: CartItem = {
                             id: `${productModalDetails.serviceId}-${productModalDetails.categoryId}-${productId}`,
                             serviceId: productModalDetails.serviceId,
@@ -591,7 +591,9 @@ const ServiciosPage = () => {
                             productId: productId,
                             name: productName,
                             price: price,
-                            quantity: 1
+                            quantity: 1,
+                            image: "", // Add missing property
+                            serviceCategory: productModalDetails.categoryName || "" // Add missing property
                           };
                           addToCart(newItem);
                           toast.success(`${productName} añadido al carrito`);
