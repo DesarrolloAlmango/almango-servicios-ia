@@ -386,48 +386,13 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     
     // Close the keyboard when a store is selected
     closeKeyboard();
-    
-    // Si ya tenemos departamento y localidad seleccionados, disparamos la actualización de precios inmediatamente
-    if (value && selectedDepartment && selectedLocation && localServiceId && localCategoryId) {
-      toast.info("Actualizando precios de productos...", {
-        duration: 3000,
-        position: "top-center"
-      });
-      
-      // Ejecutar inmediatamente sin esperar a que se presione el botón confirmar
-      console.log("Actualizando precios al cambiar tienda - con ubicación ya seleccionada");
-      fetchProductsForCategory(value, localServiceId, localCategoryId);
-      
-      // También abrimos/destacamos la categoría
-      setTimeout(() => {
-        const openCategoryEvent = new CustomEvent('openCategory', {
-          detail: {
-            serviceId: localServiceId,
-            categoryId: localCategoryId,
-            categoryName: localCategoryName
-          }
-        });
-        document.dispatchEvent(openCategoryEvent);
-      }, 300);
-    } else {
-      console.log("Store selected, but waiting for location to be set before fetching prices");
-    }
   };
 
-  // Añadir función para disparar actualización de precios cuando cambia la localidad
+  // Update location selection handler to prevent automatic price updates or product opening
   const handleLocationChange = (locationId: string) => {
     setSelectedLocation(locationId);
-    
-    // Si ya tenemos todos los datos necesarios, actualizar precios inmediatamente
-    if (selectedStore && selectedDepartment && locationId && localServiceId && localCategoryId) {
-      toast.info("Actualizando precios de productos...", {
-        duration: 3000,
-        position: "top-center"
-      });
-      
-      console.log("Actualizando precios al cambiar ubicación");
-      fetchProductsForCategory(selectedStore, localServiceId, localCategoryId);
-    }
+    // Do not trigger price updates or product modal opening here
+    // Let these actions happen only after confirmation
   };
 
   const handleInputClick = () => {
@@ -531,6 +496,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     
     // Important: Close the modal first so it doesn't block interaction
     onClose();
+    
+    // Notify listeners that the location modal is closed
+    document.dispatchEvent(new Event('locationModalClosed'));
     
     // Only after location is confirmed and modal is closed, trigger product modal opening
     if (finalCategoryId && localServiceId) {
