@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -428,6 +429,14 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       
       // Pre-fetch products before closing the modal
       await fetchProductsForCategory(storeId, localServiceId, finalCategoryId);
+    }
+    
+    // Show a toast notification with the category ID and name
+    if (finalCategoryId && finalCategoryName) {
+      toast.success(`Seleccionando categoría: ${finalCategoryName} (ID: ${finalCategoryId})`, {
+        duration: 5000,
+        position: "top-center"
+      });
     }
     
     // Close the modal and call onSelectLocation

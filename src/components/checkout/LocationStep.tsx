@@ -58,6 +58,14 @@ const LocationStep: React.FC<LocationStepProps> = ({
     // If we have a categoryId, trigger a click on that category after a delay
     if (categoryId) {
       console.log("LocationStep: Scheduling auto-click for category:", categoryId);
+      
+      // Show a toast immediately that we're about to click the category
+      if (window.toast) {
+        window.toast.info(`Seleccionando automáticamente la categoría (ID: ${categoryId})...`, {
+          duration: 3000
+        });
+      }
+      
       setTimeout(() => {
         console.log("LocationStep: Dispatching openCategory event for:", categoryId);
         // Dispatch the event with the category ID
@@ -171,6 +179,7 @@ declare global {
   interface Window {
     lastSelectedServiceId?: string;
     lastSelectedCategoryName?: string;
+    toast?: any; // For accessing toast from window object
   }
 }
 
