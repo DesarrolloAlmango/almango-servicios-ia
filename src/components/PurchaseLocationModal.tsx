@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -307,16 +308,20 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     const selectedLocationObj = currentMunicipalities.find(mun => mun.id === selectedLocation);
 
     console.log("Confirming location with category info:", { serviceId, categoryId, categoryName });
-
-    onSelectLocation(
-      storeId, 
-      storeName,
-      selectedDepartment,
-      selectedDepartmentObj?.name || "",
-      selectedLocation,
-      selectedLocationObj?.name || "",
-      selectedStore === "other" ? otherStore || searchQuery : undefined
-    );
+    
+    // We add a small timeout to ensure the modal closes properly before triggering the callback
+    // This helps prevent potential race conditions in the UI update cycle
+    setTimeout(() => {
+      onSelectLocation(
+        storeId, 
+        storeName,
+        selectedDepartment,
+        selectedDepartmentObj?.name || "",
+        selectedLocation,
+        selectedLocationObj?.name || "",
+        selectedStore === "other" ? otherStore || searchQuery : undefined
+      );
+    }, 50);
     
     onClose();
   };

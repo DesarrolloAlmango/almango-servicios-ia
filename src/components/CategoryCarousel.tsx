@@ -23,13 +23,13 @@ interface CategoryCarouselProps {
   };
   isLoading?: boolean;
   cartItems?: any[];
-  purchaseLocation?: any; // Added purchaseLocation prop
-  autoSelectCategoryId?: string; // New prop to auto-select a category
+  purchaseLocation?: any;
+  autoSelectCategoryId?: string;
 }
 
 const IMAGE_CACHE_KEY = 'category_images_cache';
-const IMAGE_CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
-const COMPRESSION_QUALITY = 0.6; // Reducir calidad para mejorar rendimiento
+const IMAGE_CACHE_EXPIRY = 24 * 60 * 60 * 1000;
+const COMPRESSION_QUALITY = 0.6;
 
 // Random service names for demonstration
 const DEMO_SERVICE_NAMES = ["Corte de pelo", "Peinado", "Coloración", "Maquillaje", "Tratamiento facial", "Depilación", "Manicura premium", "Masaje relajante", "Pedicura", "Limpieza facial", "Alisado", "Extensiones", "Uñas acrílicas", "Cejas y pestañas"];
@@ -40,7 +40,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   selectedService,
   isLoading = false,
   cartItems = [],
-  purchaseLocation, // Added purchaseLocation prop
+  purchaseLocation,
   autoSelectCategoryId
 }) => {
   const isMobile = useIsMobile();
@@ -52,20 +52,41 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const hasAutoSelectedRef = useRef(false);
+  const autoSelectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Auto-select category when autoSelectCategoryId changes
+  // Enhanced auto-select effect with more robust handling
   useEffect(() => {
-    if (autoSelectCategoryId && categories.length > 0 && purchaseLocation && !hasAutoSelectedRef.current) {
-      console.log("Auto-selecting category:", autoSelectCategoryId);
-      const categoryToSelect = categories.find(cat => cat.id === autoSelectCategoryId);
-      if (categoryToSelect) {
-        hasAutoSelectedRef.current = true;
-        handleCategoryClick(categoryToSelect);
+    // Clear any pending auto-select timeout when dependencies change
+    if (autoSelectTimeoutRef.current) {
+      clearTimeout(autoSelectTimeoutRef.current);
+    }
+
+    if (autoSelectCategoryId && categories.length > 0 && purchaseLocation) {
+      console.log("Checking for auto-selection. Category ID:", autoSelectCategoryId, "Has already selected:", hasAutoSelectedRef.current);
+      
+      if (!hasAutoSelectedRef.current) {
+        // Add a small delay to ensure the component is fully rendered
+        autoSelectTimeoutRef.current = setTimeout(() => {
+          const categoryToSelect = categories.find(cat => cat.id === autoSelectCategoryId);
+          if (categoryToSelect) {
+            console.log("Auto-selecting category:", categoryToSelect.name);
+            hasAutoSelectedRef.current = true;
+            handleCategoryClick(categoryToSelect);
+          } else {
+            console.log("Category not found for auto-selection:", autoSelectCategoryId);
+          }
+        }, 100);
       }
     }
+
+    return () => {
+      if (autoSelectTimeoutRef.current) {
+        clearTimeout(autoSelectTimeoutRef.current);
+      }
+    };
   }, [autoSelectCategoryId, categories, purchaseLocation]);
 
-  // Reset auto-selection flag when categories or purchaseLocation changes
+  // Reset auto-selection flag when key dependencies change
   useEffect(() => {
     hasAutoSelectedRef.current = false;
   }, [categories, purchaseLocation]);
