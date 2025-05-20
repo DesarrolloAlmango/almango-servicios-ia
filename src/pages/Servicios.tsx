@@ -231,38 +231,33 @@ const Servicios = () => {
   }, [highlightedServiceId, autoClickTriggered]);
   useEffect(() => {
     if (pendingCategoryAutoClickRef.current && selectedServiceId && selectedCategoryId) {
-      console.log("Processing pending category auto-click:", { 
-        serviceId: selectedServiceId, 
+      console.log("Processing pending category auto-click:", {
+        serviceId: selectedServiceId,
         categoryId: selectedCategoryId,
         categoryName: selectedCategoryName
       });
-      
+
       // Reset the flag
       pendingCategoryAutoClickRef.current = false;
-      
+
       // Small delay to ensure service card has been clicked
       const timer = setTimeout(() => {
         // Dispatch a direct product fetch
         const serviceLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
-        
         if (serviceLocation) {
-          console.log("Forcing product fetch for:", { 
-            serviceId: selectedServiceId, 
-            categoryId: selectedCategoryId 
+          console.log("Forcing product fetch for:", {
+            serviceId: selectedServiceId,
+            categoryId: selectedCategoryId
           });
-          
+
           // Direct API call to fetch products
-          fetch(`/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${selectedServiceId}&Nivel1=${selectedCategoryId}`)
-            .then(response => response.json())
-            .then(data => {
-              console.log(`Fetched ${data.length} products for category ${selectedCategoryId}`);
-            })
-            .catch(error => {
-              console.error("Error fetching products:", error);
-            });
+          fetch(`/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${selectedServiceId}&Nivel1=${selectedCategoryId}`).then(response => response.json()).then(data => {
+            console.log(`Fetched ${data.length} products for category ${selectedCategoryId}`);
+          }).catch(error => {
+            console.error("Error fetching products:", error);
+          });
         }
       }, 300);
-      
       return () => clearTimeout(timer);
     }
   }, [purchaseLocations, selectedServiceId, selectedCategoryId, selectedCategoryName]);
@@ -417,7 +412,6 @@ const Servicios = () => {
         categoryId: selectedCategoryId || globalLastSelectedCategory.categoryId || undefined,
         categoryName: selectedCategoryName || globalLastSelectedCategory.categoryName || undefined
       };
-      
       const existingLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
       setPurchaseLocations(prev => {
         if (existingLocation) {
@@ -428,9 +422,7 @@ const Servicios = () => {
           return [...prev, newLocation];
         }
       });
-      
       setIsLocationModalOpen(false);
-      
       let successMessage = "";
       if (selectedCategoryId && selectedCategoryName) {
         successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName} - ${selectedCategoryName}`;
@@ -438,10 +430,9 @@ const Servicios = () => {
         successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName}`;
       }
       toast.success(successMessage);
-      
       if (selectedCategoryId) {
         setPendingServiceCardAction(true);
-        
+
         // If this is the first time registering this service/category, trigger auto-click
         if (!existingLocation || existingLocation.categoryId !== selectedCategoryId) {
           pendingCategoryAutoClickRef.current = true;
@@ -619,40 +610,7 @@ const Servicios = () => {
               </div>
             </div>}
           
-          {!commerceId && purchaseLocations.length > 0 && <div className="mb-6 bg-white/70 p-3 rounded-lg border border-gray-300">
-              <h3 className="font-medium text-gray-800 mb-2">Lugares de compra registrados:</h3>
-              <div className="space-y-2">
-                {Object.values(purchaseLocations.reduce((grouped, location) => {
-              if (!location.serviceId || !location.serviceName) return grouped;
-              if (!grouped[location.serviceId]) {
-                grouped[location.serviceId] = {
-                  serviceId: location.serviceId,
-                  serviceName: location.serviceName,
-                  locations: []
-                };
-              }
-              grouped[location.serviceId].locations.push(location);
-              return grouped;
-            }, {} as Record<string, {
-              serviceId: string;
-              serviceName: string;
-              locations: PurchaseLocation[];
-            }>)).map((serviceGroup, index) => <div key={index} className="text-sm">
-                    <div className="font-medium text-gray-800">{serviceGroup.serviceName}:</div>
-                    {serviceGroup.locations.map((location, locIndex) => <div key={locIndex} className="flex items-center ml-4 mt-1 text-gray-700">
-                        <span>
-                          {location.storeId === "other" ? location.otherLocation : location.storeName}
-                          {location.departmentName && location.locationName && <span className="text-gray-600">
-                              ({location.departmentName}, {location.locationName})
-                            </span>}
-                        </span>
-                        <Button variant="ghost" size="sm" onClick={() => clearPurchaseLocation(location.serviceId || "", location.categoryId)} className="h-5 w-5 p-0 text-gray-600 hover:bg-gray-200 ml-1">
-                          <X size={12} />
-                        </Button>
-                      </div>)}
-                  </div>)}
-              </div>
-            </div>}
+          {!commerceId && purchaseLocations.length > 0}
           
           <div id="armado-instalacion" className="mb-12 relative">
             <ServiceCarousel primaryTitlePart="ARMADO" secondaryTitlePart=" E INSTALACIÓN" titleClassName="font-bold">
