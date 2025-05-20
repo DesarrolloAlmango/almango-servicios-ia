@@ -144,81 +144,45 @@ const Index = () => {
   }, []);
   return <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow" id="inicio">
+      <main id="inicio" className="flex-grow bg-zinc-200 mx-0 my-0">
         <Hero />
         
         {/* Service Cards Grid - positioned to overlap with the hero section */}
         <ServiceCardsGrid />
         
-        <Separator className="h-1 bg-black mt-8" />
-        <section id="nuestros-servicios">
-          <ServicesShowcase />
-        </section>
-        <Separator className="h-1 bg-black" />
+        {/* Subtle separator */}
+        <Separator className="h-0.5 bg-primary/30 my-4 mx-auto w-[80%] rounded-full" />
         
-        {/* Partners Section */}
-        <section ref={partnersSectionRef} className="bg-[#F0F0F0] py-8 animate-from-left w-full">
-          <div className="bg-[#F97316] mb-8 -mt-8 px-0 mx-0 py-[46px] w-full">
-            <h2 className="font-bold text-center text-white uppercase text-2xl flex flex-col">
-              <span className="px-[20px]">ALGUNOS DE NUESTROS CLIENTES</span>
-              <span className="px-[20px]">Y ALIANZAS COMERCIALES</span>
-            </h2>
+        {/* Partners Section - Updated with light background */}
+        <section ref={partnersSectionRef} className="bg-[#F0F0F0] py-12 animate-from-left w-full">
+          <div className="container mx-auto px-4">
+            <div className="relative mb-8">
+              <div className="w-full max-w-3xl mx-auto">
+                <h2 className="font-bold text-center text-gray-800 uppercase text-2xl flex flex-col">
+                  <span className="bg-gradient-to-r from-secondary to-secondary/80 py-5 px-8 rounded-md inline-block shadow-lg relative overflow-hidden border-l-4 border-primary">
+                    <span className="relative z-10 text-white">ALGUNOS DE NUESTROS CLIENTES Y ALIANZAS COMERCIALES</span>
+                  </span>
+                </h2>
+              </div>
+            </div>
           </div>
           
-          <div className="w-full px-0">
-            <div className="w-full overflow-hidden">
-              <LogoCarousel logos={allLogos} direction="rtl" speed="normal" />
+          <div className="w-full px-4 py-0">
+            <div className="w-full overflow-hidden max-w-6xl mx-auto">
+              <LogoCarousel logos={allLogos} direction="rtl" speed="super-slow" />
             </div>
           </div>
         </section>
-        <Separator className="h-1 bg-black" />
         
-        <section ref={contratarSectionRef} id="como-contratar" className="py-20 px-4 bg-primary text-white animate-from-right">
-          <div className="container mx-auto">
-            <h2 className="text-3xl font-bold mb-4 text-center uppercase">¿CÓMO CONTRATAR?</h2>
-            <h3 className="text-xl font-medium mb-12 text-center">PROCESO DE CONTRATACIÓN</h3>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl mx-auto">
-              <div className="text-center flex flex-col items-center contratar-item opacity-0">
-                <div className="mb-4 transition-all duration-300 transform hover:scale-110 icon-container opacity-0">
-                  <img src="https://almango.com.uy/img/agenda-almango.svg" alt="Agenda" className="h-16 w-16 mx-auto" />
-                </div>
-                <h4 className="text-lg font-semibold mb-2 item-title opacity-0">Agendá fecha y hora</h4>
-                <p className="text-white/90 item-desc opacity-0">Coordinación inmediata.</p>
-              </div>
-              
-              <div className="text-center flex flex-col items-center contratar-item opacity-0">
-                <div className="mb-4 transition-all duration-300 transform hover:scale-110 icon-container opacity-0">
-                  <img src="https://almango.com.uy/img/pago-almango.svg" alt="Recibir técnico" className="h-16 w-16 mx-auto" />
-                </div>
-                <h4 className="text-lg font-semibold mb-2 item-title opacity-0">Recibí al técnico</h4>
-                <p className="text-white/90 item-desc opacity-0">Un profesional calificado realizará el trabajo.</p>
-              </div>
-              
-              <div className="text-center flex flex-col items-center contratar-item opacity-0">
-                <div className="mb-4 transition-all duration-300 transform hover:scale-110 icon-container opacity-0">
-                  <img src="https://almango.com.uy/img/pago-almango.svg" alt="Pago" className="h-16 w-16 mx-auto" />
-                </div>
-                <h4 className="text-lg font-semibold mb-2 item-title opacity-0">Realizá el pago al finalizar</h4>
-                <p className="text-white/90 item-desc opacity-0">Seleccioná el medio que más te convenga.</p>
-              </div>
-              
-              <div className="text-center flex flex-col items-center contratar-item opacity-0">
-                <div className="mb-4 transition-all duration-300 transform hover:scale-110 icon-container opacity-0">
-                  <img src="https://almango.com.uy/img/valora-almango.svg" alt="Valoración" className="h-16 w-16 mx-auto" />
-                </div>
-                <h4 className="text-lg font-semibold mb-2 item-title opacity-0">Ayudanos a mejorar</h4>
-                <p className="text-white/90 item-desc opacity-0">Calificá el servicio, tus comentarios importan.</p>
-              </div>
-            </div>
-          </div>
+        {/* Subtle separator */}
+        <Separator className="h-0.5 bg-primary/30 my-4 mx-auto w-[80%] rounded-full" />
+        
+        <section id="nuestros-servicios" className="bg-[#F0F0F0]">
+          <ServicesShowcase />
         </section>
-        <Separator className="h-1 bg-black" />
         
-        
-        <Separator className="h-1 bg-black" />
-        
-        
+        {/* Subtle separator */}
+        <Separator className="h-0.5 bg-primary/30 my-4 mx-auto w-[80%] rounded-full" />
       </main>
       
       <Footer />

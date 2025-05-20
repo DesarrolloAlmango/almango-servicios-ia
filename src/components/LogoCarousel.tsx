@@ -6,7 +6,7 @@ interface LogoCarouselProps {
     alt: string;
   }[];
   direction?: "ltr" | "rtl";
-  speed?: "normal" | "fast" | "super-fast" | "ultra-fast";
+  speed?: "normal" | "fast" | "super-fast" | "ultra-fast" | "slow" | "super-slow";
 }
 const LogoCarousel: React.FC<LogoCarouselProps> = ({
   logos,
@@ -20,21 +20,40 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
   // Duplicate the logos multiple times to create a longer seamless loop effect
   // By repeating 6 times, we ensure no visible reset during scroll
   const extendedLogos = [...logos, ...logos, ...logos, ...logos, ...logos, ...logos];
-  return <div className="overflow-hidden w-full">
+
+  // Calculate animation speed class based on the speed prop
+  const getSpeedClass = () => {
+    switch (speed) {
+      case "fast":
+        return "animate-[infinite-scroll-reverse_25s_linear_infinite]";
+      case "super-fast":
+        return "animate-[infinite-scroll-reverse_20s_linear_infinite]";
+      case "ultra-fast":
+        return "animate-[infinite-scroll-reverse_15s_linear_infinite]";
+      case "slow":
+        return "animate-[infinite-scroll-reverse_45s_linear_infinite]";
+      case "super-slow":
+        return "animate-[infinite-scroll-reverse_60s_linear_infinite]";
+      default:
+        return "animate-[infinite-scroll-reverse_30s_linear_infinite]";
+    }
+  };
+  return <div className="overflow-hidden w-full py-5 rounded-md bg-gray-300">
       <Carousel opts={{
       align: "start",
       containScroll: false,
       dragFree: true,
       loop: true
     }} className="w-full">
-        <CarouselContent className={`${direction === "rtl" ? "animate-infinite-scroll-reverse" : "animate-infinite-scroll"} 
-            ${speed === "fast" ? "slow-scroll" : ""} 
-            ${speed === "super-fast" ? "super-fast-scroll" : ""} 
-            ${speed === "ultra-fast" ? "moderate-scroll" : ""}
-            flex ${direction === "rtl" ? "flex-row-reverse" : "flex-row"} w-max gap-0`}>
+        <CarouselContent className={`
+            ${direction === "rtl" ? getSpeedClass() : "animate-[infinite-scroll_30s_linear_infinite]"}
+            flex ${direction === "rtl" ? "flex-row-reverse" : "flex-row"} w-max gap-0
+          `}>
           {extendedLogos.map((logo, index) => <CarouselItem key={index} className="min-w-0 pl-0 basis-auto flex-shrink-0">
-              <div className="h-28 flex items-center justify-center p-1 transition-all hover:scale-105 my-[37px] py-0 px-0 mx-[12px]">
-                <img src={logo.url} alt={logo.alt} className="max-h-full max-w-full object-contain" />
+              <div className="h-28 flex items-center justify-center p-1 transition-all hover:scale-105 my-4 px-2">
+                <div className="bg-white/90 backdrop-blur-sm p-3 rounded-lg shadow-md border border-primary/20 h-full w-full flex items-center justify-center transform hover:rotate-2 hover:shadow-lg transition-all duration-300">
+                  <img src={logo.url} alt={logo.alt} className="max-h-full max-w-full object-contain" />
+                </div>
               </div>
             </CarouselItem>)}
         </CarouselContent>

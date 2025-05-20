@@ -1,4 +1,4 @@
-import { Phone, Mail, MapPin } from 'lucide-react';
+import { Phone, Mail, MapPin, Facebook, Instagram } from 'lucide-react';
 const Footer = () => {
   return <footer id="contacto" className="bg-secondary text-white py-10 font-serif">
       <div className="container mx-auto my-[11px] px-4 md:px-[71px]">
@@ -35,8 +35,17 @@ const Footer = () => {
                 <span>info@almango.com.uy</span>
               </div>
             </div>
+
+            <div className="flex items-center space-x-4 pt-2">
+              <a href="https://www.facebook.com/almango.com.uy" target="_blank" rel="noreferrer" className="text-white hover:text-gray-300 transition-colors" aria-label="Facebook">
+                <Facebook size={24} />
+              </a>
+              <a href="https://www.instagram.com/almangoservicios/" target="_blank" rel="noreferrer" className="text-white hover:text-gray-300 transition-colors" aria-label="Instagram">
+                <Instagram size={24} />
+              </a>
+            </div>
             
-            <div className="pt-2">
+            <div className="pt-1">
               <p className="font-semibold">AMG GROUP SAS</p>
             </div>
           </div>
