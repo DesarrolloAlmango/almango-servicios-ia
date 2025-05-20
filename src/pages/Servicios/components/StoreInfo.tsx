@@ -1,5 +1,6 @@
 
 import React from "react";
+import { Loader2 } from "lucide-react";
 
 interface StoreInfoProps {
   commerceId?: string;
@@ -42,8 +43,8 @@ const StoreInfo: React.FC<StoreInfoProps> = ({
       {isLoadingProducts && (
         <div className="mt-2">
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 rounded-full bg-primary animate-pulse"></div>
-            <span className="text-sm">Cargando productos...</span>
+            <Loader2 className="w-4 h-4 animate-spin text-primary" />
+            <span className="text-sm">Cargando productos y precios...</span>
           </div>
         </div>
       )}
