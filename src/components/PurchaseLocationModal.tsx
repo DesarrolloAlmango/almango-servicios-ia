@@ -387,10 +387,46 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     // Close the keyboard when a store is selected
     closeKeyboard();
     
-    // If we have a selected service and category already, we can start fetching prices
-    if (value && localServiceId && localCategoryId) {
-      console.log("Store selected, triggering price fetch for products");
+    // Si ya tenemos departamento y localidad seleccionados, disparamos la actualización de precios inmediatamente
+    if (value && selectedDepartment && selectedLocation && localServiceId && localCategoryId) {
+      toast.info("Actualizando precios de productos...", {
+        duration: 3000,
+        position: "top-center"
+      });
+      
+      // Ejecutar inmediatamente sin esperar a que se presione el botón confirmar
+      console.log("Actualizando precios al cambiar tienda - con ubicación ya seleccionada");
       fetchProductsForCategory(value, localServiceId, localCategoryId);
+      
+      // También abrimos/destacamos la categoría
+      setTimeout(() => {
+        const openCategoryEvent = new CustomEvent('openCategory', {
+          detail: {
+            serviceId: localServiceId,
+            categoryId: localCategoryId,
+            categoryName: localCategoryName
+          }
+        });
+        document.dispatchEvent(openCategoryEvent);
+      }, 300);
+    } else {
+      console.log("Store selected, but waiting for location to be set before fetching prices");
+    }
+  };
+
+  // Añadir función para disparar actualización de precios cuando cambia la localidad
+  const handleLocationChange = (locationId: string) => {
+    setSelectedLocation(locationId);
+    
+    // Si ya tenemos todos los datos necesarios, actualizar precios inmediatamente
+    if (selectedStore && selectedDepartment && locationId && localServiceId && localCategoryId) {
+      toast.info("Actualizando precios de productos...", {
+        duration: 3000,
+        position: "top-center"
+      });
+      
+      console.log("Actualizando precios al cambiar ubicación");
+      fetchProductsForCategory(selectedStore, localServiceId, localCategoryId);
     }
   };
 
@@ -588,7 +624,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             selectedDepartment={selectedDepartment}
             setSelectedDepartment={setSelectedDepartment}
             selectedLocation={selectedLocation}
-            setSelectedLocation={setSelectedLocation}
+            setSelectedLocation={handleLocationChange}  {/* Usar la nueva función para manejar cambios de localidad */}
             onNext={handleConfirm}
             departments={departments}
             municipalities={municipalities}
@@ -733,7 +769,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                 <Select 
                   value={selectedLocation} 
                   onValueChange={(value) => {
-                    setSelectedLocation(value);
+                    handleLocationChange(value);
                     // Close keyboard when selecting from dropdown
                     closeKeyboard();
                   }}

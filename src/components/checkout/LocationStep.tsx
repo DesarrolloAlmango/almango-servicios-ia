@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -52,70 +51,65 @@ const LocationStep: React.FC<LocationStepProps> = ({
     setSelectedLocation("");
   };
 
-  const handleNextWithDelay = () => {
-    // Call the original onNext function first
-    onNext();
-    
-    // If we have a categoryId and a stored serviceId, trigger product price recalculation
-    if (categoryId && window.lastSelectedServiceId) {
-      console.log("LocationStep: Triggering product price recalculation for category:", categoryId);
+  const handleLocationChange = (value: string) => {
+    setSelectedLocation(value);
+
+    if (categoryId && window.lastSelectedServiceId && value) {
+      console.log("LocationStep: Disparando recálculo de precios al cambiar localidad:", categoryId);
       
-      // First dispatch the update prices event with forceRefresh flag
       const updatePricesEvent = new CustomEvent('updateProductPrices', { 
         detail: { 
           categoryId,
           serviceId: window.lastSelectedServiceId,
           forceRefresh: true,
-          timestamp: Date.now(), // Add timestamp to make each event unique
-          debugEventSource: 'LocationStep' // Added to track event source
+          timestamp: Date.now(),
+          debugEventSource: 'LocationStep-immediateUpdate'
+        } 
+      });
+      document.dispatchEvent(updatePricesEvent);
+      
+      toast.info("Actualizando precios...", {
+        duration: 2000,
+        position: "bottom-center"
+      });
+    }
+  };
+
+  const handleNextWithDelay = () => {
+    onNext();
+    
+    if (categoryId && window.lastSelectedServiceId) {
+      console.log("LocationStep: Triggering product price recalculation for category:", categoryId);
+      
+      const updatePricesEvent = new CustomEvent('updateProductPrices', { 
+        detail: { 
+          categoryId,
+          serviceId: window.lastSelectedServiceId,
+          forceRefresh: true,
+          timestamp: Date.now(),
+          debugEventSource: 'LocationStep' 
         } 
       });
       document.dispatchEvent(updatePricesEvent);
       
       setTimeout(() => {
-        // Then dispatch the openCategory event to ensure the category remains open
-        console.log("LocationStep: Dispatching openCategory event for:", categoryId);
-        
         const openCategoryEvent = new CustomEvent('openCategory', { 
           detail: { 
             categoryId,
             serviceId: window.lastSelectedServiceId || undefined,
             categoryName: window.lastSelectedCategoryName || undefined,
-            timestamp: Date.now() // Add timestamp to make each event unique
+            timestamp: Date.now()
           } 
         });
         document.dispatchEvent(openCategoryEvent);
         
-        // Apply visual highlight to the category card
         setTimeout(() => {
-          // Find the category element by various selectors
-          const selectors = [
-            `[data-category-id="${categoryId}"]`,
-            `.category-item-${categoryId}`,
-            `[data-category="${categoryId}"]`
-          ];
-          
-          let categoryElement = null;
-          for (const selector of selectors) {
-            const element = document.querySelector(selector);
-            if (element) {
-              categoryElement = element;
-              console.log(`LocationStep: Found category element with selector: ${selector}`);
-              break;
-            }
-          }
-          
+          const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
           if (categoryElement) {
-            // Find the clickable card within the category element
             const clickableCard = categoryElement.querySelector('.cursor-pointer');
             if (clickableCard) {
-              console.log("LocationStep: Found clickable element, highlighting");
-              
-              // Apply visual highlighting with animation
               clickableCard.classList.add('ring-4', 'ring-orange-500', 'scale-110', 'bg-orange-50');
               categoryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              
-              // Remove scale and background after animation completes
               setTimeout(() => {
                 clickableCard.classList.remove('scale-110', 'bg-orange-50');
               }, 2000);
@@ -126,16 +120,11 @@ const LocationStep: React.FC<LocationStepProps> = ({
     }
   };
 
-  // Add listener for if location modal is closed without confirming
   useEffect(() => {
-    // Function to handle closing the products dialog if the location modal closes without confirming
     const handleLocationModalClosed = () => {
-      // Find all dialogs
       const dialogs = document.querySelectorAll('[role="dialog"]');
       dialogs.forEach(dialog => {
-        // Only target product dialogs (those containing product grids)
         if (dialog.querySelector('.product-grid')) {
-          // Get close button
           const closeButton = dialog.querySelector('[data-dialog-close]');
           if (closeButton && closeButton instanceof HTMLElement) {
             console.log('LocationStep: Location modal closed without confirming, closing product dialog');
@@ -145,7 +134,6 @@ const LocationStep: React.FC<LocationStepProps> = ({
       });
     };
 
-    // Add event listeners for price debug information
     const handlePriceDebugInfo = (e: Event) => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail) {
@@ -153,7 +141,6 @@ const LocationStep: React.FC<LocationStepProps> = ({
         console.log(`LocationStep received debug info: Store=${storeId}, Service=${serviceId}, Category=${categoryId}`);
         console.log(`Products to fetch prices for:`, products);
         
-        // Show toast for debug info
         toast.info(`Debug: ${products.length} productos encontrados para obtener precios`);
       }
     };
@@ -219,7 +206,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
           </label>
           <Select 
             value={selectedLocation} 
-            onValueChange={setSelectedLocation} 
+            onValueChange={handleLocationChange} 
             disabled={!selectedDepartment || loading.municipalities}
           >
             <SelectTrigger className="w-full">
@@ -254,7 +241,6 @@ const LocationStep: React.FC<LocationStepProps> = ({
   );
 };
 
-// Add this for TypeScript global variable declaration
 declare global {
   interface Window {
     lastSelectedServiceId?: string;
