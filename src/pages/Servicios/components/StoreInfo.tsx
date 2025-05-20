@@ -1,6 +1,5 @@
 
 import React from "react";
-import { MapPin } from "lucide-react";
 
 interface StoreInfoProps {
   commerceId?: string;
@@ -8,15 +7,14 @@ interface StoreInfoProps {
 }
 
 const StoreInfo: React.FC<StoreInfoProps> = ({ commerceId, storeName }) => {
-  if (!commerceId || !storeName) return null;
+  if (!commerceId) return null;
   
   return (
-    <div className="mb-6 bg-white/70 p-3 rounded-lg border border-gray-300">
-      <h3 className="font-medium text-gray-800 mb-2">Lugar de compra fijo:</h3>
-      <div className="flex items-center gap-2">
-        <MapPin className="text-gray-800" size={16} />
-        <span className="text-gray-700">{storeName}</span>
-      </div>
+    <div className="bg-white/80 shadow-md rounded-lg p-4 mb-6">
+      <h2 className="text-xl font-semibold">Servicios de {storeName}</h2>
+      <p className="text-sm text-muted-foreground">
+        Todos los servicios disponibles en esta ubicación
+      </p>
     </div>
   );
 };

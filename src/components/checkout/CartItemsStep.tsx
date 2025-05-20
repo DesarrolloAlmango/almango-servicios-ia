@@ -1,6 +1,7 @@
+
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { CartItem } from "@/pages/Servicios";
+import { CartItem } from "@/pages/Servicios/types";
 import ProductTermsModal from "./ProductTermsModal";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";

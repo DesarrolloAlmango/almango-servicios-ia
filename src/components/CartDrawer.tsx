@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { CartItem } from "@/pages/Servicios";
+import { CartItem } from "@/pages/Servicios/types";
 import StepIndicator from "@/components/checkout/StepIndicator";
 import CartItemsStep from "@/components/checkout/CartItemsStep";
 import DateTimeStep from "@/components/checkout/DateTimeStep";
@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import CheckoutSummary from "./checkout/CheckoutSummary";
 import { CheckoutData, getProviderAuxiliary } from "@/types/checkoutTypes";
 import { getTimeSlotNumber } from "@/utils/timeUtils";
+
 interface CartDrawerProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -31,14 +32,17 @@ interface CartDrawerProps {
   }[];
   setPurchaseLocations?: (locations: any[]) => void;
 }
+
 interface Department {
   id: string;
   name: string;
 }
+
 interface Municipality {
   id: string;
   name: string;
 }
+
 const CartDrawer: React.FC<CartDrawerProps> = ({
   isOpen,
   setIsOpen,

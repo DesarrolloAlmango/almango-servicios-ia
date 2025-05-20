@@ -3,45 +3,42 @@ import React from "react";
 import { ArrowLeft, ShoppingCart, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import ServiciosBackground from "./ServiciosBackground";
 
 const ServicesLoadingState: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="absolute inset-0 z-0 bg-[#14162c]">
-        <div className="absolute inset-0 z-1" style={{
-          background: "radial-gradient(circle at 20% 30%, #008be1 0%, transparent 40%), radial-gradient(circle at 80% 70%, #ff6900 0%, transparent 40%), radial-gradient(circle at 50% 50%, #0EA5E9 0%, transparent 30%)",
-          opacity: 0.8
-        }}></div>
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#14162c] to-transparent z-2"></div>
-      </div>
-      <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
+    <div className="min-h-screen flex flex-col relative">
+      <ServiciosBackground />
+      
+      <div className="fixed top-0 left-0 right-0 z-50 bg-[#F8F4F0] shadow-md">
         <div className="container mx-auto">
-          <div className="flex justify-between items-center mb-8 mt-4">
-            <Button variant="ghost" className="flex items-center gap-2 hover:text-gray-300 text-white">
+          <div className="flex justify-between items-center py-4 px-4">
+            <Button variant="ghost" className="flex items-center gap-2 text-gray-800">
               <ArrowLeft size={20} />
               <span>Volver</span>
             </Button>
             
             <div className="relative cursor-pointer">
-              <ShoppingCart size={24} className="text-white" />
+              <ShoppingCart size={40} className="text-gray-800" />
             </div>
           </div>
+        </div>
+      </div>
+      
+      <main className="flex-grow py-8 px-4 relative z-10 servicios-page mt-16">
+        <div className="container mx-auto">
+          <div className="flex flex-col items-center justify-center mt-12">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <h3 className="text-xl font-medium mt-2">Cargando servicios...</h3>
+          </div>
           
-          <h1 className="text-4xl md:text-5xl font-bold mb-12 text-center text-[#008be1] uppercase font-display opacity-0 transition-opacity duration-500">
-            Nuestros Servicios
-          </h1>
-          
-          <div className="flex justify-center items-center h-64 gap-6">
-            <div className="w-[220px] h-[220px]">
-              <Skeleton className="w-full h-full rounded-full" />
-            </div>
-            <div className="w-[220px] h-[220px]">
-              <Skeleton className="w-full h-full rounded-full" />
-            </div>
-            <div className="w-[220px] h-[220px]">
-              <Skeleton className="w-full h-full rounded-full" />
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mt-12">
+            {[1, 2, 3, 4, 5, 6].map((index) => (
+              <div key={index} className="flex flex-col items-center">
+                <Skeleton className="h-48 w-48 rounded-full" />
+                <Skeleton className="h-6 w-32 mt-4" />
+              </div>
+            ))}
           </div>
         </div>
       </main>

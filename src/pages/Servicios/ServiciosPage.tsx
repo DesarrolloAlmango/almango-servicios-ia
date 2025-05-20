@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -15,6 +14,10 @@ import HowToHireSection from "./components/HowToHireSection";
 import { fetchTarjetasServicios, fetchTarjetasMudanza } from "./api/serviciosApi";
 import { fallbackServices, fallbackMudanzaServices } from "./data/fallbackData";
 import { globalLastSelectedCategory } from "@/components/PurchaseLocationModal";
+import ServiciosBackground from "./components/ServiciosBackground";
+import ServicesLoadingState from "./components/ServicesLoadingState";
+import StoreInfo from "./components/StoreInfo";
+import ServiciosStyles from "./components/ServiciosStyles";
 
 const ServiciosPage = () => {
   const navigate = useNavigate();
