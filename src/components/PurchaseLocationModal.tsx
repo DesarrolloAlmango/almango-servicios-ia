@@ -448,7 +448,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                 <p className="text-muted-foreground text-sm">
                   Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
                   {categoryName && (
-                    <> - Categoría: <span className="font-semibold text-orange-500">{categoryName}</span></>
+                    <> - Categoría: <span className="font-semibold text-orange-500">{categoryName} {categoryId && `(ID: ${categoryId})`}</span></>
                   )}
                 </p>
               )}
