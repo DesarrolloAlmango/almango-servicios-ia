@@ -118,7 +118,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }
   }, [categories, purchaseLocation]);
 
-  // Add listener for custom openCategory events
+  // Add listener for custom openCategory events - IMPROVED IMPLEMENTATION
   useEffect(() => {
     const handleOpenCategoryEvent = (e: Event) => {
       const customEvent = e as CustomEvent;
@@ -135,19 +135,42 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
           
           // Small delay to ensure UI is ready
           setTimeout(() => {
+            // First, handle the data selection through the normal flow
             handleCategoryClick(categoryToSelect);
             
-            // Programmatically trigger click on the category card's div element
+            // CRITICAL FIX: Directly find and click the DOM element for the category
             const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
             if (categoryElement) {
               // Find the clickable card within the category element
               const clickableCard = categoryElement.querySelector('.cursor-pointer');
               if (clickableCard && clickableCard instanceof HTMLElement) {
                 console.log("Programmatically clicking on category card:", categoryToSelect.name);
+                toast.info(`Haciendo clic en la categoría: ${categoryToSelect.name} (ID: ${categoryId})`, {
+                  duration: 3000
+                });
+                // Simulate a real click on the element
                 clickableCard.click();
+                // Also try to focus and give it visual highlight
+                clickableCard.focus();
+                clickableCard.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
+                setTimeout(() => {
+                  clickableCard.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
+                }, 2000);
+              } else {
+                console.error("Failed to find clickable element within category card", categoryId);
+                toast.error("No se pudo hacer clic en la categoría seleccionada");
               }
+            } else {
+              console.error("Failed to find category element with ID:", categoryId);
+              toast.error("No se encontró la categoría con ID: " + categoryId);
             }
           }, 200);
+        } else {
+          console.log("Category not found or service ID mismatch", {
+            foundCategory: !!categoryToSelect,
+            expectedServiceId: serviceId, 
+            actualServiceId: selectedService.id
+          });
         }
       }
     };

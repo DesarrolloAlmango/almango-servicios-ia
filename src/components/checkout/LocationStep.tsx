@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { MapPin, Loader2 } from "lucide-react";
+import { toast } from "sonner"; // Import toast directly
 
 interface LocationStepProps {
   selectedDepartment: string;
@@ -60,11 +61,9 @@ const LocationStep: React.FC<LocationStepProps> = ({
       console.log("LocationStep: Scheduling auto-click for category:", categoryId);
       
       // Show a toast immediately that we're about to click the category
-      if (window.toast) {
-        window.toast.info(`Seleccionando automáticamente la categoría (ID: ${categoryId})...`, {
-          duration: 3000
-        });
-      }
+      toast.info(`Seleccionando automáticamente la categoría (ID: ${categoryId})...`, {
+        duration: 3000
+      });
       
       setTimeout(() => {
         console.log("LocationStep: Dispatching openCategory event for:", categoryId);
@@ -78,6 +77,22 @@ const LocationStep: React.FC<LocationStepProps> = ({
           } 
         });
         document.dispatchEvent(openCategoryEvent);
+        
+        // Try to directly trigger a click on the category card if it exists
+        setTimeout(() => {
+          const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
+          if (categoryElement) {
+            const clickableCard = categoryElement.querySelector('.cursor-pointer');
+            if (clickableCard && clickableCard instanceof HTMLElement) {
+              console.log("LocationStep: Directly clicking category card for:", categoryId);
+              clickableCard.click();
+            } else {
+              console.error("LocationStep: Couldn't find clickable element in category card");
+            }
+          } else {
+            console.error("LocationStep: Couldn't find category element with ID:", categoryId);
+          }
+        }, 300); // Small additional delay to ensure the event handlers are ready
       }, 1000);  // 1 second delay as requested
     }
   };
