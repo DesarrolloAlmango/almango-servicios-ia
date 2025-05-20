@@ -483,8 +483,8 @@ const Servicios = () => {
     const handleOpenCategory = (e: Event) => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail) {
-        const { serviceId, categoryId, categoryName } = customEvent.detail;
-        console.log("Servicios page received openCategory event:", serviceId, categoryId, categoryName);
+        const { serviceId, categoryId, categoryName, forceOpenProducts } = customEvent.detail;
+        console.log("Servicios page received openCategory event:", serviceId, categoryId, categoryName, forceOpenProducts ? "(force open products)" : "");
         
         // Set the selected service and category IDs
         setSelectedServiceId(serviceId);
@@ -505,6 +505,20 @@ const Servicios = () => {
           setTimeout(() => {
             serviceCardElement.click();
             console.log("Auto-clicked on service:", serviceId);
+            
+            if (forceOpenProducts) {
+              // If force open products flag is set, find and click the category card
+              setTimeout(() => {
+                const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
+                if (categoryElement) {
+                  const categoryCard = categoryElement.querySelector('.cursor-pointer');
+                  if (categoryCard && categoryCard instanceof HTMLElement) {
+                    console.log("Force-clicking category to open products modal:", categoryId);
+                    categoryCard.click();
+                  }
+                }
+              }, 500);
+            }
           }, 300);
         }
       }

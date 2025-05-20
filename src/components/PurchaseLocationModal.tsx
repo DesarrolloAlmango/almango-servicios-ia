@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -529,9 +530,10 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       selectedStore === "other" ? otherStore || searchQuery : undefined
     );
     
+    // Importante: Primero cerramos el modal para que no bloquee la interacción
     onClose();
     
-    // If this is a new category selection, trigger a special event to notify components to recalculate prices
+    // Si this is a new category selection, trigger a special event to notify components to recalculate prices
     if (finalCategoryId && localServiceId) {
       // First dispatch an event to update product prices with detailed debug info
       const updatePricesEvent = new CustomEvent('updateProductPrices', {
@@ -556,7 +558,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
           detail: {
             serviceId: localServiceId,
             categoryId: finalCategoryId,
-            categoryName: finalCategoryName
+            categoryName: finalCategoryName,
+            forceOpenProducts: true // Added flag to force opening product modal
           }
         });
         document.dispatchEvent(openCategoryEvent);
@@ -569,12 +572,22 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             const categoryCard = categoryElement.querySelector('div');
             if (categoryCard) {
               categoryCard.classList.add('ring-4', 'ring-orange-500', 'scale-110', 'bg-orange-50');
+              
+              // Simulate click on category to open product modal
+              const clickEvent = new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: window
+              });
+              categoryCard.dispatchEvent(clickEvent);
+              
+              // Remove highlight after animation
               setTimeout(() => {
                 categoryCard.classList.remove('scale-110', 'bg-orange-50');
               }, 2000);
             }
           }
-        }, 500);
+        }, 300);
       }, 100);
     }
   };

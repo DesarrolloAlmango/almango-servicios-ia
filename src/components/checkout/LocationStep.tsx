@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -98,6 +99,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
             categoryId,
             serviceId: window.lastSelectedServiceId || undefined,
             categoryName: window.lastSelectedCategoryName || undefined,
+            forceOpenProducts: true,  // Added flag to force opening product modal
             timestamp: Date.now()
           } 
         });
@@ -110,6 +112,15 @@ const LocationStep: React.FC<LocationStepProps> = ({
             if (clickableCard) {
               clickableCard.classList.add('ring-4', 'ring-orange-500', 'scale-110', 'bg-orange-50');
               categoryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              
+              // Simulate a click on the category to immediately open the products modal
+              const clickEvent = new MouseEvent('click', {
+                bubbles: true,
+                cancelable: true,
+                view: window
+              });
+              clickableCard.dispatchEvent(clickEvent);
+              
               setTimeout(() => {
                 clickableCard.classList.remove('scale-110', 'bg-orange-50');
               }, 2000);
