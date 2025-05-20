@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -66,7 +67,7 @@ export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl max-h-screen overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-screen overflow-y-auto sm:min-w-[450px]">
         <DialogHeader>
           <DialogTitle className="text-center text-xl">
             Términos y Condiciones
@@ -76,7 +77,7 @@ export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
         {loading ? (
           <div className="flex justify-center items-center py-8">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            <span className="ml-2">Cargando términos y condiciones...</span>
+            <span className="ml-2">Cargando...</span>
           </div>
         ) : (
           <div 

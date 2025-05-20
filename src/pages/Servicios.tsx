@@ -9,9 +9,13 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import PurchaseLocationModal from "@/components/PurchaseLocationModal";
+import PurchaseLocationModal, { globalLastSelectedCategory } from "@/components/PurchaseLocationModal";
 import { Separator } from "@/components/ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { lastSelectedCategoryId, lastSelectedCategoryName } from "@/components/CategoryCarousel";
+
 export interface CartItem {
   id: string;
   name: string;
@@ -158,6 +162,7 @@ const Servicios = () => {
   const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(null);
   const [autoClickTriggered, setAutoClickTriggered] = useState(false);
   const serviceCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const pendingCategoryAutoClickRef = useRef<boolean>(false);
   const {
     data: services,
     isLoading: isServicesLoading,
@@ -228,6 +233,38 @@ const Servicios = () => {
       return () => clearTimeout(timer);
     }
   }, [highlightedServiceId, autoClickTriggered]);
+  useEffect(() => {
+    if (pendingCategoryAutoClickRef.current && selectedServiceId && selectedCategoryId) {
+      console.log("Processing pending category auto-click:", {
+        serviceId: selectedServiceId,
+        categoryId: selectedCategoryId,
+        categoryName: selectedCategoryName
+      });
+
+      // Reset the flag
+      pendingCategoryAutoClickRef.current = false;
+
+      // Small delay to ensure service card has been clicked
+      const timer = setTimeout(() => {
+        // Dispatch a direct product fetch
+        const serviceLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
+        if (serviceLocation) {
+          console.log("Forcing product fetch for:", {
+            serviceId: selectedServiceId,
+            categoryId: selectedCategoryId
+          });
+
+          // Direct API call to fetch products
+          fetch(`/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${selectedServiceId}&Nivel1=${selectedCategoryId}`).then(response => response.json()).then(data => {
+            console.log(`Fetched ${data.length} products for category ${selectedCategoryId}`);
+          }).catch(error => {
+            console.error("Error fetching products:", error);
+          });
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [purchaseLocations, selectedServiceId, selectedCategoryId, selectedCategoryName]);
   useEffect(() => {
     const fetchStoreName = async () => {
       if (commerceId) {
@@ -376,8 +413,8 @@ const Servicios = () => {
         departmentName,
         locationId,
         locationName,
-        categoryId: selectedCategoryId || undefined,
-        categoryName: selectedCategoryName || undefined
+        categoryId: selectedCategoryId || globalLastSelectedCategory.categoryId || undefined,
+        categoryName: selectedCategoryName || globalLastSelectedCategory.categoryName || undefined
       };
       const existingLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
       setPurchaseLocations(prev => {
@@ -399,6 +436,11 @@ const Servicios = () => {
       toast.success(successMessage);
       if (selectedCategoryId) {
         setPendingServiceCardAction(true);
+
+        // If this is the first time registering this service/category, trigger auto-click
+        if (!existingLocation || existingLocation.categoryId !== selectedCategoryId) {
+          pendingCategoryAutoClickRef.current = true;
+        }
       }
     }
   };
@@ -436,6 +478,45 @@ const Servicios = () => {
     setLocationToDelete(null);
     toast.success("Lugar de compra y productos asociados eliminados");
   };
+  // Add new listener for automatic category opening
+  useEffect(() => {
+    const handleOpenCategory = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        const { serviceId, categoryId, categoryName } = customEvent.detail;
+        console.log("Servicios page received openCategory event:", serviceId, categoryId, categoryName);
+        
+        // Set the selected service and category IDs
+        setSelectedServiceId(serviceId);
+        setSelectedCategoryId(categoryId);
+        setSelectedCategoryName(categoryName);
+        
+        // Set pending action to trigger the product modal
+        setPendingServiceCardAction(true);
+        
+        // Set flag for auto-click
+        pendingCategoryAutoClickRef.current = true;
+        
+        // Find the service card element
+        const serviceCardElement = serviceCardRefs.current[serviceId];
+        if (serviceCardElement) {
+          // Scroll to and click the service card
+          serviceCardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => {
+            serviceCardElement.click();
+            console.log("Auto-clicked on service:", serviceId);
+          }, 300);
+        }
+      }
+    };
+    
+    document.addEventListener('openCategory', handleOpenCategory);
+    
+    return () => {
+      document.removeEventListener('openCategory', handleOpenCategory);
+    };
+  }, []);
+
   if (isServicesLoading && isLoadingMudanza) {
     return <div className="min-h-screen flex flex-col">
         <div className="absolute inset-0 z-0 bg-[#14162c]">
@@ -490,9 +571,10 @@ const Servicios = () => {
         <div className={`absolute inset-x-0 bottom-0 ${isMobile ? 'h-[33%]' : 'h-[47%]'} bg-[#f06900]`}></div>
       </div>
       
-      <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
+      {/* Fixed header with Back button and Shopping Cart */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-[#F8F4F0] shadow-md">
         <div className="container mx-auto">
-          <div className="flex justify-between items-center mb-8 mt-4">
+          <div className="flex justify-between items-center py-4 px-4">
             <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 text-gray-800">
               <ArrowLeft size={20} />
               <span>Volver</span>
@@ -505,7 +587,11 @@ const Servicios = () => {
                 </span>}
             </div>
           </div>
-          
+        </div>
+      </div>
+      
+      <main className="flex-grow py-8 px-4 relative z-10 servicios-page mt-16">
+        <div className="container mx-auto">
           {/* ¿CÓMO CONTRATAR? Section - Added from Home page */}
           <div className="py-10 px-4 bg-[#F8F4F0] rounded-lg mb-12">
             <h2 className="text-3xl font-bold mb-4 text-center uppercase text-[#f06900]">¿CÓMO CONTRATAR?</h2>
@@ -572,40 +658,7 @@ const Servicios = () => {
               </div>
             </div>}
           
-          {!commerceId && purchaseLocations.length > 0 && <div className="mb-6 bg-white/70 p-3 rounded-lg border border-gray-300">
-              <h3 className="font-medium text-gray-800 mb-2">Lugares de compra registrados:</h3>
-              <div className="space-y-2">
-                {Object.values(purchaseLocations.reduce((grouped, location) => {
-              if (!location.serviceId || !location.serviceName) return grouped;
-              if (!grouped[location.serviceId]) {
-                grouped[location.serviceId] = {
-                  serviceId: location.serviceId,
-                  serviceName: location.serviceName,
-                  locations: []
-                };
-              }
-              grouped[location.serviceId].locations.push(location);
-              return grouped;
-            }, {} as Record<string, {
-              serviceId: string;
-              serviceName: string;
-              locations: PurchaseLocation[];
-            }>)).map((serviceGroup, index) => <div key={index} className="text-sm">
-                    <div className="font-medium text-gray-800">{serviceGroup.serviceName}:</div>
-                    {serviceGroup.locations.map((location, locIndex) => <div key={locIndex} className="flex items-center ml-4 mt-1 text-gray-700">
-                        <span>
-                          {location.storeId === "other" ? location.otherLocation : location.storeName}
-                          {location.departmentName && location.locationName && <span className="text-gray-600">
-                              ({location.departmentName}, {location.locationName})
-                            </span>}
-                        </span>
-                        <Button variant="ghost" size="sm" onClick={() => clearPurchaseLocation(location.serviceId || "", location.categoryId)} className="h-5 w-5 p-0 text-gray-600 hover:bg-gray-200 ml-1">
-                          <X size={12} />
-                        </Button>
-                      </div>)}
-                  </div>)}
-              </div>
-            </div>}
+          {!commerceId && purchaseLocations.length > 0}
           
           <div id="armado-instalacion" className="mb-12 relative">
             <ServiceCarousel primaryTitlePart="ARMADO" secondaryTitlePart=" E INSTALACIÓN" titleClassName="font-bold">
@@ -680,6 +733,9 @@ const Servicios = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* WhatsApp Button */}
+      <WhatsAppButton />
 
       <style>{`
         /* Add custom styling for section titles */

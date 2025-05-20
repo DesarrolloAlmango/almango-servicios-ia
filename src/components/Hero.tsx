@@ -1,4 +1,3 @@
-
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -6,17 +5,14 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import ContactInfo from "@/components/ContactInfo";
 import { useEffect, useState } from "react";
 import LottieAnimation from "./LottieAnimation";
-
 const Hero = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [isLoaded, setIsLoaded] = useState(false);
-  
   useEffect(() => {
     // Set loaded state after initial render
     setIsLoaded(true);
   }, []);
-  
   return <div className={`relative w-full overflow-hidden ${isMobile ? "min-h-[calc(75vh-40px)]" : "min-h-[75vh] md:min-h-[82vh]"} flex items-start pt-16 md:pt-20`}>
       {/* Hero background with primary colors */}
       <div className="absolute inset-0 z-0 bg-[#14162c]">
@@ -26,6 +22,9 @@ const Hero = () => {
       }}></div>
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
       </div>
+      
+      {/* Handshake image */}
+      
       
       {/* Contenedor principal con ajuste de margen para bajar el texto */}
       <div className="container relative z-10 mx-auto px-6 text-left pl-8 md:pl-12 mt-[100px] sm:mt-[90px] md:mt-[80px]">
@@ -45,5 +44,4 @@ const Hero = () => {
       <ContactInfo />
     </div>;
 };
-
 export default Hero;
