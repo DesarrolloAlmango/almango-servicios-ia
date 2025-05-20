@@ -113,11 +113,11 @@ const Header = () => {
           <img alt="ALMANGO Logo" src="/lovable-uploads/10976e12-6bf7-48d0-b947-61ef37b1289b.png" className="h-16 transition-all duration-300 object-scale-down transform translate-y-0.5" />
         </div>
         
-        {/* Hamburger menu for both mobile and desktop */}
+        {/* Hamburger menu positioned at right side with specific spacing */}
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
-            <button className="text-white focus:outline-none" aria-label="Toggle menu">
-              <Menu size={24} />
+            <button className="text-white focus:outline-none absolute right-[30px] transform scale-110" aria-label="Toggle menu">
+              <Menu size={28} />
             </button>
           </SheetTrigger>
           <SheetContent side="left" className="bg-primary text-white border-r border-black/30 p-0 z-[200]">
