@@ -56,15 +56,11 @@ const LocationStep: React.FC<LocationStepProps> = ({
     // Call the original onNext function first
     onNext();
     
-    // If we have a categoryId, trigger a recalculation of prices
+    // If we have a categoryId and a stored serviceId, trigger product price recalculation
     if (categoryId && window.lastSelectedServiceId) {
       console.log("LocationStep: Triggering product price recalculation for category:", categoryId);
       
-      // Find any dialogs that might be open
-      const openDialogs = document.querySelectorAll('[role="dialog"]');
-      let productDialogFound = false;
-      
-      // First dispatch the category update event
+      // First dispatch the update prices event with forceRefresh flag
       const updatePricesEvent = new CustomEvent('updateProductPrices', { 
         detail: { 
           categoryId,
@@ -75,9 +71,9 @@ const LocationStep: React.FC<LocationStepProps> = ({
       document.dispatchEvent(updatePricesEvent);
       
       setTimeout(() => {
+        // Then dispatch the openCategory event to ensure the category remains open
         console.log("LocationStep: Dispatching openCategory event for:", categoryId);
         
-        // Dispatch the event with the category ID and service ID
         const openCategoryEvent = new CustomEvent('openCategory', { 
           detail: { 
             categoryId,

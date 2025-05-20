@@ -443,32 +443,44 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     
     onClose();
     
-    // If this is a new category selection, trigger a special event to notify the parent component
+    // If this is a new category selection, trigger a special event to notify components to recalculate prices
     if (finalCategoryId && localServiceId) {
-      // Use a custom event to notify the parent component to open the category
-      const openCategoryEvent = new CustomEvent('openCategory', {
+      // First dispatch an event to update product prices
+      const updatePricesEvent = new CustomEvent('updateProductPrices', {
         detail: {
           serviceId: localServiceId,
           categoryId: finalCategoryId,
-          categoryName: finalCategoryName
+          forceRefresh: true
         }
       });
-      document.dispatchEvent(openCategoryEvent);
+      document.dispatchEvent(updatePricesEvent);
       
-      // After successful location confirmation, highlight the selected category
+      // Then dispatch an event to open/highlight the category
       setTimeout(() => {
-        const categoryElement = document.querySelector(`[data-category-id="${finalCategoryId}"]`);
-        if (categoryElement) {
-          categoryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          const categoryCard = categoryElement.querySelector('div');
-          if (categoryCard) {
-            categoryCard.classList.add('ring-4', 'ring-orange-500', 'bg-orange-50');
-            setTimeout(() => {
-              categoryCard.classList.remove('bg-orange-50');
-            }, 2000);
+        const openCategoryEvent = new CustomEvent('openCategory', {
+          detail: {
+            serviceId: localServiceId,
+            categoryId: finalCategoryId,
+            categoryName: finalCategoryName
           }
-        }
-      }, 500);
+        });
+        document.dispatchEvent(openCategoryEvent);
+        
+        // Highlight the selected category after location confirmation
+        setTimeout(() => {
+          const categoryElement = document.querySelector(`[data-category-id="${finalCategoryId}"]`);
+          if (categoryElement) {
+            categoryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const categoryCard = categoryElement.querySelector('div');
+            if (categoryCard) {
+              categoryCard.classList.add('ring-4', 'ring-orange-500', 'scale-110', 'bg-orange-50');
+              setTimeout(() => {
+                categoryCard.classList.remove('scale-110', 'bg-orange-50');
+              }, 2000);
+            }
+          }
+        }, 500);
+      }, 100);
     }
   };
 

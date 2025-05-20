@@ -223,13 +223,14 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   };
 
+  // Initialize products without prices first, then fetch prices if we have a purchaseLocationId
   useEffect(() => {
-    // Set initial state with product base data without waiting for prices
     if (category.products.length > 0 && !pricesFetched) {
-      // Initialize all products with their default prices first
+      // Initialize all products with their default prices first (or blank prices)
       const initialProducts = category.products.map(product => ({ 
         ...product, 
-        defaultPrice: product.price 
+        defaultPrice: product.price,
+        price: purchaseLocationId ? product.price : undefined // Only show price if we have a location
       }));
       setProducts(initialProducts);
       
@@ -273,7 +274,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             });
           } catch (error) {
             console.error(`Error al actualizar precio para ${product.id}:`, error);
-            // Even on error, mark the product as no longer loading to show default price
+            // Even on error, mark the product as no longer loading
             setLoadingProductIds(prev => {
               const newSet = new Set(prev);
               newSet.delete(product.id);
@@ -284,6 +285,62 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       }
     }
   }, [category, purchaseLocationId, serviceId, currentCartItems, pricesFetched]);
+  
+  // Handle product price updates based on custom event
+  useEffect(() => {
+    const handleUpdateProductPrices = async (e: Event) => {
+      const customEvent = e as CustomEvent;
+      
+      // Only proceed if we have the right event data and matching category
+      if (customEvent.detail && 
+          customEvent.detail.categoryId === category.id &&
+          customEvent.detail.serviceId === serviceId) {
+        
+        console.log("ProductGrid: Received updateProductPrices event", customEvent.detail);
+        
+        if (customEvent.detail.forceRefresh) {
+          // Mark all products as loading prices
+          const loadingIds = new Set(products.map(p => p.id));
+          setLoadingProductIds(loadingIds);
+          
+          // Force a fetch of all prices
+          products.forEach(async (product) => {
+            try {
+              const updatedPrice = await fetchUpdatedPrice(product);
+              
+              // Update the specific product price as it becomes available
+              setProducts(prevProducts => 
+                prevProducts.map(p => 
+                  p.id === updatedPrice.id ? { ...p, price: updatedPrice.price } : p
+                )
+              );
+              
+              // Mark this product as no longer loading
+              setLoadingProductIds(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(updatedPrice.id);
+                return newSet;
+              });
+            } catch (error) {
+              console.error(`Error al actualizar precio para ${product.id}:`, error);
+              // Even on error, mark the product as no longer loading
+              setLoadingProductIds(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(product.id);
+                return newSet;
+              });
+            }
+          });
+        }
+      }
+    };
+    
+    document.addEventListener('updateProductPrices', handleUpdateProductPrices as EventListener);
+    
+    return () => {
+      document.removeEventListener('updateProductPrices', handleUpdateProductPrices as EventListener);
+    };
+  }, [category.id, products, serviceId]);
 
   const updateCart = (productId: string, newQuantity: number) => {
     const product = products.find(p => p.id === productId);
@@ -419,9 +476,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   // Determine if we need to show loading message
   const allProductsLoading = products.length === 0;
-
+  
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 product-grid">
       <div className="flex items-center mb-4">
         <button 
           onClick={onBack}
@@ -622,7 +679,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     console.log(`Fetching products for service ${serviceId} and category ${categoryId}`);
     setIsLoading(true);
     try {
-      // Llamada directa a ObtenerNivel2
+      // Direct call to get products
       const response = await fetch(
         `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`
       );
@@ -634,20 +691,28 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       const data = await response.json();
       console.log('Products data received:', data);
       
-      const transformedProducts = data.map((product: any) => ({
-        id: product.id || product.Nivel2Id,
-        name: product.name || product.Nivel2Descripcion,
-        price: product.price ? parseFloat(product.price) : (product.Precio ? parseFloat(product.Precio) : 0),
-        image: product.image || product.Imagen || "",
-        category: categoryId,
-        textosId: product.TextosId || null
-      }));
+      // Transform the products but don't set prices yet if we don't have a location
+      const transformedProducts = data.map((product: any) => {
+        const basePrice = product.price ? parseFloat(product.price) : 
+                          (product.Precio ? parseFloat(product.Precio) : 0);
+        
+        return {
+          id: product.id || product.Nivel2Id,
+          name: product.name || product.Nivel2Descripcion,
+          // Only show price if we have purchaseLocation
+          price: purchaseLocation ? basePrice : undefined,
+          defaultPrice: basePrice,
+          image: product.image || product.Imagen || "",
+          category: categoryId,
+          textosId: product.TextosId || null
+        };
+      });
       
-      // Buscar la categoría existente o crear una temporal
+      // Find the existing category or create a temporary one
       let categoryToUpdate: Category | undefined = categories.find(cat => cat.id === categoryId);
       
       if (!categoryToUpdate) {
-        // Si la categoría no existe en el estado, crear una temporal
+        // If category doesn't exist in state, create a temporary one
         console.log("Category not found in state, creating temporary one");
         const categoryName = pendingCategoryName || purchaseLocation?.categoryName || "Productos";
         categoryToUpdate = {
@@ -657,25 +722,31 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
           products: transformedProducts
         };
         
-        // Actualizar el estado de categorías
+        // Update categories state
         setCategories(prev => [...prev, categoryToUpdate!]);
       } else {
-        // Si la categoría existe, actualizar sus productos
+        // If category exists, update its products
         console.log("Category found in state, updating products");
         categoryToUpdate = {
           ...categoryToUpdate,
           products: transformedProducts
         };
         
-        // Actualizar el estado de categorías
+        // Update categories state
         setCategories(prev => prev.map(cat => 
           cat.id === categoryId ? categoryToUpdate! : cat
         ));
       }
       
-      // Siempre actualizar selectedCategory para mostrar los productos
+      // Always update selectedCategory to show products
       console.log("Setting selected category:", categoryToUpdate);
       setSelectedCategory(categoryToUpdate);
+      
+      // If this is the first open and we don't have a purchase location, request it
+      if (!purchaseLocation && onCategorySelect && id) {
+        console.log("No purchase location, requesting location selection");
+        onCategorySelect(id, categoryId, categoryToUpdate.name);
+      }
       
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar productos');
@@ -707,36 +778,31 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     window.lastSelectedServiceId = id;
     window.lastSelectedCategoryName = category.name;
     
-    // First, let's show the products immediately without waiting for prices
+    // Fetch products immediately without waiting for prices
     console.log("Fetching products immediately without waiting for purchase location");
     fetchProducts(id, category.id);
     
-    // Set the flag to prevent closing the dialog while loading products
+    // Set flag to prevent closing dialog while loading products
     categorySelectionInProgressRef.current = true;
     
+    // If we don't have a purchase location, trigger location selection
     if (id && onCategorySelect && !purchaseLocation) {
-      // Save the category info to use after location selection
+      // Save category info to use after location selection
       pendingCategoryDataRef.current = {
         id: category.id,
         name: category.name
       };
       
-      // Call onCategorySelect with a small delay to allow products to load first
+      // Call onCategorySelect with small delay
       setTimeout(() => {
-        console.log("Calling onCategorySelect after small delay - no purchase location exists");
+        console.log("Calling onCategorySelect to request purchase location");
         if (onCategorySelect) {
           onCategorySelect(id, category.id, category.name);
         }
       }, 300);
-      
-      return true; // Return true so dialog stays open with products showing
-    } else if (id) {
-      // If we already have purchase location, we can load products directly
-      console.log("Products already loaded, purchase location exists:", category.id);
-      return true; // Return true to indicate successful processing
     }
     
-    return true; // Default return value
+    return true;
   };
 
   const purchaseLocationId = purchaseLocation ? purchaseLocation.storeId : undefined;
