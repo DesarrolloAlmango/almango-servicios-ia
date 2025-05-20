@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import LocationStep from "@/components/checkout/LocationStep";
 import { Textarea } from "@/components/ui/textarea";
+import { lastSelectedCategoryId, lastSelectedCategoryName } from "@/components/CategoryCarousel";
 
 interface Store {
   id: string;
@@ -98,8 +99,14 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const [localCategoryName, setLocalCategoryName] = useState<string | undefined>(categoryName);
   const [localServiceId, setLocalServiceId] = useState<string | undefined>(serviceId);
 
+  // Use the global lastSelectedCategoryId if no categoryId is provided
+  const effectiveCategoryId = categoryId || lastSelectedCategoryId || null;
+  const effectiveCategoryName = categoryName || lastSelectedCategoryName || null;
+
   useEffect(() => {
     if (isOpen) {
+      console.log("Modal opened with category:", effectiveCategoryId, effectiveCategoryName);
+      
       if (!commerceId) {
         fetchProviders();
       }
@@ -111,14 +118,21 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       setSelectedLocation("");
       setSearchQuery(commerceName || "");
       
+      // Set local category state from props or global variable
+      if (effectiveCategoryId) {
+        setLocalCategoryId(effectiveCategoryId);
+        setLocalCategoryName(effectiveCategoryName || undefined);
+        setLocalServiceId(serviceId || undefined);
+      }
+      
       // Also check the global variable when opening
-      if (!categoryId && !categoryName && globalLastSelectedCategory.categoryId) {
+      if (!effectiveCategoryId && globalLastSelectedCategory.categoryId) {
         setLocalCategoryId(globalLastSelectedCategory.categoryId);
         setLocalCategoryName(globalLastSelectedCategory.categoryName || undefined);
         setLocalServiceId(globalLastSelectedCategory.serviceId || undefined);
       }
     }
-  }, [isOpen, commerceId, commerceName, categoryId, categoryName]);
+  }, [isOpen, commerceId, commerceName, categoryId, categoryName, effectiveCategoryId, effectiveCategoryName, serviceId]);
 
   useEffect(() => {
     if (isStoreDropdownOpen && inputRef.current) {
@@ -393,18 +407,27 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     const selectedDepartmentObj = departments.find(dept => dept.id === selectedDepartment);
     const selectedLocationObj = currentMunicipalities.find(mun => mun.id === selectedLocation);
 
-    console.log("Confirming location with category info:", { serviceId, categoryId, categoryName });
+    // Use the effective category ID from props or the global variable
+    const finalCategoryId = localCategoryId || lastSelectedCategoryId || categoryId || null;
+    const finalCategoryName = localCategoryName || lastSelectedCategoryName || categoryName || null;
+    
+    console.log("Confirming location with category info:", { 
+      serviceId: localServiceId,
+      categoryId: finalCategoryId,
+      categoryName: finalCategoryName,
+      globalTemp: lastSelectedCategoryId 
+    });
     
     // Store the category information in global variable for automatic opening
-    if (serviceId && categoryId) {
+    if (localServiceId && finalCategoryId) {
       globalLastSelectedCategory = {
-        serviceId,
-        categoryId,
-        categoryName
+        serviceId: localServiceId,
+        categoryId: finalCategoryId,
+        categoryName: finalCategoryName
       };
       
       // Pre-fetch products before closing the modal
-      await fetchProductsForCategory(storeId, serviceId, categoryId);
+      await fetchProductsForCategory(storeId, localServiceId, finalCategoryId);
     }
     
     // Close the modal and call onSelectLocation
@@ -421,16 +444,31 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     onClose();
     
     // If this is a new category selection, trigger a special event to notify the parent component
-    if (categoryId && serviceId) {
+    if (finalCategoryId && localServiceId) {
       // Use a custom event to notify the parent component to open the category
       const openCategoryEvent = new CustomEvent('openCategory', {
         detail: {
-          serviceId,
-          categoryId,
-          categoryName
+          serviceId: localServiceId,
+          categoryId: finalCategoryId,
+          categoryName: finalCategoryName
         }
       });
       document.dispatchEvent(openCategoryEvent);
+      
+      // After successful location confirmation, highlight the selected category
+      setTimeout(() => {
+        const categoryElement = document.querySelector(`[data-category-id="${finalCategoryId}"]`);
+        if (categoryElement) {
+          categoryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const categoryCard = categoryElement.querySelector('div');
+          if (categoryCard) {
+            categoryCard.classList.add('ring-4', 'ring-orange-500', 'bg-orange-50');
+            setTimeout(() => {
+              categoryCard.classList.remove('bg-orange-50');
+            }, 2000);
+          }
+        }
+      }, 500);
     }
   };
 
@@ -471,6 +509,14 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             <DialogDescription className="text-center">
               Necesitamos esta información para brindarte un mejor servicio
             </DialogDescription>
+            {effectiveCategoryId && (
+              <div className="mt-2 py-1 px-3 bg-orange-100 text-orange-800 inline-block rounded-md">
+                Categoría seleccionada: <span className="font-semibold">{effectiveCategoryName}</span>
+                <span className="ml-1 px-2 py-0.5 bg-black text-white rounded text-xs">
+                  ID: {effectiveCategoryId}
+                </span>
+              </div>
+            )}
           </div>
         )}
         
@@ -489,6 +535,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             buttonText="Confirmar"
             showStoreSection={true}
             storeName={commerceName || "Comercio seleccionado"}
+            categoryId={effectiveCategoryId || undefined}
           />
         ) : (
           <div className="space-y-4">
@@ -501,12 +548,12 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   <p className="text-muted-foreground text-sm">
                     Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
                   </p>
-                  {categoryName && (
+                  {(effectiveCategoryName || effectiveCategoryId) && (
                     <p className="text-muted-foreground text-sm">
-                      Categoría: <span className="font-semibold text-orange-500">{categoryName}</span>
-                      {categoryId && (
+                      Categoría: <span className="font-semibold text-orange-500">{effectiveCategoryName}</span>
+                      {effectiveCategoryId && (
                         <span className="ml-1 px-2 py-0.5 bg-orange-100 text-orange-800 rounded-md text-xs font-mono">
-                          ID: {categoryId}
+                          ID: {effectiveCategoryId}
                         </span>
                       )}
                     </p>
@@ -673,9 +720,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
               disabled={!isFormValid || loading}
               className="bg-orange-500 hover:bg-orange-600"
             >
-              Confirmar {categoryId && (
+              Confirmar {effectiveCategoryId && (
                 <span className="ml-1 text-xs font-mono bg-white text-orange-700 px-1 rounded">
-                  #{categoryId}
+                  #{effectiveCategoryId}
                 </span>
               )}
             </Button>
