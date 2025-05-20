@@ -386,7 +386,18 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
 
   // Handle category selection with awareness of purchase location
   const handleCategoryClick = (category: Category) => {
-    console.log("Category clicked:", category.name, "Purchase location:", purchaseLocation ? "exists" : "does not exist");
+    console.log("Category clicked:", category.name, "Purchase location:", purchaseLocation ? "exists" : "does not exist", "Category ID:", category.id);
+    
+    // Dispatch a custom event to notify any listening components about the category selection
+    // This will help with debugging and inter-component communication
+    const categorySelectedEvent = new CustomEvent('categorySelected', { 
+      detail: { 
+        categoryId: category.id,
+        categoryName: category.name,
+        serviceId: selectedService.id 
+      } 
+    });
+    document.dispatchEvent(categorySelectedEvent);
     
     // Preload product data in the background
     preloadProductData(category.id);

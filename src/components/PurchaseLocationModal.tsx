@@ -93,6 +93,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     { id: "unknown", name: "No lo sé" }
   ];
 
+  // Add state for the local tracking of category selection
+  const [localCategoryId, setLocalCategoryId] = useState<string | undefined>(categoryId);
+  const [localCategoryName, setLocalCategoryName] = useState<string | undefined>(categoryName);
+  const [localServiceId, setLocalServiceId] = useState<string | undefined>(serviceId);
+
   useEffect(() => {
     if (isOpen) {
       if (!commerceId) {
@@ -105,8 +110,15 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       setSelectedDepartment("");
       setSelectedLocation("");
       setSearchQuery(commerceName || "");
+      
+      // Also check the global variable when opening
+      if (!categoryId && !categoryName && globalLastSelectedCategory.categoryId) {
+        setLocalCategoryId(globalLastSelectedCategory.categoryId);
+        setLocalCategoryName(globalLastSelectedCategory.categoryName || undefined);
+        setLocalServiceId(globalLastSelectedCategory.serviceId || undefined);
+      }
     }
-  }, [isOpen, commerceId, commerceName]);
+  }, [isOpen, commerceId, commerceName, categoryId, categoryName]);
 
   useEffect(() => {
     if (isStoreDropdownOpen && inputRef.current) {
@@ -119,6 +131,46 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       fetchMunicipalities(selectedDepartment);
     }
   }, [selectedDepartment]);
+
+  // Listen for category selection events
+  useEffect(() => {
+    const handleCategorySelected = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        const { categoryId, categoryName, serviceId } = customEvent.detail;
+        console.log("PurchaseLocationModal received category selection event:", categoryId, categoryName, serviceId);
+        setLocalCategoryId(categoryId);
+        setLocalCategoryName(categoryName);
+        setLocalServiceId(serviceId);
+        
+        // Update the global variable for persistence
+        globalLastSelectedCategory = {
+          serviceId,
+          categoryId,
+          categoryName
+        };
+      }
+    };
+
+    document.addEventListener('categorySelected', handleCategorySelected);
+    
+    return () => {
+      document.removeEventListener('categorySelected', handleCategorySelected);
+    };
+  }, []);
+
+  useEffect(() => {
+    // Update local state when props change
+    if (categoryId && categoryId !== localCategoryId) {
+      setLocalCategoryId(categoryId);
+    }
+    if (categoryName && categoryName !== localCategoryName) {
+      setLocalCategoryName(categoryName);
+    }
+    if (serviceId && serviceId !== localServiceId) {
+      setLocalServiceId(serviceId);
+    }
+  }, [categoryId, categoryName, serviceId]);
 
   const fetchDepartments = async () => {
     setLoadingLocation(prev => ({...prev, departments: true}));
