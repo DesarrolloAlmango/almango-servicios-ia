@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -55,6 +54,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const hasAutoSelectedRef = useRef(false);
   const autoSelectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const autoSelectionAttemptsRef = useRef(0);
+  const categoryRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   // Enhanced auto-select effect with more robust handling and retry logic
   useEffect(() => {
@@ -105,6 +105,37 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       }
     };
   }, [autoSelectCategoryId, categories, purchaseLocation]);
+
+  // Add a listener for the simulateCategoryClick event
+  useEffect(() => {
+    const handleSimulateCategoryClick = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { serviceId, categoryId, categoryName } = customEvent.detail;
+      
+      // Only process if this carousel belongs to the target service
+      if (selectedService.id === serviceId) {
+        console.log("CategoryCarousel: Processing simulate click for", categoryName);
+        
+        // Find the category
+        const category = categories.find(cat => cat.id === categoryId);
+        
+        if (category) {
+          console.log("Found category, simulating click:", category.name);
+          handleCategoryClick(category);
+        } else {
+          console.warn("Category not found in this carousel:", categoryId);
+        }
+      }
+    };
+    
+    // Add event listener
+    document.addEventListener('simulateCategoryClick', handleSimulateCategoryClick);
+    
+    // Clean up
+    return () => {
+      document.removeEventListener('simulateCategoryClick', handleSimulateCategoryClick);
+    };
+  }, [categories, selectedService.id]);
 
   // Reset auto-selection flag when key dependencies change
   useEffect(() => {
@@ -428,7 +459,11 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }}>
         <CarouselContent className="-ml-2 sm:-ml-4">
           {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="\n                basis-1/2 \n                sm:basis-1/3 \n                lg:basis-1/4\n                pl-2 sm:pl-4\nmx-1\n              ">
-              <div onClick={() => handleCategoryClick(category)} className="cursor-pointer hover:scale-105 transition-transform mx-5px">
+              <div 
+                ref={el => el && categoryRefs.current.set(category.id, el)}
+                onClick={() => handleCategoryClick(category)} 
+                className="cursor-pointer hover:scale-105 transition-transform mx-5px"
+              >
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                   <AspectRatio ratio={1} className="bg-gray-100">
                     {/* Mostrar skeleton mientras carga la imagen */}

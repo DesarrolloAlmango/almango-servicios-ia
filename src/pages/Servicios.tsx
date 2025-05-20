@@ -256,6 +256,16 @@ const Servicios = () => {
             .then(response => response.json())
             .then(data => {
               console.log(`Fetched ${data.length} products for category ${selectedCategoryId}`);
+              
+              // Now let's simulate a click on the specific category to force the UI to update
+              const simulateEvent = new CustomEvent('simulateCategoryClick', {
+                detail: {
+                  serviceId: selectedServiceId,
+                  categoryId: selectedCategoryId,
+                  categoryName: selectedCategoryName
+                }
+              });
+              document.dispatchEvent(simulateEvent);
             })
             .catch(error => {
               console.error("Error fetching products:", error);
@@ -266,6 +276,39 @@ const Servicios = () => {
       return () => clearTimeout(timer);
     }
   }, [purchaseLocations, selectedServiceId, selectedCategoryId, selectedCategoryName]);
+  useEffect(() => {
+    // Listen for openCategory event to automatically click on service card
+    const handleOpenCategory = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { serviceId, categoryId, categoryName } = customEvent.detail;
+      
+      console.log("Received openCategory event:", { serviceId, categoryId, categoryName });
+      
+      // Find and click the service card
+      if (serviceCardRefs.current[serviceId]) {
+        console.log("Found service card ref, clicking it");
+        serviceCardRefs.current[serviceId]?.click();
+        
+        // Set up the category to be auto-selected
+        setSelectedServiceId(serviceId);
+        setSelectedCategoryId(categoryId);
+        setSelectedCategoryName(categoryName);
+        
+        // Set this flag to true to indicate we should process an auto-click for the category
+        pendingCategoryAutoClickRef.current = true;
+      } else {
+        console.warn("Service card ref not found for serviceId:", serviceId);
+      }
+    };
+    
+    // Add event listener
+    document.addEventListener('openCategory', handleOpenCategory);
+    
+    // Clean up
+    return () => {
+      document.removeEventListener('openCategory', handleOpenCategory);
+    };
+  }, []);
   useEffect(() => {
     const fetchStoreName = async () => {
       if (commerceId) {
