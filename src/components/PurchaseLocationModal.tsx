@@ -323,6 +323,15 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         if (data && Array.isArray(data) && data.length > 0) {
           console.log(`Will fetch prices for ${data.length} products with storeId: ${storeId}`);
           
+          // Find the store name from the selected store ID
+          const storeName = selectedStore === "other" ? 
+            (otherStore || searchQuery) : 
+            [...fixedStores, ...localStores].find(store => store.id === selectedStore)?.name || "";
+          
+          // Find department and location objects based on their IDs
+          const selectedDepartmentObj = departments.find(dept => dept.id === selectedDepartment);
+          const selectedLocationObj = municipalities[selectedDepartment]?.find(mun => mun.id === selectedLocation);
+          
           // Dispatch an event with detailed info for debugging in products modal
           const priceDebugEvent = new CustomEvent('priceDebugInfo', {
             detail: {
@@ -390,7 +399,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       setSelectedStore("");
       setSearchQuery("");
       setShowOtherInput(false);
-      setOtherStore("");
     }
     setIsStoreDropdownOpen(true);
   };
@@ -449,7 +457,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         [...fixedStores, ...localStores].find(store => store.id === selectedStore)?.name || "";
     
     const selectedDepartmentObj = departments.find(dept => dept.id === selectedDepartment);
-    const selectedLocationObj = currentMunicipalities.find(mun => mun.id === selectedLocation);
+    const selectedLocationObj = municipalities[selectedDepartment]?.find(mun => mun.id === selectedLocation);
 
     // Use the effective category ID from props or the global variable
     const finalCategoryId = localCategoryId || lastSelectedCategoryId || categoryId || null;
