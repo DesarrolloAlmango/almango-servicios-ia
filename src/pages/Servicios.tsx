@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { lastSelectedCategoryId, lastSelectedCategoryName } from "@/components/CategoryCarousel";
 
 export interface CartItem {
   id: string;
