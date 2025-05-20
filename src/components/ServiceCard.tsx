@@ -157,6 +157,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <PriceSkeleton />
           )}
         </div>
+        
+        {/* Debug information */}
+        <div className="mt-2 p-1 bg-gray-50 border border-gray-200 rounded-sm text-[10px] text-gray-600 font-mono">
+          <div>ID Proveedor: <span className="font-bold">{purchaseLocationId || "N/A"}</span></div>
+          <div>Servicio ID: <span className="font-bold">{serviceId || "N/A"}</span></div>
+          <div>Categoría ID: <span className="font-bold">{categoryId || "N/A"}</span></div>
+          <div>Producto ID: <span className="font-bold">{product.id || "N/A"}</span></div>
+        </div>
       </CardContent>
     </Card>
   );

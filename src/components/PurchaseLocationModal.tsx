@@ -302,6 +302,68 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     }
   };
 
+  // Helper function to fetch product categories after location confirmation
+  const fetchProductsForCategory = async (storeId: string, serviceId?: string, categoryId?: string) => {
+    if (!serviceId || !categoryId) return;
+    
+    try {
+      console.log(`Fetching products for store: ${storeId}, service: ${serviceId}, category: ${categoryId}`);
+      // Make a direct call to fetch products
+      const endpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
+      
+      const response = await fetch(endpoint);
+      if (!response.ok) {
+        console.error(`Error fetching products: ${response.status}`);
+        return null;
+      } else {
+        const data = await response.json();
+        console.log(`Preloaded ${data.length} products successfully`);
+        
+        // After loading products, trigger price fetching for each product
+        if (data && Array.isArray(data) && data.length > 0) {
+          console.log(`Will fetch prices for ${data.length} products with storeId: ${storeId}`);
+          
+          // Dispatch an event with detailed info for debugging in products modal
+          const priceDebugEvent = new CustomEvent('priceDebugInfo', {
+            detail: {
+              storeId,
+              serviceId,
+              categoryId,
+              products: data.map(product => ({
+                productId: product.Id?.toString() || product.ProductoId?.toString() || product.id?.toString() || "",
+                productName: product.Name || product.Nombre || product.name || "Unknown Product"
+              }))
+            }
+          });
+          document.dispatchEvent(priceDebugEvent);
+          
+          // Immediately dispatch event to update product prices with detailed debug info
+          const updatePricesEvent = new CustomEvent('updateProductPrices', { 
+            detail: { 
+              categoryId,
+              serviceId,
+              storeId,
+              forceRefresh: true,
+              timestamp: Date.now(), // Add timestamp to make each event unique
+              debugInfo: {
+                storeName,
+                departmentName: selectedDepartmentObj?.name || "",
+                locationName: selectedLocationObj?.name || ""
+              }
+            } 
+          });
+          document.dispatchEvent(updatePricesEvent);
+        }
+        
+        return data;
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      return null;
+    }
+  };
+
+  // Add a handler for store selection to fetch prices immediately
   const handleStoreChange = (value: string) => {
     const selectedStoreObj = [...fixedStores, ...localStores].find(store => store.id === value);
     setSelectedStore(value);
@@ -315,6 +377,12 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     
     // Close the keyboard when a store is selected
     closeKeyboard();
+    
+    // If we have a selected service and category already, we can start fetching prices
+    if (value && localServiceId && localCategoryId) {
+      console.log("Store selected, triggering price fetch for products");
+      fetchProductsForCategory(value, localServiceId, localCategoryId);
+    }
   };
 
   const handleInputClick = () => {
@@ -347,50 +415,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
   const handleScrollAreaMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
-  };
-
-  // Helper function to fetch product categories after location confirmation
-  const fetchProductsForCategory = async (storeId: string, serviceId?: string, categoryId?: string) => {
-    if (!serviceId || !categoryId) return;
-    
-    try {
-      console.log(`Fetching products for store: ${storeId}, service: ${serviceId}, category: ${categoryId}`);
-      // Make a direct call to fetch products
-      const endpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
-      
-      const response = await fetch(endpoint);
-      if (!response.ok) {
-        console.error(`Error fetching products: ${response.status}`);
-        return null;
-      } else {
-        const data = await response.json();
-        console.log(`Preloaded ${data.length} products successfully`);
-        
-        // After loading products, trigger price fetching for each product
-        if (data && Array.isArray(data) && data.length > 0) {
-          console.log(`Will fetch prices for ${data.length} products with storeId: ${storeId}`);
-          
-          // Dispatch an event with detailed info for debugging in products modal
-          const priceDebugEvent = new CustomEvent('priceDebugInfo', {
-            detail: {
-              storeId,
-              serviceId,
-              categoryId,
-              products: data.map(product => ({
-                productId: product.Id?.toString() || product.ProductoId?.toString() || "",
-                productName: product.Name || product.Nombre || "Unknown Product"
-              }))
-            }
-          });
-          document.dispatchEvent(priceDebugEvent);
-        }
-        
-        return data;
-      }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      return null;
-    }
   };
 
   const handleConfirm = async () => {
@@ -446,7 +470,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         categoryName: finalCategoryName
       };
       
-      // Pre-fetch products before closing the modal
+      // Pre-fetch products and prices before closing the modal
       await fetchProductsForCategory(storeId, localServiceId, finalCategoryId);
     }
     
@@ -465,7 +489,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     
     // If this is a new category selection, trigger a special event to notify components to recalculate prices
     if (finalCategoryId && localServiceId) {
-      // First dispatch an event to update product prices
+      // First dispatch an event to update product prices with detailed debug info
       const updatePricesEvent = new CustomEvent('updateProductPrices', {
         detail: {
           serviceId: localServiceId,

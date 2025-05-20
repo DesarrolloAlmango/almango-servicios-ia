@@ -66,7 +66,8 @@ const LocationStep: React.FC<LocationStepProps> = ({
           categoryId,
           serviceId: window.lastSelectedServiceId,
           forceRefresh: true,
-          timestamp: Date.now() // Add timestamp to make each event unique
+          timestamp: Date.now(), // Add timestamp to make each event unique
+          debugEventSource: 'LocationStep' // Added to track event source
         } 
       });
       document.dispatchEvent(updatePricesEvent);
@@ -79,7 +80,8 @@ const LocationStep: React.FC<LocationStepProps> = ({
           detail: { 
             categoryId,
             serviceId: window.lastSelectedServiceId || undefined,
-            categoryName: window.lastSelectedCategoryName || undefined
+            categoryName: window.lastSelectedCategoryName || undefined,
+            timestamp: Date.now() // Add timestamp to make each event unique
           } 
         });
         document.dispatchEvent(openCategoryEvent);
@@ -150,6 +152,9 @@ const LocationStep: React.FC<LocationStepProps> = ({
         const { storeId, serviceId, categoryId, products } = customEvent.detail;
         console.log(`LocationStep received debug info: Store=${storeId}, Service=${serviceId}, Category=${categoryId}`);
         console.log(`Products to fetch prices for:`, products);
+        
+        // Show toast for debug info
+        toast.info(`Debug: ${products.length} productos encontrados para obtener precios`);
       }
     };
     
