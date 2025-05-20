@@ -118,6 +118,47 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }
   }, [categories, purchaseLocation]);
 
+  // Add listener for custom openCategory events
+  useEffect(() => {
+    const handleOpenCategoryEvent = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        const { serviceId, categoryId, categoryName } = customEvent.detail;
+        
+        console.log("CategoryCarousel received openCategory event:", categoryId, categoryName);
+        
+        // Find the category we want to select
+        const categoryToSelect = categories.find(cat => cat.id === categoryId);
+        
+        if (categoryToSelect && selectedService.id === serviceId) {
+          console.log("Found matching category, auto-clicking:", categoryToSelect.name);
+          
+          // Small delay to ensure UI is ready
+          setTimeout(() => {
+            handleCategoryClick(categoryToSelect);
+            
+            // Programmatically trigger click on the category card's div element
+            const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
+            if (categoryElement) {
+              // Find the clickable card within the category element
+              const clickableCard = categoryElement.querySelector('.cursor-pointer');
+              if (clickableCard && clickableCard instanceof HTMLElement) {
+                console.log("Programmatically clicking on category card:", categoryToSelect.name);
+                clickableCard.click();
+              }
+            }
+          }, 200);
+        }
+      }
+    };
+    
+    document.addEventListener('openCategory', handleOpenCategoryEvent);
+    
+    return () => {
+      document.removeEventListener('openCategory', handleOpenCategoryEvent);
+    };
+  }, [categories, selectedService.id, onSelectCategory]);
+
   // Log when purchaseLocation changes to aid debugging
   useEffect(() => {
     if (purchaseLocation) {

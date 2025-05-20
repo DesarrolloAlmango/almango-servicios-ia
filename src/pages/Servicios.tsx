@@ -478,6 +478,45 @@ const Servicios = () => {
     setLocationToDelete(null);
     toast.success("Lugar de compra y productos asociados eliminados");
   };
+  // Add new listener for automatic category opening
+  useEffect(() => {
+    const handleOpenCategory = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        const { serviceId, categoryId, categoryName } = customEvent.detail;
+        console.log("Servicios page received openCategory event:", serviceId, categoryId, categoryName);
+        
+        // Set the selected service and category IDs
+        setSelectedServiceId(serviceId);
+        setSelectedCategoryId(categoryId);
+        setSelectedCategoryName(categoryName);
+        
+        // Set pending action to trigger the product modal
+        setPendingServiceCardAction(true);
+        
+        // Set flag for auto-click
+        pendingCategoryAutoClickRef.current = true;
+        
+        // Find the service card element
+        const serviceCardElement = serviceCardRefs.current[serviceId];
+        if (serviceCardElement) {
+          // Scroll to and click the service card
+          serviceCardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          setTimeout(() => {
+            serviceCardElement.click();
+            console.log("Auto-clicked on service:", serviceId);
+          }, 300);
+        }
+      }
+    };
+    
+    document.addEventListener('openCategory', handleOpenCategory);
+    
+    return () => {
+      document.removeEventListener('openCategory', handleOpenCategory);
+    };
+  }, []);
+
   if (isServicesLoading && isLoadingMudanza) {
     return <div className="min-h-screen flex flex-col">
         <div className="absolute inset-0 z-0 bg-[#14162c]">
