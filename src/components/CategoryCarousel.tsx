@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -6,7 +5,6 @@ import { CircleEllipsis } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-
 interface Category {
   id: string;
   name: string;
@@ -14,7 +12,6 @@ interface Category {
   price?: number;
   count?: number;
 }
-
 interface CategoryCarouselProps {
   categories: Category[];
   onSelectCategory: (categoryId: string, categoryName: string) => void;
@@ -24,25 +21,19 @@ interface CategoryCarouselProps {
   };
   isLoading?: boolean;
   cartItems?: any[];
-  purchaseLocation?: any;
-  autoSelectCategoryId?: string;
 }
-
 const IMAGE_CACHE_KEY = 'category_images_cache';
-const IMAGE_CACHE_EXPIRY = 24 * 60 * 60 * 1000;
-const COMPRESSION_QUALITY = 0.6;
+const IMAGE_CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
+const COMPRESSION_QUALITY = 0.6; // Reducir calidad para mejorar rendimiento
 
 // Random service names for demonstration
 const DEMO_SERVICE_NAMES = ["Corte de pelo", "Peinado", "Coloración", "Maquillaje", "Tratamiento facial", "Depilación", "Manicura premium", "Masaje relajante", "Pedicura", "Limpieza facial", "Alisado", "Extensiones", "Uñas acrílicas", "Cejas y pestañas"];
-
 const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   categories,
   onSelectCategory,
   selectedService,
   isLoading = false,
-  cartItems = [],
-  purchaseLocation,
-  autoSelectCategoryId
+  cartItems = []
 }) => {
   const isMobile = useIsMobile();
   const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
@@ -52,95 +43,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-  const hasAutoSelectedRef = useRef(false);
-  const autoSelectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const autoSelectionAttemptsRef = useRef(0);
-
-  // Enhanced auto-select effect with more robust handling and retry logic
-  useEffect(() => {
-    // Clear any pending auto-select timeout when dependencies change
-    if (autoSelectTimeoutRef.current) {
-      clearTimeout(autoSelectTimeoutRef.current);
-    }
-
-    // Only attempt auto-selection if we have all required data and haven't already selected
-    if (autoSelectCategoryId && categories.length > 0 && purchaseLocation) {
-      console.log("Checking for auto-selection. Category ID:", autoSelectCategoryId, 
-                 "Has already selected:", hasAutoSelectedRef.current,
-                 "Categories available:", categories.length);
-      
-      // Find the category we want to select
-      const categoryToSelect = categories.find(cat => cat.id === autoSelectCategoryId);
-      
-      if (categoryToSelect && !hasAutoSelectedRef.current) {
-        // Increment attempt counter
-        autoSelectionAttemptsRef.current += 1;
-        
-        // Progressive backoff for retries (100ms, 200ms, 300ms, etc.)
-        const delay = Math.min(100 * autoSelectionAttemptsRef.current, 1000);
-        
-        console.log(`Attempting auto-selection in ${delay}ms (attempt ${autoSelectionAttemptsRef.current})`);
-        
-        autoSelectTimeoutRef.current = setTimeout(() => {
-          console.log("Auto-selecting category:", categoryToSelect.name);
-          
-          // Mark as selected to prevent multiple selections
-          hasAutoSelectedRef.current = true;
-          
-          // Trigger the category selection
-          handleCategoryClick(categoryToSelect);
-          
-          // Reset attempt counter after successful selection
-          autoSelectionAttemptsRef.current = 0;
-        }, delay);
-      } else if (!categoryToSelect && autoSelectCategoryId) {
-        console.log("Category not found for auto-selection:", autoSelectCategoryId, 
-                   "Available categories:", categories.map(c => `${c.id}:${c.name}`).join(', '));
-      }
-    }
-
-    return () => {
-      if (autoSelectTimeoutRef.current) {
-        clearTimeout(autoSelectTimeoutRef.current);
-      }
-    };
-  }, [autoSelectCategoryId, categories, purchaseLocation]);
-
-  // Reset auto-selection flag when key dependencies change
-  useEffect(() => {
-    if (categories.length > 0) {
-      console.log("Resetting auto-selection state due to dependency change");
-      hasAutoSelectedRef.current = false;
-      autoSelectionAttemptsRef.current = 0;
-    }
-  }, [categories, purchaseLocation]);
-
-  // Log when purchaseLocation changes to aid debugging
-  useEffect(() => {
-    if (purchaseLocation) {
-      console.log("CategoryCarousel - Purchase location received:", purchaseLocation);
-    }
-  }, [purchaseLocation]);
-
-  // Function to preload product data when a category is selected
-  const preloadProductData = async (categoryId: string) => {
-    if (!selectedService.id) return;
-    
-    try {
-      const endpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${selectedService.id}&Nivel1=${categoryId}`;
-      console.log(`Preloading products for service ${selectedService.id}, category ${categoryId}`);
-      
-      const response = await fetch(endpoint);
-      if (!response.ok) {
-        console.error(`Error preloading products: ${response.status}`);
-      } else {
-        const data = await response.json();
-        console.log(`Preloaded ${data.length} products successfully`);
-      }
-    } catch (error) {
-      console.error("Error preloading product data:", error);
-    }
-  };
 
   // Función optimizada para obtener la URL de la imagen
   const getImageSource = useMemo(() => (imageStr: string) => {
@@ -284,7 +186,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     return (categoryId: string, imageData: string) => {
       clearTimeout(debounceTimer);
 
-      // Actualizar el estado inmediato para la UI
+      // Actualizar el estado inmediatamente para la UI
       setCachedImages(prev => ({
         ...prev,
         [categoryId]: imageData
@@ -385,17 +287,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }
   };
 
-  // Handle category selection with awareness of purchase location
-  const handleCategoryClick = (category: Category) => {
-    console.log("Category clicked:", category.name, "Purchase location:", purchaseLocation ? "exists" : "does not exist");
-    
-    // Preload product data in the background
-    preloadProductData(category.id);
-    
-    // Call the parent's onSelectCategory function
-    onSelectCategory(category.id, category.name);
-  };
-
   // Extraer solo los nombres de categorías para mostrar durante la carga
   const categoryNames = useMemo(() => isLoading ? DEMO_SERVICE_NAMES : categories.map(category => category.name), [categories, isLoading]);
   if (isLoading) {
@@ -427,8 +318,13 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       loop: true
     }}>
         <CarouselContent className="-ml-2 sm:-ml-4">
-          {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="\n                basis-1/2 \n                sm:basis-1/3 \n                lg:basis-1/4\n                pl-2 sm:pl-4\nmx-1\n              ">
-              <div onClick={() => handleCategoryClick(category)} className="cursor-pointer hover:scale-105 transition-transform mx-5px">
+          {categories.map(category => <CarouselItem key={category.id} className="
+                basis-1/2 
+                sm:basis-1/3 
+                lg:basis-1/4
+                pl-2 sm:pl-4
+              " ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id}>
+              <div className="cursor-pointer hover:scale-105 transition-transform" onClick={() => onSelectCategory(category.id, category.name)}>
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                   <AspectRatio ratio={1} className="bg-gray-100">
                     {/* Mostrar skeleton mientras carga la imagen */}
@@ -464,5 +360,4 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       </Carousel>
     </div>;
 };
-
 export default CategoryCarousel;

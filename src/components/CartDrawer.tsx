@@ -1,5 +1,11 @@
+
 import React, { useState, useEffect, useRef } from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { 
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { CartItem } from "@/pages/Servicios";
@@ -12,6 +18,7 @@ import { format } from "date-fns";
 import CheckoutSummary from "./checkout/CheckoutSummary";
 import { CheckoutData, getProviderAuxiliary } from "@/types/checkoutTypes";
 import { getTimeSlotNumber } from "@/utils/timeUtils";
+
 interface CartDrawerProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -31,19 +38,22 @@ interface CartDrawerProps {
   }[];
   setPurchaseLocations?: (locations: any[]) => void;
 }
+
 interface Department {
   id: string;
   name: string;
 }
+
 interface Municipality {
   id: string;
   name: string;
 }
-const CartDrawer: React.FC<CartDrawerProps> = ({
-  isOpen,
-  setIsOpen,
-  cartItems,
-  updateCartItem,
+
+const CartDrawer: React.FC<CartDrawerProps> = ({ 
+  isOpen, 
+  setIsOpen, 
+  cartItems, 
+  updateCartItem, 
   total,
   purchaseLocations = [],
   setPurchaseLocations
@@ -53,9 +63,12 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
   const [showSummary, setShowSummary] = useState(false);
   const [checkoutData, setCheckoutData] = useState<CheckoutData[]>([]);
+  
   const [departments, setDepartments] = useState<Department[]>([]);
   const [municipalities, setMunicipalities] = useState<Record<string, Municipality[]>>({});
+  
   const contentRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (contentRef.current) {
       setTimeout(() => {
@@ -66,15 +79,19 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
       }, 100);
     }
   }, [currentStep]);
+
   const handleNextStep = () => {
-    setCurrentStep(prev => Math.min(prev + 1, 2));
+    setCurrentStep((prev) => Math.min(prev + 1, 2));
   };
+
   const handlePreviousStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 0));
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
   };
+
   useEffect(() => {
     if (purchaseLocations.length > 0) {
       const uniqueDepartments = new Map<string, Department>();
+      
       purchaseLocations.forEach(location => {
         if (location.departmentId && location.departmentName) {
           uniqueDepartments.set(location.departmentId, {
@@ -83,14 +100,21 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           });
         }
       });
+      
       setDepartments(Array.from(uniqueDepartments.values()));
+      
       const locationsByDepartment: Record<string, Municipality[]> = {};
+      
       purchaseLocations.forEach(location => {
         if (location.departmentId && location.locationId && location.locationName) {
           if (!locationsByDepartment[location.departmentId]) {
             locationsByDepartment[location.departmentId] = [];
           }
-          const exists = locationsByDepartment[location.departmentId].some(m => m.id === location.locationId);
+          
+          const exists = locationsByDepartment[location.departmentId].some(
+            m => m.id === location.locationId
+          );
+          
           if (!exists) {
             locationsByDepartment[location.departmentId].push({
               id: location.locationId,
@@ -99,9 +123,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           }
         }
       });
+      
       setMunicipalities(locationsByDepartment);
     }
   }, [purchaseLocations]);
+
   const handleSubmit = (data: any) => {
     const serviceGroups = cartItems.reduce((acc: Record<string, any[]>, item) => {
       const location = purchaseLocations.find(loc => loc.serviceId === item.serviceId);
@@ -116,9 +142,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
       }
       return acc;
     }, {});
+
     const checkoutDataArray: CheckoutData[] = Object.entries(serviceGroups).map(([serviceId, items]) => {
       const location = items[0].location;
-      const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      
       const formattedData: CheckoutData = {
         Nombre: data.name,
         Telefono: data.phone,
@@ -152,11 +180,14 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         })),
         serviceName: location.serviceName || `Servicio ${serviceId}` // This is the service category name
       };
+
       return formattedData;
     });
+
     setCheckoutData(checkoutDataArray);
     setShowSummary(true);
   };
+
   const resetCheckoutForm = () => {
     setCurrentStep(0);
     setSelectedDate(undefined);
@@ -168,42 +199,106 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
       setPurchaseLocations([]);
     }
   };
+
   const handleCheckoutClose = (success: boolean) => {
     setShowSummary(false);
+    
     if (success) {
       resetCheckoutForm();
     }
   };
-  return <>
+
+  return (
+    <>
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent className="w-full sm:max-w-md overflow-y-auto">
           <SheetHeader>
             <SheetTitle>Carrito de Servicios</SheetTitle>
           </SheetHeader>
           
-          {purchaseLocations.length > 0}
+          {purchaseLocations.length > 0 && (
+            <div className="mt-4 p-3 rounded-lg border-[1px] border-blue-200 bg-blue-50">
+              <h4 className="text-sm font-medium text-blue-700 mb-1">Lugares de compra registrados:</h4>
+              <div className="space-y-1">
+                {purchaseLocations.map((location, index) => (
+                  <div key={index} className="flex items-center text-xs">
+                    <MapPin className="text-blue-500 mr-1" size={12} />
+                    <span className="text-blue-700 font-medium">{location.serviceName}: </span>
+                    <span className="text-blue-600 ml-1">
+                      {location.storeId === "other" ? location.otherLocation : location.storeName}
+                      {location.departmentName && location.locationName && (
+                        <span className="text-blue-400 ml-1">
+                          ({location.departmentName}, {location.locationName})
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           
           <div ref={contentRef} className="flex flex-col h-[calc(100vh-12rem)] mt-6">
-            {cartItems.length === 0 && currentStep === 0 ? <div className="flex-grow flex items-center justify-center">
+            {cartItems.length === 0 && currentStep === 0 ? (
+              <div className="flex-grow flex items-center justify-center">
                 <p className="text-muted-foreground text-center">
                   Tu carrito está vacío
                 </p>
-              </div> : <>
+              </div>
+            ) : (
+              <>
                 <StepIndicator currentStep={currentStep} totalSteps={3} />
                 
                 <div className="flex-grow">
-                  {currentStep === 0 && <CartItemsStep cartItems={cartItems} updateCartItem={updateCartItem} total={total} onNext={handleNextStep} onPrevious={handlePreviousStep} />}
+                  {currentStep === 0 && (
+                    <CartItemsStep 
+                      cartItems={cartItems}
+                      updateCartItem={updateCartItem}
+                      total={total}
+                      onNext={handleNextStep}
+                      onPrevious={handlePreviousStep}
+                    />
+                  )}
                   
-                  {currentStep === 1 && <DateTimeStep selectedDate={selectedDate} setSelectedDate={setSelectedDate} selectedTimeSlot={selectedTimeSlot} setSelectedTimeSlot={setSelectedTimeSlot} onPrevious={handlePreviousStep} onNext={handleNextStep} />}
+                  {currentStep === 1 && (
+                    <DateTimeStep 
+                      selectedDate={selectedDate}
+                      setSelectedDate={setSelectedDate}
+                      selectedTimeSlot={selectedTimeSlot}
+                      setSelectedTimeSlot={setSelectedTimeSlot}
+                      onPrevious={handlePreviousStep}
+                      onNext={handleNextStep}
+                    />
+                  )}
                   
-                  {currentStep === 2 && <PersonalInfoStep onPrevious={handlePreviousStep} onSubmit={handleSubmit} cartItems={cartItems} total={total} selectedDate={selectedDate} selectedTimeSlot={selectedTimeSlot} selectedDepartment="" selectedLocation="" departments={departments || []} municipalities={municipalities || {}} />}
+                  {currentStep === 2 && (
+                    <PersonalInfoStep 
+                      onPrevious={handlePreviousStep}
+                      onSubmit={handleSubmit}
+                      cartItems={cartItems}
+                      total={total}
+                      selectedDate={selectedDate}
+                      selectedTimeSlot={selectedTimeSlot}
+                      selectedDepartment=""
+                      selectedLocation=""
+                      departments={departments || []}
+                      municipalities={municipalities || {}}
+                    />
+                  )}
                 </div>
-              </>}
+              </>
+            )}
           </div>
         </SheetContent>
       </Sheet>
       
-      <CheckoutSummary isOpen={showSummary} onClose={handleCheckoutClose} data={checkoutData} />
-    </>;
+      <CheckoutSummary 
+        isOpen={showSummary}
+        onClose={handleCheckoutClose}
+        data={checkoutData}
+      />
+    </>
+  );
 };
+
 export default CartDrawer;

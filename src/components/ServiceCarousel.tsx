@@ -11,7 +11,6 @@ interface ServiceCarouselProps {
   primaryTitlePart?: string;
   secondaryTitlePart?: string;
   lightTitle?: boolean;
-  showBorder?: boolean;
 }
 
 const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
@@ -26,8 +25,7 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
   ],
   primaryTitlePart,
   secondaryTitlePart,
-  lightTitle = false,
-  showBorder = true
+  lightTitle = false
 }) => {
   if (!children || children.length === 0) {
     return <div className="text-center py-8">No hay servicios disponibles</div>;
@@ -37,7 +35,7 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
   const shouldCenter = children.length <= 2;
   
   return (
-    <div className="w-full max-w-screen-xl mx-auto overflow-visible">
+    <div className="w-full max-w-screen-xl mx-auto">
       {title && !primaryTitlePart && (
         <h2 className={`text-2xl md:text-3xl font-semibold text-center mb-6 text-[#ff6900] uppercase ${titleClassName}`}>
           {title}
@@ -63,27 +61,23 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
           loop: children.length > 2,
           containScroll: "trimSnaps"
         }} 
-        className="w-full relative overflow-visible"
+        className="w-full relative"
         showLoadingNames={showLoadingNames}
         loadingItems={loadingItems}
       >
-        <CarouselContent className="-ml-2 sm:-ml-4 overflow-visible">
+        <CarouselContent className="-ml-2 sm:-ml-4">
           {children.map((child, index) => (
             <CarouselItem 
               key={index} 
               className={`pl-2 sm:pl-4 
                 basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 
-                ${shouldCenter ? "mx-auto" : ""} overflow-visible`}
+                ${shouldCenter ? "mx-auto" : ""}`}
             >
-              <div className="flex items-center justify-center py-4 relative overflow-visible">
-                {/* Apply orange border with transparency to child elements if showBorder is true */}
-                {showBorder ? (
-                  <div className="border-2 border-orange-500/50 rounded-full overflow-visible">
-                    {child}
-                  </div>
-                ) : (
-                  child
-                )}
+              <div className="flex items-center justify-center py-4">
+                {/* Apply orange border with transparency to child elements */}
+                <div className="border-2 border-orange-500/50 rounded-full">
+                  {child}
+                </div>
               </div>
             </CarouselItem>
           ))}
