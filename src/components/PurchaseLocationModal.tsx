@@ -445,12 +445,21 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                 ¿Dónde realizaste la compra?
               </h3>
               {serviceName && (
-                <p className="text-muted-foreground text-sm">
-                  Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
+                <>
+                  <p className="text-muted-foreground text-sm">
+                    Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
+                  </p>
                   {categoryName && (
-                    <> - Categoría: <span className="font-semibold text-orange-500">{categoryName} {categoryId && `(ID: ${categoryId})`}</span></>
+                    <p className="text-muted-foreground text-sm">
+                      Categoría: <span className="font-semibold text-orange-500">{categoryName}</span>
+                      {categoryId && (
+                        <span className="ml-1 px-2 py-0.5 bg-orange-100 text-orange-800 rounded-md text-xs font-mono">
+                          ID: {categoryId}
+                        </span>
+                      )}
+                    </p>
                   )}
-                </p>
+                </>
               )}
               <label className="block text-sm font-medium">
                 Lugar de Compra *
@@ -612,7 +621,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
               disabled={!isFormValid || loading}
               className="bg-orange-500 hover:bg-orange-600"
             >
-              Confirmar
+              Confirmar {categoryId && (
+                <span className="ml-1 text-xs font-mono bg-white text-orange-700 px-1 rounded">
+                  #{categoryId}
+                </span>
+              )}
             </Button>
           </DialogFooter>
         )}
