@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -430,6 +431,14 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       await fetchProductsForCategory(storeId, localServiceId, finalCategoryId);
     }
     
+    // Show a toast notification with the category ID and name
+    if (finalCategoryId && finalCategoryName) {
+      toast.success(`Seleccionando categoría: ${finalCategoryName} (ID: ${finalCategoryId})`, {
+        duration: 5000,
+        position: "top-center"
+      });
+    }
+    
     // Close the modal and call onSelectLocation
     onSelectLocation(
       storeId, 
@@ -509,6 +518,14 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             <DialogDescription className="text-center">
               Necesitamos esta información para brindarte un mejor servicio
             </DialogDescription>
+            {effectiveCategoryId && (
+              <div className="mt-2 py-1 px-3 bg-orange-100 text-orange-800 inline-block rounded-md">
+                Categoría seleccionada: <span className="font-semibold">{effectiveCategoryName}</span>
+                <span className="ml-1 px-2 py-0.5 bg-black text-white rounded text-xs">
+                  ID: {effectiveCategoryId}
+                </span>
+              </div>
+            )}
           </div>
         )}
         
@@ -536,9 +553,21 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                 ¿Dónde realizaste la compra?
               </h3>
               {serviceName && (
-                <p className="text-muted-foreground text-sm">
-                  Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
-                </p>
+                <>
+                  <p className="text-muted-foreground text-sm">
+                    Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
+                  </p>
+                  {(effectiveCategoryName || effectiveCategoryId) && (
+                    <p className="text-muted-foreground text-sm">
+                      Categoría: <span className="font-semibold text-orange-500">{effectiveCategoryName}</span>
+                      {effectiveCategoryId && (
+                        <span className="ml-1 px-2 py-0.5 bg-orange-100 text-orange-800 rounded-md text-xs font-mono">
+                          ID: {effectiveCategoryId}
+                        </span>
+                      )}
+                    </p>
+                  )}
+                </>
               )}
               <label className="block text-sm font-medium">
                 Lugar de Compra *
@@ -700,7 +729,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
               disabled={!isFormValid || loading}
               className="bg-orange-500 hover:bg-orange-600"
             >
-              Confirmar
+              Confirmar {effectiveCategoryId && (
+                <span className="ml-1 text-xs font-mono bg-white text-orange-700 px-1 rounded">
+                  #{effectiveCategoryId}
+                </span>
+              )}
             </Button>
           </DialogFooter>
         )}

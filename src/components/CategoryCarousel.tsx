@@ -145,6 +145,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
               const clickableCard = categoryElement.querySelector('.cursor-pointer');
               if (clickableCard && clickableCard instanceof HTMLElement) {
                 console.log("Programmatically clicking on category card:", categoryToSelect.name);
+                toast.info(`Haciendo clic en la categoría: ${categoryToSelect.name} (ID: ${categoryId})`, {
+                  duration: 3000
+                });
                 // Simulate a real click on the element
                 clickableCard.click();
                 // Also try to focus and give it visual highlight
@@ -155,9 +158,11 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
                 }, 2000);
               } else {
                 console.error("Failed to find clickable element within category card", categoryId);
+                toast.error("No se pudo hacer clic en la categoría seleccionada");
               }
             } else {
               console.error("Failed to find category element with ID:", categoryId);
+              toast.error("No se encontró la categoría con ID: " + categoryId);
             }
           }, 200);
         } else {
@@ -537,6 +542,11 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
                 
                 <p className={`text-center text-sm sm:text-base font-medium mt-1 sm:mt-2 line-clamp-2 px-1 
                   animate-in fade-in duration-300 ${isSelectedCategory(category.id) ? 'text-orange-500 font-bold' : ''}`}>{category.name}</p>
+                
+                {/* Debug tag to show category ID - moved lower for better visibility */}
+                <div className="bg-black text-white text-xs rounded px-2 py-0.5 mt-1 mx-auto inline-block">
+                  ID: {category.id}
+                </div>
               </div>
             </CarouselItem>)}
         </CarouselContent>
