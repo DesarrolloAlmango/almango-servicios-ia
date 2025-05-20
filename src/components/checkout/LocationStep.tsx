@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { MapPin, Loader2 } from "lucide-react";
@@ -49,6 +49,29 @@ const LocationStep: React.FC<LocationStepProps> = ({
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartment(value);
     setSelectedLocation("");
+  };
+
+  const handleNextWithDelay = () => {
+    // Call the original onNext function
+    onNext();
+    
+    // If we have a categoryId, trigger a click on that category after a delay
+    if (categoryId) {
+      console.log("LocationStep: Scheduling auto-click for category:", categoryId);
+      setTimeout(() => {
+        console.log("LocationStep: Dispatching openCategory event for:", categoryId);
+        // Dispatch the event with the category ID
+        const openCategoryEvent = new CustomEvent('openCategory', { 
+          detail: { 
+            categoryId,
+            // Use global variable if available
+            serviceId: window.lastSelectedServiceId || undefined,
+            categoryName: window.lastSelectedCategoryName || undefined
+          } 
+        });
+        document.dispatchEvent(openCategoryEvent);
+      }, 1000);  // 1 second delay as requested
+    }
   };
 
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
@@ -132,7 +155,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
 
       <div className="flex justify-end pt-4 pb-6 mt-4">
         <Button 
-          onClick={onNext} 
+          onClick={handleNextWithDelay} 
           disabled={!selectedDepartment || !selectedLocation || loading.municipalities || loading.departments}
           className="bg-primary hover:bg-primary-dark"
         >
@@ -142,5 +165,13 @@ const LocationStep: React.FC<LocationStepProps> = ({
     </div>
   );
 };
+
+// Add this for TypeScript global variable declaration
+declare global {
+  interface Window {
+    lastSelectedServiceId?: string;
+    lastSelectedCategoryName?: string;
+  }
+}
 
 export default LocationStep;

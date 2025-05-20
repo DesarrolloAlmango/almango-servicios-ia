@@ -47,6 +47,12 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
       if (customEvent.detail) {
         const { categoryId } = customEvent.detail;
         console.log("ServiceCarousel received openCategory event for:", categoryId);
+        
+        // Forward the event to CategoryCarousel components
+        const forwardEvent = new CustomEvent('openCategory', { 
+          detail: customEvent.detail 
+        });
+        document.dispatchEvent(forwardEvent);
       }
     };
     
