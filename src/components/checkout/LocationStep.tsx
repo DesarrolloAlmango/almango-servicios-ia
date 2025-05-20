@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -54,26 +53,6 @@ const LocationStep: React.FC<LocationStepProps> = ({
 
   const handleLocationChange = (value: string) => {
     setSelectedLocation(value);
-
-    if (categoryId && window.lastSelectedServiceId && value) {
-      console.log("LocationStep: Disparando recálculo de precios al cambiar localidad:", categoryId);
-      
-      const updatePricesEvent = new CustomEvent('updateProductPrices', { 
-        detail: { 
-          categoryId,
-          serviceId: window.lastSelectedServiceId,
-          forceRefresh: true,
-          timestamp: Date.now(),
-          debugEventSource: 'LocationStep-immediateUpdate'
-        } 
-      });
-      document.dispatchEvent(updatePricesEvent);
-      
-      toast.info("Actualizando precios...", {
-        duration: 2000,
-        position: "bottom-center"
-      });
-    }
   };
 
   const handleNextWithDelay = () => {
@@ -99,7 +78,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
             categoryId,
             serviceId: window.lastSelectedServiceId || undefined,
             categoryName: window.lastSelectedCategoryName || undefined,
-            forceOpenProducts: true,  // Added flag to force opening product modal
+            forceOpenProducts: true,  // This flag forces the products modal to open
             timestamp: Date.now()
           } 
         });
@@ -113,7 +92,6 @@ const LocationStep: React.FC<LocationStepProps> = ({
               clickableCard.classList.add('ring-4', 'ring-orange-500', 'scale-110', 'bg-orange-50');
               categoryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
               
-              // Simulate a click on the category to immediately open the products modal
               const clickEvent = new MouseEvent('click', {
                 bubbles: true,
                 cancelable: true,

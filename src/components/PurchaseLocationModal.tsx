@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -519,7 +518,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       await fetchProductsForCategory(storeId, localServiceId, finalCategoryId);
     }
     
-    // Close the modal and call onSelectLocation
+    // First close the modal and call onSelectLocation to complete location selection
     onSelectLocation(
       storeId, 
       storeName,
@@ -530,10 +529,10 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       selectedStore === "other" ? otherStore || searchQuery : undefined
     );
     
-    // Importante: Primero cerramos el modal para que no bloquee la interacción
+    // Important: Close the modal first so it doesn't block interaction
     onClose();
     
-    // Si this is a new category selection, trigger a special event to notify components to recalculate prices
+    // Only after location is confirmed and modal is closed, trigger product modal opening
     if (finalCategoryId && localServiceId) {
       // First dispatch an event to update product prices with detailed debug info
       const updatePricesEvent = new CustomEvent('updateProductPrices', {
@@ -552,19 +551,19 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       });
       document.dispatchEvent(updatePricesEvent);
       
-      // Then dispatch an event to open/highlight the category
+      // Then dispatch an event to open/highlight the category and force product modal opening
       setTimeout(() => {
         const openCategoryEvent = new CustomEvent('openCategory', {
           detail: {
             serviceId: localServiceId,
             categoryId: finalCategoryId,
             categoryName: finalCategoryName,
-            forceOpenProducts: true // Added flag to force opening product modal
+            forceOpenProducts: true // This flag ensures products modal opens automatically
           }
         });
         document.dispatchEvent(openCategoryEvent);
         
-        // Highlight the selected category after location confirmation
+        // Find and highlight the selected category after location confirmation
         setTimeout(() => {
           const categoryElement = document.querySelector(`[data-category-id="${finalCategoryId}"]`);
           if (categoryElement) {
