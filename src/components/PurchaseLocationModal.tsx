@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -47,6 +46,17 @@ interface Municipality {
   id: string;
   name: string;
 }
+
+// Global variable to store the last selected category for automatic opening
+let globalLastSelectedCategory: {
+  serviceId: string | null;
+  categoryId: string | null;
+  categoryName: string | null;
+} = {
+  serviceId: null,
+  categoryId: null,
+  categoryName: null
+};
 
 const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   isOpen,
@@ -279,23 +289,25 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     
     try {
       console.log(`Fetching products for store: ${storeId}, service: ${serviceId}, category: ${categoryId}`);
-      // This simulates clicking on a category to show products
+      // Make a direct call to fetch products
       const endpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
       
-      // We're making this call here just to ensure the request is processed
-      // The actual data handling happens in the ServiceCard component
       const response = await fetch(endpoint);
       if (!response.ok) {
         console.error(`Error fetching products: ${response.status}`);
+        return null;
       } else {
-        console.log("Products fetched successfully");
+        const data = await response.json();
+        console.log(`Preloaded ${data.length} products successfully`);
+        return data;
       }
     } catch (error) {
       console.error("Error fetching products:", error);
+      return null;
     }
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!commerceId) {
       if (!selectedStore && searchQuery) {
         setSelectedStore("other");
@@ -331,26 +343,43 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
     console.log("Confirming location with category info:", { serviceId, categoryId, categoryName });
     
-    // Pre-fetch products if we have both serviceId and categoryId
+    // Store the category information in global variable for automatic opening
     if (serviceId && categoryId) {
-      fetchProductsForCategory(storeId, serviceId, categoryId);
+      globalLastSelectedCategory = {
+        serviceId,
+        categoryId,
+        categoryName
+      };
+      
+      // Pre-fetch products before closing the modal
+      await fetchProductsForCategory(storeId, serviceId, categoryId);
     }
     
-    // We add a small timeout to ensure the modal closes properly before triggering the callback
-    // This helps prevent potential race conditions in the UI update cycle
-    setTimeout(() => {
-      onSelectLocation(
-        storeId, 
-        storeName,
-        selectedDepartment,
-        selectedDepartmentObj?.name || "",
-        selectedLocation,
-        selectedLocationObj?.name || "",
-        selectedStore === "other" ? otherStore || searchQuery : undefined
-      );
-    }, 50);
+    // Close the modal and call onSelectLocation
+    onSelectLocation(
+      storeId, 
+      storeName,
+      selectedDepartment,
+      selectedDepartmentObj?.name || "",
+      selectedLocation,
+      selectedLocationObj?.name || "",
+      selectedStore === "other" ? otherStore || searchQuery : undefined
+    );
     
     onClose();
+    
+    // If this is a new category selection, trigger a special event to notify the parent component
+    if (categoryId && serviceId) {
+      // Use a custom event to notify the parent component to open the category
+      const openCategoryEvent = new CustomEvent('openCategory', {
+        detail: {
+          serviceId,
+          categoryId,
+          categoryName
+        }
+      });
+      document.dispatchEvent(openCategoryEvent);
+    }
   };
 
   const isFormValid = useMemo(() => {
@@ -381,6 +410,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
+        {/* Add DialogTitle to fix accessibility warning */}
+        <DialogTitle className="sr-only">Selección de lugar de compra</DialogTitle>
+        
         {!commerceId && (
           <div className="text-center mb-6">
             <MapPin className="h-12 w-12 mx-auto text-orange-500 mb-2" />
@@ -589,4 +621,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   );
 };
 
+// Export global last selected category for external access
+export { globalLastSelectedCategory };
 export default PurchaseLocationModal;

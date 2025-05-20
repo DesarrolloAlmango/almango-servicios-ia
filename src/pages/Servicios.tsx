@@ -9,7 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import PurchaseLocationModal from "@/components/PurchaseLocationModal";
+import PurchaseLocationModal, { globalLastSelectedCategory } from "@/components/PurchaseLocationModal";
 import { Separator } from "@/components/ui/separator";
 import { useIsMobile } from "@/hooks/use-mobile";
 export interface CartItem {
@@ -158,6 +158,7 @@ const Servicios = () => {
   const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(null);
   const [autoClickTriggered, setAutoClickTriggered] = useState(false);
   const serviceCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const pendingCategoryAutoClickRef = useRef<boolean>(false);
   const {
     data: services,
     isLoading: isServicesLoading,
@@ -228,6 +229,43 @@ const Servicios = () => {
       return () => clearTimeout(timer);
     }
   }, [highlightedServiceId, autoClickTriggered]);
+  useEffect(() => {
+    if (pendingCategoryAutoClickRef.current && selectedServiceId && selectedCategoryId) {
+      console.log("Processing pending category auto-click:", { 
+        serviceId: selectedServiceId, 
+        categoryId: selectedCategoryId,
+        categoryName: selectedCategoryName
+      });
+      
+      // Reset the flag
+      pendingCategoryAutoClickRef.current = false;
+      
+      // Small delay to ensure service card has been clicked
+      const timer = setTimeout(() => {
+        // Dispatch a direct product fetch
+        const serviceLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
+        
+        if (serviceLocation) {
+          console.log("Forcing product fetch for:", { 
+            serviceId: selectedServiceId, 
+            categoryId: selectedCategoryId 
+          });
+          
+          // Direct API call to fetch products
+          fetch(`/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${selectedServiceId}&Nivel1=${selectedCategoryId}`)
+            .then(response => response.json())
+            .then(data => {
+              console.log(`Fetched ${data.length} products for category ${selectedCategoryId}`);
+            })
+            .catch(error => {
+              console.error("Error fetching products:", error);
+            });
+        }
+      }, 300);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [purchaseLocations, selectedServiceId, selectedCategoryId, selectedCategoryName]);
   useEffect(() => {
     const fetchStoreName = async () => {
       if (commerceId) {
@@ -376,9 +414,10 @@ const Servicios = () => {
         departmentName,
         locationId,
         locationName,
-        categoryId: selectedCategoryId || undefined,
-        categoryName: selectedCategoryName || undefined
+        categoryId: selectedCategoryId || globalLastSelectedCategory.categoryId || undefined,
+        categoryName: selectedCategoryName || globalLastSelectedCategory.categoryName || undefined
       };
+      
       const existingLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
       setPurchaseLocations(prev => {
         if (existingLocation) {
@@ -389,7 +428,9 @@ const Servicios = () => {
           return [...prev, newLocation];
         }
       });
+      
       setIsLocationModalOpen(false);
+      
       let successMessage = "";
       if (selectedCategoryId && selectedCategoryName) {
         successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName} - ${selectedCategoryName}`;
@@ -397,8 +438,14 @@ const Servicios = () => {
         successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName}`;
       }
       toast.success(successMessage);
+      
       if (selectedCategoryId) {
         setPendingServiceCardAction(true);
+        
+        // If this is the first time registering this service/category, trigger auto-click
+        if (!existingLocation || existingLocation.categoryId !== selectedCategoryId) {
+          pendingCategoryAutoClickRef.current = true;
+        }
       }
     }
   };
