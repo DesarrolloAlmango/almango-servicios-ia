@@ -56,7 +56,7 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
   };
 
   const handleWhatsAppClick = () => {
-    window.open("https://wa.me/+598000000", "_blank");
+    window.open("https://api.whatsapp.com/send?phone=+59892612655&text=Hola%2C+Me+interesa+contratar+un+servicio.", "_blank");
   };
 
   return (
@@ -75,7 +75,7 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
                   <>
                     <CheckCircle className="h-6 w-6 text-yellow-600" />
                     <span className="text-yellow-600">
-                      ¡Todo listo, el servicio está confirmado!
+                      ¡Solicitudes pendientes de pago!
                       {checkingPayment && (
                         <span className="ml-2">
                           <Loader2 className="h-4 w-4 inline animate-spin" />
