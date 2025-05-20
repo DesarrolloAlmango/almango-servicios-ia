@@ -3,7 +3,8 @@ import React from 'react';
 
 const ServiciosStyles: React.FC = () => {
   return (
-    <style jsx global>{`
+    <style dangerouslySetInnerHTML={{
+      __html: `
       .service-card {
         transition: all 0.3s ease;
       }
@@ -25,7 +26,7 @@ const ServiciosStyles: React.FC = () => {
           padding-top: 1rem;
         }
       }
-    `}</style>
+    `}} />
   );
 };
 
