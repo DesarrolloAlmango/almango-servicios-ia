@@ -365,6 +365,26 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       } else {
         const data = await response.json();
         console.log(`Preloaded ${data.length} products successfully`);
+        
+        // After loading products, trigger price fetching for each product
+        if (data && Array.isArray(data) && data.length > 0) {
+          console.log(`Will fetch prices for ${data.length} products with storeId: ${storeId}`);
+          
+          // Dispatch an event with detailed info for debugging in products modal
+          const priceDebugEvent = new CustomEvent('priceDebugInfo', {
+            detail: {
+              storeId,
+              serviceId,
+              categoryId,
+              products: data.map(product => ({
+                productId: product.Id?.toString() || product.ProductoId?.toString() || "",
+                productName: product.Name || product.Nombre || "Unknown Product"
+              }))
+            }
+          });
+          document.dispatchEvent(priceDebugEvent);
+        }
+        
         return data;
       }
     } catch (error) {
@@ -415,7 +435,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       serviceId: localServiceId,
       categoryId: finalCategoryId,
       categoryName: finalCategoryName,
-      globalTemp: lastSelectedCategoryId 
+      storeId: storeId
     });
     
     // Store the category information in global variable for automatic opening
@@ -450,7 +470,14 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         detail: {
           serviceId: localServiceId,
           categoryId: finalCategoryId,
-          forceRefresh: true
+          storeId: storeId,
+          forceRefresh: true,
+          timestamp: Date.now(),
+          debugInfo: {
+            storeName,
+            departmentName: selectedDepartmentObj?.name || "",
+            locationName: selectedLocationObj?.name || ""
+          }
         }
       });
       document.dispatchEvent(updatePricesEvent);

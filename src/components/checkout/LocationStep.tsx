@@ -143,10 +143,21 @@ const LocationStep: React.FC<LocationStepProps> = ({
       });
     };
 
-    // Add custom event listener for location modal closed events
+    // Add event listeners for price debug information
+    const handlePriceDebugInfo = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        const { storeId, serviceId, categoryId, products } = customEvent.detail;
+        console.log(`LocationStep received debug info: Store=${storeId}, Service=${serviceId}, Category=${categoryId}`);
+        console.log(`Products to fetch prices for:`, products);
+      }
+    };
+    
+    document.addEventListener('priceDebugInfo', handlePriceDebugInfo);
     document.addEventListener('locationModalClosed', handleLocationModalClosed);
     
     return () => {
+      document.removeEventListener('priceDebugInfo', handlePriceDebugInfo);
       document.removeEventListener('locationModalClosed', handleLocationModalClosed);
     };
   }, []);
