@@ -53,42 +53,61 @@ const LocationStep: React.FC<LocationStepProps> = ({
   };
 
   const handleNextWithDelay = () => {
-    // Call the original onNext function
+    // Call the original onNext function first
     onNext();
     
     // If we have a categoryId, trigger a click on that category after a delay
     if (categoryId) {
       console.log("LocationStep: Scheduling auto-click for category:", categoryId);
       
+      // Ensure window globals are available for the event
+      if (window.lastSelectedServiceId) {
+        console.log("Using stored service ID:", window.lastSelectedServiceId);
+      }
+      
       setTimeout(() => {
         console.log("LocationStep: Dispatching openCategory event for:", categoryId);
-        // Dispatch the event with the category ID
+        
+        // Dispatch the event with the category ID and service ID
         const openCategoryEvent = new CustomEvent('openCategory', { 
           detail: { 
             categoryId,
-            // Use global variable if available
             serviceId: window.lastSelectedServiceId || undefined,
             categoryName: window.lastSelectedCategoryName || undefined
           } 
         });
         document.dispatchEvent(openCategoryEvent);
         
-        // Try to directly trigger a click on the category card if it exists
+        // Also try to directly trigger a click on the category card if it exists
         setTimeout(() => {
           const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
           if (categoryElement) {
+            console.log("LocationStep: Found category element:", categoryId);
+            
+            // Find the clickable element within the category card
             const clickableCard = categoryElement.querySelector('.cursor-pointer');
             if (clickableCard && clickableCard instanceof HTMLElement) {
               console.log("LocationStep: Directly clicking category card for:", categoryId);
               clickableCard.click();
+              
+              // Also focus the element to make the selection visible
+              clickableCard.focus();
             } else {
               console.error("LocationStep: Couldn't find clickable element in category card");
             }
           } else {
             console.error("LocationStep: Couldn't find category element with ID:", categoryId);
+            
+            // Fallback - try to find by different selector
+            const alternativeSelector = `.category-item-${categoryId}`;
+            const altElement = document.querySelector(alternativeSelector);
+            if (altElement && altElement instanceof HTMLElement) {
+              console.log("LocationStep: Found category by alternative selector, clicking");
+              altElement.click();
+            }
           }
         }, 300); // Small additional delay to ensure the event handlers are ready
-      }, 1000);  // 1 second delay as requested
+      }, 1000);  // 1 second delay before triggering category click
     }
   };
 

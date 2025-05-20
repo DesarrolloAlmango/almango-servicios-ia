@@ -58,6 +58,14 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const hasAutoSelectedRef = useRef(false);
   const autoSelectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const autoSelectionAttemptsRef = useRef(0);
+  
+  // Store service ID in global window for inter-component communication
+  useEffect(() => {
+    if (selectedService?.id) {
+      window.lastSelectedServiceId = selectedService.id;
+      console.log("CategoryCarousel: Stored service ID in window:", selectedService.id);
+    }
+  }, [selectedService]);
 
   // Enhanced auto-select effect with more robust handling and retry logic
   useEffect(() => {
@@ -138,18 +146,24 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
             // First, handle the data selection through the normal flow
             handleCategoryClick(categoryToSelect);
             
-            // CRITICAL FIX: Directly find and click the DOM element for the category
+            // Find and visually highlight the category item
             const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
             if (categoryElement) {
               // Find the clickable card within the category element
               const clickableCard = categoryElement.querySelector('.cursor-pointer');
               if (clickableCard && clickableCard instanceof HTMLElement) {
                 console.log("Programmatically clicking on category card:", categoryToSelect.name);
+                
+                // Add highlight class first for visual feedback
+                clickableCard.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
+                
                 // Simulate a real click on the element
                 clickableCard.click();
-                // Also try to focus and give it visual highlight
+                
+                // Also try to focus for keyboard accessibility
                 clickableCard.focus();
-                clickableCard.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
+                
+                // Remove highlight after a delay
                 setTimeout(() => {
                   clickableCard.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
                 }, 2000);
@@ -456,6 +470,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     lastSelectedCategoryName = category.name;
     console.log("Saved last selected category:", lastSelectedCategoryId, lastSelectedCategoryName);
     
+    // Set global window variables for cross-component access
+    window.lastSelectedCategoryName = category.name;
+    
     // Dispatch a custom event to notify any listening components about the category selection
     const categorySelectedEvent = new CustomEvent('categorySelected', { 
       detail: { 
@@ -509,7 +526,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       loop: true
     }}>
         <CarouselContent className="-ml-2 sm:-ml-4">
-          {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="basis-1/2 sm:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4 mx-1">
+          {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className={`basis-1/2 sm:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4 mx-1 category-item-${category.id}`}>
               <div onClick={() => handleCategoryClick(category)} className={`cursor-pointer hover:scale-105 transition-transform mx-5px ${isSelectedCategory(category.id) ? 'ring-4 ring-orange-500 rounded-full' : ''}`}>
                 <div className={`overflow-hidden rounded-full border-2 ${isSelectedCategory(category.id) ? 'border-orange-500' : 'border-primary'} mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative`}>
                   <AspectRatio ratio={1} className="bg-gray-100">
