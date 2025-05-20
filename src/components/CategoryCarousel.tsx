@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { CircleEllipsis } from "lucide-react";
+import { CircleEllipsis, Bug } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
@@ -48,6 +48,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const [cachedImages, setCachedImages] = useState<Record<string, string>>({});
   const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set());
+  const [debugMode, setDebugMode] = useState<boolean>(false);
+  const [lastSelectedCategoryId, setLastSelectedCategoryId] = useState<string | null>(null);
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -55,6 +57,19 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const autoSelectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const autoSelectionAttemptsRef = useRef(0);
   const categoryRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  // Toggle debug mode with keyboard shortcut (Ctrl+Shift+D)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+        setDebugMode(prev => !prev);
+        toast.info(`Debug mode ${!debugMode ? 'enabled' : 'disabled'}`);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [debugMode]);
 
   // Enhanced auto-select effect with more robust handling and retry logic
   useEffect(() => {
@@ -112,6 +127,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       const customEvent = event as CustomEvent;
       const { serviceId, categoryId, categoryName } = customEvent.detail;
       
+      console.log("CategoryCarousel: Received simulate click event for", { serviceId, categoryId, categoryName });
+      
       // Only process if this carousel belongs to the target service
       if (selectedService.id === serviceId) {
         console.log("CategoryCarousel: Processing simulate click for", categoryName);
@@ -122,8 +139,10 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
         if (category) {
           console.log("Found category, simulating click:", category.name);
           handleCategoryClick(category);
+          toast.success(`Auto-selecting category: ${category.name}`);
         } else {
           console.warn("Category not found in this carousel:", categoryId);
+          toast.error(`Category not found: ${categoryId}`);
         }
       }
     };
@@ -418,7 +437,10 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
 
   // Handle category selection with awareness of purchase location
   const handleCategoryClick = (category: Category) => {
-    console.log("Category clicked:", category.name, "Purchase location:", purchaseLocation ? "exists" : "does not exist");
+    console.log("Category clicked:", category.name, "Purchase location:", purchaseLocation ? "exists" : "does not exist", "Category ID:", category.id);
+    
+    // Store the last selected category ID for debugging
+    setLastSelectedCategoryId(category.id);
     
     // Preload product data in the background
     preloadProductData(category.id);
@@ -453,6 +475,26 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   return <div className="py-4 sm:py-6 w-full">
       <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 truncate mx-auto">SELECCIONÁ UNA CATEGORÍA</h3>
       
+      {/* Debug panel - only visible when debug mode is enabled */}
+      {debugMode && (
+        <div className="bg-black/80 text-white p-3 mb-4 rounded-lg text-xs">
+          <div className="flex items-center gap-2 mb-1">
+            <Bug size={16} />
+            <h4 className="font-bold">DEBUG INFO</h4>
+          </div>
+          <div className="grid grid-cols-2 gap-x-4">
+            <p><strong>Service ID:</strong> {selectedService.id || 'N/A'}</p>
+            <p><strong>Service Name:</strong> {selectedService.name || 'N/A'}</p>
+            <p><strong>Last Selected Category:</strong> {lastSelectedCategoryId || 'None'}</p>
+            <p><strong>Auto Select Category:</strong> {autoSelectCategoryId || 'None'}</p>
+            <p><strong>Has Purchase Location:</strong> {purchaseLocation ? 'Yes' : 'No'}</p>
+            <p><strong>Has Auto Selected:</strong> {hasAutoSelectedRef.current ? 'Yes' : 'No'}</p>
+            <p><strong>Categories Count:</strong> {categories.length}</p>
+          </div>
+          <div className="mt-2 text-xs opacity-70">Press Ctrl+Shift+D to toggle debug mode</div>
+        </div>
+      )}
+      
       <Carousel className="w-full max-w-xs xs:max-w-sm sm:max-w-md md:max-w-xl lg:max-w-3xl mx-auto" opts={{
       align: "center",
       loop: true
@@ -466,17 +508,14 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
               >
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                   <AspectRatio ratio={1} className="bg-gray-100">
-                    {/* Mostrar skeleton mientras carga la imagen */}
                     {loadingImages[category.id] && <div className="absolute inset-0 flex items-center justify-center z-10">
                         <Skeleton className="h-full w-full rounded-full" />
                       </div>}
                     
-                    {/* Mostrar imagen desde caché si está disponible */}
                     {cachedImages[category.id] && !failedImages[category.id] ? <img src={cachedImages[category.id]} alt={category.name} className="w-full h-full object-cover" onError={() => handleImageError(category.id, category.image)} style={{
                   opacity: loadingImages[category.id] ? 0 : 1,
                   transition: 'opacity 0.3s ease-in-out'
                 }} /> : <>
-                        {/* Mostrar imagen desde fuente original con lazy loading */}
                         {getImageSource(category.image) && !failedImages[category.id] ? <img ref={el => el && imageRefs.current.set(category.id, el)} data-category-id={category.id} src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" // placeholder transparente
                   data-src={getImageSource(category.image)} alt={category.name} className="w-full h-full object-cover" loading="lazy" onLoad={() => handleImageLoad(category.id)} onError={() => handleImageError(category.id, category.image)} style={{
                     opacity: loadingImages[category.id] ? 0 : 1,
@@ -489,6 +528,10 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
                 </div>
                 <p className="text-center text-sm sm:text-base font-medium mt-1 sm:mt-2 line-clamp-2 px-1 
                   animate-in fade-in duration-300">{category.name}</p>
+                {/* Show category ID in debug mode */}
+                {debugMode && (
+                  <p className="text-center text-xs bg-gray-100 rounded-md p-1 mt-1">ID: {category.id}</p>
+                )}
               </div>
             </CarouselItem>)}
         </CarouselContent>

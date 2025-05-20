@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { MapPin, Loader2, ChevronDown, X } from "lucide-react";
+import { MapPin, Loader2, ChevronDown, X, Bug } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import LocationStep from "@/components/checkout/LocationStep";
@@ -85,8 +85,23 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
+  const [debugMode, setDebugMode] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const modalClosedManually = useRef<boolean>(false);
+
+  // Toggle debug mode with keyboard shortcut (Ctrl+Shift+D)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+        setDebugMode(prev => !prev);
+        toast.info(`Debug mode ${!debugMode ? 'enabled' : 'disabled'}`);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [debugMode]);
 
   const fixedStores: Store[] = [
     { id: "other", name: "Otro" },
@@ -95,6 +110,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
+      // Reset manual close flag when modal opens
+      modalClosedManually.current = false;
+      
       if (!commerceId) {
         fetchProviders();
       }
@@ -105,8 +123,12 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       setSelectedDepartment("");
       setSelectedLocation("");
       setSearchQuery(commerceName || "");
+      
+      if (categoryId && serviceId) {
+        console.log("Modal opened with category info:", { serviceId, categoryId, categoryName });
+      }
     }
-  }, [isOpen, commerceId, commerceName]);
+  }, [isOpen, commerceId, commerceName, categoryId, serviceId]);
 
   useEffect(() => {
     if (isStoreDropdownOpen && inputRef.current) {
@@ -307,6 +329,12 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     }
   };
 
+  const handleManualClose = () => {
+    // Set flag to indicate manual closure
+    modalClosedManually.current = true;
+    onClose();
+  };
+
   const handleConfirm = async () => {
     if (!commerceId) {
       if (!selectedStore && searchQuery) {
@@ -351,34 +379,85 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         categoryName
       };
       
-      // Pre-fetch products before closing the modal
-      await fetchProductsForCategory(storeId, serviceId, categoryId);
-    }
-    
-    // Close the modal and call onSelectLocation
-    onSelectLocation(
-      storeId, 
-      storeName,
-      selectedDepartment,
-      selectedDepartmentObj?.name || "",
-      selectedLocation,
-      selectedLocationObj?.name || "",
-      selectedStore === "other" ? otherStore || searchQuery : undefined
-    );
-    
-    onClose();
-    
-    // If this is a new category selection, trigger a special event to notify the parent component
-    if (categoryId && serviceId) {
-      // Use a custom event to notify the parent component to open the category
-      const openCategoryEvent = new CustomEvent('openCategory', {
-        detail: {
-          serviceId,
-          categoryId,
-          categoryName
-        }
-      });
-      document.dispatchEvent(openCategoryEvent);
+      console.log("Updated global category reference:", globalLastSelectedCategory);
+      
+      try {
+        // Pre-fetch products before closing the modal
+        toast.info("Cargando productos...");
+        await fetchProductsForCategory(storeId, serviceId, categoryId);
+        
+        // First save the location information
+        onSelectLocation(
+          storeId, 
+          storeName,
+          selectedDepartment,
+          selectedDepartmentObj?.name || "",
+          selectedLocation,
+          selectedLocationObj?.name || "",
+          selectedStore === "other" ? otherStore || searchQuery : undefined
+        );
+        
+        // Close the modal
+        onClose();
+        
+        // Small delay to ensure location is registered before triggering category open
+        setTimeout(() => {
+          console.log("Dispatching openCategory event:", { 
+            serviceId, 
+            categoryId, 
+            categoryName 
+          });
+          
+          // Use a custom event to notify the parent component to open the category
+          const openCategoryEvent = new CustomEvent('openCategory', {
+            detail: {
+              serviceId,
+              categoryId,
+              categoryName
+            }
+          });
+          document.dispatchEvent(openCategoryEvent);
+          
+          // Immediately after, also dispatch a simulateCategoryClick event as a fallback
+          setTimeout(() => {
+            const simulateEvent = new CustomEvent('simulateCategoryClick', {
+              detail: {
+                serviceId,
+                categoryId,
+                categoryName
+              }
+            });
+            document.dispatchEvent(simulateEvent);
+          }, 300);
+        }, 200);
+        
+      } catch (error) {
+        console.error("Error handling category selection:", error);
+        
+        // Even on error, close the modal and save location
+        onSelectLocation(
+          storeId, 
+          storeName,
+          selectedDepartment,
+          selectedDepartmentObj?.name || "",
+          selectedLocation,
+          selectedLocationObj?.name || "",
+          selectedStore === "other" ? otherStore || searchQuery : undefined
+        );
+        onClose();
+      }
+    } else {
+      // If no category info, just close normally
+      onSelectLocation(
+        storeId, 
+        storeName,
+        selectedDepartment,
+        selectedDepartmentObj?.name || "",
+        selectedLocation,
+        selectedLocationObj?.name || "",
+        selectedStore === "other" ? otherStore || searchQuery : undefined
+      );
+      onClose();
     }
   };
 
@@ -408,10 +487,29 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleManualClose}>
       <DialogContent className="sm:max-w-md">
         {/* Add DialogTitle to fix accessibility warning */}
         <DialogTitle className="sr-only">Selección de lugar de compra</DialogTitle>
+        
+        {/* Debug panel - only visible in debug mode */}
+        {debugMode && (
+          <div className="bg-black/80 text-white p-3 mb-4 rounded-lg text-xs">
+            <div className="flex items-center gap-2 mb-1">
+              <Bug size={16} />
+              <h4 className="font-bold">MODAL DEBUG INFO</h4>
+            </div>
+            <div className="grid grid-cols-1 gap-x-4">
+              <p><strong>Service ID:</strong> {serviceId || 'N/A'}</p>
+              <p><strong>Category ID:</strong> {categoryId || 'N/A'}</p>
+              <p><strong>Category Name:</strong> {categoryName || 'N/A'}</p>
+              <p><strong>Selected Store:</strong> {selectedStore || 'None'}</p>
+              <p><strong>Selected Department:</strong> {selectedDepartment || 'None'}</p>
+              <p><strong>Selected Location:</strong> {selectedLocation || 'None'}</p>
+            </div>
+            <div className="mt-2 text-xs opacity-70">Press Ctrl+Shift+D to toggle debug mode</div>
+          </div>
+        )}
         
         {!commerceId && (
           <div className="text-center mb-6">
@@ -604,7 +702,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
         {!commerceId && (
           <DialogFooter>
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={handleManualClose}>
               Cancelar
             </Button>
             <Button 
