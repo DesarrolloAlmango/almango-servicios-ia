@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -51,111 +52,45 @@ const LocationStep: React.FC<LocationStepProps> = ({
     setSelectedLocation("");
   };
 
-  const handleLocationChange = (value: string) => {
-    setSelectedLocation(value);
-  };
-
   const handleNextWithDelay = () => {
-    // First trigger onNext to save the location
+    // Call the original onNext function
     onNext();
     
-    // Then trigger additional actions if we have a category ID
-    if (categoryId && window.lastSelectedServiceId) {
-      console.log("LocationStep: Triggering product price recalculation for category:", categoryId);
+    // If we have a categoryId, trigger a click on that category after a delay
+    if (categoryId) {
+      console.log("LocationStep: Scheduling auto-click for category:", categoryId);
       
-      // First trigger price update - this is important before opening modal
-      const updatePricesEvent = new CustomEvent('updateProductPrices', { 
-        detail: { 
-          categoryId,
-          serviceId: window.lastSelectedServiceId,
-          forceRefresh: true,
-          timestamp: Date.now(),
-          debugEventSource: 'LocationStep' 
-        } 
-      });
-      document.dispatchEvent(updatePricesEvent);
-      
-      // After a delay to allow prices to update, trigger category opening
       setTimeout(() => {
+        console.log("LocationStep: Dispatching openCategory event for:", categoryId);
+        // Dispatch the event with the category ID
         const openCategoryEvent = new CustomEvent('openCategory', { 
           detail: { 
             categoryId,
+            // Use global variable if available
             serviceId: window.lastSelectedServiceId || undefined,
-            categoryName: window.lastSelectedCategoryName || undefined,
-            forceOpenProducts: true,  // This flag forces the products modal to open
-            timestamp: Date.now()
+            categoryName: window.lastSelectedCategoryName || undefined
           } 
         });
         document.dispatchEvent(openCategoryEvent);
         
-        // Add data attribute to indicate this service has a location
-        if (window.lastSelectedServiceId) {
-          const markerDiv = document.createElement('div');
-          markerDiv.dataset.serviceId = window.lastSelectedServiceId;
-          markerDiv.dataset.hasLocation = 'true';
-          markerDiv.style.display = 'none';
-          document.body.appendChild(markerDiv);
-        }
-        
-        // After another small delay, scroll to and highlight the category
+        // Try to directly trigger a click on the category card if it exists
         setTimeout(() => {
           const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
           if (categoryElement) {
             const clickableCard = categoryElement.querySelector('.cursor-pointer');
-            if (clickableCard) {
-              clickableCard.classList.add('ring-4', 'ring-orange-500', 'scale-110', 'bg-orange-50');
-              categoryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              
-              const clickEvent = new MouseEvent('click', {
-                bubbles: true,
-                cancelable: true,
-                view: window
-              });
-              clickableCard.dispatchEvent(clickEvent);
-              
-              setTimeout(() => {
-                clickableCard.classList.remove('scale-110', 'bg-orange-50');
-              }, 2000);
+            if (clickableCard && clickableCard instanceof HTMLElement) {
+              console.log("LocationStep: Directly clicking category card for:", categoryId);
+              clickableCard.click();
+            } else {
+              console.error("LocationStep: Couldn't find clickable element in category card");
             }
+          } else {
+            console.error("LocationStep: Couldn't find category element with ID:", categoryId);
           }
-        }, 300);
-      }, 500);
+        }, 300); // Small additional delay to ensure the event handlers are ready
+      }, 1000);  // 1 second delay as requested
     }
   };
-
-  useEffect(() => {
-    const handleLocationModalClosed = () => {
-      const dialogs = document.querySelectorAll('[role="dialog"]');
-      dialogs.forEach(dialog => {
-        if (dialog.querySelector('.product-grid')) {
-          const closeButton = dialog.querySelector('[data-dialog-close]');
-          if (closeButton && closeButton instanceof HTMLElement) {
-            console.log('LocationStep: Location modal closed without confirming, closing product dialog');
-            closeButton.click();
-          }
-        }
-      });
-    };
-
-    const handlePriceDebugInfo = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail) {
-        const { storeId, serviceId, categoryId, products } = customEvent.detail;
-        console.log(`LocationStep received debug info: Store=${storeId}, Service=${serviceId}, Category=${categoryId}`);
-        console.log(`Products to fetch prices for:`, products);
-        
-        toast.info(`Debug: ${products.length} productos encontrados para obtener precios`);
-      }
-    };
-    
-    document.addEventListener('priceDebugInfo', handlePriceDebugInfo);
-    document.addEventListener('locationModalClosed', handleLocationModalClosed);
-    
-    return () => {
-      document.removeEventListener('priceDebugInfo', handlePriceDebugInfo);
-      document.removeEventListener('locationModalClosed', handleLocationModalClosed);
-    };
-  }, []);
 
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
 
@@ -209,7 +144,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
           </label>
           <Select 
             value={selectedLocation} 
-            onValueChange={handleLocationChange} 
+            onValueChange={setSelectedLocation} 
             disabled={!selectedDepartment || loading.municipalities}
           >
             <SelectTrigger className="w-full">
@@ -244,6 +179,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
   );
 };
 
+// Add this for TypeScript global variable declaration
 declare global {
   interface Window {
     lastSelectedServiceId?: string;

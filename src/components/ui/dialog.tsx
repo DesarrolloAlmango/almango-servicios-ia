@@ -44,53 +44,11 @@ const DialogContent = React.forwardRef<
         "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg sm:min-w-[550px]",
         className
       )}
-      onOpenAutoFocus={(e) => {
-        // Prevent autofocus for debugging purposes
-        if (props.id === 'product-dialog' || (typeof props.id === 'string' && props.id.includes('product-dialog'))) {
-          e.preventDefault();
-          
-          // Check if this product dialog is being opened without a location
-          const serviceIdMatch = props.id && typeof props.id === 'string' ? props.id.match(/product-dialog-(\w+)-/) : null;
-          if (serviceIdMatch && serviceIdMatch[1]) {
-            const serviceId = serviceIdMatch[1];
-            // Check global window object for location
-            const hasLocation = document.querySelector(`[data-service-id="${serviceId}"][data-has-location="true"]`);
-            
-            if (!hasLocation) {
-              console.log("Product dialog opened without location, will close immediately");
-              // Close this dialog after a short delay
-              setTimeout(() => {
-                const closeButton = document.querySelector(`#${props.id} [data-dialog-close]`);
-                if (closeButton && closeButton instanceof HTMLElement) {
-                  closeButton.click();
-                }
-              }, 100);
-            }
-          }
-        }
-      }}
-      onPointerDownOutside={(e) => {
-        // When clicking outside, dispatch a custom debug event
-        if (props.id === 'product-dialog' || (typeof props.id === 'string' && props.id.includes('product-dialog'))) {
-          document.dispatchEvent(new CustomEvent('productDialogInteraction', { 
-            detail: { action: 'clickOutside' } 
-          }));
-        }
-      }}
       {...props}
     >
       {children}
       {!hideCloseButton && (
-        <DialogPrimitive.Close 
-          data-dialog-close 
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
-          onClick={() => {
-            // Dispatch debug event when close button is clicked
-            document.dispatchEvent(new CustomEvent('productDialogInteraction', { 
-              detail: { action: 'closeButtonClicked' } 
-            }));
-          }}
-        >
+        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </DialogPrimitive.Close>

@@ -302,77 +302,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     }
   };
 
-  // Helper function to fetch product categories after location confirmation
-  const fetchProductsForCategory = async (storeId: string, serviceId?: string, categoryId?: string) => {
-    if (!serviceId || !categoryId) return;
-    
-    try {
-      console.log(`Fetching products for store: ${storeId}, service: ${serviceId}, category: ${categoryId}`);
-      // Make a direct call to fetch products
-      const endpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
-      
-      const response = await fetch(endpoint);
-      if (!response.ok) {
-        console.error(`Error fetching products: ${response.status}`);
-        return null;
-      } else {
-        const data = await response.json();
-        console.log(`Preloaded ${data.length} products successfully`);
-        
-        // After loading products, trigger price fetching for each product
-        if (data && Array.isArray(data) && data.length > 0) {
-          console.log(`Will fetch prices for ${data.length} products with storeId: ${storeId}`);
-          
-          // Find the store name from the selected store ID
-          const storeNameVal = selectedStore === "other" ? 
-            (otherStore || searchQuery) : 
-            [...fixedStores, ...localStores].find(store => store.id === selectedStore)?.name || "";
-          
-          // Find department and location objects based on their IDs
-          const selectedDeptObj = departments.find(dept => dept.id === selectedDepartment);
-          const selectedLocObj = municipalities[selectedDepartment]?.find(mun => mun.id === selectedLocation);
-          
-          // Dispatch an event with detailed info for debugging in products modal
-          const priceDebugEvent = new CustomEvent('priceDebugInfo', {
-            detail: {
-              storeId,
-              serviceId,
-              categoryId,
-              products: data.map(product => ({
-                productId: product.Id?.toString() || product.ProductoId?.toString() || product.id?.toString() || "",
-                productName: product.Name || product.Nombre || product.name || "Unknown Product"
-              }))
-            }
-          });
-          document.dispatchEvent(priceDebugEvent);
-          
-          // Immediately dispatch event to update product prices with detailed debug info
-          const updatePricesEvent = new CustomEvent('updateProductPrices', { 
-            detail: { 
-              categoryId,
-              serviceId,
-              storeId,
-              forceRefresh: true,
-              timestamp: Date.now(), // Add timestamp to make each event unique
-              debugInfo: {
-                storeName: storeNameVal,
-                departmentName: selectedDeptObj?.name || "",
-                locationName: selectedLocObj?.name || ""
-              }
-            } 
-          });
-          document.dispatchEvent(updatePricesEvent);
-        }
-        
-        return data;
-      }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      return null;
-    }
-  };
-
-  // Add a handler for store selection to fetch prices immediately
   const handleStoreChange = (value: string) => {
     const selectedStoreObj = [...fixedStores, ...localStores].find(store => store.id === value);
     setSelectedStore(value);
@@ -388,18 +317,12 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     closeKeyboard();
   };
 
-  // Update location selection handler to prevent automatic price updates or product opening
-  const handleLocationChange = (locationId: string) => {
-    setSelectedLocation(locationId);
-    // Do not trigger price updates or product modal opening here
-    // Let these actions happen only after confirmation
-  };
-
   const handleInputClick = () => {
     if (selectedStore) {
       setSelectedStore("");
       setSearchQuery("");
       setShowOtherInput(false);
+      setOtherStore("");
     }
     setIsStoreDropdownOpen(true);
   };
@@ -424,6 +347,30 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
   const handleScrollAreaMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
+  };
+
+  // Helper function to fetch product categories after location confirmation
+  const fetchProductsForCategory = async (storeId: string, serviceId?: string, categoryId?: string) => {
+    if (!serviceId || !categoryId) return;
+    
+    try {
+      console.log(`Fetching products for store: ${storeId}, service: ${serviceId}, category: ${categoryId}`);
+      // Make a direct call to fetch products
+      const endpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
+      
+      const response = await fetch(endpoint);
+      if (!response.ok) {
+        console.error(`Error fetching products: ${response.status}`);
+        return null;
+      } else {
+        const data = await response.json();
+        console.log(`Preloaded ${data.length} products successfully`);
+        return data;
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      return null;
+    }
   };
 
   const handleConfirm = async () => {
@@ -458,7 +405,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         [...fixedStores, ...localStores].find(store => store.id === selectedStore)?.name || "";
     
     const selectedDepartmentObj = departments.find(dept => dept.id === selectedDepartment);
-    const selectedLocationObj = municipalities[selectedDepartment]?.find(mun => mun.id === selectedLocation);
+    const selectedLocationObj = currentMunicipalities.find(mun => mun.id === selectedLocation);
 
     // Use the effective category ID from props or the global variable
     const finalCategoryId = localCategoryId || lastSelectedCategoryId || categoryId || null;
@@ -468,7 +415,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       serviceId: localServiceId,
       categoryId: finalCategoryId,
       categoryName: finalCategoryName,
-      storeId: storeId
+      globalTemp: lastSelectedCategoryId 
     });
     
     // Store the category information in global variable for automatic opening
@@ -479,11 +426,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         categoryName: finalCategoryName
       };
       
-      // Pre-fetch products and prices before closing the modal
+      // Pre-fetch products before closing the modal
       await fetchProductsForCategory(storeId, localServiceId, finalCategoryId);
     }
     
-    // First close the modal and call onSelectLocation to complete location selection
+    // Close the modal and call onSelectLocation
     onSelectLocation(
       storeId, 
       storeName,
@@ -494,68 +441,34 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       selectedStore === "other" ? otherStore || searchQuery : undefined
     );
     
-    // Important: Close the modal first so it doesn't block interaction
     onClose();
     
-    // Notify listeners that the location modal is closed
-    document.dispatchEvent(new Event('locationModalClosed'));
-    
-    // Only after location is confirmed and modal is closed, trigger product modal opening
+    // If this is a new category selection, trigger a special event to notify the parent component
     if (finalCategoryId && localServiceId) {
-      // First dispatch an event to update product prices with detailed debug info
-      const updatePricesEvent = new CustomEvent('updateProductPrices', {
+      // Use a custom event to notify the parent component to open the category
+      const openCategoryEvent = new CustomEvent('openCategory', {
         detail: {
           serviceId: localServiceId,
           categoryId: finalCategoryId,
-          storeId: storeId,
-          forceRefresh: true,
-          timestamp: Date.now(),
-          debugInfo: {
-            storeName,
-            departmentName: selectedDepartmentObj?.name || "",
-            locationName: selectedLocationObj?.name || ""
-          }
+          categoryName: finalCategoryName
         }
       });
-      document.dispatchEvent(updatePricesEvent);
+      document.dispatchEvent(openCategoryEvent);
       
-      // Then dispatch an event to open/highlight the category and force product modal opening
+      // After successful location confirmation, highlight the selected category
       setTimeout(() => {
-        const openCategoryEvent = new CustomEvent('openCategory', {
-          detail: {
-            serviceId: localServiceId,
-            categoryId: finalCategoryId,
-            categoryName: finalCategoryName,
-            forceOpenProducts: true // This flag ensures products modal opens automatically
+        const categoryElement = document.querySelector(`[data-category-id="${finalCategoryId}"]`);
+        if (categoryElement) {
+          categoryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const categoryCard = categoryElement.querySelector('div');
+          if (categoryCard) {
+            categoryCard.classList.add('ring-4', 'ring-orange-500', 'bg-orange-50');
+            setTimeout(() => {
+              categoryCard.classList.remove('bg-orange-50');
+            }, 2000);
           }
-        });
-        document.dispatchEvent(openCategoryEvent);
-        
-        // Find and highlight the selected category after location confirmation
-        setTimeout(() => {
-          const categoryElement = document.querySelector(`[data-category-id="${finalCategoryId}"]`);
-          if (categoryElement) {
-            categoryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            const categoryCard = categoryElement.querySelector('div');
-            if (categoryCard) {
-              categoryCard.classList.add('ring-4', 'ring-orange-500', 'scale-110', 'bg-orange-50');
-              
-              // Simulate click on category to open product modal
-              const clickEvent = new MouseEvent('click', {
-                bubbles: true,
-                cancelable: true,
-                view: window
-              });
-              categoryCard.dispatchEvent(clickEvent);
-              
-              // Remove highlight after animation
-              setTimeout(() => {
-                categoryCard.classList.remove('scale-110', 'bg-orange-50');
-              }, 2000);
-            }
-          }
-        }, 300);
-      }, 100);
+        }
+      }, 500);
     }
   };
 
@@ -604,7 +517,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             selectedDepartment={selectedDepartment}
             setSelectedDepartment={setSelectedDepartment}
             selectedLocation={selectedLocation}
-            setSelectedLocation={handleLocationChange}
+            setSelectedLocation={setSelectedLocation}
             onNext={handleConfirm}
             departments={departments}
             municipalities={municipalities}
@@ -749,7 +662,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                 <Select 
                   value={selectedLocation} 
                   onValueChange={(value) => {
-                    handleLocationChange(value);
+                    setSelectedLocation(value);
                     // Close keyboard when selecting from dropdown
                     closeKeyboard();
                   }}
