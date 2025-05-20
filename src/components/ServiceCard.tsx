@@ -298,39 +298,32 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         
         console.log("ProductGrid: Received updateProductPrices event", customEvent.detail);
         
-        if (customEvent.detail.forceRefresh) {
+        if (customEvent.detail.forceRefresh && purchaseLocationId) {
           // Mark all products as loading prices
           const loadingIds = new Set(products.map(p => p.id));
           setLoadingProductIds(loadingIds);
           
           // Force a fetch of all prices
-          products.forEach(async (product) => {
-            try {
-              const updatedPrice = await fetchUpdatedPrice(product);
-              
-              // Update the specific product price as it becomes available
-              setProducts(prevProducts => 
-                prevProducts.map(p => 
-                  p.id === updatedPrice.id ? { ...p, price: updatedPrice.price } : p
-                )
-              );
-              
-              // Mark this product as no longer loading
-              setLoadingProductIds(prev => {
-                const newSet = new Set(prev);
-                newSet.delete(updatedPrice.id);
-                return newSet;
-              });
-            } catch (error) {
-              console.error(`Error al actualizar precio para ${product.id}:`, error);
-              // Even on error, mark the product as no longer loading
-              setLoadingProductIds(prev => {
-                const newSet = new Set(prev);
-                newSet.delete(product.id);
-                return newSet;
-              });
-            }
-          });
+          const pricePromises = products.map(product => fetchUpdatedPrice(product));
+          
+          try {
+            const updatedPrices = await Promise.all(pricePromises);
+            
+            // Update all product prices at once
+            setProducts(prevProducts => 
+              prevProducts.map(p => {
+                const priceUpdate = updatedPrices.find(up => up.id === p.id);
+                return priceUpdate ? { ...p, price: priceUpdate.price } : p;
+              })
+            );
+            
+            // Clear loading state for all products
+            setLoadingProductIds(new Set());
+            console.log("All product prices updated successfully");
+          } catch (error) {
+            console.error("Error updating product prices:", error);
+            setLoadingProductIds(new Set());
+          }
         }
       }
     };
@@ -340,7 +333,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     return () => {
       document.removeEventListener('updateProductPrices', handleUpdateProductPrices as EventListener);
     };
-  }, [category.id, products, serviceId]);
+  }, [category.id, products, serviceId, purchaseLocationId]);
 
   const updateCart = (productId: string, newQuantity: number) => {
     const product = products.find(p => p.id === productId);
