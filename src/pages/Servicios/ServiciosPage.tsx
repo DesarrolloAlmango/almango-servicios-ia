@@ -18,6 +18,7 @@ import ServiciosBackground from "./components/ServiciosBackground";
 import ServicesLoadingState from "./components/ServicesLoadingState";
 import StoreInfo from "./components/StoreInfo";
 import ServiciosStyles from "./components/ServiciosStyles";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const ServiciosPage = () => {
   const navigate = useNavigate();
@@ -503,6 +504,116 @@ const ServiciosPage = () => {
     toast.success("Lugar de compra y productos asociados eliminados");
   };
 
+  // Add state for product modal
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [productModalDetails, setProductModalDetails] = useState<{
+    serviceId: string;
+    categoryId: string;
+    categoryName: string;
+    products: any[];
+    prices: Record<string, number>;
+  } | null>(null);
+
+  // Add new effect to listen for showProductsModal events
+  useEffect(() => {
+    const handleShowProductsModal = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        const { serviceId, categoryId, categoryName, products, prices, triggerImmediately } = customEvent.detail;
+        console.log("Received showProductsModal event:", { serviceId, categoryId, categoryName, productCount: products?.length });
+        
+        // Set the product modal details
+        setProductModalDetails({
+          serviceId,
+          categoryId,
+          categoryName: categoryName || "Productos",
+          products: products || [],
+          prices: prices || {}
+        });
+        
+        // Open the modal immediately if triggered from location selection
+        if (triggerImmediately) {
+          console.log("Opening product modal immediately");
+          setIsProductModalOpen(true);
+        }
+      }
+    };
+    
+    document.addEventListener('showProductsModal', handleShowProductsModal);
+    
+    return () => {
+      document.removeEventListener('showProductsModal', handleShowProductsModal);
+    };
+  }, []);
+
+  // Product modal rendering
+  const renderProductModal = () => {
+    if (!productModalDetails) return null;
+    
+    return (
+      <Dialog open={isProductModalOpen} onOpenChange={setIsProductModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {productModalDetails.categoryName}
+            </DialogTitle>
+            <DialogDescription>
+              Selecciona los productos que deseas añadir al carrito
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-4">
+            {productModalDetails.products.length > 0 ? (
+              <div className="space-y-4">
+                {productModalDetails.products.map((product) => {
+                  const productId = product.Nivel2?.toString();
+                  const productName = product.Nivel2Descripcion?.toString();
+                  const price = productModalDetails.prices[productId] || 0;
+                  
+                  if (!productId || !productName) return null;
+                  
+                  return (
+                    <div key={productId} className="flex justify-between items-center p-3 border rounded-md">
+                      <div>
+                        <p className="font-medium">{productName}</p>
+                        <p className="text-sm text-muted-foreground">
+                          ${price.toLocaleString('es-UY', { minimumFractionDigits: 0 })}
+                        </p>
+                      </div>
+                      <button 
+                        className="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm"
+                        onClick={() => {
+                          // Add to cart
+                          const newItem: CartItem = {
+                            id: `${productModalDetails.serviceId}-${productModalDetails.categoryId}-${productId}`,
+                            serviceId: productModalDetails.serviceId,
+                            categoryId: productModalDetails.categoryId,
+                            productId: productId,
+                            name: productName,
+                            price: price,
+                            quantity: 1
+                          };
+                          addToCart(newItem);
+                          toast.success(`${productName} añadido al carrito`);
+                        }}
+                      >
+                        Agregar
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-center py-4 text-muted-foreground">
+                No hay productos disponibles para esta categoría
+              </p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  };
+
   // Loading state
   if (isServicesLoading && isLoadingMudanza) {
     return <ServicesLoadingState />;
@@ -589,7 +700,13 @@ const ServiciosPage = () => {
           serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`} 
           commerceId={commerceId} 
           commerceName={storeName} 
+          serviceId={selectedServiceId}
+          categoryId={selectedCategoryId}
+          categoryName={selectedCategoryName}
         />
+        
+        {/* Product modal - Nuevo modal para mostrar productos tras seleccionar ubicación */}
+        {renderProductModal()}
       </main>
 
       {/* Delete confirmation dialog */}

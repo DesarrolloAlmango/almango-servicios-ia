@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -477,27 +476,43 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     // Use the effective category ID from props or the global variable
     const finalCategoryId = localCategoryId || lastSelectedCategoryId || categoryId || null;
     const finalCategoryName = localCategoryName || lastSelectedCategoryName || categoryName || null;
+    const finalServiceId = localServiceId || serviceId || globalLastSelectedCategory.serviceId || null;
     
     console.log("Confirming location with category info:", { 
-      serviceId: localServiceId,
+      serviceId: finalServiceId,
       categoryId: finalCategoryId,
       categoryName: finalCategoryName,
       globalTemp: lastSelectedCategoryId 
     });
     
+    let products = [];
+    let prices = {};
+    
     // Pre-fetch products and prices before closing the modal
-    if (localServiceId && finalCategoryId) {
+    if (finalServiceId && finalCategoryId) {
       globalLastSelectedCategory = {
-        serviceId: localServiceId,
+        serviceId: finalServiceId,
         categoryId: finalCategoryId,
         categoryName: finalCategoryName
       };
       
       console.log("Pre-fetching products and prices...");
-      await fetchProductsForCategory(storeId, localServiceId, finalCategoryId);
+      setLoadingPrices(true);
+      
+      try {
+        const result = await fetchProductsForCategory(storeId, finalServiceId, finalCategoryId);
+        if (result) {
+          products = result.products;
+          prices = result.prices;
+        }
+      } catch (error) {
+        console.error("Error pre-fetching products:", error);
+      } finally {
+        setLoadingPrices(false);
+      }
     }
     
-    // Close the modal and call onSelectLocation
+    // Call onSelectLocation to update the location
     onSelectLocation(
       storeId, 
       storeName,
@@ -511,23 +526,34 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     // Close the modal BEFORE dispatching the event
     onClose();
     
-    // If this is a new category selection, trigger a special event to notify the parent component
-    if (finalCategoryId && localServiceId) {
-      console.log("Dispatching openCategory event with triggerProductModal flag");
+    // If this is a category selection, immediately trigger product modal opening
+    if (finalCategoryId && finalServiceId) {
+      console.log("Dispatching openCategory and showProductsModal events");
       
-      // Use a custom event to notify the parent component to open the category AND the product modal
-      const openCategoryEvent = new CustomEvent('openCategory', {
+      // Custom event to notify parent component to open products modal
+      const showProductsModalEvent = new CustomEvent('showProductsModal', {
         detail: {
-          serviceId: localServiceId,
+          serviceId: finalServiceId,
           categoryId: finalCategoryId,
           categoryName: finalCategoryName,
-          triggerProductModal: true,  // Add flag to indicate we should open the product modal
-          prices: productPrices      // Pass the pre-fetched prices
+          products: products,
+          prices: prices,
+          triggerImmediately: true
+        }
+      });
+      document.dispatchEvent(showProductsModalEvent);
+      
+      // Also dispatch the open category event (for highlighting)
+      const openCategoryEvent = new CustomEvent('openCategory', {
+        detail: {
+          serviceId: finalServiceId,
+          categoryId: finalCategoryId,
+          categoryName: finalCategoryName
         }
       });
       document.dispatchEvent(openCategoryEvent);
       
-      // After successful location confirmation, highlight the selected category
+      // Highlight the selected category
       setTimeout(() => {
         const categoryElement = document.querySelector(`[data-category-id="${finalCategoryId}"]`);
         if (categoryElement) {
