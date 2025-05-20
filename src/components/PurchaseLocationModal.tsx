@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -354,6 +354,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         {!commerceId && (
           <div className="text-center mb-6">
             <MapPin className="h-12 w-12 mx-auto text-orange-500 mb-2" />
+            <DialogTitle className="mb-1">Lugar de compra</DialogTitle>
             <DialogDescription className="text-center">
               Necesitamos esta información para brindarte un mejor servicio
             </DialogDescription>

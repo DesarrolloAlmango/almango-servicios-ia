@@ -157,6 +157,7 @@ const Servicios = () => {
   const [titleVisible, setTitleVisible] = useState(false);
   const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(null);
   const [autoClickTriggered, setAutoClickTriggered] = useState(false);
+  const [autoSelectCategoryId, setAutoSelectCategoryId] = useState<string | null>(null);
   const serviceCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const {
     data: services,
@@ -393,6 +394,8 @@ const Servicios = () => {
       let successMessage = "";
       if (selectedCategoryId && selectedCategoryName) {
         successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName} - ${selectedCategoryName}`;
+        // Auto-select the category immediately after location is set
+        setAutoSelectCategoryId(selectedCategoryId);
       } else {
         successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName}`;
       }
