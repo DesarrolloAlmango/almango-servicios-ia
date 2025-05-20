@@ -324,13 +324,13 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
           console.log(`Will fetch prices for ${data.length} products with storeId: ${storeId}`);
           
           // Find the store name from the selected store ID
-          const storeName = selectedStore === "other" ? 
+          const storeNameVal = selectedStore === "other" ? 
             (otherStore || searchQuery) : 
             [...fixedStores, ...localStores].find(store => store.id === selectedStore)?.name || "";
           
           // Find department and location objects based on their IDs
-          const selectedDepartmentObj = departments.find(dept => dept.id === selectedDepartment);
-          const selectedLocationObj = municipalities[selectedDepartment]?.find(mun => mun.id === selectedLocation);
+          const selectedDeptObj = departments.find(dept => dept.id === selectedDepartment);
+          const selectedLocObj = municipalities[selectedDepartment]?.find(mun => mun.id === selectedLocation);
           
           // Dispatch an event with detailed info for debugging in products modal
           const priceDebugEvent = new CustomEvent('priceDebugInfo', {
@@ -355,9 +355,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
               forceRefresh: true,
               timestamp: Date.now(), // Add timestamp to make each event unique
               debugInfo: {
-                storeName,
-                departmentName: selectedDepartmentObj?.name || "",
-                locationName: selectedLocationObj?.name || ""
+                storeName: storeNameVal,
+                departmentName: selectedDeptObj?.name || "",
+                locationName: selectedLocObj?.name || ""
               }
             } 
           });
@@ -624,7 +624,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             selectedDepartment={selectedDepartment}
             setSelectedDepartment={setSelectedDepartment}
             selectedLocation={selectedLocation}
-            setSelectedLocation={handleLocationChange}  {/* Usar la nueva función para manejar cambios de localidad */}
+            setSelectedLocation={handleLocationChange}
             onNext={handleConfirm}
             departments={departments}
             municipalities={municipalities}
