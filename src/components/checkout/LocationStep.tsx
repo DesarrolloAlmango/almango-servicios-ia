@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { MapPin, Loader2 } from "lucide-react";
-import { toast } from "sonner"; // Import toast directly
+import { toast } from "sonner";
 
 interface LocationStepProps {
   selectedDepartment: string;
@@ -28,7 +28,7 @@ interface LocationStepProps {
   buttonText?: string;
   showStoreSection?: boolean;
   storeName?: string;
-  categoryId?: string; // Added for debugging
+  categoryId?: string;
 }
 
 const LocationStep: React.FC<LocationStepProps> = ({
@@ -45,7 +45,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
   buttonText = "Siguiente",
   showStoreSection = false,
   storeName,
-  categoryId // Debug parameter
+  categoryId
 }) => {
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartment(value);
@@ -59,11 +59,6 @@ const LocationStep: React.FC<LocationStepProps> = ({
     // If we have a categoryId, trigger a click on that category after a delay
     if (categoryId) {
       console.log("LocationStep: Scheduling auto-click for category:", categoryId);
-      
-      // Show a toast immediately that we're about to click the category
-      toast.info(`Seleccionando automáticamente la categoría (ID: ${categoryId})...`, {
-        duration: 3000
-      });
       
       setTimeout(() => {
         console.log("LocationStep: Dispatching openCategory event for:", categoryId);
@@ -105,11 +100,6 @@ const LocationStep: React.FC<LocationStepProps> = ({
         <MapPin className="h-12 w-12 mx-auto text-primary mb-2" />
         <h3 className="text-xl font-semibold">{title}</h3>
         <p className="text-muted-foreground">{description}</p>
-        {categoryId && (
-          <div className="mt-2 p-1 bg-black text-white text-sm inline-block rounded">
-            Category ID: {categoryId}
-          </div>
-        )}
       </div>
 
       {showStoreSection && storeName && (
@@ -182,7 +172,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
           disabled={!selectedDepartment || !selectedLocation || loading.municipalities || loading.departments}
           className="bg-primary hover:bg-primary-dark"
         >
-          {buttonText} {categoryId && `(Cat ID: ${categoryId})`}
+          {buttonText}
         </Button>
       </div>
     </div>
