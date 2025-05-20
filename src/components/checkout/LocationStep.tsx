@@ -65,7 +65,8 @@ const LocationStep: React.FC<LocationStepProps> = ({
         detail: { 
           categoryId,
           serviceId: window.lastSelectedServiceId,
-          forceRefresh: true
+          forceRefresh: true,
+          timestamp: Date.now() // Add timestamp to make each event unique
         } 
       });
       document.dispatchEvent(updatePricesEvent);
