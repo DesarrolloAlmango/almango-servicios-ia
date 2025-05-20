@@ -46,13 +46,13 @@ const DialogContent = React.forwardRef<
       )}
       onOpenAutoFocus={(e) => {
         // Prevent autofocus for debugging purposes
-        if (props.id === 'product-dialog' || props.className?.includes('product-dialog')) {
+        if (props.id === 'product-dialog' || (typeof props.id === 'string' && props.id.includes('product-dialog'))) {
           e.preventDefault();
         }
       }}
       onPointerDownOutside={(e) => {
         // When clicking outside, dispatch a custom debug event
-        if (props.id === 'product-dialog' || props.className?.includes('product-dialog')) {
+        if (props.id === 'product-dialog' || (typeof props.id === 'string' && props.id.includes('product-dialog'))) {
           document.dispatchEvent(new CustomEvent('productDialogInteraction', { 
             detail: { action: 'clickOutside' } 
           }));
