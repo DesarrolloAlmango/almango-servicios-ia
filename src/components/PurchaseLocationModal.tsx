@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -86,6 +87,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [isStoreDropdownOpen, setIsStoreDropdownOpen] = useState(false);
+  const [productPrices, setProductPrices] = useState<Record<string, number>>({});
+  const [loadingPrices, setLoadingPrices] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -349,24 +352,88 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     e.preventDefault();
   };
 
-  // Helper function to fetch product categories after location confirmation
+  // Helper function to fetch prices for all products in a category
+  const fetchPrices = async (storeId: string, serviceId?: string, categoryId?: string) => {
+    if (!serviceId || !categoryId) return {};
+    
+    setLoadingPrices(true);
+    try {
+      console.log(`Fetching prices for store: ${storeId}, service: ${serviceId}, category: ${categoryId}`);
+      
+      // First fetch all products in the category
+      const productsEndpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
+      const productsResponse = await fetch(productsEndpoint);
+      
+      if (!productsResponse.ok) {
+        console.error(`Error fetching products: ${productsResponse.status}`);
+        return {};
+      }
+      
+      const products = await productsResponse.json();
+      console.log(`Fetched ${products.length} products`, products);
+      
+      // For each product, fetch its price
+      const prices: Record<string, number> = {};
+      const pricePromises = products.map(async (product: any) => {
+        const productId = product.Nivel2?.toString();
+        if (productId) {
+          try {
+            const priceEndpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerPrecio?ProveedorID=${storeId}&Nivel0=${serviceId}&Nivel1=${categoryId}&Nivel2=${productId}`;
+            console.log(`Fetching price for product ${productId} with endpoint:`, priceEndpoint);
+            
+            const priceResponse = await fetch(priceEndpoint);
+            if (priceResponse.ok) {
+              const priceData = await priceResponse.json();
+              console.log(`Price data for ${productId}:`, priceData);
+              
+              const price = priceData && priceData.length > 0 ? 
+                parseFloat(priceData[0].Precio?.toString() || "0") : 0;
+              
+              prices[productId] = price;
+            }
+          } catch (error) {
+            console.error(`Error fetching price for product ${productId}:`, error);
+          }
+        }
+      });
+      
+      // Wait for all price requests to complete
+      await Promise.all(pricePromises);
+      
+      console.log("Fetched all prices:", prices);
+      setProductPrices(prices);
+      return prices;
+    } catch (error) {
+      console.error("Error fetching product prices:", error);
+      return {};
+    } finally {
+      setLoadingPrices(false);
+    }
+  };
+
+  // Helper function to fetch product categories and prices after location confirmation
   const fetchProductsForCategory = async (storeId: string, serviceId?: string, categoryId?: string) => {
-    if (!serviceId || !categoryId) return;
+    if (!serviceId || !categoryId) return null;
     
     try {
       console.log(`Fetching products for store: ${storeId}, service: ${serviceId}, category: ${categoryId}`);
-      // Make a direct call to fetch products
-      const endpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
       
+      // Fetch products first
+      const endpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
       const response = await fetch(endpoint);
+      
       if (!response.ok) {
         console.error(`Error fetching products: ${response.status}`);
         return null;
-      } else {
-        const data = await response.json();
-        console.log(`Preloaded ${data.length} products successfully`);
-        return data;
       }
+      
+      const data = await response.json();
+      console.log(`Preloaded ${data.length} products successfully`);
+      
+      // Then fetch prices for all products
+      const prices = await fetchPrices(storeId, serviceId, categoryId);
+      
+      return { products: data, prices };
     } catch (error) {
       console.error("Error fetching products:", error);
       return null;
@@ -418,7 +485,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       globalTemp: lastSelectedCategoryId 
     });
     
-    // Store the category information in global variable for automatic opening
+    // Pre-fetch products and prices before closing the modal
     if (localServiceId && finalCategoryId) {
       globalLastSelectedCategory = {
         serviceId: localServiceId,
@@ -426,7 +493,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         categoryName: finalCategoryName
       };
       
-      // Pre-fetch products before closing the modal
+      console.log("Pre-fetching products and prices...");
       await fetchProductsForCategory(storeId, localServiceId, finalCategoryId);
     }
     
@@ -441,16 +508,21 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       selectedStore === "other" ? otherStore || searchQuery : undefined
     );
     
+    // Close the modal BEFORE dispatching the event
     onClose();
     
     // If this is a new category selection, trigger a special event to notify the parent component
     if (finalCategoryId && localServiceId) {
-      // Use a custom event to notify the parent component to open the category
+      console.log("Dispatching openCategory event with triggerProductModal flag");
+      
+      // Use a custom event to notify the parent component to open the category AND the product modal
       const openCategoryEvent = new CustomEvent('openCategory', {
         detail: {
           serviceId: localServiceId,
           categoryId: finalCategoryId,
-          categoryName: finalCategoryName
+          categoryName: finalCategoryName,
+          triggerProductModal: true,  // Add flag to indicate we should open the product modal
+          prices: productPrices      // Pass the pre-fetched prices
         }
       });
       document.dispatchEvent(openCategoryEvent);
@@ -697,10 +769,15 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             </Button>
             <Button 
               onClick={handleConfirm}
-              disabled={!isFormValid || loading}
+              disabled={!isFormValid || loading || loadingPrices}
               className="bg-orange-500 hover:bg-orange-600"
             >
-              Confirmar
+              {loadingPrices ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Calculando precios...
+                </>
+              ) : "Confirmar"}
             </Button>
           </DialogFooter>
         )}

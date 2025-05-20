@@ -68,7 +68,8 @@ const LocationStep: React.FC<LocationStepProps> = ({
             categoryId,
             // Use global variable if available
             serviceId: window.lastSelectedServiceId || undefined,
-            categoryName: window.lastSelectedCategoryName || undefined
+            categoryName: window.lastSelectedCategoryName || undefined,
+            triggerProductModal: true  // Add flag to indicate we should open the product modal
           } 
         });
         document.dispatchEvent(openCategoryEvent);
@@ -88,7 +89,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
             console.error("LocationStep: Couldn't find category element with ID:", categoryId);
           }
         }, 300); // Small additional delay to ensure the event handlers are ready
-      }, 1000);  // 1 second delay as requested
+      }, 500);  // Reduced delay to make the flow feel smoother
     }
   };
 
