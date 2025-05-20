@@ -43,6 +43,14 @@ interface Product {
   textosId?: string;
 }
 
+// Extended service interface with price and image fields that might be used elsewhere
+interface ServiceDetails {
+  id: string;
+  name: string;
+  price?: number;
+  image?: string;
+}
+
 interface ProductCardProps {
   product: Product;
   quantity: number;
@@ -491,8 +499,8 @@ interface ServiceCardProps {
   circular?: boolean;
   currentCartItems?: any[];
   className?: string;
-  pendingCategoryId?: string;  // Added to track which category to load after location selection
-  pendingCategoryName?: string; // Added to track category name for display
+  pendingCategoryId?: string;  
+  pendingCategoryName?: string;
 }
 
 const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
@@ -523,7 +531,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   const categorySelectionInProgressRef = useRef(false);
   
   // Create a service object for the selectedService prop
-  const currentService = { id, name };
+  const currentService: ServiceDetails = { id, name };
   
   useEffect(() => {
     // Track if dialog was just opened to prevent auto-reopen
@@ -699,13 +707,16 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       console.log("Calling onCategorySelect from parent - no purchase location exists");
       onCategorySelect(id, category.id, category.name);
       // No cerramos el diálogo si estamos en proceso de seleccionar una categoría
-      return;
+      return false; // Return false to indicate dialog shouldn't close
     } else if (id) {
       // Si ya hay un lugar de compra O no necesitamos mostrar el modal de ubicación,
       // cargamos los productos directamente
       console.log("Fetching products for category - purchase location exists or no location needed:", category.id);
       fetchProducts(id, category.id);
+      return true; // Return true to indicate successful processing
     }
+    
+    return true; // Default return value
   };
 
   const purchaseLocationId = purchaseLocation ? purchaseLocation.storeId : undefined;
@@ -731,8 +742,6 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   };
 
   const backgroundImage = getCardBackground();
-
-  const isShowingCategoryCarousel = !selectedCategory && !isLoading && !error;
 
   return (
     <div 
