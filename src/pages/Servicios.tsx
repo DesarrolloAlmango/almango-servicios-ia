@@ -256,16 +256,6 @@ const Servicios = () => {
             .then(response => response.json())
             .then(data => {
               console.log(`Fetched ${data.length} products for category ${selectedCategoryId}`);
-              
-              // Now let's simulate a click on the specific category to force the UI to update
-              const simulateEvent = new CustomEvent('simulateCategoryClick', {
-                detail: {
-                  serviceId: selectedServiceId,
-                  categoryId: selectedCategoryId,
-                  categoryName: selectedCategoryName
-                }
-              });
-              document.dispatchEvent(simulateEvent);
             })
             .catch(error => {
               console.error("Error fetching products:", error);
@@ -276,53 +266,6 @@ const Servicios = () => {
       return () => clearTimeout(timer);
     }
   }, [purchaseLocations, selectedServiceId, selectedCategoryId, selectedCategoryName]);
-  useEffect(() => {
-    // Listen for openCategory event to automatically click on service card
-    const handleOpenCategory = (event: Event) => {
-      const customEvent = event as CustomEvent;
-      const { serviceId, categoryId, categoryName } = customEvent.detail;
-      
-      console.log("Received openCategory event:", { serviceId, categoryId, categoryName });
-      
-      // Store the selected category and service IDs
-      setSelectedServiceId(serviceId);
-      setSelectedCategoryId(categoryId);
-      setSelectedCategoryName(categoryName);
-      
-      // Find and click the service card
-      if (serviceCardRefs.current[serviceId]) {
-        console.log("Found service card ref, clicking it");
-        // Click the service card to expand it
-        serviceCardRefs.current[serviceId]?.click();
-        
-        // Set up the category to be auto-selected
-        pendingCategoryAutoClickRef.current = true;
-        
-        toast.success(`Abriendo categoría: ${categoryName || 'seleccionada'}`);
-      } else {
-        console.warn("Service card ref not found for serviceId:", serviceId);
-        toast.error("No se pudo encontrar el servicio seleccionado");
-      }
-    };
-    
-    // Add event listener
-    document.addEventListener('openCategory', handleOpenCategory);
-    
-    // Clean up
-    return () => {
-      document.removeEventListener('openCategory', handleOpenCategory);
-    };
-  }, []);
-  useEffect(() => {
-    if (selectedServiceId && selectedCategoryId) {
-      console.log("Current selection state:", { 
-        selectedServiceId, 
-        selectedServiceName,
-        selectedCategoryId, 
-        selectedCategoryName 
-      });
-    }
-  }, [selectedServiceId, selectedCategoryId, selectedServiceName, selectedCategoryName]);
   useEffect(() => {
     const fetchStoreName = async () => {
       if (commerceId) {
@@ -408,9 +351,6 @@ const Servicios = () => {
   };
   const handleServiceCardClick = (serviceId: string | undefined, serviceName: string) => {
     if (!serviceId) return false;
-    
-    console.log("Service card clicked:", serviceId, serviceName);
-    
     if (commerceId) {
       const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId && loc.departmentId && loc.locationId);
       if (existingLocation) {
@@ -422,17 +362,13 @@ const Servicios = () => {
         return false;
       }
     }
-    
     if (isLocationModalOpen) {
       return false;
     }
-    
     const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
     if (existingLocation) {
-      console.log("Found existing location for service:", existingLocation);
       return true;
     } else {
-      console.log("No location found for service, opening modal");
       setSelectedServiceId(serviceId);
       setSelectedServiceName(serviceName);
       setIsLocationModalOpen(true);
@@ -440,21 +376,15 @@ const Servicios = () => {
     }
   };
   const handleCategorySelect = (serviceId: string, categoryId: string, categoryName: string) => {
-    console.log("Category selected:", { serviceId, categoryId, categoryName });
-    
     setSelectedServiceId(serviceId);
     setSelectedCategoryId(categoryId);
     setSelectedCategoryName(categoryName);
-    
     const service = [...(displayedServices || []), ...(displayedMudanzaServices || [])].find(s => s.id === serviceId);
     if (service) {
       setSelectedServiceName(service.name);
     }
-    
     const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId && loc.departmentId && loc.locationId);
     if (existingLocation) {
-      console.log("Found existing location for category, updating location with category info");
-      
       setPurchaseLocations(prev => {
         return prev.map(loc => {
           if (loc.serviceId === serviceId) {
@@ -467,11 +397,8 @@ const Servicios = () => {
           return loc;
         });
       });
-      
       setPendingServiceCardAction(true);
-      console.log("Setting pendingServiceCardAction to true");
     } else {
-      console.log("No location found for category, opening modal");
       setIsLocationModalOpen(true);
     }
   };
