@@ -24,6 +24,7 @@ interface CategoryCarouselProps {
   isLoading?: boolean;
   cartItems?: any[];
   purchaseLocation?: any; // Added purchaseLocation prop
+  autoSelectCategoryId?: string; // New prop to auto-select a category
 }
 
 const IMAGE_CACHE_KEY = 'category_images_cache';
@@ -32,13 +33,15 @@ const COMPRESSION_QUALITY = 0.6; // Reducir calidad para mejorar rendimiento
 
 // Random service names for demonstration
 const DEMO_SERVICE_NAMES = ["Corte de pelo", "Peinado", "Coloración", "Maquillaje", "Tratamiento facial", "Depilación", "Manicura premium", "Masaje relajante", "Pedicura", "Limpieza facial", "Alisado", "Extensiones", "Uñas acrílicas", "Cejas y pestañas"];
+
 const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   categories,
   onSelectCategory,
   selectedService,
   isLoading = false,
   cartItems = [],
-  purchaseLocation // Added purchaseLocation prop
+  purchaseLocation, // Added purchaseLocation prop
+  autoSelectCategoryId
 }) => {
   const isMobile = useIsMobile();
   const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
@@ -48,6 +51,24 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const hasAutoSelectedRef = useRef(false);
+
+  // Auto-select category when autoSelectCategoryId changes
+  useEffect(() => {
+    if (autoSelectCategoryId && categories.length > 0 && purchaseLocation && !hasAutoSelectedRef.current) {
+      console.log("Auto-selecting category:", autoSelectCategoryId);
+      const categoryToSelect = categories.find(cat => cat.id === autoSelectCategoryId);
+      if (categoryToSelect) {
+        hasAutoSelectedRef.current = true;
+        handleCategoryClick(categoryToSelect);
+      }
+    }
+  }, [autoSelectCategoryId, categories, purchaseLocation]);
+
+  // Reset auto-selection flag when categories or purchaseLocation changes
+  useEffect(() => {
+    hasAutoSelectedRef.current = false;
+  }, [categories, purchaseLocation]);
 
   // Log when purchaseLocation changes to aid debugging
   useEffect(() => {
@@ -198,7 +219,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     return (categoryId: string, imageData: string) => {
       clearTimeout(debounceTimer);
 
-      // Actualizar el estado inmediatamente para la UI
+      // Actualizar el estado inmediato para la UI
       setCachedImages(prev => ({
         ...prev,
         [categoryId]: imageData

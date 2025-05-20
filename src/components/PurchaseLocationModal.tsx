@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -220,7 +219,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     }
   };
 
-  // Function to blur the active element to close the keyboard
   const closeKeyboard = () => {
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
