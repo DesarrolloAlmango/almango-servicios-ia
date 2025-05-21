@@ -183,37 +183,52 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const initialLoadComplete = useRef(false);
   const categoryChangedRef = useRef(false);
   const productsLoadedRef = useRef(false);
-  const pricesUpdatedAutomatically = useRef(false);
 
   const getPurchaseLocationForService = (serviceId: string) => {
     return null;
   };
 
+  // Improved fetchUpdatedPrice function to ensure proper provider ID usage
   const fetchUpdatedPrice = async (product: Product): Promise<{id: string, price: number}> => {
     if (!purchaseLocationId || !serviceId || !category.id) {
+      console.log("Missing required parameters for price fetch:", { 
+        purchaseLocationId, 
+        serviceId, 
+        categoryId: category.id 
+      });
       return { id: product.id, price: product.defaultPrice || product.price };
     }
 
     try {
-      // Log the API call to help with debugging
-      console.log(`Fetching price for: serviceId=${serviceId}, categoryId=${category.id}, productId=${product.id}, locationId=${purchaseLocationId}`);
+      // Log the API call with explicit params for debugging
+      console.log(`Fetching price with params: proveedorId=${purchaseLocationId}, nivel0=${serviceId}, nivel1=${category.id}, nivel2=${product.id}`);
       
       const response = await fetch(
         `/api/AlmangoXV1NETFramework/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`
       );
       
       if (!response.ok) {
+        console.error(`Error response from price API: ${response.status} ${response.statusText}`);
         throw new Error(`Error al obtener precio: ${response.status}`);
       }
       
       const data = await response.json();
       console.log(`Price data received for ${product.id}:`, data);
-      return { 
-        id: product.id,
-        price: data.Precio > 0 ? data.Precio : (product.defaultPrice || product.price) 
-      };
+      
+      if (data && typeof data.Precio === 'number') {
+        return { 
+          id: product.id,
+          price: data.Precio > 0 ? data.Precio : (product.defaultPrice || product.price) 
+        };
+      } else {
+        console.warn(`Invalid price data format for product ${product.id}:`, data);
+        return { 
+          id: product.id,
+          price: product.defaultPrice || product.price 
+        };
+      }
     } catch (error) {
-      console.error(`Error al obtener precio para producto ${product.id}:`, error);
+      console.error(`Error fetching price for product ${product.id}:`, error);
       return { 
         id: product.id,
         price: product.defaultPrice || product.price 
@@ -224,12 +239,17 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   // Function to update all prices - critical for ensuring prices are always current
   const updateAllPrices = async () => {
     if (!purchaseLocationId || !serviceId || isUpdatingPrices || products.length === 0) {
-      console.log("Skipping price update - missing data or already updating", { purchaseLocationId, serviceId, isUpdatingPrices, productCount: products.length });
+      console.log("Skipping price update - missing data or already updating", { 
+        purchaseLocationId, 
+        serviceId, 
+        isUpdatingPrices, 
+        productCount: products.length 
+      });
       return false;
     }
     
     try {
-      console.log("Updating all prices for category:", category.name);
+      console.log(`Updating all prices for category ${category.name} with proveedorId=${purchaseLocationId}`);
       setIsUpdatingPrices(true);
       
       // Mark all products as loading prices
@@ -239,6 +259,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       // Fetch updated prices individually
       const pricePromises = products.map(product => fetchUpdatedPrice(product));
       const updatedPrices = await Promise.all(pricePromises);
+      
+      console.log("All prices fetched successfully:", updatedPrices);
       
       // Update all product prices at once
       setProducts(prevProducts => 
@@ -252,11 +274,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       setLoadingProductIds(new Set());
       // Mark prices as fetched
       setPricesFetched(true);
-      pricesUpdatedAutomatically.current = true;
       console.log("Prices updated successfully for all products");
       return true;
     } catch (error) {
-      console.error("Error al actualizar precios:", error);
+      console.error("Error updating prices:", error);
       toast.error("Hubo un error al actualizar los precios");
       return false;
     } finally {
@@ -268,7 +289,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const fetchProducts = async () => {
     if (!serviceId || !category.id) {
       console.log("Skipping product fetch - missing serviceId or categoryId");
-      return;
+      return [];
     }
     
     productsLoadedRef.current = false;
@@ -312,15 +333,14 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       setLoadingProductIds(new Set(initialProducts.map((p: Product) => p.id)));
       
       // Immediately update prices after products are loaded
-      // This ensures prices are always current without requiring manual updates
       if (purchaseLocationId) {
-        console.log("Products loaded, immediately updating prices");
+        console.log(`Products loaded, immediately fetching prices with proveedorId=${purchaseLocationId}`);
         await updateAllPrices(); // Wait for price update to complete
       }
       
       return initialProducts;
     } catch (error) {
-      console.error("Error al cargar productos:", error);
+      console.error("Error loading products:", error);
       toast.error("Hubo un error al cargar los productos");
       return [];
     }
@@ -331,8 +351,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     if (category.id && serviceId) {
       console.log("Category changed, fetching products:", category.name);
       categoryChangedRef.current = true;
-      // Reset price update flag when category changes
-      pricesUpdatedAutomatically.current = false;
       fetchProducts();
     }
   }, [category.id, serviceId]);
@@ -368,11 +386,20 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   useEffect(() => {
     if (!purchaseLocationId || !serviceId) return;
 
-    if (products.length > 0 && purchaseLocationId && !pricesUpdatedAutomatically.current) {
-      console.log("Purchase location or service changed with products loaded, updating prices");
+    if (products.length > 0 && purchaseLocationId) {
+      console.log(`Purchase location changed to ${purchaseLocationId}, updating prices`);
+      // Always update prices when purchase location changes - no caching
       updateAllPrices();
     }
   }, [purchaseLocationId, serviceId]);
+
+  // Always update prices when the component mounts or when products are loaded
+  useEffect(() => {
+    if (products.length > 0 && purchaseLocationId && serviceId) {
+      console.log("Products loaded or component mounted, updating prices");
+      updateAllPrices();
+    }
+  }, [products.length]);
 
   const updateCart = (productId: string, newQuantity: number) => {
     const product = products.find(p => p.id === productId);
