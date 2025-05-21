@@ -53,47 +53,34 @@ const LocationStep: React.FC<LocationStepProps> = ({
   };
 
   const handleNextWithDelay = () => {
-    // Call the original onNext function
+    // Call the original onNext function immediately
     onNext();
     
     // If we have a categoryId, trigger a click on that category after a delay
     if (categoryId) {
-      console.log("LocationStep: Scheduling auto-click for category:", categoryId);
+      console.log("LocationStep: Dispatching events for category:", categoryId);
       
-      // Show a toast immediately that we're about to click the category
-      toast.info(`Seleccionando automáticamente la categoría (ID: ${categoryId})...`, {
-        duration: 3000
+      // Dispatch the fetchProducts event to show products immediately 
+      const fetchProductsEvent = new CustomEvent('fetchProducts', { 
+        detail: { 
+          categoryId,
+          // Use global variable if available
+          serviceId: window.lastSelectedServiceId || undefined
+        } 
       });
+      document.dispatchEvent(fetchProductsEvent);
       
-      setTimeout(() => {
-        console.log("LocationStep: Dispatching openCategory event for:", categoryId);
-        // Dispatch the event with the category ID
-        const openCategoryEvent = new CustomEvent('openCategory', { 
-          detail: { 
-            categoryId,
-            // Use global variable if available
-            serviceId: window.lastSelectedServiceId || undefined,
-            categoryName: window.lastSelectedCategoryName || undefined
-          } 
-        });
-        document.dispatchEvent(openCategoryEvent);
-        
-        // Try to directly trigger a click on the category card if it exists
-        setTimeout(() => {
-          const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
-          if (categoryElement) {
-            const clickableCard = categoryElement.querySelector('.cursor-pointer');
-            if (clickableCard && clickableCard instanceof HTMLElement) {
-              console.log("LocationStep: Directly clicking category card for:", categoryId);
-              clickableCard.click();
-            } else {
-              console.error("LocationStep: Couldn't find clickable element in category card");
-            }
-          } else {
-            console.error("LocationStep: Couldn't find category element with ID:", categoryId);
-          }
-        }, 300); // Small additional delay to ensure the event handlers are ready
-      }, 1000);  // 1 second delay as requested
+      // Dispatch the event to open the category
+      const openCategoryEvent = new CustomEvent('openCategory', { 
+        detail: { 
+          categoryId,
+          // Use global variable if available
+          serviceId: window.lastSelectedServiceId || undefined,
+          categoryName: window.lastSelectedCategoryName || undefined,
+          showProducts: true // Add flag to show products immediately
+        } 
+      });
+      document.dispatchEvent(openCategoryEvent);
     }
   };
 
@@ -105,11 +92,6 @@ const LocationStep: React.FC<LocationStepProps> = ({
         <MapPin className="h-12 w-12 mx-auto text-primary mb-2" />
         <h3 className="text-xl font-semibold">{title}</h3>
         <p className="text-muted-foreground">{description}</p>
-        {categoryId && (
-          <div className="mt-2 p-1 bg-black text-white text-sm inline-block rounded">
-            Category ID: {categoryId}
-          </div>
-        )}
       </div>
 
       {showStoreSection && storeName && (
@@ -182,7 +164,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
           disabled={!selectedDepartment || !selectedLocation || loading.municipalities || loading.departments}
           className="bg-primary hover:bg-primary-dark"
         >
-          {buttonText} {categoryId && `(Cat ID: ${categoryId})`}
+          {buttonText}
         </Button>
       </div>
     </div>

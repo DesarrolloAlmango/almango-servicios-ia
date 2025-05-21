@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -350,24 +349,33 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     e.preventDefault();
   };
 
-  // Helper function to fetch product categories after location confirmation
-  const fetchProductsForCategory = async (storeId: string, serviceId?: string, categoryId?: string) => {
-    if (!serviceId || !categoryId) return;
-    
+  // Helper function to fetch products for a category
+  const fetchProducts = async (serviceId: string, categoryId: string) => {
     try {
-      console.log(`Fetching products for store: ${storeId}, service: ${serviceId}, category: ${categoryId}`);
-      // Make a direct call to fetch products
-      const endpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
+      console.log(`Fetching products for service: ${serviceId}, category: ${categoryId}`);
       
+      // Dispatch a custom event to signal the parent component to fetch and display products
+      const fetchProductsEvent = new CustomEvent('fetchProducts', { 
+        detail: { 
+          serviceId,
+          categoryId,
+          categoryName: localCategoryName || globalLastSelectedCategory.categoryName
+        } 
+      });
+      document.dispatchEvent(fetchProductsEvent);
+      
+      // Also make the API call directly to pre-load data
+      const endpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
       const response = await fetch(endpoint);
+      
       if (!response.ok) {
         console.error(`Error fetching products: ${response.status}`);
         return null;
-      } else {
-        const data = await response.json();
-        console.log(`Preloaded ${data.length} products successfully`);
-        return data;
-      }
+      } 
+      
+      const data = await response.json();
+      console.log(`Successfully fetched ${data.length} products`);
+      return data;
     } catch (error) {
       console.error("Error fetching products:", error);
       return null;
@@ -411,32 +419,24 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     // Use the effective category ID from props or the global variable
     const finalCategoryId = localCategoryId || lastSelectedCategoryId || categoryId || null;
     const finalCategoryName = localCategoryName || lastSelectedCategoryName || categoryName || null;
+    const finalServiceId = localServiceId || serviceId || null;
     
     console.log("Confirming location with category info:", { 
-      serviceId: localServiceId,
+      serviceId: finalServiceId,
       categoryId: finalCategoryId,
-      categoryName: finalCategoryName,
-      globalTemp: lastSelectedCategoryId 
+      categoryName: finalCategoryName
     });
     
     // Store the category information in global variable for automatic opening
-    if (localServiceId && finalCategoryId) {
+    if (finalServiceId && finalCategoryId) {
       globalLastSelectedCategory = {
-        serviceId: localServiceId,
+        serviceId: finalServiceId,
         categoryId: finalCategoryId,
         categoryName: finalCategoryName
       };
       
-      // Pre-fetch products before closing the modal
-      await fetchProductsForCategory(storeId, localServiceId, finalCategoryId);
-    }
-    
-    // Show a toast notification with the category ID and name
-    if (finalCategoryId && finalCategoryName) {
-      toast.success(`Seleccionando categoría: ${finalCategoryName} (ID: ${finalCategoryId})`, {
-        duration: 5000,
-        position: "top-center"
-      });
+      // Immediately fetch products before closing the modal
+      await fetchProducts(finalServiceId, finalCategoryId);
     }
     
     // Close the modal and call onSelectLocation
@@ -452,14 +452,15 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     
     onClose();
     
-    // If this is a new category selection, trigger a special event to notify the parent component
-    if (finalCategoryId && localServiceId) {
-      // Use a custom event to notify the parent component to open the category
+    // If this is a new category selection, trigger the product display immediately
+    if (finalCategoryId && finalServiceId) {
+      // Use a custom event to notify the parent component to open the category and show products
       const openCategoryEvent = new CustomEvent('openCategory', {
         detail: {
-          serviceId: localServiceId,
+          serviceId: finalServiceId,
           categoryId: finalCategoryId,
-          categoryName: finalCategoryName
+          categoryName: finalCategoryName,
+          showProducts: true // Add flag to indicate products should be shown immediately
         }
       });
       document.dispatchEvent(openCategoryEvent);
@@ -521,9 +522,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             {effectiveCategoryId && (
               <div className="mt-2 py-1 px-3 bg-orange-100 text-orange-800 inline-block rounded-md">
                 Categoría seleccionada: <span className="font-semibold">{effectiveCategoryName}</span>
-                <span className="ml-1 px-2 py-0.5 bg-black text-white rounded text-xs">
-                  ID: {effectiveCategoryId}
-                </span>
               </div>
             )}
           </div>
