@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -103,6 +102,16 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   // Use the global lastSelectedCategoryId if no categoryId is provided
   const effectiveCategoryId = categoryId || lastSelectedCategoryId || null;
   const effectiveCategoryName = categoryName || lastSelectedCategoryName || null;
+
+  // Handle modal close event
+  const handleModalClose = () => {
+    // Dispatch event to close the product modal too
+    const closeProductModalEvent = new CustomEvent('closeProductModal');
+    document.dispatchEvent(closeProductModalEvent);
+    
+    // Call the original onClose function
+    onClose();
+  };
 
   useEffect(() => {
     if (isOpen) {
@@ -507,7 +516,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) {
+        handleModalClose();
+      }
+    }}>
       <DialogContent className="sm:max-w-md">
         {/* Add DialogTitle to fix accessibility warning */}
         <DialogTitle className="sr-only">Selección de lugar de compra</DialogTitle>
@@ -701,7 +714,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
         {!commerceId && (
           <DialogFooter>
-            <Button variant="outline" onClick={onClose} disabled={isConfirming}>
+            <Button variant="outline" onClick={handleModalClose} disabled={isConfirming}>
               Cancelar
             </Button>
             <Button 
