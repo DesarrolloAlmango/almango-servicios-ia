@@ -43,36 +43,46 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
     if (!enableCategoryAutoClick) return;
 
     const handleOpenCategoryEvent = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail) {
-        const { categoryId } = customEvent.detail;
-        console.log("ServiceCarousel received openCategory event for:", categoryId);
-        
-        // Forward the event to CategoryCarousel components
-        const forwardEvent = new CustomEvent('openCategory', { 
-          detail: customEvent.detail 
-        });
-        document.dispatchEvent(forwardEvent);
+      try {
+        const customEvent = e as CustomEvent;
+        if (customEvent.detail) {
+          const { categoryId } = customEvent.detail;
+          console.log("ServiceCarousel received openCategory event for:", categoryId);
+          
+          // Forward the event to CategoryCarousel components
+          const forwardEvent = new CustomEvent('openCategory', { 
+            detail: customEvent.detail 
+          });
+          document.dispatchEvent(forwardEvent);
+        }
+      } catch (error) {
+        console.error("Error in openCategory event handler:", error);
       }
     };
     
     // Also listen for categorySelected events
     const handleCategorySelectedEvent = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail) {
-        console.log("ServiceCarousel received categorySelected event for:", customEvent.detail.categoryId);
-        
-        // Forward the event to CategoryCarousel components
-        const forwardEvent = new CustomEvent('categorySelected', { 
-          detail: customEvent.detail 
-        });
-        document.dispatchEvent(forwardEvent);
+      try {
+        const customEvent = e as CustomEvent;
+        if (customEvent.detail) {
+          console.log("ServiceCarousel received categorySelected event for:", customEvent.detail.categoryId);
+          
+          // Forward the event to CategoryCarousel components
+          const forwardEvent = new CustomEvent('categorySelected', { 
+            detail: customEvent.detail 
+          });
+          document.dispatchEvent(forwardEvent);
+        }
+      } catch (error) {
+        console.error("Error in categorySelected event handler:", error);
       }
     };
     
+    // Add event listeners with error handling
     document.addEventListener('openCategory', handleOpenCategoryEvent);
     document.addEventListener('categorySelected', handleCategorySelectedEvent);
     
+    // Clean up event listeners on unmount
     return () => {
       document.removeEventListener('openCategory', handleOpenCategoryEvent);
       document.removeEventListener('categorySelected', handleCategorySelectedEvent);
