@@ -181,6 +181,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const initialLoadComplete = useRef(false);
   const productsInitialized = useRef(false);
   const categorySelected = useRef(false);
+  const componentMounted = useRef(false);
 
   // Function to fetch updated price for a specific product
   const fetchUpdatedPrice = async (product: Product): Promise<{id: string, price: number}> => {
@@ -415,10 +416,13 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   }, [products.length]);
 
   // CRITICAL: Additional effect to ensure prices are ALWAYS fetched when component is shown
+  // This runs on component mount and any time serviceId or purchaseLocationId changes
   useEffect(() => {
+    componentMounted.current = true;
+    
     // This effect runs when the component mounts
-    if (products.length > 0 && purchaseLocationId && serviceId) {
-      console.log("Component visible, forcing price refresh");
+    if (componentMounted.current && products.length > 0 && purchaseLocationId && serviceId) {
+      console.log("Component mounted/visible, forcing price refresh");
       // Always update prices when component becomes visible - no caching
       updateAllPrices();
     }
@@ -426,12 +430,32 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     // Cleanup function to prevent memory leaks
     return () => {
       initialLoadComplete.current = false; // Reset for next time
+      componentMounted.current = false;
     };
   }, []);
 
-  // NEW: Add effect to detect when a category is selected from the carousel
+  // NEW: Add a visibility change effect to refresh prices when tab becomes visible again
   useEffect(() => {
-    // Listen for the categorySelected event from CategoryCarousel
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && 
+          componentMounted.current && 
+          products.length > 0 && 
+          purchaseLocationId && 
+          serviceId) {
+        console.log("Page became visible again, refreshing prices");
+        updateAllPrices();
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [products, purchaseLocationId, serviceId]);
+
+  // Listen for the categorySelected event from CategoryCarousel
+  useEffect(() => {
     const handleCategorySelected = (e: Event) => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail) {
@@ -452,6 +476,34 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       document.removeEventListener('categorySelected', handleCategorySelected);
     };
   }, [serviceId]);
+
+  // NEW: Add event listener for product grid being shown in any way
+  useEffect(() => {
+    const handleProductGridShown = () => {
+      if (products.length > 0 && purchaseLocationId && serviceId) {
+        console.log("ProductGrid shown event detected, refreshing prices");
+        updateAllPrices();
+      }
+    };
+    
+    // Custom event for any component that shows the ProductGrid
+    document.addEventListener('productGridShown', handleProductGridShown);
+    
+    // Also refresh on route changes that might show this component
+    const handleRouteChange = () => {
+      if (location.pathname === '/servicios' && products.length > 0 && purchaseLocationId && serviceId) {
+        console.log("Route changed to /servicios, refreshing prices");
+        updateAllPrices();
+      }
+    };
+    
+    window.addEventListener('popstate', handleRouteChange);
+    
+    return () => {
+      document.removeEventListener('productGridShown', handleProductGridShown);
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, [products, purchaseLocationId, serviceId, location.pathname]);
 
   // Update cart helpers
   const updateCart = (productId: string, newQuantity: number) => {

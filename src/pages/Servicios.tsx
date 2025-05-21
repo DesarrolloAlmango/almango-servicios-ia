@@ -505,6 +505,9 @@ const Servicios = () => {
           setTimeout(() => {
             serviceCardElement.click();
             console.log("Auto-clicked on service:", serviceId);
+            
+            // NEW: Dispatch event to notify ProductGrid that it should refresh prices
+            document.dispatchEvent(new CustomEvent('productGridShown'));
           }, 300);
         }
       }
