@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, forwardRef, useEffect, useRef } from 'react';
 import { Button } from "./ui/button";
 import CategoryCarousel from "./CategoryCarousel";
@@ -293,7 +292,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       const loadingIds = new Set(initialProducts.map(p => p.id));
       setLoadingProductIds(loadingIds);
       
-      // Si tenemos purchaseLocationId, actualizamos los precios automáticamente
+      // Always update prices when a category is selected and products are loaded
       if (purchaseLocationId && serviceId) {
         // Always update prices when component mounts with a purchase location
         updateAllPrices();
@@ -654,7 +653,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     }
   };
 
-  // Update the fetchProducts function to be more robust
+  // Update the fetchProducts function to automatically update prices
   const fetchProducts = async (serviceId: string, categoryId: string) => {
     console.log(`Fetching products for service ${serviceId} and category ${categoryId}`);
     setIsLoading(true);
@@ -713,6 +712,8 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       // Siempre actualizar selectedCategory para mostrar los productos
       console.log("Setting selected category:", categoryToUpdate);
       setSelectedCategory(categoryToUpdate);
+      
+      // Prices will be automatically updated when ProductGrid mounts with the new category
       
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar productos');
