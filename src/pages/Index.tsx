@@ -70,6 +70,7 @@ const Index = () => {
   const quienesSomosSectionRef = useRef<HTMLElement>(null);
   const formarParteSectionRef = useRef<HTMLElement>(null);
   const partnersSectionRef = useRef<HTMLElement>(null);
+  
   useEffect(() => {
     const options = {
       root: null,
@@ -142,9 +143,10 @@ const Index = () => {
       sectionObserver.disconnect();
     };
   }, []);
-  return <div className="min-h-screen flex flex-col">
+  return (
+    <div className="min-h-screen flex flex-col overflow-x-hidden">
       <Header />
-      <main id="inicio" className="flex-grow bg-zinc-200 mx-0 my-0">
+      <main id="inicio" className="flex-grow bg-zinc-200 mx-0 my-0 overflow-x-hidden">
         <Hero />
         
         {/* Service Cards Grid - positioned to overlap with the hero section */}
@@ -187,6 +189,7 @@ const Index = () => {
       
       <Footer />
       <WhatsAppButton />
-    </div>;
+    </div>
+  );
 };
 export default Index;

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 
 interface SealItem {
@@ -112,7 +111,7 @@ const ServicesShowcase: React.FC = () => {
   }, []);
 
   return (
-    <section className="py-16 bg-[#F0F0F0]">
+    <section className="py-16 bg-[#F0F0F0] overflow-x-hidden">
       <div className="container mx-auto px-4">
         
         {/* Title for the Services Section - Updated with enhanced styling */}
