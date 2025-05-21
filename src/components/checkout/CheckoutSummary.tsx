@@ -54,7 +54,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const paymentLinkRef = useRef<HTMLAnchorElement>(null);
   const [departments, setDepartments] = useState<Array<{id: string, name: string}>>([]);
   const [municipalities, setMunicipalities] = useState<Record<string, Array<{id: string, name: string}>>>({});
-  const [showBlockingOverlay, setShowBlockingOverlay] = useState(false); // State for blocking overlay
+  const [showBlockingOverlay, setShowBlockingOverlay] = useState(false); // New state for blocking overlay
 
   // Use the custom hook for MercadoPago payment handling
   const {
@@ -72,7 +72,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
   useEffect(() => {
     if (!isOpen) {
-      // Clear state when dialog is closed to prevent stale UI
       setServiceRequests([]);
       setError(null);
       setShowResultDialog(false);
@@ -81,52 +80,44 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       setShowDetailDialog(false);
       setSelectedRequestData(null);
       setIsRedirecting(false);
-      setSubmitting(false); // Reset submitting state
-      setShowBlockingOverlay(false); // Hide blocking overlay
+      setShowBlockingOverlay(false); // Reset blocking overlay
     }
   }, [isOpen]);
 
   const processServiceRequest = async (serviceData: CheckoutData): Promise<number> => {
-    try {
-      // Get the provider ID from the ProveedorAuxiliar field
-      // If storeId exists, use it as the provider ID, otherwise use 0
-      const providerId = serviceData.ProveedorAuxiliar && serviceData.ProveedorAuxiliar.trim() !== "" ? 
-                        (serviceData.ProveedorAuxiliar === "No lo sé" ? "0" : serviceData.ProveedorAuxiliar) : 
-                        "0";
-      
-      const jsonSolicitud = JSON.stringify(serviceData);
-      const url = new URL("/api/AlmangoXV1NETFramework/WebAPI/AltaSolicitud", window.location.origin);
-      url.searchParams.append("Userconect", "NoEmpty");
-      url.searchParams.append("Key", "d3d3LmF6bWl0YS5jb20=");
-      url.searchParams.append("Proveedorid", providerId); // Using the correct provider ID
-      url.searchParams.append("Usuarioid", "0");
-      url.searchParams.append("Jsonsolicitud", jsonSolicitud);
+    // Get the provider ID from the ProveedorAuxiliar field
+    // If storeId exists, use it as the provider ID, otherwise use 0
+    const providerId = serviceData.ProveedorAuxiliar && serviceData.ProveedorAuxiliar.trim() !== "" ? 
+                       (serviceData.ProveedorAuxiliar === "No lo sé" ? "0" : serviceData.ProveedorAuxiliar) : 
+                       "0";
+    
+    const jsonSolicitud = JSON.stringify(serviceData);
+    const url = new URL("/api/AlmangoXV1NETFramework/WebAPI/AltaSolicitud", window.location.origin);
+    url.searchParams.append("Userconect", "NoEmpty");
+    url.searchParams.append("Key", "d3d3LmF6bWl0YS5jb20=");
+    url.searchParams.append("Proveedorid", providerId); // Using the correct provider ID
+    url.searchParams.append("Usuarioid", "0");
+    url.searchParams.append("Jsonsolicitud", jsonSolicitud);
 
-      console.log("Sending request with provider ID:", providerId);
-      console.log("Service data:", serviceData);
+    console.log("Sending request with provider ID:", providerId);
+    console.log("Service data:", serviceData);
 
-      const response = await fetch(url.toString());
-      
-      if (!response.ok) {
-        throw new Error(`Error en la respuesta: ${response.status} ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      
-      if (!result || typeof result.SolicitudesID === 'undefined' || result.SolicitudesID <= 0) {
-        throw new Error("La solicitud no pudo ser procesada correctamente");
-      }
-
-      return result.SolicitudesID;
-    } catch (error) {
-      console.error("Error processing service request:", error);
-      throw error; // Re-throw to be caught by the caller
+    const response = await fetch(url.toString());
+    
+    if (!response.ok) {
+      throw new Error(`Error en la respuesta: ${response.status} ${response.statusText}`);
     }
+
+    const result = await response.json();
+    
+    if (!result || typeof result.SolicitudesID === 'undefined' || result.SolicitudesID <= 0) {
+      throw new Error("La solicitud no pudo ser procesada correctamente");
+    }
+
+    return result.SolicitudesID;
   };
 
   const handleSubmitOrder = async () => {
-    if (submitting) return; // Prevent multiple submissions
-    
     try {
       setSubmitting(true);
       setError(null);
@@ -137,25 +128,15 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
       for (const serviceData of data) {
         setProcessingService(serviceData.serviceName || 'Servicio');
+        const solicitudId = await processServiceRequest(serviceData);
         
-        try {
-          const solicitudId = await processServiceRequest(serviceData);
-          
-          const requestInfo = {
-            solicitudId,
-            serviceName: serviceData.serviceName || 'Servicio',
-            requestData: serviceData
-          };
-          
-          processedRequests.push(requestInfo);
-        } catch (err) {
-          // Log individual service errors but continue with others
-          console.error(`Error processing service ${serviceData.serviceName}:`, err);
-        }
-      }
-
-      if (processedRequests.length === 0) {
-        throw new Error("No se pudo procesar ninguna solicitud. Por favor intenta nuevamente.");
+        const requestInfo = {
+          solicitudId,
+          serviceName: serviceData.serviceName || 'Servicio',
+          requestData: serviceData
+        };
+        
+        processedRequests.push(requestInfo);
       }
 
       setServiceRequests(processedRequests);
@@ -167,7 +148,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     } finally {
       setSubmitting(false);
       setProcessingService(null);
-      // Note: We're not hiding the blocking overlay here because we want it to remain visible
+      // We don't hide the blocking overlay here since we want it to remain visible
       // until the ResultDialog is shown and the user interacts with it
     }
   };
@@ -203,7 +184,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         style={{ display: 'none' }}
       />
 
-      {/* Full-screen blocking overlay - now properly tied to the showBlockingOverlay state */}
+      {/* Full-screen blocking overlay */}
       {showBlockingOverlay && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-sm">
           <div className="bg-background p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
@@ -217,7 +198,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       )}
 
       <AlertDialog open={isOpen} onOpenChange={(open) => {
-        if (!open && !submitting && !serviceRequests.length && !error) {
+        if (!open && !serviceRequests.length && !error) {
           onClose(false);
         }
       }}>

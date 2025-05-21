@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import LocationStep from "@/components/checkout/LocationStep";
 import { Textarea } from "@/components/ui/textarea";
-import { lastSelectedCategoryId, lastSelectedCategoryName } from "@/components/CategoryCarousel";
 
 interface Store {
   id: string;
@@ -32,10 +31,6 @@ interface PurchaseLocationModalProps {
   serviceName?: string;
   commerceId?: string;
   commerceName?: string;
-  // Adding new props to handle category information
-  serviceId?: string;
-  categoryId?: string;
-  categoryName?: string;
 }
 
 interface Department {
@@ -48,17 +43,6 @@ interface Municipality {
   name: string;
 }
 
-// Global variable to store the last selected category for automatic opening
-let globalLastSelectedCategory: {
-  serviceId: string | null;
-  categoryId: string | null;
-  categoryName: string | null;
-} = {
-  serviceId: null,
-  categoryId: null,
-  categoryName: null
-};
-
 const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   isOpen,
   onClose,
@@ -66,10 +50,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   stores = [],
   serviceName,
   commerceId,
-  commerceName,
-  serviceId,
-  categoryId,
-  categoryName
+  commerceName
 }) => {
   const [selectedStore, setSelectedStore] = useState<string>("");
   const [otherStore, setOtherStore] = useState<string>("");
@@ -94,19 +75,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     { id: "unknown", name: "No lo sé" }
   ];
 
-  // Add state for the local tracking of category selection
-  const [localCategoryId, setLocalCategoryId] = useState<string | undefined>(categoryId);
-  const [localCategoryName, setLocalCategoryName] = useState<string | undefined>(categoryName);
-  const [localServiceId, setLocalServiceId] = useState<string | undefined>(serviceId);
-
-  // Use the global lastSelectedCategoryId if no categoryId is provided
-  const effectiveCategoryId = categoryId || lastSelectedCategoryId || null;
-  const effectiveCategoryName = categoryName || lastSelectedCategoryName || null;
-
   useEffect(() => {
     if (isOpen) {
-      console.log("Modal opened with category:", effectiveCategoryId, effectiveCategoryName);
-      
       if (!commerceId) {
         fetchProviders();
       }
@@ -117,22 +87,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       setSelectedDepartment("");
       setSelectedLocation("");
       setSearchQuery(commerceName || "");
-      
-      // Set local category state from props or global variable
-      if (effectiveCategoryId) {
-        setLocalCategoryId(effectiveCategoryId);
-        setLocalCategoryName(effectiveCategoryName || undefined);
-        setLocalServiceId(serviceId || undefined);
-      }
-      
-      // Also check the global variable when opening
-      if (!effectiveCategoryId && globalLastSelectedCategory.categoryId) {
-        setLocalCategoryId(globalLastSelectedCategory.categoryId);
-        setLocalCategoryName(globalLastSelectedCategory.categoryName || undefined);
-        setLocalServiceId(globalLastSelectedCategory.serviceId || undefined);
-      }
     }
-  }, [isOpen, commerceId, commerceName, categoryId, categoryName, effectiveCategoryId, effectiveCategoryName, serviceId]);
+  }, [isOpen, commerceId, commerceName]);
 
   useEffect(() => {
     if (isStoreDropdownOpen && inputRef.current) {
@@ -145,46 +101,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       fetchMunicipalities(selectedDepartment);
     }
   }, [selectedDepartment]);
-
-  // Listen for category selection events
-  useEffect(() => {
-    const handleCategorySelected = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail) {
-        const { categoryId, categoryName, serviceId } = customEvent.detail;
-        console.log("PurchaseLocationModal received category selection event:", categoryId, categoryName, serviceId);
-        setLocalCategoryId(categoryId);
-        setLocalCategoryName(categoryName);
-        setLocalServiceId(serviceId);
-        
-        // Update the global variable for persistence
-        globalLastSelectedCategory = {
-          serviceId,
-          categoryId,
-          categoryName
-        };
-      }
-    };
-
-    document.addEventListener('categorySelected', handleCategorySelected);
-    
-    return () => {
-      document.removeEventListener('categorySelected', handleCategorySelected);
-    };
-  }, []);
-
-  useEffect(() => {
-    // Update local state when props change
-    if (categoryId && categoryId !== localCategoryId) {
-      setLocalCategoryId(categoryId);
-    }
-    if (categoryName && categoryName !== localCategoryName) {
-      setLocalCategoryName(categoryName);
-    }
-    if (serviceId && serviceId !== localServiceId) {
-      setLocalServiceId(serviceId);
-    }
-  }, [categoryId, categoryName, serviceId]);
 
   const fetchDepartments = async () => {
     setLoadingLocation(prev => ({...prev, departments: true}));
@@ -296,6 +212,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     }
   };
 
+  // Function to blur the active element to close the keyboard
   const closeKeyboard = () => {
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
@@ -349,135 +266,50 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     e.preventDefault();
   };
 
-  // Add state for tracking if we're in the process of confirming
-  const [isConfirming, setIsConfirming] = useState(false);
-
-  // Helper function to fetch product categories after location confirmation
-  const fetchProductsForCategory = async (storeId: string, serviceId?: string, categoryId?: string) => {
-    if (!serviceId || !categoryId) return;
-    
-    try {
-      console.log(`Fetching products for store: ${storeId}, service: ${serviceId}, category: ${categoryId}`);
-      // Make a direct call to fetch products
-      const endpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
-      
-      const response = await fetch(endpoint);
-      if (!response.ok) {
-        console.error(`Error fetching products: ${response.status}`);
-        return null;
-      } else {
-        const data = await response.json();
-        console.log(`Preloaded ${data.length} products successfully`);
-        return data;
+  const handleConfirm = () => {
+    if (!commerceId) {
+      if (!selectedStore && searchQuery) {
+        setSelectedStore("other");
+        setOtherStore(searchQuery);
+        setShowOtherInput(true);
       }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      return null;
-    }
-  };
-
-  const handleConfirm = async () => {
-    // Avoid double-clicking issues
-    if (isConfirming) return;
-    
-    try {
-      setIsConfirming(true);
-      
-      if (!commerceId) {
-        if (!selectedStore && searchQuery) {
-          setSelectedStore("other");
-          setOtherStore(searchQuery);
-          setShowOtherInput(true);
-        }
-    
-        if (!selectedStore && !searchQuery) {
-          toast.error("Por favor selecciona o escribe un lugar de compra");
-          setIsConfirming(false);
-          return;
-        }
-    
-        if (selectedStore === "other" && !otherStore.trim()) {
-          toast.error("Por favor ingresa el nombre del comercio");
-          setIsConfirming(false);
-          return;
-        }
-      }
-
-      if (!selectedDepartment || !selectedLocation) {
-        toast.error("Por favor selecciona departamento y localidad");
-        setIsConfirming(false);
+  
+      if (!selectedStore && !searchQuery) {
+        toast.error("Por favor selecciona o escribe un lugar de compra");
         return;
       }
-
-      const storeId = commerceId || selectedStore || "other";
-      const storeName = commerceId ? 
-        commerceName || "Comercio seleccionado" :
-        selectedStore === "other" ? 
-          otherStore || searchQuery : 
-          [...fixedStores, ...localStores].find(store => store.id === selectedStore)?.name || "";
-      
-      const selectedDepartmentObj = departments.find(dept => dept.id === selectedDepartment);
-      const selectedLocationObj = currentMunicipalities.find(mun => mun.id === selectedLocation);
-
-      // Use the effective category ID from props or the global variable
-      const finalCategoryId = localCategoryId || lastSelectedCategoryId || categoryId || null;
-      const finalCategoryName = localCategoryName || lastSelectedCategoryName || categoryName || null;
-      
-      console.log("Confirming location with category info:", { 
-        serviceId: localServiceId,
-        categoryId: finalCategoryId,
-        categoryName: finalCategoryName,
-        globalTemp: lastSelectedCategoryId 
-      });
-      
-      // Store the category information in global variable for automatic opening
-      if (localServiceId && finalCategoryId) {
-        globalLastSelectedCategory = {
-          serviceId: localServiceId,
-          categoryId: finalCategoryId,
-          categoryName: finalCategoryName
-        };
-        
-        // Start pre-fetching products but don't await it - let it happen in background
-        fetchProductsForCategory(storeId, localServiceId, finalCategoryId);
+  
+      if (selectedStore === "other" && !otherStore.trim()) {
+        toast.error("Por favor ingresa el nombre del comercio");
+        return;
       }
-      
-      // Close the modal and call onSelectLocation right away
-      onClose();
-      onSelectLocation(
-        storeId, 
-        storeName,
-        selectedDepartment,
-        selectedDepartmentObj?.name || "",
-        selectedLocation,
-        selectedLocationObj?.name || "",
-        selectedStore === "other" ? otherStore || searchQuery : undefined
-      );
-      
-      // If this is a new category selection, dispatch event after a short delay
-      if (finalCategoryId && localServiceId) {
-        setTimeout(() => {
-          try {
-            // Use a custom event to notify the parent component to open the category
-            const openCategoryEvent = new CustomEvent('openCategory', {
-              detail: {
-                serviceId: localServiceId,
-                categoryId: finalCategoryId,
-                categoryName: finalCategoryName
-              }
-            });
-            document.dispatchEvent(openCategoryEvent);
-          } catch (error) {
-            console.error("Error dispatching category event:", error);
-          }
-        }, 300);
-      }
-    } catch (error) {
-      console.error("Error in handleConfirm:", error);
-      toast.error("Ocurrió un error al procesar la solicitud");
-    } finally {
-      setIsConfirming(false);
     }
+
+    if (!selectedDepartment || !selectedLocation) {
+      toast.error("Por favor selecciona departamento y localidad");
+      return;
+    }
+
+    const storeId = commerceId || selectedStore || "other";
+    const storeName = commerceId ? 
+      commerceName || "Comercio seleccionado" :
+      selectedStore === "other" ? 
+        otherStore || searchQuery : 
+        [...fixedStores, ...localStores].find(store => store.id === selectedStore)?.name || "";
+    
+    const selectedDepartmentObj = departments.find(dept => dept.id === selectedDepartment);
+    const selectedLocationObj = currentMunicipalities.find(mun => mun.id === selectedLocation);
+
+    onSelectLocation(
+      storeId, 
+      storeName,
+      selectedDepartment,
+      selectedDepartmentObj?.name || "",
+      selectedLocation,
+      selectedLocationObj?.name || "",
+      selectedStore === "other" ? otherStore || searchQuery : undefined
+    );
+    onClose();
   };
 
   const isFormValid = useMemo(() => {
@@ -508,9 +340,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
-        {/* Add DialogTitle to fix accessibility warning */}
-        <DialogTitle className="sr-only">Selección de lugar de compra</DialogTitle>
-        
         {!commerceId && (
           <div className="text-center mb-6">
             <MapPin className="h-12 w-12 mx-auto text-orange-500 mb-2" />
@@ -532,10 +361,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             loading={loadingLocation}
             title="¿Dónde vamos a realizar el servicio?"
             description="Selecciona la ubicación donde necesitas el servicio"
-            buttonText={isConfirming ? "Procesando..." : "Confirmar"}
+            buttonText="Confirmar"
             showStoreSection={true}
             storeName={commerceName || "Comercio seleccionado"}
-            categoryId={effectiveCategoryId || undefined}
           />
         ) : (
           <div className="space-y-4">
@@ -700,22 +528,15 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
         {!commerceId && (
           <DialogFooter>
-            <Button variant="outline" onClick={onClose} disabled={isConfirming}>
+            <Button variant="outline" onClick={onClose}>
               Cancelar
             </Button>
             <Button 
               onClick={handleConfirm}
-              disabled={!isFormValid || loading || isConfirming}
+              disabled={!isFormValid || loading}
               className="bg-orange-500 hover:bg-orange-600"
             >
-              {isConfirming ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Procesando...
-                </>
-              ) : (
-                "Confirmar"
-              )}
+              Confirmar
             </Button>
           </DialogFooter>
         )}
@@ -724,6 +545,4 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   );
 };
 
-// Export global last selected category for external access
-export { globalLastSelectedCategory };
 export default PurchaseLocationModal;
