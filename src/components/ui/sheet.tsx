@@ -62,12 +62,22 @@ const SheetContent = React.forwardRef<
   React.useEffect(() => {
     const handleCloseProductModal = () => {
       console.log("closeProductModal event received in sheet");
-      // Programmatically click the close button if it exists
-      if (closeRef.current) {
-        closeRef.current.click();
-        console.log("Close button clicked programmatically");
+      
+      // Find the "Back to Categories" button and click it instead of closing the modal
+      const backButton = document.querySelector('button[aria-label="back-to-categories"], button:has(span:contains("Volver a Categorías"))');
+      
+      if (backButton instanceof HTMLElement) {
+        console.log("Back to Categories button found, clicking it");
+        backButton.click();
       } else {
-        console.log("Close button ref is null");
+        console.log("Back to Categories button not found, fallback to close button");
+        // Fallback to closing the modal if we can't find the back button
+        if (closeRef.current) {
+          closeRef.current.click();
+          console.log("Close button clicked programmatically");
+        } else {
+          console.log("Close button ref is null");
+        }
       }
     };
     

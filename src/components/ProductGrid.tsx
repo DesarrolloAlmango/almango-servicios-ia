@@ -435,6 +435,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         <button 
           onClick={onBack}
           className="flex items-center gap-2 text-primary hover:underline"
+          aria-label="back-to-categories"
         >
           <ArrowLeft size={16} />
           <span>Volver a Categorías</span>
