@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -599,13 +598,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       </div>;
   }
   return <div className="py-4 sm:py-6 w-full">
-      <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 mx-auto flex items-center justify-center flex-wrap gap-2">
+      <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 mx-auto">
         <span>SELECCIONÁ UNA CATEGORÍA</span>
-        {selectedCategoryName && (
-          <span className="text-orange-500 font-bold ml-1">
-            ({selectedCategoryName})
-          </span>
-        )}
       </h3>
       
       <Carousel className="w-full max-w-xs xs:max-w-sm sm:max-w-md md:max-w-xl lg:max-w-3xl mx-auto" opts={{

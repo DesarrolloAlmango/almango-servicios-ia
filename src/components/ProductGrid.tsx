@@ -5,6 +5,7 @@ import { Skeleton, PriceSkeleton, TextSkeleton } from "./ui/skeleton";
 import { toast } from "sonner";
 import { ArrowLeft, ShoppingCart, RefreshCw } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+
 interface CartItem {
   id: string;
   name: string;
@@ -630,8 +631,17 @@ const ProductGrid: React.FC<ProductGridProps> = ({
           <ArrowLeft size={16} />
           <span>Volver a Categorías</span>
           
-          {/* Yellow flash animation when no purchase location */}
-          {flashBackButton && <span className="absolute inset-0 bg-yellow-200 animate-pulse rounded-md opacity-10 z-[-1]"></span>}
+          {/* Lighter yellow flash animation with adjusted height */}
+          {flashBackButton && (
+            <span 
+              className="absolute inset-0 bg-yellow-100 animate-pulse rounded-md opacity-20 z-[-1]" 
+              style={{
+                maxHeight: '35px',
+                transform: 'scale(1.05)',
+                animation: 'pulse 2s infinite alternate',
+              }}
+            ></span>
+          )}
         </button>
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
         
@@ -670,4 +680,5 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         </>}
     </div>;
 };
+
 export default ProductGrid;
