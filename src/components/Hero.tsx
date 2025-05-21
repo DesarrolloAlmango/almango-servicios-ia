@@ -43,6 +43,25 @@ const Hero = () => {
         </Button>
       </div>
 
+      {/* Imagen de apretón de manos */}
+      <div className="absolute z-10 top-1/2 left-1/2 transform -translate-y-1/2 translate-x-calc-50%+20px)" style={{
+        transform: 'translate(calc(50% + 20px), -50%)',
+        maxHeight: '80%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <img 
+          src="/lovable-uploads/61c4eb76-3dac-472b-ad75-4c5029d686f7.png" 
+          alt="Apretón de manos profesional" 
+          className="h-auto max-h-full animate-fade-in"
+          style={{
+            maxWidth: isMobile ? '200px' : '400px',
+            opacity: 0.95
+          }}
+        />
+      </div>
+
       <ContactInfo />
     </div>
   );
