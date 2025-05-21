@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -179,6 +180,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
   const [pricesFetched, setPricesFetched] = useState<boolean>(false);
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
+  // Flag to track initial mount
+  const initialLoadComplete = useRef(false);
 
   const getPurchaseLocationForService = (serviceId: string) => {
     return null;
@@ -218,7 +221,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   useEffect(() => {
     // Set initial state with product base data
-    if (category.products.length > 0 && !pricesFetched) {
+    if (category.products.length > 0) {
+      console.log("Initializing products from category:", category.name);
+      
       // Initialize all products with their default prices first
       const initialProducts = category.products.map(product => ({ 
         ...product, 
@@ -239,31 +244,48 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       });
       setProductQuantities(initialQuantities);
       
-      // Si tenemos purchaseLocationId, actualizamos los precios automáticamente
+      // Set loading state for all products
+      const loadingIds = new Set(initialProducts.map(p => p.id));
+      setLoadingProductIds(loadingIds);
+      
+      // Force price update on every render of ProductGrid when we have location and service
       if (purchaseLocationId && serviceId) {
-        // Always update prices when component mounts with a purchase location
+        console.log("Category loaded with purchaseLocationId, updating prices immediately");
+        // Always update prices when component mounts with category data
         updateAllPrices();
       } else {
-        // Mark prices as fetched to prevent refetching
+        // Mark prices as fetched to prevent loading state when we don't have location
         setPricesFetched(true);
+        setLoadingProductIds(new Set());
       }
     }
-  }, [category, currentCartItems]);
+  }, [category]); // Only react to category changes
 
-  // Added a separate effect to update prices when purchaseLocationId changes
+  // Separate effect to update prices when purchaseLocationId changes
   useEffect(() => {
-    // If we have a purchase location ID and it changes, update prices automatically
+    // Skip first render
+    if (!initialLoadComplete.current) {
+      initialLoadComplete.current = true;
+      return;
+    }
+
+    // If we have a purchase location ID and serviceId, update prices automatically
     if (purchaseLocationId && serviceId && category.products.length > 0) {
-      console.log("Purchase location changed, updating prices automatically");
+      console.log("Purchase location or service ID changed, updating prices automatically");
       updateAllPrices();
     }
   }, [purchaseLocationId, serviceId]);
 
   const updateAllPrices = async () => {
-    if (!purchaseLocationId || !serviceId || isUpdatingPrices) return;
+    if (!purchaseLocationId || !serviceId || isUpdatingPrices || category.products.length === 0) {
+      console.log("Skipping price update - missing data or already updating");
+      return;
+    }
     
     try {
+      console.log("Updating all prices for category:", category.name);
       setIsUpdatingPrices(true);
+      
       // Mark all products as loading prices
       const loadingIds = new Set(products.map(p => p.id));
       setLoadingProductIds(loadingIds);
