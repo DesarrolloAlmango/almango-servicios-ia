@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
@@ -69,6 +68,7 @@ const ServiceCardsGrid = () => {
         // Use the API endpoint that's working based on the network logs
         const response = await fetch('/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios');
         const mudanzaResponse = await fetch('/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios2');
+        
         if (!response.ok || !mudanzaResponse.ok) {
           throw new Error(`HTTP error! Status: ${!response.ok ? response.status : mudanzaResponse.status}`);
         }
@@ -82,10 +82,12 @@ const ServiceCardsGrid = () => {
         // Extract the services from the JSON strings
         let servicesData: ServiceCard[] = [];
         let mudanzaServicesData: ServiceCard[] = [];
+        
         if (responseData?.SDTTarjetasServiciosJson) {
           servicesData = JSON.parse(responseData.SDTTarjetasServiciosJson);
           console.info('Datos de servicios parseados:', servicesData);
         }
+        
         if (mudanzaData?.SDTTarjetasServiciosJson) {
           mudanzaServicesData = JSON.parse(mudanzaData.SDTTarjetasServiciosJson);
           console.info('Datos de servicios de mudanza parseados:', mudanzaServicesData);
@@ -107,10 +109,37 @@ const ServiceCardsGrid = () => {
         setLoading(false);
       }
     };
+
     fetchServices();
   }, [toast]);
 
   const handleServiceClick = (serviceId: string, serviceName: string) => {
+    // Crear evento personalizado para categoría seleccionada
+    // Esto permite que otros componentes puedan reaccionar
+    if (window.lastSelectedCategoryId && window.lastSelectedCategoryName) {
+      // Si hay una categoría seleccionada anteriormente, la recordamos
+      const openCategoryEvent = new CustomEvent('openCategory', {
+        detail: {
+          serviceId: serviceId,
+          categoryId: window.lastSelectedCategoryId,
+          categoryName: window.lastSelectedCategoryName
+        }
+      });
+      
+      // Almacenar en ventana global para otros componentes
+      window.lastSelectedServiceId = serviceId;
+      
+      // Disparar después de navegar para que los componentes estén listos
+      setTimeout(() => {
+        document.dispatchEvent(openCategoryEvent);
+        console.log('Dispatched openCategory event with:', {
+          serviceId,
+          categoryId: window.lastSelectedCategoryId,
+          categoryName: window.lastSelectedCategoryName
+        });
+      }, 500);
+    }
+    
     // Navigate to services page with the service name as state
     navigate('/servicios', {
       state: {
@@ -120,57 +149,46 @@ const ServiceCardsGrid = () => {
   };
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-24 sm:px-28 md:px-32 bg-[#F0F0F0]">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 -mt-24 z-10 relative justify-center">
-          {[...Array(6)].map((_, index) => (
-            <Card key={`skeleton-${index}`} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 h-40 animate-pulse w-full max-w-md mx-auto">
+    return <div className="container mx-auto px-4 sm:px-8 md:px-12 lg:px-24 bg-[#F0F0F0] relative z-[100]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 -mt-24 relative justify-center">
+          {[...Array(6)].map((_, index) => <Card key={`skeleton-${index}`} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 h-40 animate-pulse w-full max-w-md mx-auto">
               <CardContent className="p-4 flex flex-col items-center justify-center h-full">
                 <div className="w-16 h-16 bg-gray-200 rounded-md mb-2"></div>
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
               </CardContent>
-            </Card>
-          ))}
+            </Card>)}
         </div>
-      </div>
-    );
+      </div>;
   }
 
-  return (
-    <div className="bg-[#F0F0F0] py-8 relative">
-      <div className="container mx-auto px-24 sm:px-28 md:px-32 relative">
-        {/* Left side rotated "DESTACADOS" text - moved closer to the left */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 origin-center">
-          <p style={{ whiteSpace: 'nowrap' }} className="transform -rotate-90 text-4xl font-bold tracking-widest text-secondary">
+  return <div className="bg-[#F0F0F0] py-8 relative z-[100]">
+      <div className="container mx-auto px-4 sm:px-8 md:px-12 lg:px-24 relative z-[80]">
+        {/* Left side rotated "DESTACADOS" text - hidden on medium screens and below */}
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-10 sm:-translate-x-20 origin-center">
+          <p style={{
+          whiteSpace: 'nowrap'
+        }} className="transform -rotate-90 text-4xl font-bold tracking-widest text-secondary hidden lg:block translate-x-[-15px]">
             DESTACADOS
           </p>
         </div>
 
-        {/* Right side rotated "DESTACADOS" text - moved closer to the right */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 origin-center">
-          <p style={{ whiteSpace: 'nowrap' }} className="transform rotate-90 text-4xl font-bold tracking-widest text-primary">
+        {/* Right side rotated "DESTACADOS" text - hidden on medium screens and below */}
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-10 sm:translate-x-20 origin-center">
+          <p style={{
+          whiteSpace: 'nowrap'
+        }} className="transform rotate-90 text-4xl font-bold tracking-widest text-primary hidden lg:block translate-x-[15px]">
             DESTACADOS
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 -mt-24 z-10 relative justify-center">
-          {services.map(service => (
-            <Card
-              key={service.id}
-              onClick={() => handleServiceClick(service.id, service.name)}
-              className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 h-40 overflow-hidden w-full max-w-md mx-auto"
-            >
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 -mt-24 relative z-[90] justify-center">
+          {services.map(service => <Card key={service.id} onClick={() => handleServiceClick(service.id, service.name)} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 h-40 overflow-hidden w-full max-w-md mx-auto">
               <CardContent className="p-0 flex flex-col items-center justify-center h-full relative">
                 {/* Use AspectRatio to maintain image proportions */}
                 <AspectRatio ratio={1 / 1} className="w-full h-full">
-                  <img
-                    src={service.icon}
-                    alt={service.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "https://almango.com.uy/img/iconos/icono-almango-01.png"; // Default image
-                    }}
-                  />
+                  <img src={service.icon} alt={service.name} className="w-full h-full object-cover" onError={e => {
+                (e.target as HTMLImageElement).src = "https://almango.com.uy/img/iconos/icono-almango-01.png"; // Default image
+              }} />
                   {/* Dark overlay for better text visibility */}
                   <div className="absolute inset-0 bg-black/50"></div>
                 </AspectRatio>
@@ -179,12 +197,19 @@ const ServiceCardsGrid = () => {
                   <h3 className="text-base sm:text-lg font-bold text-center text-white uppercase">{service.name}</h3>
                 </div>
               </CardContent>
-            </Card>
-          ))}
+            </Card>)}
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
+
+// Declare global variables for TypeScript
+declare global {
+  interface Window {
+    lastSelectedCategoryId?: string;
+    lastSelectedCategoryName?: string;
+    lastSelectedServiceId?: string;
+  }
+}
 
 export default ServiceCardsGrid;

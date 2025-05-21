@@ -11,6 +11,8 @@ interface ServiceCarouselProps {
   primaryTitlePart?: string;
   secondaryTitlePart?: string;
   lightTitle?: boolean;
+  showBorder?: boolean;
+  enableCategoryAutoClick?: boolean;
 }
 
 const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
@@ -25,7 +27,9 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
   ],
   primaryTitlePart,
   secondaryTitlePart,
-  lightTitle = false
+  lightTitle = false,
+  showBorder = true,
+  enableCategoryAutoClick = true
 }) => {
   if (!children || children.length === 0) {
     return <div className="text-center py-8">No hay servicios disponibles</div>;
@@ -34,8 +38,33 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
   // Determinar si debe centrarse (cuando hay pocos elementos)
   const shouldCenter = children.length <= 2;
   
+  React.useEffect(() => {
+    // Only add this listener if auto-click is enabled
+    if (!enableCategoryAutoClick) return;
+
+    const handleOpenCategoryEvent = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        const { categoryId } = customEvent.detail;
+        console.log("ServiceCarousel received openCategory event for:", categoryId);
+        
+        // Forward the event to CategoryCarousel components
+        const forwardEvent = new CustomEvent('openCategory', { 
+          detail: customEvent.detail 
+        });
+        document.dispatchEvent(forwardEvent);
+      }
+    };
+    
+    document.addEventListener('openCategory', handleOpenCategoryEvent);
+    
+    return () => {
+      document.removeEventListener('openCategory', handleOpenCategoryEvent);
+    };
+  }, [enableCategoryAutoClick]);
+  
   return (
-    <div className="w-full max-w-screen-xl mx-auto">
+    <div className="w-full max-w-screen-xl mx-auto overflow-visible">
       {title && !primaryTitlePart && (
         <h2 className={`text-2xl md:text-3xl font-semibold text-center mb-6 text-[#ff6900] uppercase ${titleClassName}`}>
           {title}
@@ -61,23 +90,27 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
           loop: children.length > 2,
           containScroll: "trimSnaps"
         }} 
-        className="w-full relative"
+        className="w-full relative overflow-visible"
         showLoadingNames={showLoadingNames}
         loadingItems={loadingItems}
       >
-        <CarouselContent className="-ml-2 sm:-ml-4">
+        <CarouselContent className="-ml-2 sm:-ml-4 overflow-visible">
           {children.map((child, index) => (
             <CarouselItem 
               key={index} 
               className={`pl-2 sm:pl-4 
                 basis-[85%] sm:basis-1/2 md:basis-1/3 lg:basis-1/4 
-                ${shouldCenter ? "mx-auto" : ""}`}
+                ${shouldCenter ? "mx-auto" : ""} overflow-visible`}
             >
-              <div className="flex items-center justify-center py-4">
-                {/* Apply orange border with transparency to child elements */}
-                <div className="border-2 border-orange-500/50 rounded-full">
-                  {child}
-                </div>
+              <div className="flex items-center justify-center py-4 relative overflow-visible">
+                {/* Apply orange border with transparency to child elements if showBorder is true */}
+                {showBorder ? (
+                  <div className="border-2 border-orange-500/50 rounded-full overflow-visible">
+                    {child}
+                  </div>
+                ) : (
+                  child
+                )}
               </div>
             </CarouselItem>
           ))}

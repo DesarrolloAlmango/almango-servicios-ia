@@ -1,8 +1,9 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { MapPin, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface LocationStepProps {
   selectedDepartment: string;
@@ -27,6 +28,7 @@ interface LocationStepProps {
   buttonText?: string;
   showStoreSection?: boolean;
   storeName?: string;
+  categoryId?: string;
 }
 
 const LocationStep: React.FC<LocationStepProps> = ({
@@ -42,11 +44,48 @@ const LocationStep: React.FC<LocationStepProps> = ({
   description = "Selecciona la ubicación donde necesitas el servicio",
   buttonText = "Siguiente",
   showStoreSection = false,
-  storeName
+  storeName,
+  categoryId
 }) => {
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartment(value);
     setSelectedLocation("");
+  };
+
+  const handleNextWithDelay = () => {
+    // First, call the original onNext function immediately to close the modal
+    onNext();
+    
+    // If we have a categoryId, dispatch the event after a delay
+    // but don't attempt any direct DOM manipulation which could cause freezing
+    if (categoryId) {
+      console.log("LocationStep: Scheduling openCategory event for:", categoryId);
+      
+      setTimeout(() => {
+        console.log("LocationStep: Dispatching openCategory event for:", categoryId);
+        // Dispatch the event with the category ID
+        try {
+          // Get category name from window if available
+          const categoryName = window.lastSelectedCategoryName || undefined;
+          console.log("LocationStep: Category name for event:", categoryName);
+          
+          const openCategoryEvent = new CustomEvent('openCategory', { 
+            detail: { 
+              categoryId,
+              // Use global variable if available
+              serviceId: window.lastSelectedServiceId || undefined,
+              categoryName
+            } 
+          });
+          document.dispatchEvent(openCategoryEvent);
+          
+          // Add console log to track successful event dispatch
+          console.log("LocationStep: Successfully dispatched openCategory event");
+        } catch (error) {
+          console.error("Error dispatching openCategory event:", error);
+        }
+      }, 300);  // Reduced delay to improve responsiveness
+    }
   };
 
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
@@ -77,7 +116,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
             disabled={loading.departments}
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={loading.departments ? "Cargando departamentos..." : "Selecciona un departamento"} />
+              <SelectValue placeholder={loading.departments ? "Cargando..." : "Selecciona un departamento"} />
             </SelectTrigger>
             <SelectContent>
               {loading.departments ? (
@@ -106,7 +145,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
           >
             <SelectTrigger className="w-full">
               <SelectValue placeholder={
-                loading.municipalities ? "Cargando localidades..." : 
+                loading.municipalities ? "Cargando..." : 
                 !selectedDepartment ? "Selecciona un departamento primero" : 
                 currentMunicipalities.length === 0 ? "No hay localidades disponibles" :
                 "Selecciona una localidad"
@@ -125,7 +164,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
 
       <div className="flex justify-end pt-4 pb-6 mt-4">
         <Button 
-          onClick={onNext} 
+          onClick={handleNextWithDelay} 
           disabled={!selectedDepartment || !selectedLocation || loading.municipalities || loading.departments}
           className="bg-primary hover:bg-primary-dark"
         >
@@ -135,5 +174,14 @@ const LocationStep: React.FC<LocationStepProps> = ({
     </div>
   );
 };
+
+// Add this for TypeScript global variable declaration
+declare global {
+  interface Window {
+    lastSelectedServiceId?: string;
+    lastSelectedCategoryName?: string;
+    toast?: any; // For accessing toast from window object
+  }
+}
 
 export default LocationStep;

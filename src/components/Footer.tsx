@@ -1,6 +1,4 @@
-
 import { Phone, Mail, MapPin, Facebook, Instagram } from 'lucide-react';
-
 const Footer = () => {
   return <footer id="contacto" className="bg-secondary text-white py-10 font-serif">
       <div className="container mx-auto my-[11px] px-4 md:px-[71px]">
