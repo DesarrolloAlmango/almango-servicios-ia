@@ -702,17 +702,21 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     // Set the flag to prevent closing the dialog while loading products
     categorySelectionInProgressRef.current = true;
     
-    if (id && onCategorySelect && !purchaseLocation) {
-      // Solo notificamos al padre para mostrar modal de ubicación si NO hay un lugar de compra guardado
-      console.log("Calling onCategorySelect from parent - no purchase location exists");
-      onCategorySelect(id, category.id, category.name);
-      // No cerramos el diálogo si estamos en proceso de seleccionar una categoría
-      return false; // Return false to indicate dialog shouldn't close
-    } else if (id) {
-      // Si ya hay un lugar de compra O no necesitamos mostrar el modal de ubicación,
-      // cargamos los productos directamente
-      console.log("Fetching products for category - purchase location exists or no location needed:", category.id);
+    // Siempre cargamos productos primero, independientemente de si hay ubicación o no
+    if (id) {
+      console.log("Fetching products for category - regardless of purchase location:", category.id);
       fetchProducts(id, category.id);
+      
+      // Si NO hay ubicación de compra, notificamos al padre para mostrar el modal después
+      if (!purchaseLocation && onCategorySelect) {
+        console.log("Calling onCategorySelect from parent - no purchase location exists");
+        
+        // Usamos setTimeout para asegurarnos de que los productos se carguen primero
+        setTimeout(() => {
+          onCategorySelect(id, category.id, category.name);
+        }, 100);
+      }
+      
       return true; // Return true to indicate successful processing
     }
     
