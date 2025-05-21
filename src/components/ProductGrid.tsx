@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -181,6 +180,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
   const initialLoadComplete = useRef(false);
   const productsInitialized = useRef(false);
+  const categorySelected = useRef(false);
 
   // Function to fetch updated price for a specific product
   const fetchUpdatedPrice = async (product: Product): Promise<{id: string, price: number}> => {
@@ -210,7 +210,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       console.log(`Price data received for ${product.id}:`, data);
       
       if (data && typeof data.Precio === 'number') {
-        // IMPORTANT CHANGE: Only use ObtenerPrecio price if it's greater than 0
+        // IMPORTANT: Only use ObtenerPrecio price if it's greater than 0
         // Otherwise, fall back to the product's default price from ObtenerNivel2
         if (data.Precio > 0) {
           console.log(`Using ObtenerPrecio price for product ${product.id}: ${data.Precio}`);
@@ -310,7 +310,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       const productsData = await response.json();
       console.log(`Fetched ${productsData.length} products for category ${category.id}`);
       
-      // Initialize products with their default prices from ObtenerNivel2
+      // CRITICAL CHANGE: Initialize products with their default prices from ObtenerNivel2
+      // but explicitly set price to 0 to ensure we always show loading state
+      // until ObtenerPrecio completes
       const initialProducts = productsData.map((product: any) => ({ 
         ...product, 
         defaultPrice: product.price,  // Store the original price as defaultPrice
@@ -343,8 +345,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       // This ensures prices are ALWAYS current
       console.log(`Products loaded, IMMEDIATELY fetching prices with proveedorId=${purchaseLocationId}`);
       
-      // Don't use setTimeout here - call directly to ensure immediate execution
-      updateAllPrices();
+      // CRITICAL FIX: Always call updateAllPrices right after fetching products, 
+      // regardless of where the selection came from (modal or carousel)
+      await updateAllPrices();
       
       return initialProducts;
     } catch (error) {
@@ -359,6 +362,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     if (category.id && serviceId) {
       console.log("Category changed, fetching products:", category.name);
       productsInitialized.current = false; // Reset initialization flag
+      categorySelected.current = true; // Mark that a category has been selected
       fetchProducts();
     }
   }, [category.id, serviceId]);
@@ -424,6 +428,30 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       initialLoadComplete.current = false; // Reset for next time
     };
   }, []);
+
+  // NEW: Add effect to detect when a category is selected from the carousel
+  useEffect(() => {
+    // Listen for the categorySelected event from CategoryCarousel
+    const handleCategorySelected = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        const { categoryId, categoryName, serviceId: eventServiceId } = customEvent.detail;
+        console.log("ProductGrid received categorySelected event:", categoryId, categoryName);
+        
+        // Check if this event is for our current service
+        if (eventServiceId === serviceId) {
+          // Set flag to indicate we need to refresh prices when products load
+          categorySelected.current = true;
+        }
+      }
+    };
+    
+    document.addEventListener('categorySelected', handleCategorySelected);
+    
+    return () => {
+      document.removeEventListener('categorySelected', handleCategorySelected);
+    };
+  }, [serviceId]);
 
   // Update cart helpers
   const updateCart = (productId: string, newQuantity: number) => {
