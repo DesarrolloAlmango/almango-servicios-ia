@@ -53,26 +53,31 @@ const LocationStep: React.FC<LocationStepProps> = ({
   };
 
   const handleNextWithDelay = () => {
-    // Call the original onNext function
+    // First, call the original onNext function immediately to close the modal
     onNext();
     
-    // If we have a categoryId, trigger a click on that category after a delay
+    // If we have a categoryId, dispatch the event after a delay
+    // but don't attempt any direct DOM manipulation which could cause freezing
     if (categoryId) {
-      console.log("LocationStep: Scheduling auto-click for category:", categoryId);
+      console.log("LocationStep: Scheduling openCategory event for:", categoryId);
       
       setTimeout(() => {
         console.log("LocationStep: Dispatching openCategory event for:", categoryId);
         // Dispatch the event with the category ID
-        const openCategoryEvent = new CustomEvent('openCategory', { 
-          detail: { 
-            categoryId,
-            // Use global variable if available
-            serviceId: window.lastSelectedServiceId || undefined,
-            categoryName: window.lastSelectedCategoryName || undefined
-          } 
-        });
-        document.dispatchEvent(openCategoryEvent);
-      }, 1000);  // 1 second delay
+        try {
+          const openCategoryEvent = new CustomEvent('openCategory', { 
+            detail: { 
+              categoryId,
+              // Use global variable if available
+              serviceId: window.lastSelectedServiceId || undefined,
+              categoryName: window.lastSelectedCategoryName || undefined
+            } 
+          });
+          document.dispatchEvent(openCategoryEvent);
+        } catch (error) {
+          console.error("Error dispatching openCategory event:", error);
+        }
+      }, 300);  // Reduced delay to improve responsiveness
     }
   };
 
