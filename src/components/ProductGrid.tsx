@@ -242,13 +242,23 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       
       // Si tenemos purchaseLocationId, actualizamos los precios automáticamente
       if (purchaseLocationId && serviceId) {
+        // Always update prices when component mounts with a purchase location
         updateAllPrices();
       } else {
         // Mark prices as fetched to prevent refetching
         setPricesFetched(true);
       }
     }
-  }, [category, purchaseLocationId, serviceId, currentCartItems, pricesFetched]);
+  }, [category, currentCartItems]);
+
+  // Added a separate effect to update prices when purchaseLocationId changes
+  useEffect(() => {
+    // If we have a purchase location ID and it changes, update prices automatically
+    if (purchaseLocationId && serviceId && category.products.length > 0) {
+      console.log("Purchase location changed, updating prices automatically");
+      updateAllPrices();
+    }
+  }, [purchaseLocationId, serviceId]);
 
   const updateAllPrices = async () => {
     if (!purchaseLocationId || !serviceId || isUpdatingPrices) return;
