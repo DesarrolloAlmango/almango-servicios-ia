@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -179,8 +180,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
   const initialLoadComplete = useRef(false);
+  const productsInitialized = useRef(false);
 
-  // Improved fetchUpdatedPrice function to ensure proper provider ID usage
+  // Function to fetch updated price for a specific product
   const fetchUpdatedPrice = async (product: Product): Promise<{id: string, price: number}> => {
     if (!purchaseLocationId || !serviceId || !category.id) {
       console.log("Missing required parameters for price fetch:", { 
@@ -193,7 +195,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
     try {
       // Log the API call with explicit params for debugging
-      console.log(`Fetching price with params: proveedorId=${purchaseLocationId}, nivel0=${serviceId}, nivel1=${category.id}, nivel2=${product.id}`);
+      console.log(`Fetching price for: proveedorId=${purchaseLocationId}, nivel0=${serviceId}, nivel1=${category.id}, nivel2=${product.id}`);
       
       const response = await fetch(
         `/api/AlmangoXV1NETFramework/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`
@@ -211,6 +213,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         // IMPORTANT CHANGE: Only use ObtenerPrecio price if it's greater than 0
         // Otherwise, fall back to the product's default price from ObtenerNivel2
         if (data.Precio > 0) {
+          console.log(`Using ObtenerPrecio price for product ${product.id}: ${data.Precio}`);
           return { 
             id: product.id,
             price: data.Precio 
@@ -238,7 +241,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   };
 
-  // Function to update all prices - critical for ensuring prices are always current
+  // Function to update all product prices - CRITICAL path
   const updateAllPrices = async () => {
     if (!purchaseLocationId || !serviceId || isUpdatingPrices || products.length === 0) {
       console.log("Skipping price update - missing data or already updating", { 
@@ -258,7 +261,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       const loadingIds = new Set(products.map(p => p.id));
       setLoadingProductIds(loadingIds);
       
-      // Fetch updated prices individually
+      // Fetch updated prices individually for each product
       const pricePromises = products.map(product => fetchUpdatedPrice(product));
       const updatedPrices = await Promise.all(pricePromises);
       
@@ -285,7 +288,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   };
 
-  // Direct fetchProducts function to get products via ObtenerNivel2 endpoint
+  // Function to fetch products via ObtenerNivel2 endpoint
   const fetchProducts = async () => {
     if (!serviceId || !category.id) {
       console.log("Skipping product fetch - missing serviceId or categoryId");
@@ -294,6 +297,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     
     try {
       console.log(`Fetching products: serviceId=${serviceId}, categoryId=${category.id}`);
+      
+      // First, mark all products as loading to show loading UI
+      setLoadingProductIds(new Set(['loading-all']));
+      
       const response = await fetch(`/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${category.id}`);
       
       if (!response.ok) {
@@ -307,10 +314,12 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       const initialProducts = productsData.map((product: any) => ({ 
         ...product, 
         defaultPrice: product.price,  // Store the original price as defaultPrice
-        price: product.price          // Will be updated by ObtenerPrecio immediately
+        price: 0  // Set initial price to 0 to ensure we show loading state until ObtenerPrecio completes
       }));
       
+      // Setting the products with initial data, but prices will be updated immediately
       setProducts(initialProducts);
+      productsInitialized.current = true;
       
       // Setup initial quantities based on cart items
       const initialQuantities: Record<string, number> = {};
@@ -326,14 +335,16 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       
       setProductQuantities(initialQuantities);
       
-      // Mark all products as loading prices initially
+      // Mark all products as loading prices
       setLoadingProductIds(new Set(initialProducts.map((p: Product) => p.id)));
       
-      // Immediately fetch prices from ObtenerPrecio for each product
-      if (purchaseLocationId) {
-        console.log(`Products loaded, immediately fetching prices with proveedorId=${purchaseLocationId}`);
-        setTimeout(() => updateAllPrices(), 0);  // Using setTimeout to ensure rendering completes
-      }
+      // IMMEDIATELY fetch prices from ObtenerPrecio for each product
+      // No conditional check here - we ALWAYS update prices after loading products
+      // This ensures prices are ALWAYS current
+      console.log(`Products loaded, IMMEDIATELY fetching prices with proveedorId=${purchaseLocationId}`);
+      
+      // Don't use setTimeout here - call directly to ensure immediate execution
+      updateAllPrices();
       
       return initialProducts;
     } catch (error) {
@@ -347,6 +358,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   useEffect(() => {
     if (category.id && serviceId) {
       console.log("Category changed, fetching products:", category.name);
+      productsInitialized.current = false; // Reset initialization flag
       fetchProducts();
     }
   }, [category.id, serviceId]);
@@ -389,7 +401,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   }, [purchaseLocationId, serviceId]);
 
-  // Always update prices when the component mounts or when products are loaded
+  // CRITICAL: Force price update when the component first mounts with products
   useEffect(() => {
     if (products.length > 0 && purchaseLocationId && serviceId && !initialLoadComplete.current) {
       console.log("Products loaded initially, updating prices");
@@ -398,10 +410,12 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   }, [products.length]);
 
-  // ADDED: Additional effect to ensure prices are always fetched when component is shown
+  // CRITICAL: Additional effect to ensure prices are ALWAYS fetched when component is shown
   useEffect(() => {
+    // This effect runs when the component mounts
     if (products.length > 0 && purchaseLocationId && serviceId) {
       console.log("Component visible, forcing price refresh");
+      // Always update prices when component becomes visible - no caching
       updateAllPrices();
     }
     
@@ -411,6 +425,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     };
   }, []);
 
+  // Update cart helpers
   const updateCart = (productId: string, newQuantity: number) => {
     const product = products.find(p => p.id === productId);
     if (!product) return;
@@ -544,7 +559,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const hasSelectedProducts = Object.values(productQuantities).some(qty => qty > 0);
 
   // Determine if we need to show loading message
-  const allProductsLoading = products.length === 0;
+  const allProductsLoading = products.length === 0 || loadingProductIds.has('loading-all');
 
   return (
     <div className="space-y-6">
