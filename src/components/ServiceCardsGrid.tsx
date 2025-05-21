@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
@@ -13,45 +12,49 @@ interface ServiceCard {
 }
 
 // Mock data for when API fails
-const mockServices: ServiceCard[] = [{
-  id: "1",
-  name: "Armado de Muebles",
-  icon: "https://roble.store/cdn/shop/articles/NordicStory_mueble_flotante_aparador_de_pared_comoda_mueble_de_TV_madera_maciza_roble_diseno_nordico_escandinavo_moderno_13_3024x.jpg?v=1662470702",
-  url: ""
-}, {
-  id: "3333",
-  name: "Aire Libre",
-  icon: "https://graniteliquidators.com/wp-content/uploads/2017/03/3359339afae91e1d7fe16fad86e028849ed1db81.jpg",
-  url: ""
-}, {
-  id: "7",
-  name: "Decohogar",
-  icon: "https://content.elmueble.com/medio/2024/10/29/un-estante-de-lado-a-lado-para-exponer-cuadros_22e02709_241029102653_900x900.webp",
-  url: ""
-}, {
-  id: "9",
-  name: "Equipo Sanitario, Baño y Cocina",
-  icon: "https://blog.decorcenter.pe/wp-content/uploads/2022/05/portada-como-decorar-un-bano-de-visitas-moderno.jpg",
-  url: ""
-}, {
-  id: "10",
-  name: "Instalación de Electrodomésticos",
-  icon: "https://serviciotecnicotrivino.com.ar/wp-content/uploads/2022/03/11-mitos-768x472.jpg",
-  url: ""
-}, {
-  id: "3",
-  name: "Aire Acondicionado",
-  icon: "https://services.meteored.com/img/article/ola-de-calor-disipador-de-agua-para-que-tu-aire-acondicionado-no-gotee-pronostico-1673072259870_1024.jpg",
-  url: ""
-}];
+const mockServices: ServiceCard[] = [
+  {
+    id: "1",
+    name: "Armado de Muebles",
+    icon: "https://roble.store/cdn/shop/articles/NordicStory_mueble_flotante_aparador_de_pared_comoda_mueble_de_TV_madera_maciza_roble_diseno_nordico_escandinavo_moderno_13_3024x.jpg?v=1662470702",
+    url: ""
+  }, {
+    id: "3333",
+    name: "Aire Libre",
+    icon: "https://graniteliquidators.com/wp-content/uploads/2017/03/3359339afae91e1d7fe16fad86e028849ed1db81.jpg",
+    url: ""
+  }, {
+    id: "7",
+    name: "Decohogar",
+    icon: "https://content.elmueble.com/medio/2024/10/29/un-estante-de-lado-a-lado-para-exponer-cuadros_22e02709_241029102653_900x900.webp",
+    url: ""
+  }, {
+    id: "9",
+    name: "Equipo Sanitario, Baño y Cocina",
+    icon: "https://blog.decorcenter.pe/wp-content/uploads/2022/05/portada-como-decorar-un-bano-de-visitas-moderno.jpg",
+    url: ""
+  }, {
+    id: "10",
+    name: "Instalación de Electrodomésticos",
+    icon: "https://serviciotecnicotrivino.com.ar/wp-content/uploads/2022/03/11-mitos-768x472.jpg",
+    url: ""
+  }, {
+    id: "3",
+    name: "Aire Acondicionado",
+    icon: "https://services.meteored.com/img/article/ola-de-calor-disipador-de-agua-para-que-tu-aire-acondicionado-no-gotee-pronostico-1673072259870_1024.jpg",
+    url: ""
+  }
+];
 
 // Mock data for mudanza (separate endpoint)
-const mockMudanzaServices: ServiceCard[] = [{
-  id: "1111",
-  name: "Mudanza",
-  icon: "https://tn.com.ar/resizer/v2/en-febrero-hacer-una-mudanza-en-el-amba-puede-costar-hasta-500000-foto-blogdeseguroscom-R76YF6LYRVFEHIWDAB5QT4S2EM.png?auth=0e45d37cfd3288d80391fb141181b48361378c8617a55a19aed4d0348d10ac9a&width=1440",
-  url: "https://app.almango.com.uy/mudanza.aspx?Mode=INS&MudanzaId=0&ProveedorId=0&SecUserId=0"
-}];
+const mockMudanzaServices: ServiceCard[] = [
+  {
+    id: "1111",
+    name: "Mudanza",
+    icon: "https://tn.com.ar/resizer/v2/en-febrero-hacer-una-mudanza-en-el-amba-puede-costar-hasta-500000-foto-blogdeseguroscom-R76YF6LYRVFEHIWDAB5QT4S2EM.png?auth=0e45d37cfd3288d80391fb141181b48361378c8617a55a19aed4d0348d10ac9a&width=1440",
+    url: "https://app.almango.com.uy/mudanza.aspx?Mode=INS&MudanzaId=0&ProveedorId=0&SecUserId=0"
+  }
+];
 
 const ServiceCardsGrid = () => {
   const [services, setServices] = useState<ServiceCard[]>([]);
@@ -129,6 +132,11 @@ const ServiceCardsGrid = () => {
       // Disparar después de navegar para que los componentes estén listos
       setTimeout(() => {
         document.dispatchEvent(openCategoryEvent);
+        console.log('Dispatched openCategory event with:', {
+          serviceId,
+          categoryId: window.lastSelectedCategoryId,
+          categoryName: window.lastSelectedCategoryName
+        });
       }, 500);
     }
     
