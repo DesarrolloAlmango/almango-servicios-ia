@@ -83,6 +83,16 @@ const LocationStep: React.FC<LocationStepProps> = ({
       });
       document.dispatchEvent(openCategoryEvent);
       
+      // Also trigger the categorySelected event to highlight the selected category
+      const categorySelectedEvent = new CustomEvent('categorySelected', { 
+        detail: { 
+          categoryId,
+          categoryName: window.lastSelectedCategoryName || undefined,
+          serviceId
+        } 
+      });
+      document.dispatchEvent(categorySelectedEvent);
+      
       // Also trigger a direct click on service card if available
       if (serviceId) {
         console.log("Attempting to trigger direct card click for service:", serviceId);

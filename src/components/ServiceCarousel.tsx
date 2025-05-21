@@ -56,10 +56,26 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
       }
     };
     
+    // Also listen for categorySelected events
+    const handleCategorySelectedEvent = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        console.log("ServiceCarousel received categorySelected event for:", customEvent.detail.categoryId);
+        
+        // Forward the event to CategoryCarousel components
+        const forwardEvent = new CustomEvent('categorySelected', { 
+          detail: customEvent.detail 
+        });
+        document.dispatchEvent(forwardEvent);
+      }
+    };
+    
     document.addEventListener('openCategory', handleOpenCategoryEvent);
+    document.addEventListener('categorySelected', handleCategorySelectedEvent);
     
     return () => {
       document.removeEventListener('openCategory', handleOpenCategoryEvent);
+      document.removeEventListener('categorySelected', handleCategorySelectedEvent);
     };
   }, [enableCategoryAutoClick]);
   
@@ -121,6 +137,24 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
           <CarouselNext className="relative -right-0 top-0 translate-y-0 h-9 w-9 text-slate-900" />
         </div>
       </Carousel>
+      
+      {/* Add CSS styles for highlighted categories */}
+      <style jsx>{`
+        .highlighted-category {
+          transform: scale(1.05);
+          z-index: 10;
+        }
+        
+        .highlighted-category .category-image-container {
+          border-color: #8B5CF6;
+          box-shadow: 0 0 0 4px #E5DEFF, 0 0 15px rgba(139, 92, 246, 0.5);
+        }
+        
+        .highlighted-category .category-name {
+          color: #8B5CF6;
+          font-weight: bold;
+        }
+      `}</style>
     </div>
   );
 };
