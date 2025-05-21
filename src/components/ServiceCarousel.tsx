@@ -138,8 +138,8 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
         </div>
       </Carousel>
       
-      {/* Add CSS for highlighted categories without the jsx property */}
-      <style>{`
+      <style>
+        {`
         .highlighted-category {
           transform: scale(1.05);
           z-index: 10;
@@ -154,7 +154,8 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
           color: #8B5CF6;
           font-weight: bold;
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
