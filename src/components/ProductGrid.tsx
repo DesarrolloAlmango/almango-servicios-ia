@@ -48,6 +48,8 @@ interface ProductCardProps {
   serviceId?: string;
   categoryId?: string;
   isPriceLoading?: boolean;
+  hasPurchaseLocation: boolean;
+  onBackToCategories: () => void;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ 
@@ -59,7 +61,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   purchaseLocationId,
   serviceId,
   categoryId,
-  isPriceLoading = false
+  isPriceLoading = false,
+  hasPurchaseLocation,
+  onBackToCategories
 }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -78,6 +82,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   const imageSource = getImageSource();
+
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!hasPurchaseLocation) {
+      toast.error("Por favor, seleccione un lugar de compra primero");
+      onBackToCategories();
+    }
+  };
 
   return (
     <Card className="overflow-hidden h-full flex flex-col relative">
@@ -109,11 +121,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <div className="absolute inset-0 flex items-center justify-center bg-black/20">
           <div className="bg-white rounded-full p-1 shadow-md flex items-center">
             <button 
-              className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary"
+              className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${!hasPurchaseLocation ? 'cursor-not-allowed opacity-50' : ''}`}
               onClick={(e) => { 
-                e.stopPropagation(); 
-                onDecrease(); 
+                if (!hasPurchaseLocation) {
+                  handleButtonClick(e);
+                } else {
+                  e.stopPropagation(); 
+                  onDecrease(); 
+                }
               }}
+              disabled={!hasPurchaseLocation}
             >
               -
             </button>
@@ -121,11 +138,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
               {quantity}
             </span>
             <button 
-              className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary"
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                onIncrease(); 
+              className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${!hasPurchaseLocation ? 'cursor-not-allowed opacity-50' : ''}`}
+              onClick={(e) => {
+                if (!hasPurchaseLocation) {
+                  handleButtonClick(e);
+                } else {
+                  e.stopPropagation(); 
+                  onIncrease();
+                }
               }}
+              disabled={!hasPurchaseLocation}
             >
               +
             </button>
@@ -533,6 +555,12 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   };
 
   const increaseQuantity = (productId: string) => {
+    if (!purchaseLocationId) {
+      toast.error("Por favor, seleccione un lugar de compra primero");
+      onBack();
+      return;
+    }
+
     setProductQuantities(prev => {
       const newValue = (prev[productId] || 0) + 1;
       setTimeout(() => updateCart(productId, newValue), 0);
@@ -541,6 +569,12 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   };
 
   const decreaseQuantity = (productId: string) => {
+    if (!purchaseLocationId) {
+      toast.error("Por favor, seleccione un lugar de compra primero");
+      onBack();
+      return;
+    }
+
     setProductQuantities(prev => {
       const newValue = Math.max(0, (prev[productId] || 0) - 1);
       setTimeout(() => updateCart(productId, newValue), 0);
@@ -703,6 +737,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
                 serviceId={serviceId}
                 categoryId={category.id}
                 isPriceLoading={loadingProductIds.has(product.id)}
+                hasPurchaseLocation={!!purchaseLocationId}
+                onBackToCategories={onBack}
               />
             ))}
           </div>
