@@ -1,4 +1,3 @@
-
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +18,7 @@ const Hero = () => {
 
   return (
     <div className={`relative w-full overflow-hidden ${isMobile ? "min-h-[calc(100vh-40px)]" : "min-h-[75vh] md:min-h-[82vh]"} flex items-start pt-10 md:pt-14`}>
-      {/* Hero background with new color */}
+      {/* Hero background */}
       <div className="absolute inset-0 z-0 bg-[#498bdd]">
         <div className="absolute inset-0 z-1" style={{
           background: "radial-gradient(circle at 20% 30%, #0066cc 0%, transparent 40%), radial-gradient(circle at 80% 70%, #3a7bd5 0%, transparent 40%), radial-gradient(circle at 50% 50%, #00d2ff 0%, transparent 30%)",
@@ -28,33 +27,33 @@ const Hero = () => {
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#498bdd] to-transparent z-2"></div>
       </div>
       
-      {/* Imagen con posicionamiento ajustado */}
-      <div className="absolute inset-0 z-1 flex items-center justify-center overflow-hidden">
+      {/* Imagen ajustada a bordes superior y derecho */}
+      <div className="absolute inset-0 z-1 overflow-hidden">
         {isMobile ? (
           <img 
             src="/lovable-uploads/61c4eb76-3dac-472b-ad75-4c5029d686f7.png" 
             alt="Apretón de manos profesional" 
-            className="animate-fade-in w-[150%] h-auto object-cover max-w-none"
+            className="animate-fade-in w-full h-full object-cover object-left"
             style={{
               opacity: 0.8,
-              transform: 'translateX(0)'
             }} 
           />
         ) : (
-          <img 
-            src="/lovable-uploads/61c4eb76-3dac-472b-ad75-4c5029d686f7.png" 
-            alt="Apretón de manos profesional" 
-            className="animate-fade-in h-auto w-[85%] max-w-none object-contain"
-            style={{
-              opacity: 0.8,
-              transform: 'translateX(20px)',
-              position: 'absolute'
-            }} 
-          />
+          <div className="absolute right-0 top-0 h-full w-auto">
+            <img 
+              src="/lovable-uploads/61c4eb76-3dac-472b-ad75-4c5029d686f7.png" 
+              alt="Apretón de manos profesional" 
+              className="animate-fade-in h-full w-auto object-contain"
+              style={{
+                opacity: 0.8,
+                maxWidth: 'none'
+              }} 
+            />
+          </div>
         )}
       </div>
       
-      {/* Contenedor principal con ajuste de margen */}
+      {/* Contenido principal */}
       <div className="container relative z-10 mx-auto px-6 text-left pl-8 md:pl-12 mt-[100px] sm:mt-[90px] md:mt-[80px]">
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-[5px] max-w-xl animate-fade-in font-sans drop-shadow-lg px-0 py-0 my-0 lg:text-5xl tracking-tight">
           SOLICITÁ TU SERVICIO EN MINUTOS
