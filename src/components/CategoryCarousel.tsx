@@ -52,6 +52,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const categoryCardsRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const hasAutoSelectedRef = useRef(false);
   const autoSelectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const autoSelectionAttemptsRef = useRef(0);
@@ -89,6 +90,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
           
           // Trigger the category selection
           handleCategoryClick(categoryToSelect);
+          
+          // Focus on the category card
+          focusCategoryCard(categoryToSelect.id);
           
           // Reset attempt counter after successful selection
           autoSelectionAttemptsRef.current = 0;
@@ -138,6 +142,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
             // First, handle the data selection through the normal flow
             handleCategoryClick(categoryToSelect);
             
+            // Focus on the category card
+            focusCategoryCard(categoryId);
+            
             // CRITICAL: Find and click the DOM element for the category without adding styles
             const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
             if (categoryElement) {
@@ -170,6 +177,43 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       document.removeEventListener('openCategory', handleOpenCategoryEvent);
     };
   }, [categories, selectedService.id, onSelectCategory]);
+
+  // New function to focus on a specific category card
+  const focusCategoryCard = (categoryId: string) => {
+    try {
+      // Try to get the reference to the card from our refs map
+      const cardRef = categoryCardsRefs.current.get(categoryId);
+      
+      if (cardRef) {
+        // Scroll the card into view and focus it
+        cardRef.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'center'
+        });
+        
+        // Set focus on the card (for accessibility)
+        cardRef.focus();
+        
+        console.log("Successfully focused category card:", categoryId);
+      } else {
+        // Try to find the card by query selector as fallback
+        const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
+        if (categoryElement && categoryElement instanceof HTMLElement) {
+          categoryElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+          
+          categoryElement.focus();
+          console.log("Focused category card with query selector:", categoryId);
+        } else {
+          console.warn("Could not find category card to focus:", categoryId);
+        }
+      }
+    } catch (error) {
+      console.error("Error focusing category card:", error);
+    }
+  };
 
   // Log when purchaseLocation changes to aid debugging
   useEffect(() => {
@@ -471,6 +515,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     });
     document.dispatchEvent(categorySelectedEvent);
     
+    // Focus on the category card
+    focusCategoryCard(category.id);
+    
     // Preload product data in the background
     preloadProductData(category.id);
     
@@ -522,7 +569,12 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }}>
         <CarouselContent className="-ml-2 sm:-ml-4">
           {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="basis-1/2 sm:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4 mx-1">
-              <div onClick={() => handleCategoryClick(category)} className="cursor-pointer hover:scale-105 transition-transform mx-5px">
+              <div 
+                onClick={() => handleCategoryClick(category)} 
+                className="cursor-pointer hover:scale-105 transition-transform mx-5px"
+                ref={el => el && categoryCardsRefs.current.set(category.id, el)}
+                tabIndex={0} // Make it focusable
+              >
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                   <AspectRatio ratio={1} className="bg-gray-100">
                     {/* Mostrar skeleton mientras carga la imagen */}

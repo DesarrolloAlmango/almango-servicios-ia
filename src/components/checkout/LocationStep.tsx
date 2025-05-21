@@ -74,6 +74,9 @@ const LocationStep: React.FC<LocationStepProps> = ({
             } 
           });
           document.dispatchEvent(openCategoryEvent);
+          
+          // Add console log to track successful event dispatch
+          console.log("LocationStep: Successfully dispatched openCategory event");
         } catch (error) {
           console.error("Error dispatching openCategory event:", error);
         }
