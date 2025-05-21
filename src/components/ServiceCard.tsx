@@ -1,7 +1,8 @@
+
 import React, { useState, useCallback, forwardRef, useEffect, useRef } from 'react';
 import { Button } from "./ui/button";
 import CategoryCarousel from "./CategoryCarousel";
-import { ChevronDown, ChevronUp, LucideIcon, ExternalLink, ArrowLeft, ShoppingCart } from "lucide-react";
+import { ChevronDown, ChevronUp, LucideIcon, ExternalLink, ArrowLeft, ShoppingCart, RefreshCw } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { AspectRatio } from "./ui/aspect-ratio";
 import { cn } from "@/lib/utils";
@@ -190,6 +191,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [loadingProductIds, setLoadingProductIds] = useState<Set<string>>(new Set());
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
   const [pricesFetched, setPricesFetched] = useState<boolean>(false);
+  const [isUpdatingPrices, setIsUpdatingPrices] = useState<boolean>(false);
 
   const getPurchaseLocationForService = (serviceId: string) => {
     return null;
@@ -227,6 +229,43 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   };
 
+  const updateAllPrices = async () => {
+    if (!purchaseLocationId || !serviceId || isUpdatingPrices) return;
+    
+    console.log("Updating all prices...");
+    setIsUpdatingPrices(true);
+    
+    try {
+      // Mark all products as loading prices
+      const loadingIds = new Set(products.map(p => p.id));
+      setLoadingProductIds(loadingIds);
+      
+      // Fetch all prices in parallel
+      const pricePromises = products.map(product => fetchUpdatedPrice(product));
+      const updatedPrices = await Promise.all(pricePromises);
+      
+      // Update products with new prices
+      setProducts(prevProducts => {
+        return prevProducts.map(product => {
+          const updatedPrice = updatedPrices.find(p => p.id === product.id);
+          if (updatedPrice) {
+            return { ...product, price: updatedPrice.price };
+          }
+          return product;
+        });
+      });
+      
+      setPricesFetched(true);
+      setLoadingProductIds(new Set());
+      toast.success("Precios actualizados correctamente");
+    } catch (error) {
+      console.error("Error updating prices:", error);
+      toast.error("Error al actualizar los precios");
+    } finally {
+      setIsUpdatingPrices(false);
+    }
+  };
+
   useEffect(() => {
     // Set initial state with product base data
     if (category.products.length > 0 && !pricesFetched) {
@@ -254,39 +293,25 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       const loadingIds = new Set(initialProducts.map(p => p.id));
       setLoadingProductIds(loadingIds);
       
-      // Fetch updated prices individually
-      initialProducts.forEach(async (product) => {
-        try {
-          const updatedPrice = await fetchUpdatedPrice(product);
-          
-          // Update the specific product price as it becomes available
-          setProducts(prevProducts => 
-            prevProducts.map(p => 
-              p.id === updatedPrice.id ? { ...p, price: updatedPrice.price } : p
-            )
-          );
-          
-          // Mark this product as no longer loading
-          setLoadingProductIds(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(updatedPrice.id);
-            return newSet;
-          });
-        } catch (error) {
-          console.error(`Error al actualizar precio para ${product.id}:`, error);
-          // Even on error, mark the product as no longer loading to show default price
-          setLoadingProductIds(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(product.id);
-            return newSet;
-          });
-        }
-      });
-      
-      // Mark prices as fetched to prevent refetching
-      setPricesFetched(true);
+      // Si tenemos purchaseLocationId, actualizamos los precios automáticamente
+      if (purchaseLocationId && serviceId) {
+        // Always update prices when component mounts with a purchase location
+        updateAllPrices();
+      } else {
+        // Mark prices as fetched to prevent refetching
+        setPricesFetched(true);
+      }
     }
-  }, [category, purchaseLocationId, serviceId, currentCartItems, pricesFetched]);
+  }, [category, currentCartItems]);
+
+  // Added a separate effect to update prices when purchaseLocationId changes
+  useEffect(() => {
+    // If we have a purchase location ID and it changes, update prices automatically
+    if (purchaseLocationId && serviceId && category.products.length > 0) {
+      console.log("Purchase location changed, updating prices automatically");
+      updateAllPrices();
+    }
+  }, [purchaseLocationId, serviceId]);
 
   const updateCart = (productId: string, newQuantity: number) => {
     const product = products.find(p => p.id === productId);
@@ -426,13 +451,29 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   return (
     <div className="space-y-6">
       <div className="flex items-center mb-4">
-        <button 
-          onClick={onBack}
-          className="flex items-center gap-2 text-primary hover:underline"
-        >
-          <ArrowLeft size={16} />
-          <span>Volver a Categorías</span>
-        </button>
+        <div className="flex gap-2 items-center">
+          <button 
+            onClick={onBack}
+            className="flex items-center gap-2 text-primary hover:underline"
+          >
+            <ArrowLeft size={16} />
+            <span>Volver a Categorías</span>
+          </button>
+          
+          {/* Nuevo botón para actualizar precios - visible solo cuando hay location */}
+          {purchaseLocationId && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={updateAllPrices}
+              disabled={isUpdatingPrices}
+              className="flex items-center gap-1 text-xs"
+            >
+              <RefreshCw size={14} className={isUpdatingPrices ? "animate-spin" : ""} />
+              <span>Actualizar Precios</span>
+            </Button>
+          )}
+        </div>
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
       </div>
       
