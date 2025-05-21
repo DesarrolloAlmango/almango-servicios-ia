@@ -1,3 +1,4 @@
+
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -17,7 +18,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <div className={`relative w-full overflow-hidden ${isMobile ? "min-h-[calc(100vh-40px)]" : "min-h-[75vh] md:min-h-[82vh]"} flex items-start pt-16 md:pt-20`}>
+    <div className={`relative w-full overflow-hidden ${isMobile ? "min-h-[calc(100vh-40px)]" : "min-h-[75vh] md:min-h-[82vh]"} flex items-start pt-10 md:pt-14`}>
       {/* Hero background with new color */}
       <div className="absolute inset-0 z-0 bg-[#498bdd]">
         <div className="absolute inset-0 z-1" style={{
@@ -28,28 +29,26 @@ const Hero = () => {
       </div>
       
       {/* Imagen con posicionamiento ajustado */}
-      <div className="absolute inset-0 z-1 flex items-center justify-end overflow-hidden">
+      <div className="absolute inset-0 z-1 flex items-center justify-center overflow-hidden">
         {isMobile ? (
           <img 
             src="/lovable-uploads/61c4eb76-3dac-472b-ad75-4c5029d686f7.png" 
             alt="Apretón de manos profesional" 
-            className="animate-fade-in w-[130%] h-auto object-cover max-w-none"
+            className="animate-fade-in w-[150%] h-auto object-cover max-w-none"
             style={{
               opacity: 0.8,
-              borderRadius: 0,
-              transform: 'translateX(-15%)'
+              transform: 'translateX(0)'
             }} 
           />
         ) : (
           <img 
             src="/lovable-uploads/61c4eb76-3dac-472b-ad75-4c5029d686f7.png" 
             alt="Apretón de manos profesional" 
-            className="animate-fade-in h-full w-auto object-contain max-w-none"
+            className="animate-fade-in h-auto w-[85%] max-w-none object-contain"
             style={{
               opacity: 0.8,
-              borderRadius: '20px',
-              position: 'absolute',
-              right: 0
+              transform: 'translateX(20px)',
+              position: 'absolute'
             }} 
           />
         )}

@@ -106,22 +106,26 @@ const Header = () => {
     setIsSheetOpen(false);
   };
 
-  return <header className={cn('top-0 left-0 right-0 z-50 transition-all duration-300 border-b font-sans', isScrolled ? 'bg-primary shadow-md py-0 border-black border-b-8' : 'bg-primary py-1 border-black border-b-8', isVisible ? 'fixed' : 'fixed -translate-y-full')}>
-      <div className="container mx-auto flex justify-between items-center px-4 relative">
-        {/* Logo */}
-        <div className="flex items-center overflow-visible -ml-2">
-          <img alt="ALMANGO Logo" src="/lovable-uploads/10976e12-6bf7-48d0-b947-61ef37b1289b.png" className="h-16 transition-all duration-300 object-scale-down transform translate-y-0.5" />
-        </div>
-        
-        {/* Hamburger menu positioned at right side with specific spacing */}
+  return (
+    <header className={cn('fixed top-0 right-0 z-50 transition-all duration-300', isVisible ? 'translate-y-0' : '-translate-y-full')}>
+      <div className="relative px-4 py-4">
+        {/* Hamburger menu with transparent dark background */}
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
-            <button className="text-white focus:outline-none absolute right-[30px] transform scale-110" aria-label="Toggle menu">
+            <button 
+              className="text-white focus:outline-none p-2.5 rounded-full bg-black/50 backdrop-blur-sm hover:bg-black/60 transition-colors" 
+              aria-label="Toggle menu"
+            >
               <Menu size={28} />
             </button>
           </SheetTrigger>
           <SheetContent side="left" className="bg-primary text-white border-r border-black/30 p-0 z-[200]">
             <div className="flex flex-col py-4 px-6 h-full z-[200]">
+              {/* Logo in sidebar */}
+              <div className="flex items-center overflow-visible mb-4">
+                <img alt="ALMANGO Logo" src="/lovable-uploads/10976e12-6bf7-48d0-b947-61ef37b1289b.png" className="h-16 transition-all duration-300 object-scale-down transform translate-y-0.5" />
+              </div>
+              
               {/* Navigation links */}
               <div className="mt-6 flex flex-col space-y-6">
                 <button onClick={() => scrollToSection('inicio')} className="uppercase text-sm font-medium py-2 text-white hover:text-gray-900 transition-colors text-left flex items-center gap-2">
@@ -170,6 +174,8 @@ const Header = () => {
           </SheetContent>
         </Sheet>
       </div>
-    </header>;
+    </header>
+  );
 };
+
 export default Header;
