@@ -163,7 +163,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [loadingProductIds, setLoadingProductIds] = useState<Set<string>>(new Set());
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
-  const [flashBackButton, setFlashBackButton] = useState(!purchaseLocationId);
+  
+  // FIXED: Only set flashBackButton to true when purchaseLocationId is not set
+  // And ensure it updates when purchaseLocationId changes
+  const [flashBackButton, setFlashBackButton] = useState(false);
+  
   const initialLoadComplete = useRef(false);
   const productsInitialized = useRef(false);
   const categorySelected = useRef(false);
@@ -625,13 +629,14 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   // Determine if we need to show loading message
   const allProductsLoading = products.length === 0 || loadingProductIds.has('loading-all');
+  
   return <div className="space-y-6">
       <div className="flex items-center mb-4">
         <button onClick={onBack} className={`flex items-center gap-2 text-primary hover:underline ${!purchaseLocationId ? 'relative' : ''}`} aria-label="back-to-categories">
           <ArrowLeft size={16} />
           <span>Volver a Categorías</span>
           
-          {/* Lighter yellow flash animation with adjusted height */}
+          {/* Lighter yellow flash animation with adjusted height - only show when flashBackButton is true */}
           {flashBackButton && (
             <span 
               className="absolute inset-0 bg-yellow-100 animate-pulse rounded-md opacity-20 z-[-1]" 
