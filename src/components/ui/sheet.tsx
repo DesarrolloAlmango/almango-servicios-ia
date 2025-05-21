@@ -52,7 +52,6 @@ interface SheetContentProps
   extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
   VariantProps<typeof sheetVariants> { }
 
-// Add an event listener for the sheet component to listen for custom events
 const SheetContent = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Content>,
   SheetContentProps
@@ -62,18 +61,22 @@ const SheetContent = React.forwardRef<
   // Add an effect to handle the custom closeProductModal event
   React.useEffect(() => {
     const handleCloseProductModal = () => {
+      console.log("closeProductModal event received in sheet");
       // Programmatically click the close button if it exists
       if (closeRef.current) {
         closeRef.current.click();
+        console.log("Close button clicked programmatically");
+      } else {
+        console.log("Close button ref is null");
       }
     };
     
     // Add event listener for the custom event
-    document.addEventListener('closeProductModal', handleCloseProductModal);
+    window.addEventListener('closeProductModal', handleCloseProductModal);
     
     // Cleanup
     return () => {
-      document.removeEventListener('closeProductModal', handleCloseProductModal);
+      window.removeEventListener('closeProductModal', handleCloseProductModal);
     };
   }, []);
   
