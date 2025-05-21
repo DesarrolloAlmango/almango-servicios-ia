@@ -349,34 +349,24 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     e.preventDefault();
   };
 
-  // Helper function to fetch products for a category
-  const fetchProducts = async (serviceId: string, categoryId: string) => {
+  // Helper function to fetch product categories after location confirmation
+  const fetchProductsForCategory = async (storeId: string, serviceId?: string, categoryId?: string) => {
+    if (!serviceId || !categoryId) return;
+    
     try {
-      console.log(`Fetching products for service: ${serviceId}, category: ${categoryId}`);
-      
-      // Dispatch a custom event to signal the parent component to fetch and display products
-      const fetchProductsEvent = new CustomEvent('fetchProducts', { 
-        detail: { 
-          serviceId,
-          categoryId,
-          categoryName: localCategoryName || globalLastSelectedCategory.categoryName
-        } 
-      });
-      document.dispatchEvent(fetchProductsEvent);
-      
-      // Also make the API call directly to pre-load data
+      console.log(`Fetching products for store: ${storeId}, service: ${serviceId}, category: ${categoryId}`);
+      // Make a direct call to fetch products
       const endpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
-      console.log("Calling endpoint:", endpoint);
-      const response = await fetch(endpoint);
       
+      const response = await fetch(endpoint);
       if (!response.ok) {
         console.error(`Error fetching products: ${response.status}`);
         return null;
-      } 
-      
-      const data = await response.json();
-      console.log(`Successfully fetched ${data.length} products`);
-      return data;
+      } else {
+        const data = await response.json();
+        console.log(`Preloaded ${data.length} products successfully`);
+        return data;
+      }
     } catch (error) {
       console.error("Error fetching products:", error);
       return null;
@@ -420,35 +410,26 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     // Use the effective category ID from props or the global variable
     const finalCategoryId = localCategoryId || lastSelectedCategoryId || categoryId || null;
     const finalCategoryName = localCategoryName || lastSelectedCategoryName || categoryName || null;
-    const finalServiceId = localServiceId || serviceId || null;
     
     console.log("Confirming location with category info:", { 
-      serviceId: finalServiceId,
+      serviceId: localServiceId,
       categoryId: finalCategoryId,
-      categoryName: finalCategoryName
+      categoryName: finalCategoryName,
+      globalTemp: lastSelectedCategoryId 
     });
-
-    // Store category info in window variables for broader access
-    if (finalServiceId) {
-      window.lastSelectedServiceId = finalServiceId;
-    }
-    
-    if (finalCategoryName) {
-      window.lastSelectedCategoryName = finalCategoryName;
-    }
     
     // Store the category information in global variable for automatic opening
-    if (finalServiceId && finalCategoryId) {
+    if (localServiceId && finalCategoryId) {
       globalLastSelectedCategory = {
-        serviceId: finalServiceId,
+        serviceId: localServiceId,
         categoryId: finalCategoryId,
         categoryName: finalCategoryName
       };
       
-      // Immediately fetch products before closing the modal
-      await fetchProducts(finalServiceId, finalCategoryId);
+      // Pre-fetch products before closing the modal
+      await fetchProductsForCategory(storeId, localServiceId, finalCategoryId);
     }
-
+    
     // Close the modal and call onSelectLocation
     onSelectLocation(
       storeId, 
@@ -462,50 +443,20 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     
     onClose();
     
-    // If this is a new category selection, trigger the product display immediately
-    if (finalCategoryId && finalServiceId) {
-      console.log("Triggering immediate product display for:", finalCategoryId);
-      
-      // Use a custom event to notify the parent component to open the category and show products
+    // If this is a new category selection, trigger a special event to notify the parent component
+    if (finalCategoryId && localServiceId) {
+      // Use a custom event to notify the parent component to open the category
       const openCategoryEvent = new CustomEvent('openCategory', {
         detail: {
-          serviceId: finalServiceId,
+          serviceId: localServiceId,
           categoryId: finalCategoryId,
-          categoryName: finalCategoryName,
-          showProducts: true // Add flag to indicate products should be shown immediately
+          categoryName: finalCategoryName
         }
       });
       document.dispatchEvent(openCategoryEvent);
       
-      // Force direct call to the service card click event
+      // After successful location confirmation, highlight the selected category
       setTimeout(() => {
-        console.log("Looking for service card with ID:", finalServiceId);
-        const serviceCardElement = document.querySelector(`[data-service-id="${finalServiceId}"]`);
-        if (serviceCardElement) {
-          console.log("Found service card, triggering click");
-          serviceCardElement.dispatchEvent(new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            view: window
-          }));
-        } else {
-          console.log("Service card not found in DOM");
-          
-          // Try to find the category element directly
-          const categoryElement = document.querySelector(`[data-category-id="${finalCategoryId}"]`);
-          if (categoryElement) {
-            console.log("Found category element, triggering click");
-            categoryElement.dispatchEvent(new MouseEvent('click', {
-              bubbles: true, 
-              cancelable: true,
-              view: window
-            }));
-          } else {
-            console.log("Category element not found in DOM");
-          }
-        }
-        
-        // After successful location confirmation, highlight the selected category
         const categoryElement = document.querySelector(`[data-category-id="${finalCategoryId}"]`);
         if (categoryElement) {
           categoryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -517,7 +468,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             }, 2000);
           }
         }
-      }, 300);
+      }, 500);
     }
   };
 
@@ -558,11 +509,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             <DialogDescription className="text-center">
               Necesitamos esta información para brindarte un mejor servicio
             </DialogDescription>
-            {effectiveCategoryId && (
-              <div className="mt-2 py-1 px-3 bg-orange-100 text-orange-800 inline-block rounded-md">
-                Categoría seleccionada: <span className="font-semibold">{effectiveCategoryName}</span>
-              </div>
-            )}
           </div>
         )}
         
@@ -590,21 +536,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                 ¿Dónde realizaste la compra?
               </h3>
               {serviceName && (
-                <>
-                  <p className="text-muted-foreground text-sm">
-                    Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
-                  </p>
-                  {(effectiveCategoryName || effectiveCategoryId) && (
-                    <p className="text-muted-foreground text-sm">
-                      Categoría: <span className="font-semibold text-orange-500">{effectiveCategoryName}</span>
-                      {effectiveCategoryId && (
-                        <span className="ml-1 px-2 py-0.5 bg-orange-100 text-orange-800 rounded-md text-xs font-mono">
-                          ID: {effectiveCategoryId}
-                        </span>
-                      )}
-                    </p>
-                  )}
-                </>
+                <p className="text-muted-foreground text-sm">
+                  Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
+                </p>
               )}
               <label className="block text-sm font-medium">
                 Lugar de Compra *
@@ -766,11 +700,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
               disabled={!isFormValid || loading}
               className="bg-orange-500 hover:bg-orange-600"
             >
-              Confirmar {effectiveCategoryId && (
-                <span className="ml-1 text-xs font-mono bg-white text-orange-700 px-1 rounded">
-                  #{effectiveCategoryId}
-                </span>
-              )}
+              Confirmar
             </Button>
           </DialogFooter>
         )}

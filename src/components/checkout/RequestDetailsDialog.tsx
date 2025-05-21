@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Dialog,
@@ -32,6 +31,14 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
   departments,
   municipalities,
 }) => {
+  // Format price with thousands separator (dot) and no decimals
+  const formatPrice = (price: number): string => {
+    return price.toLocaleString('es-UY', { 
+      minimumFractionDigits: 0, 
+      maximumFractionDigits: 0 
+    });
+  };
+
   const getFormaDePago = (metodoPagoId: number): string => {
     switch(metodoPagoId) {
       case 1:
@@ -144,8 +151,8 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
                           )}
                         </TableCell>
                         <TableCell className="text-center">{item.Cantidad}</TableCell>
-                        <TableCell className="text-right">${item.Precio.toFixed(2)}</TableCell>
-                        <TableCell className="text-right">${item.PrecioFinal.toFixed(2)}</TableCell>
+                        <TableCell className="text-right">${formatPrice(item.Precio)}</TableCell>
+                        <TableCell className="text-right">${formatPrice(item.PrecioFinal)}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -153,7 +160,7 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
                     <TableRow>
                       <TableCell colSpan={3} className="text-right font-semibold">Total</TableCell>
                       <TableCell className="text-right font-bold">
-                        ${calcularTotal(requestData.Level1).toFixed(2)}
+                        ${formatPrice(calcularTotal(requestData.Level1))}
                       </TableCell>
                     </TableRow>
                   </TableFooter>

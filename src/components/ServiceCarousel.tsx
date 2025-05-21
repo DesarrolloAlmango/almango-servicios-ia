@@ -43,49 +43,23 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
     if (!enableCategoryAutoClick) return;
 
     const handleOpenCategoryEvent = (e: Event) => {
-      try {
-        const customEvent = e as CustomEvent;
-        if (customEvent.detail) {
-          const { categoryId } = customEvent.detail;
-          console.log("ServiceCarousel received openCategory event for:", categoryId);
-          
-          // Forward the event to CategoryCarousel components
-          const forwardEvent = new CustomEvent('openCategory', { 
-            detail: customEvent.detail 
-          });
-          document.dispatchEvent(forwardEvent);
-        }
-      } catch (error) {
-        console.error("Error in openCategory event handler:", error);
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        const { categoryId } = customEvent.detail;
+        console.log("ServiceCarousel received openCategory event for:", categoryId);
+        
+        // Forward the event to CategoryCarousel components
+        const forwardEvent = new CustomEvent('openCategory', { 
+          detail: customEvent.detail 
+        });
+        document.dispatchEvent(forwardEvent);
       }
     };
     
-    // Also listen for categorySelected events
-    const handleCategorySelectedEvent = (e: Event) => {
-      try {
-        const customEvent = e as CustomEvent;
-        if (customEvent.detail) {
-          console.log("ServiceCarousel received categorySelected event for:", customEvent.detail.categoryId);
-          
-          // Forward the event to CategoryCarousel components
-          const forwardEvent = new CustomEvent('categorySelected', { 
-            detail: customEvent.detail 
-          });
-          document.dispatchEvent(forwardEvent);
-        }
-      } catch (error) {
-        console.error("Error in categorySelected event handler:", error);
-      }
-    };
-    
-    // Add event listeners with error handling
     document.addEventListener('openCategory', handleOpenCategoryEvent);
-    document.addEventListener('categorySelected', handleCategorySelectedEvent);
     
-    // Clean up event listeners on unmount
     return () => {
       document.removeEventListener('openCategory', handleOpenCategoryEvent);
-      document.removeEventListener('categorySelected', handleCategorySelectedEvent);
     };
   }, [enableCategoryAutoClick]);
   
@@ -147,25 +121,6 @@ const ServiceCarousel: React.FC<ServiceCarouselProps> = ({
           <CarouselNext className="relative -right-0 top-0 translate-y-0 h-9 w-9 text-slate-900" />
         </div>
       </Carousel>
-      
-      <style>
-        {`
-        .highlighted-category {
-          transform: scale(1.05);
-          z-index: 10;
-        }
-        
-        .highlighted-category .category-image-container {
-          border-color: #8B5CF6;
-          box-shadow: 0 0 0 4px #E5DEFF, 0 0 15px rgba(139, 92, 246, 0.5);
-        }
-        
-        .highlighted-category .category-name {
-          color: #8B5CF6;
-          font-weight: bold;
-        }
-        `}
-      </style>
     </div>
   );
 };

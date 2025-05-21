@@ -102,6 +102,12 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
       setMunicipalities(locationsByDepartment);
     }
   }, [purchaseLocations]);
+  const formatPrice = (price: number): string => {
+    return price.toLocaleString('es-UY', { 
+      minimumFractionDigits: 0, 
+      maximumFractionDigits: 0 
+    });
+  };
   const handleSubmit = (data: any) => {
     const serviceGroups = cartItems.reduce((acc: Record<string, any[]>, item) => {
       const location = purchaseLocations.find(loc => loc.serviceId === item.serviceId);
@@ -148,9 +154,9 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           Comision: 0,
           ComisionTipo: "P",
           PrecioFinal: Number((item.price * item.quantity).toFixed(2)),
-          productoNombre: item.name // Add the product name to the checkout item
+          productoNombre: item.name
         })),
-        serviceName: location.serviceName || `Servicio ${serviceId}` // This is the service category name
+        serviceName: location.serviceName || `Servicio ${serviceId}`
       };
       return formattedData;
     });

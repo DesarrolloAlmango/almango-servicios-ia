@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { MapPin, Loader2 } from "lucide-react";
-import { toast } from "sonner"; // Import toast directly
+import { toast } from "sonner";
 
 interface LocationStepProps {
   selectedDepartment: string;
@@ -28,7 +28,7 @@ interface LocationStepProps {
   buttonText?: string;
   showStoreSection?: boolean;
   storeName?: string;
-  categoryId?: string; // Added for debugging
+  categoryId?: string;
 }
 
 const LocationStep: React.FC<LocationStepProps> = ({
@@ -45,7 +45,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
   buttonText = "Siguiente",
   showStoreSection = false,
   storeName,
-  categoryId // Debug parameter
+  categoryId
 }) => {
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartment(value);
@@ -53,63 +53,42 @@ const LocationStep: React.FC<LocationStepProps> = ({
   };
 
   const handleNextWithDelay = () => {
-    // Call the original onNext function immediately
+    // Call the original onNext function
     onNext();
     
     // If we have a categoryId, trigger a click on that category after a delay
     if (categoryId) {
-      console.log("LocationStep: Dispatching events for category:", categoryId);
+      console.log("LocationStep: Scheduling auto-click for category:", categoryId);
       
-      // Use global window variables if available
-      const serviceId = window.lastSelectedServiceId || undefined;
-      
-      // Dispatch the fetchProducts event to show products immediately 
-      const fetchProductsEvent = new CustomEvent('fetchProducts', { 
-        detail: { 
-          categoryId,
-          serviceId
-        } 
-      });
-      document.dispatchEvent(fetchProductsEvent);
-      
-      // Dispatch the event to open the category immediately
-      const openCategoryEvent = new CustomEvent('openCategory', { 
-        detail: { 
-          categoryId,
-          serviceId,
-          categoryName: window.lastSelectedCategoryName || undefined,
-          showProducts: true // Flag to show products immediately
-        } 
-      });
-      document.dispatchEvent(openCategoryEvent);
-      
-      // Also trigger the categorySelected event to highlight the selected category
-      const categorySelectedEvent = new CustomEvent('categorySelected', { 
-        detail: { 
-          categoryId,
-          categoryName: window.lastSelectedCategoryName || undefined,
-          serviceId
-        } 
-      });
-      document.dispatchEvent(categorySelectedEvent);
-      
-      // Also trigger a direct click on service card if available
-      if (serviceId) {
-        console.log("Attempting to trigger direct card click for service:", serviceId);
-        // Short timeout to ensure DOM is ready
+      setTimeout(() => {
+        console.log("LocationStep: Dispatching openCategory event for:", categoryId);
+        // Dispatch the event with the category ID
+        const openCategoryEvent = new CustomEvent('openCategory', { 
+          detail: { 
+            categoryId,
+            // Use global variable if available
+            serviceId: window.lastSelectedServiceId || undefined,
+            categoryName: window.lastSelectedCategoryName || undefined
+          } 
+        });
+        document.dispatchEvent(openCategoryEvent);
+        
+        // Try to directly trigger a click on the category card if it exists
         setTimeout(() => {
-          const serviceCardElement = document.querySelector(`[data-service-id="${serviceId}"]`);
-          if (serviceCardElement) {
-            console.log("Found service card, triggering click");
-            // Simulate a click event
-            serviceCardElement.dispatchEvent(new MouseEvent('click', { 
-              bubbles: true,
-              cancelable: true,
-              view: window
-            }));
+          const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
+          if (categoryElement) {
+            const clickableCard = categoryElement.querySelector('.cursor-pointer');
+            if (clickableCard && clickableCard instanceof HTMLElement) {
+              console.log("LocationStep: Directly clicking category card for:", categoryId);
+              clickableCard.click();
+            } else {
+              console.error("LocationStep: Couldn't find clickable element in category card");
+            }
+          } else {
+            console.error("LocationStep: Couldn't find category element with ID:", categoryId);
           }
-        }, 100);
-      }
+        }, 300); // Small additional delay to ensure the event handlers are ready
+      }, 1000);  // 1 second delay as requested
     }
   };
 

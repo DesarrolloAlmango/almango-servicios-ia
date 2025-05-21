@@ -178,6 +178,14 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     setIsTermsModalOpen(true);
   };
 
+  // Format price with thousands separator (dot) and no decimals
+  const formatPrice = (price: number): string => {
+    return price.toLocaleString('es-UY', { 
+      minimumFractionDigits: 0, 
+      maximumFractionDigits: 0 
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -236,13 +244,13 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                 {cartItems.map(item => (
                   <li key={item.id} className="flex justify-between">
                     <span>{item.name} x{item.quantity}</span>
-                    <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                    <span className="font-medium">${formatPrice(item.price * item.quantity)}</span>
                   </li>
                 ))}
               </ul>
               <div className="flex justify-between font-medium pt-2 border-t mt-2">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>${formatPrice(total)}</span>
               </div>
             </div>
           </AccordionContent>

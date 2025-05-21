@@ -52,7 +52,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const [cachedImages, setCachedImages] = useState<Record<string, string>>({});
   const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set());
-  const [highlightedCategoryId, setHighlightedCategoryId] = useState<string | null>(null);
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -134,9 +133,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
         if (categoryToSelect && selectedService.id === serviceId) {
           console.log("Found matching category, auto-clicking:", categoryToSelect.name);
           
-          // Set the highlighted category for visual indicator
-          setHighlightedCategoryId(categoryId);
-          
           // Small delay to ensure UI is ready
           setTimeout(() => {
             // First, handle the data selection through the normal flow
@@ -149,9 +145,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
               const clickableCard = categoryElement.querySelector('.cursor-pointer');
               if (clickableCard && clickableCard instanceof HTMLElement) {
                 console.log("Programmatically clicking on category card:", categoryToSelect.name);
-                toast.info(`Haciendo clic en la categoría: ${categoryToSelect.name} (ID: ${categoryId})`, {
-                  duration: 3000
-                });
                 // Simulate a real click on the element
                 clickableCard.click();
                 // Also try to focus and give it visual highlight
@@ -162,11 +155,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
                 }, 2000);
               } else {
                 console.error("Failed to find clickable element within category card", categoryId);
-                toast.error("No se pudo hacer clic en la categoría seleccionada");
               }
             } else {
               console.error("Failed to find category element with ID:", categoryId);
-              toast.error("No se encontró la categoría con ID: " + categoryId);
             }
           }, 200);
         } else {
@@ -185,30 +176,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       document.removeEventListener('openCategory', handleOpenCategoryEvent);
     };
   }, [categories, selectedService.id, onSelectCategory]);
-
-  // Listen for categorySelected events to highlight selected category
-  useEffect(() => {
-    const handleCategorySelected = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail && customEvent.detail.categoryId) {
-        console.log("Setting highlighted category:", customEvent.detail.categoryId);
-        setHighlightedCategoryId(customEvent.detail.categoryId);
-      }
-    };
-    
-    document.addEventListener('categorySelected', handleCategorySelected);
-    
-    return () => {
-      document.removeEventListener('categorySelected', handleCategorySelected);
-    };
-  }, []);
-
-  // Update highlighted category when autoSelectCategoryId changes
-  useEffect(() => {
-    if (autoSelectCategoryId) {
-      setHighlightedCategoryId(autoSelectCategoryId);
-    }
-  }, [autoSelectCategoryId]);
 
   // Log when purchaseLocation changes to aid debugging
   useEffect(() => {
@@ -487,10 +454,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     // Store the selected category ID and name in global variables
     lastSelectedCategoryId = category.id;
     lastSelectedCategoryName = category.name;
-    
-    // Set the highlighted category ID for visual indicator
-    setHighlightedCategoryId(category.id);
-    
     console.log("Saved last selected category:", lastSelectedCategoryId, lastSelectedCategoryName);
     
     // Dispatch a custom event to notify any listening components about the category selection
@@ -510,9 +473,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     onSelectCategory(category.id, category.name);
   };
 
-  // Check if this category is the selected one
+  // Check if this category is the auto-selected one
   const isSelectedCategory = (categoryId: string) => {
-    return highlightedCategoryId === categoryId || autoSelectCategoryId === categoryId;
+    return autoSelectCategoryId === categoryId;
   };
 
   // Extraer solo los nombres de categorías para mostrar durante la carga
@@ -546,81 +509,36 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       loop: true
     }}>
         <CarouselContent className="-ml-2 sm:-ml-4">
-          {categories.map(category => {
-            const isSelected = isSelectedCategory(category.id);
-            return (
-              <CarouselItem 
-                key={category.id} 
-                ref={el => el && itemRefs.current.set(category.id, el)} 
-                data-category-id={category.id} 
-                className={`basis-1/2 sm:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4 mx-1 ${isSelected ? 'scale-110 z-10' : ''} transition-all duration-300`}
-              >
-                <div 
-                  onClick={() => handleCategoryClick(category)} 
-                  className={`cursor-pointer hover:scale-105 transition-transform mx-5px 
-                    ${isSelected ? 'ring-4 ring-[#8B5CF6] rounded-full shadow-lg shadow-purple-300/50' : ''}`}
-                >
-                  <div className={`overflow-hidden rounded-full border-2 
-                    ${isSelected ? 'border-[#8B5CF6]' : 'border-primary'} 
-                    mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative`}
-                  >
-                    <AspectRatio ratio={1} className="bg-gray-100">
-                      {/* Mostrar skeleton mientras carga la imagen */}
-                      {loadingImages[category.id] && 
-                        <div className="absolute inset-0 flex items-center justify-center z-10">
-                          <Skeleton className="h-full w-full rounded-full" />
-                        </div>
-                      }
-                      
-                      {/* Mostrar imagen desde caché si está disponible */}
-                      {cachedImages[category.id] && !failedImages[category.id] ? 
-                        <img 
-                          src={cachedImages[category.id]} 
-                          alt={category.name} 
-                          className="w-full h-full object-cover" 
-                          onError={() => handleImageError(category.id, category.image)} 
-                          style={{
-                            opacity: loadingImages[category.id] ? 0 : 1,
-                            transition: 'opacity 0.3s ease-in-out'
-                          }} 
-                        /> : 
-                        <>
-                          {/* Mostrar imagen desde fuente original con lazy loading */}
-                          {getImageSource(category.image) && !failedImages[category.id] ? 
-                            <img 
-                              ref={el => el && imageRefs.current.set(category.id, el)} 
-                              data-category-id={category.id} 
-                              src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" // placeholder transparente
-                              data-src={getImageSource(category.image)} 
-                              alt={category.name} 
-                              className="w-full h-full object-cover" 
-                              loading="lazy" 
-                              onLoad={() => handleImageLoad(category.id)} 
-                              onError={() => handleImageError(category.id, category.image)} 
-                              style={{
-                                opacity: loadingImages[category.id] ? 0 : 1,
-                                transition: 'opacity 0.3s ease-in-out'
-                              }} 
-                            /> : 
-                            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                              <span className="text-gray-500 text-xs">Sin imagen</span>
-                            </div>
-                          }
-                        </>
-                      }
-                    </AspectRatio>
-                  </div>
-                  
-                  <p className={`text-center text-sm sm:text-base font-medium mt-1 sm:mt-2 line-clamp-2 px-1 
-                    animate-in fade-in duration-300 
-                    ${isSelected ? 'text-[#8B5CF6] font-bold bg-purple-50 rounded-lg py-1 px-2 shadow-sm' : ''}`}
-                  >
-                    {category.name}
-                  </p>
+          {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="basis-1/2 sm:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4 mx-1">
+              <div onClick={() => handleCategoryClick(category)} className={`cursor-pointer hover:scale-105 transition-transform mx-5px ${isSelectedCategory(category.id) ? 'ring-4 ring-orange-500 rounded-full' : ''}`}>
+                <div className={`overflow-hidden rounded-full border-2 ${isSelectedCategory(category.id) ? 'border-orange-500' : 'border-primary'} mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative`}>
+                  <AspectRatio ratio={1} className="bg-gray-100">
+                    {/* Mostrar skeleton mientras carga la imagen */}
+                    {loadingImages[category.id] && <div className="absolute inset-0 flex items-center justify-center z-10">
+                        <Skeleton className="h-full w-full rounded-full" />
+                      </div>}
+                    
+                    {/* Mostrar imagen desde caché si está disponible */}
+                    {cachedImages[category.id] && !failedImages[category.id] ? <img src={cachedImages[category.id]} alt={category.name} className="w-full h-full object-cover" onError={() => handleImageError(category.id, category.image)} style={{
+                  opacity: loadingImages[category.id] ? 0 : 1,
+                  transition: 'opacity 0.3s ease-in-out'
+                }} /> : <>
+                        {/* Mostrar imagen desde fuente original con lazy loading */}
+                        {getImageSource(category.image) && !failedImages[category.id] ? <img ref={el => el && imageRefs.current.set(category.id, el)} data-category-id={category.id} src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" // placeholder transparente
+                  data-src={getImageSource(category.image)} alt={category.name} className="w-full h-full object-cover" loading="lazy" onLoad={() => handleImageLoad(category.id)} onError={() => handleImageError(category.id, category.image)} style={{
+                    opacity: loadingImages[category.id] ? 0 : 1,
+                    transition: 'opacity 0.3s ease-in-out'
+                  }} /> : <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-gray-500 text-xs">Sin imagen</span>
+                          </div>}
+                      </>}
+                  </AspectRatio>
                 </div>
-              </CarouselItem>
-            );
-          })}
+                
+                <p className={`text-center text-sm sm:text-base font-medium mt-1 sm:mt-2 line-clamp-2 px-1 
+                  animate-in fade-in duration-300 ${isSelectedCategory(category.id) ? 'text-orange-500 font-bold' : ''}`}>{category.name}</p>
+              </div>
+            </CarouselItem>)}
         </CarouselContent>
         {!isMobile && <>
             <CarouselPrevious className="left-0 hidden sm:flex" />
