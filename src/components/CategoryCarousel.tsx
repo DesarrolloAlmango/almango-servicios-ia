@@ -138,21 +138,15 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
             // First, handle the data selection through the normal flow
             handleCategoryClick(categoryToSelect);
             
-            // CRITICAL FIX: Directly find and click the DOM element for the category
+            // CRITICAL: Find and click the DOM element for the category without adding styles
             const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
             if (categoryElement) {
               // Find the clickable card within the category element
               const clickableCard = categoryElement.querySelector('.cursor-pointer');
               if (clickableCard && clickableCard instanceof HTMLElement) {
                 console.log("Programmatically clicking on category card:", categoryToSelect.name);
-                // Simulate a real click on the element
+                // Simulate a real click on the element without any visual effects
                 clickableCard.click();
-                // Also try to focus and give it visual highlight
-                clickableCard.focus();
-                clickableCard.classList.add('ring-2', 'ring-primary', 'ring-offset-2');
-                setTimeout(() => {
-                  clickableCard.classList.remove('ring-2', 'ring-primary', 'ring-offset-2');
-                }, 2000);
               } else {
                 console.error("Failed to find clickable element within category card", categoryId);
               }
@@ -528,8 +522,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }}>
         <CarouselContent className="-ml-2 sm:-ml-4">
           {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="basis-1/2 sm:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4 mx-1">
-              <div onClick={() => handleCategoryClick(category)} className={`cursor-pointer hover:scale-105 transition-transform mx-5px ${isSelectedCategory(category.id) ? 'ring-4 ring-orange-500 rounded-full' : ''}`}>
-                <div className={`overflow-hidden rounded-full border-2 ${isSelectedCategory(category.id) ? 'border-orange-500' : 'border-primary'} mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative`}>
+              <div onClick={() => handleCategoryClick(category)} className="cursor-pointer hover:scale-105 transition-transform mx-5px">
+                <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                   <AspectRatio ratio={1} className="bg-gray-100">
                     {/* Mostrar skeleton mientras carga la imagen */}
                     {loadingImages[category.id] && <div className="absolute inset-0 flex items-center justify-center z-10">
@@ -553,8 +547,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
                   </AspectRatio>
                 </div>
                 
-                <p className={`text-center text-sm sm:text-base font-medium mt-1 sm:mt-2 line-clamp-2 px-1 
-                  animate-in fade-in duration-300 ${isSelectedCategory(category.id) ? 'text-orange-500 font-bold' : ''}`}>{category.name}</p>
+                <p className="text-center text-sm sm:text-base font-medium mt-1 sm:mt-2 line-clamp-2 px-1 
+                  animate-in fade-in duration-300">{category.name}</p>
               </div>
             </CarouselItem>)}
         </CarouselContent>

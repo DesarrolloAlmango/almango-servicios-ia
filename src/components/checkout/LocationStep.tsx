@@ -72,23 +72,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
           } 
         });
         document.dispatchEvent(openCategoryEvent);
-        
-        // Try to directly trigger a click on the category card if it exists
-        setTimeout(() => {
-          const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
-          if (categoryElement) {
-            const clickableCard = categoryElement.querySelector('.cursor-pointer');
-            if (clickableCard && clickableCard instanceof HTMLElement) {
-              console.log("LocationStep: Directly clicking category card for:", categoryId);
-              clickableCard.click();
-            } else {
-              console.error("LocationStep: Couldn't find clickable element in category card");
-            }
-          } else {
-            console.error("LocationStep: Couldn't find category element with ID:", categoryId);
-          }
-        }, 300); // Small additional delay to ensure the event handlers are ready
-      }, 1000);  // 1 second delay as requested
+      }, 1000);  // 1 second delay
     }
   };
 
