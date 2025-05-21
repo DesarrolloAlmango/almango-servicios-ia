@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -182,6 +181,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
   const initialLoadComplete = useRef(false);
   const categoryChangedRef = useRef(false);
+  const productsLoadedRef = useRef(false);
 
   const getPurchaseLocationForService = (serviceId: string) => {
     return null;
@@ -219,11 +219,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   };
 
-  // Immediately update all prices when we have the necessary data
+  // Function to update all prices - critical for ensuring prices are always current
   const updateAllPrices = async () => {
-    if (!purchaseLocationId || !serviceId || isUpdatingPrices || category.products.length === 0) {
-      console.log("Skipping price update - missing data or already updating", { purchaseLocationId, serviceId, isUpdatingPrices, productCount: category.products.length });
-      return;
+    if (!purchaseLocationId || !serviceId || isUpdatingPrices || products.length === 0) {
+      console.log("Skipping price update - missing data or already updating", { purchaseLocationId, serviceId, isUpdatingPrices, productCount: products.length });
+      return false;
     }
     
     try {
@@ -250,31 +250,50 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       setLoadingProductIds(new Set());
       // Mark prices as fetched
       setPricesFetched(true);
-      toast.success("Precios actualizados correctamente");
+      console.log("Prices updated successfully for all products");
+      return true;
     } catch (error) {
       console.error("Error al actualizar precios:", error);
       toast.error("Hubo un error al actualizar los precios");
+      return false;
     } finally {
       setIsUpdatingPrices(false);
     }
   };
 
-  // Effect to initialize products from category
-  useEffect(() => {
-    if (category.products.length > 0) {
-      console.log("Category changed, initializing products:", category.name);
-      categoryChangedRef.current = true;
+  // Direct fetchProducts function to get products via ObtenerNivel2 endpoint
+  const fetchProducts = async () => {
+    if (!serviceId || !category.id) {
+      console.log("Skipping product fetch - missing serviceId or categoryId");
+      return;
+    }
+    
+    productsLoadedRef.current = false;
+    
+    try {
+      console.log(`Fetching products: serviceId=${serviceId}, categoryId=${category.id}`);
+      const response = await fetch(`/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${category.id}`);
       
-      // Initialize all products with their default prices first
-      const initialProducts = category.products.map(product => ({ 
+      if (!response.ok) {
+        throw new Error(`Error al obtener productos: ${response.status}`);
+      }
+      
+      const productsData = await response.json();
+      console.log(`Fetched ${productsData.length} products for category ${category.id}`);
+      
+      // Initialize products with their default prices
+      const initialProducts = productsData.map((product: any) => ({ 
         ...product, 
-        defaultPrice: product.price 
+        defaultPrice: product.price,
+        price: product.price // Start with default price, will be updated immediately
       }));
+      
       setProducts(initialProducts);
+      productsLoadedRef.current = true;
       
       // Setup initial quantities based on cart items
       const initialQuantities: Record<string, number> = {};
-      initialProducts.forEach(product => {
+      initialProducts.forEach((product: Product) => {
         const cartItem = currentCartItems.find(item => 
           item.productId === product.id && 
           item.categoryId === category.id &&
@@ -283,47 +302,74 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         
         initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
       });
+      
       setProductQuantities(initialQuantities);
       
-      // Set loading state for all products
-      const loadingIds = new Set(initialProducts.map(p => p.id));
-      setLoadingProductIds(loadingIds);
-
-      // Reset price fetch state
-      setPricesFetched(false);
+      // Mark all products as loading prices initially
+      setLoadingProductIds(new Set(initialProducts.map((p: Product) => p.id)));
+      
+      // Immediately update prices after products are loaded
+      // This ensures prices are always current
+      if (purchaseLocationId) {
+        console.log("Products loaded, immediately updating prices");
+        setTimeout(() => {
+          updateAllPrices();
+        }, 0);
+      }
+      
+      return initialProducts;
+    } catch (error) {
+      console.error("Error al cargar productos:", error);
+      toast.error("Hubo un error al cargar los productos");
+      return [];
     }
-  }, [category, currentCartItems, serviceId]);
+  };
 
-  // Effect to update prices when category, purchase location, or service changes
+  // Effect to load products when the category changes
   useEffect(() => {
-    if (!purchaseLocationId || !serviceId || !categoryChangedRef.current || category.products.length === 0) {
-      return;
+    if (category.id && serviceId) {
+      console.log("Category changed, fetching products:", category.name);
+      categoryChangedRef.current = true;
+      fetchProducts();
     }
+  }, [category.id, serviceId]);
 
-    console.log("Category, purchaseLocation or serviceId changed, updating prices:", {
-      categoryId: category.id,
-      purchaseLocationId,
-      serviceId,
-      productCount: category.products.length
-    });
-
-    // Set a small delay to ensure all state is updated
-    const timer = setTimeout(() => {
-      updateAllPrices();
-      categoryChangedRef.current = false;
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, [category.id, purchaseLocationId, serviceId]);
-
-  // This effect runs only on the initial load to avoid double-fetching
+  // Effect to update quantities from cart
   useEffect(() => {
-    if (!initialLoadComplete.current && purchaseLocationId && serviceId && category.products.length > 0) {
-      console.log("Initial load, updating prices");
-      initialLoadComplete.current = true;
+    // Setup initial quantities based on cart items when they change
+    if (products.length > 0) {
+      const initialQuantities: Record<string, number> = { ...productQuantities };
+      let hasChanges = false;
+      
+      products.forEach(product => {
+        const cartItem = currentCartItems.find(item => 
+          item.productId === product.id && 
+          item.categoryId === category.id &&
+          item.serviceId === serviceId
+        );
+        
+        const newQuantity = cartItem ? cartItem.quantity : 0;
+        if (initialQuantities[product.id] !== newQuantity) {
+          initialQuantities[product.id] = newQuantity;
+          hasChanges = true;
+        }
+      });
+      
+      if (hasChanges) {
+        setProductQuantities(initialQuantities);
+      }
+    }
+  }, [currentCartItems, products]);
+
+  // Effect to update prices when purchase location is set/changed
+  useEffect(() => {
+    if (!purchaseLocationId || !serviceId) return;
+
+    if (products.length > 0 && purchaseLocationId) {
+      console.log("Purchase location or service changed with products loaded, updating prices");
       updateAllPrices();
     }
-  }, []);
+  }, [purchaseLocationId, serviceId]);
 
   const updateCart = (productId: string, newQuantity: number) => {
     const product = products.find(p => p.id === productId);
@@ -475,7 +521,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         
         {purchaseLocationId && (
           <Button 
-            onClick={updateAllPrices}
+            onClick={() => updateAllPrices()}
             variant="outline" 
             size="sm" 
             className="ml-2"
