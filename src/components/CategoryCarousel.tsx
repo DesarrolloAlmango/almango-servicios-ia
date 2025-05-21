@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -53,6 +54,11 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const hasAutoSelectedRef = useRef(false);
   const autoSelectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const autoSelectionAttemptsRef = useRef(0);
+  
+  // Add missing refs
+  const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
+  const intersectionObserver = useRef<IntersectionObserver | null>(null);
 
   // Enhanced auto-select effect with more robust handling and retry logic
   useEffect(() => {
