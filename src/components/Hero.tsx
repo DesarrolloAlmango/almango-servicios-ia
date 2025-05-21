@@ -39,7 +39,7 @@ const Hero = () => {
                 opacity: 0.8,
                 maxWidth: 'none',
                 position: 'absolute',
-                right: '-135%', // Modificado a 60% más a la derecha
+                right: '-140%', // Modificado a 60% más a la derecha
                 top: 0,
                 height: '100%',
                 width: 'auto',
