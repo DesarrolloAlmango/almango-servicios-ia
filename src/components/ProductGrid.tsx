@@ -200,6 +200,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [loadingProductIds, setLoadingProductIds] = useState<Set<string>>(new Set());
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
+  const [flashBackButton, setFlashBackButton] = useState(!purchaseLocationId);
   const initialLoadComplete = useRef(false);
   const productsInitialized = useRef(false);
   const categorySelected = useRef(false);
@@ -680,11 +681,16 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       <div className="flex items-center mb-4">
         <button 
           onClick={onBack}
-          className="flex items-center gap-2 text-primary hover:underline"
+          className={`flex items-center gap-2 text-primary hover:underline ${!purchaseLocationId ? 'relative' : ''}`}
           aria-label="back-to-categories"
         >
           <ArrowLeft size={16} />
           <span>Volver a Categorías</span>
+          
+          {/* Yellow flash animation when no purchase location */}
+          {flashBackButton && (
+            <span className="absolute inset-0 bg-yellow-200 animate-pulse rounded-md opacity-50"></span>
+          )}
         </button>
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
         
