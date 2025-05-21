@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -27,10 +28,6 @@ interface CategoryCarouselProps {
   autoSelectCategoryId?: string;
 }
 
-const IMAGE_CACHE_KEY = 'category_images_cache';
-const IMAGE_CACHE_EXPIRY = 24 * 60 * 60 * 1000;
-const COMPRESSION_QUALITY = 0.6;
-
 // Random service names for demonstration
 const DEMO_SERVICE_NAMES = ["Corte de pelo", "Peinado", "Coloración", "Maquillaje", "Tratamiento facial", "Depilación", "Manicura premium", "Masaje relajante", "Pedicura", "Limpieza facial", "Alisado", "Extensiones", "Uñas acrílicas", "Cejas y pestañas"];
 
@@ -52,6 +49,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const [cachedImages, setCachedImages] = useState<Record<string, string>>({});
   const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set());
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -133,6 +131,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
         if (categoryToSelect && selectedService.id === serviceId) {
           console.log("Found matching category, auto-clicking:", categoryToSelect.name);
           
+          // Update UI to show the selected category name
+          setSelectedCategoryName(categoryToSelect.name);
+          
           // Small delay to ensure UI is ready
           setTimeout(() => {
             // First, handle the data selection through the normal flow
@@ -181,6 +182,11 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   useEffect(() => {
     if (purchaseLocation) {
       console.log("CategoryCarousel - Purchase location received:", purchaseLocation);
+      
+      // If we have a category in the purchase location, update the selectedCategoryName
+      if (purchaseLocation.categoryName) {
+        setSelectedCategoryName(purchaseLocation.categoryName);
+      }
     }
   }, [purchaseLocation]);
 
@@ -284,7 +290,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   useEffect(() => {
     const loadCache = async () => {
       try {
-        const cacheData = localStorage.getItem(IMAGE_CACHE_KEY);
+        const cacheData = localStorage.getItem('category_images_cache');
         if (cacheData) {
           const {
             images,
@@ -292,12 +298,12 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
           } = JSON.parse(cacheData);
 
           // Verificar si la caché ha expirado
-          if (Date.now() - timestamp < IMAGE_CACHE_EXPIRY) {
+          if (Date.now() - timestamp < 24 * 60 * 60 * 1000) {
             setCachedImages(images || {});
             console.log('Imágenes de categorías cargadas desde caché local', Object.keys(images).length);
           } else {
             console.log('Caché de imágenes expirada, limpiando...');
-            localStorage.removeItem(IMAGE_CACHE_KEY);
+            localStorage.removeItem('category_images_cache');
           }
         }
       } catch (error) {
@@ -359,7 +365,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
             ...cachedImages,
             [categoryId]: imageData
           };
-          localStorage.setItem(IMAGE_CACHE_KEY, JSON.stringify({
+          localStorage.setItem('category_images_cache', JSON.stringify({
             images: newCache,
             timestamp: Date.now()
           }));
@@ -369,12 +375,14 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       }, 300);
     };
   }, [cachedImages]);
+  
   const handleImageLoad = (categoryId: string) => {
     setLoadingImages(prev => ({
       ...prev,
       [categoryId]: false
     }));
   };
+  
   const handleImageError = (categoryId: string, imageUrl: string) => {
     console.error("Error loading category image:", imageUrl);
     setFailedImages(prev => ({
@@ -426,7 +434,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
           const ctx = canvas.getContext('2d');
           if (ctx) {
             ctx.drawImage(img, 0, 0, width, height);
-            const dataURL = canvas.toDataURL('image/jpeg', COMPRESSION_QUALITY);
+            const dataURL = canvas.toDataURL('image/jpeg', 0.6);
             saveImageToCache(categoryId, dataURL);
           }
         } catch (err) {
@@ -454,6 +462,10 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     // Store the selected category ID and name in global variables
     lastSelectedCategoryId = category.id;
     lastSelectedCategoryName = category.name;
+    
+    // Update the local state to show the selected category
+    setSelectedCategoryName(category.name);
+    
     console.log("Saved last selected category:", lastSelectedCategoryId, lastSelectedCategoryName);
     
     // Dispatch a custom event to notify any listening components about the category selection
@@ -502,7 +514,14 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       </div>;
   }
   return <div className="py-4 sm:py-6 w-full">
-      <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 truncate mx-auto">SELECCIONÁ UNA CATEGORÍA</h3>
+      <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 mx-auto flex items-center justify-center flex-wrap gap-2">
+        <span>SELECCIONÁ UNA CATEGORÍA</span>
+        {selectedCategoryName && (
+          <span className="text-orange-500 font-bold ml-1">
+            ({selectedCategoryName})
+          </span>
+        )}
+      </h3>
       
       <Carousel className="w-full max-w-xs xs:max-w-sm sm:max-w-md md:max-w-xl lg:max-w-3xl mx-auto" opts={{
       align: "center",

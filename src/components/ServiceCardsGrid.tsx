@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+
 interface ServiceCard {
   id: string;
   name: string;
@@ -51,19 +52,20 @@ const mockMudanzaServices: ServiceCard[] = [{
   icon: "https://tn.com.ar/resizer/v2/en-febrero-hacer-una-mudanza-en-el-amba-puede-costar-hasta-500000-foto-blogdeseguroscom-R76YF6LYRVFEHIWDAB5QT4S2EM.png?auth=0e45d37cfd3288d80391fb141181b48361378c8617a55a19aed4d0348d10ac9a&width=1440",
   url: "https://app.almango.com.uy/mudanza.aspx?Mode=INS&MudanzaId=0&ProveedorId=0&SecUserId=0"
 }];
+
 const ServiceCardsGrid = () => {
   const [services, setServices] = useState<ServiceCard[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+
   useEffect(() => {
     const fetchServices = async () => {
       try {
         // Use the API endpoint that's working based on the network logs
         const response = await fetch('/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios');
         const mudanzaResponse = await fetch('/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios2');
+        
         if (!response.ok || !mudanzaResponse.ok) {
           throw new Error(`HTTP error! Status: ${!response.ok ? response.status : mudanzaResponse.status}`);
         }
@@ -77,10 +79,12 @@ const ServiceCardsGrid = () => {
         // Extract the services from the JSON strings
         let servicesData: ServiceCard[] = [];
         let mudanzaServicesData: ServiceCard[] = [];
+        
         if (responseData?.SDTTarjetasServiciosJson) {
           servicesData = JSON.parse(responseData.SDTTarjetasServiciosJson);
           console.info('Datos de servicios parseados:', servicesData);
         }
+        
         if (mudanzaData?.SDTTarjetasServiciosJson) {
           mudanzaServicesData = JSON.parse(mudanzaData.SDTTarjetasServiciosJson);
           console.info('Datos de servicios de mudanza parseados:', mudanzaServicesData);
@@ -102,9 +106,32 @@ const ServiceCardsGrid = () => {
         setLoading(false);
       }
     };
+
     fetchServices();
   }, [toast]);
+
   const handleServiceClick = (serviceId: string, serviceName: string) => {
+    // Crear evento personalizado para categoría seleccionada
+    // Esto permite que otros componentes puedan reaccionar
+    if (window.lastSelectedCategoryId && window.lastSelectedCategoryName) {
+      // Si hay una categoría seleccionada anteriormente, la recordamos
+      const openCategoryEvent = new CustomEvent('openCategory', {
+        detail: {
+          serviceId: serviceId,
+          categoryId: window.lastSelectedCategoryId,
+          categoryName: window.lastSelectedCategoryName
+        }
+      });
+      
+      // Almacenar en ventana global para otros componentes
+      window.lastSelectedServiceId = serviceId;
+      
+      // Disparar después de navegar para que los componentes estén listos
+      setTimeout(() => {
+        document.dispatchEvent(openCategoryEvent);
+      }, 500);
+    }
+    
     // Navigate to services page with the service name as state
     navigate('/servicios', {
       state: {
@@ -112,6 +139,7 @@ const ServiceCardsGrid = () => {
       }
     });
   };
+
   if (loading) {
     return <div className="container mx-auto px-4 sm:px-8 md:px-12 lg:px-24 bg-[#F0F0F0] relative z-[100]">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 -mt-24 relative justify-center">
@@ -124,6 +152,7 @@ const ServiceCardsGrid = () => {
         </div>
       </div>;
   }
+
   return <div className="bg-[#F0F0F0] py-8 relative z-[100]">
       <div className="container mx-auto px-4 sm:px-8 md:px-12 lg:px-24 relative z-[80]">
         {/* Left side rotated "DESTACADOS" text - hidden on medium screens and below */}
@@ -165,4 +194,14 @@ const ServiceCardsGrid = () => {
       </div>
     </div>;
 };
+
+// Declare global variables for TypeScript
+declare global {
+  interface Window {
+    lastSelectedCategoryId?: string;
+    lastSelectedCategoryName?: string;
+    lastSelectedServiceId?: string;
+  }
+}
+
 export default ServiceCardsGrid;
