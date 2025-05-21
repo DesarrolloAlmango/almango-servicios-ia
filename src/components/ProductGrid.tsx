@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -182,6 +183,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const initialLoadComplete = useRef(false);
   const categoryChangedRef = useRef(false);
   const productsLoadedRef = useRef(false);
+  const pricesUpdatedAutomatically = useRef(false);
 
   const getPurchaseLocationForService = (serviceId: string) => {
     return null;
@@ -250,6 +252,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       setLoadingProductIds(new Set());
       // Mark prices as fetched
       setPricesFetched(true);
+      pricesUpdatedAutomatically.current = true;
       console.log("Prices updated successfully for all products");
       return true;
     } catch (error) {
@@ -309,12 +312,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       setLoadingProductIds(new Set(initialProducts.map((p: Product) => p.id)));
       
       // Immediately update prices after products are loaded
-      // This ensures prices are always current
+      // This ensures prices are always current without requiring manual updates
       if (purchaseLocationId) {
         console.log("Products loaded, immediately updating prices");
-        setTimeout(() => {
-          updateAllPrices();
-        }, 0);
+        await updateAllPrices(); // Wait for price update to complete
       }
       
       return initialProducts;
@@ -330,6 +331,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     if (category.id && serviceId) {
       console.log("Category changed, fetching products:", category.name);
       categoryChangedRef.current = true;
+      // Reset price update flag when category changes
+      pricesUpdatedAutomatically.current = false;
       fetchProducts();
     }
   }, [category.id, serviceId]);
@@ -365,7 +368,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   useEffect(() => {
     if (!purchaseLocationId || !serviceId) return;
 
-    if (products.length > 0 && purchaseLocationId) {
+    if (products.length > 0 && purchaseLocationId && !pricesUpdatedAutomatically.current) {
       console.log("Purchase location or service changed with products loaded, updating prices");
       updateAllPrices();
     }
