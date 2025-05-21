@@ -60,27 +60,46 @@ const LocationStep: React.FC<LocationStepProps> = ({
     if (categoryId) {
       console.log("LocationStep: Dispatching events for category:", categoryId);
       
+      // Use global window variables if available
+      const serviceId = window.lastSelectedServiceId || undefined;
+      
       // Dispatch the fetchProducts event to show products immediately 
       const fetchProductsEvent = new CustomEvent('fetchProducts', { 
         detail: { 
           categoryId,
-          // Use global variable if available
-          serviceId: window.lastSelectedServiceId || undefined
+          serviceId
         } 
       });
       document.dispatchEvent(fetchProductsEvent);
       
-      // Dispatch the event to open the category
+      // Dispatch the event to open the category immediately
       const openCategoryEvent = new CustomEvent('openCategory', { 
         detail: { 
           categoryId,
-          // Use global variable if available
-          serviceId: window.lastSelectedServiceId || undefined,
+          serviceId,
           categoryName: window.lastSelectedCategoryName || undefined,
-          showProducts: true // Add flag to show products immediately
+          showProducts: true // Flag to show products immediately
         } 
       });
       document.dispatchEvent(openCategoryEvent);
+      
+      // Also trigger a direct click on service card if available
+      if (serviceId) {
+        console.log("Attempting to trigger direct card click for service:", serviceId);
+        // Short timeout to ensure DOM is ready
+        setTimeout(() => {
+          const serviceCardElement = document.querySelector(`[data-service-id="${serviceId}"]`);
+          if (serviceCardElement) {
+            console.log("Found service card, triggering click");
+            // Simulate a click event
+            serviceCardElement.dispatchEvent(new MouseEvent('click', { 
+              bubbles: true,
+              cancelable: true,
+              view: window
+            }));
+          }
+        }, 100);
+      }
     }
   };
 

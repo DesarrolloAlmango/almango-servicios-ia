@@ -366,6 +366,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       
       // Also make the API call directly to pre-load data
       const endpoint = `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
+      console.log("Calling endpoint:", endpoint);
       const response = await fetch(endpoint);
       
       if (!response.ok) {
@@ -426,6 +427,15 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       categoryId: finalCategoryId,
       categoryName: finalCategoryName
     });
+
+    // Store category info in window variables for broader access
+    if (finalServiceId) {
+      window.lastSelectedServiceId = finalServiceId;
+    }
+    
+    if (finalCategoryName) {
+      window.lastSelectedCategoryName = finalCategoryName;
+    }
     
     // Store the category information in global variable for automatic opening
     if (finalServiceId && finalCategoryId) {
@@ -438,7 +448,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       // Immediately fetch products before closing the modal
       await fetchProducts(finalServiceId, finalCategoryId);
     }
-    
+
     // Close the modal and call onSelectLocation
     onSelectLocation(
       storeId, 
@@ -454,6 +464,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     
     // If this is a new category selection, trigger the product display immediately
     if (finalCategoryId && finalServiceId) {
+      console.log("Triggering immediate product display for:", finalCategoryId);
+      
       // Use a custom event to notify the parent component to open the category and show products
       const openCategoryEvent = new CustomEvent('openCategory', {
         detail: {
@@ -465,8 +477,35 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       });
       document.dispatchEvent(openCategoryEvent);
       
-      // After successful location confirmation, highlight the selected category
+      // Force direct call to the service card click event
       setTimeout(() => {
+        console.log("Looking for service card with ID:", finalServiceId);
+        const serviceCardElement = document.querySelector(`[data-service-id="${finalServiceId}"]`);
+        if (serviceCardElement) {
+          console.log("Found service card, triggering click");
+          serviceCardElement.dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+          }));
+        } else {
+          console.log("Service card not found in DOM");
+          
+          // Try to find the category element directly
+          const categoryElement = document.querySelector(`[data-category-id="${finalCategoryId}"]`);
+          if (categoryElement) {
+            console.log("Found category element, triggering click");
+            categoryElement.dispatchEvent(new MouseEvent('click', {
+              bubbles: true, 
+              cancelable: true,
+              view: window
+            }));
+          } else {
+            console.log("Category element not found in DOM");
+          }
+        }
+        
+        // After successful location confirmation, highlight the selected category
         const categoryElement = document.querySelector(`[data-category-id="${finalCategoryId}"]`);
         if (categoryElement) {
           categoryElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -478,7 +517,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             }, 2000);
           }
         }
-      }, 500);
+      }, 300);
     }
   };
 
