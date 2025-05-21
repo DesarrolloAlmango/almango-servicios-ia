@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, forwardRef, useEffect, useRef } from 'react';
 import { Button } from "./ui/button";
 import CategoryCarousel from "./CategoryCarousel";
@@ -9,6 +10,7 @@ import { Skeleton, PriceSkeleton, TextSkeleton } from "./ui/skeleton";
 import { toast } from "sonner";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
+import ProductGrid from "./ProductGrid";
 
 interface CartItem {
   id: string;
@@ -49,481 +51,6 @@ interface ServiceDetails {
   price?: number;
   image?: string;
 }
-
-interface ProductCardProps {
-  product: Product;
-  quantity: number;
-  onIncrease: () => void;
-  onDecrease: () => void;
-  animating: boolean;
-  purchaseLocationId?: string;
-  serviceId?: string;
-  categoryId?: string;
-  isPriceLoading?: boolean;
-}
-
-const ProductCard: React.FC<ProductCardProps> = ({ 
-  product, 
-  quantity,
-  onIncrease,
-  onDecrease,
-  animating,
-  purchaseLocationId,
-  serviceId,
-  categoryId,
-  isPriceLoading = false
-}) => {
-  const [imageError, setImageError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-
-  const getImageSource = () => {
-    if (!product.image) return null;
-    if (product.image.startsWith('data:image')) {
-      return product.image;
-    }
-    try {
-      new URL(product.image);
-      return product.image;
-    } catch {
-      return `data:image/png;base64,${product.image}`;
-    }
-  };
-
-  const imageSource = getImageSource();
-
-  return (
-    <Card className="overflow-hidden h-full flex flex-col relative">
-      <div className="relative h-40 bg-gray-100 flex items-center justify-center">
-        {!imageLoaded && (
-          <Skeleton className="absolute inset-0 w-full h-full" />
-        )}
-        {imageSource && !imageError ? (
-          <img 
-            src={imageSource}
-            alt={product.name}
-            className="w-full h-full object-cover"
-            onError={() => setImageError(true)}
-            onLoad={() => setImageLoaded(true)}
-            style={{ opacity: imageLoaded ? 1 : 0 }}
-          />
-        ) : (
-          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-            <span className="text-gray-500 text-sm">Imagen no disponible</span>
-          </div>
-        )}
-        {animating && (
-          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-            <div className="animate-bounce scale-[2.2] bg-white bg-opacity-80 rounded-full shadow-lg flex items-center justify-center duration-500 p-2">
-              <ShoppingCart size={32} className="text-orange-500" />
-            </div>
-          </div>
-        )}
-        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-          <div className="bg-white rounded-full p-1 shadow-md flex items-center">
-            <button 
-              className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary"
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                onDecrease(); 
-              }}
-            >
-              -
-            </button>
-            <span className="w-8 h-8 flex items-center justify-center font-medium">
-              {quantity}
-            </span>
-            <button 
-              className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary"
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                onIncrease(); 
-              }}
-            >
-              +
-            </button>
-          </div>
-        </div>
-      </div>
-      <CardContent className="p-4 flex-grow">
-        <h4 className="font-medium mb-1 line-clamp-2">{product.name}</h4>
-        <div className="flex justify-between items-center mt-2">
-          {isPriceLoading ? (
-            <PriceSkeleton />
-          ) : product.price !== undefined ? (
-            <span className="font-bold">
-              ${product.price.toLocaleString('es-UY', { maximumFractionDigits: 0 })}
-            </span>
-          ) : (
-            <PriceSkeleton />
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-interface ProductGridProps {
-  category: Category;
-  addToCart: (item: CartItem) => void;
-  onBack: () => void;
-  serviceName: string;
-  closeDialog: () => void;
-  serviceId?: string;
-  purchaseLocationId?: string;
-  currentCartItems: CartItem[];
-}
-
-const ProductGrid: React.FC<ProductGridProps> = ({ 
-  category, 
-  addToCart, 
-  onBack, 
-  serviceName,
-  closeDialog,
-  serviceId,
-  purchaseLocationId,
-  currentCartItems
-}) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [productQuantities, setProductQuantities] = useState<Record<string, number>>({});
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loadingProductIds, setLoadingProductIds] = useState<Set<string>>(new Set());
-  const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
-  const [pricesFetched, setPricesFetched] = useState<boolean>(false);
-  const [isUpdatingPrices, setIsUpdatingPrices] = useState<boolean>(false);
-
-  const getPurchaseLocationForService = (serviceId: string) => {
-    return null;
-  };
-
-  const fetchUpdatedPrice = async (product: Product): Promise<{id: string, price: number}> => {
-    if (!purchaseLocationId || !serviceId || !category.id) {
-      return { id: product.id, price: product.defaultPrice || product.price };
-    }
-
-    try {
-      // Log the API call to help with debugging
-      console.log(`Fetching price for: serviceId=${serviceId}, categoryId=${category.id}, productId=${product.id}, locationId=${purchaseLocationId}`);
-      
-      const response = await fetch(
-        `/api/AlmangoXV1NETFramework/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`
-      );
-      
-      if (!response.ok) {
-        throw new Error(`Error al obtener precio: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log(`Price data received for ${product.id}:`, data);
-      return { 
-        id: product.id,
-        price: data.Precio > 0 ? data.Precio : (product.defaultPrice || product.price) 
-      };
-    } catch (error) {
-      console.error(`Error al obtener precio para producto ${product.id}:`, error);
-      return { 
-        id: product.id,
-        price: product.defaultPrice || product.price 
-      };
-    }
-  };
-
-  const updateAllPrices = async () => {
-    if (!purchaseLocationId || !serviceId || isUpdatingPrices) return;
-    
-    console.log("Updating all prices...");
-    setIsUpdatingPrices(true);
-    
-    try {
-      // Mark all products as loading prices
-      const loadingIds = new Set(products.map(p => p.id));
-      setLoadingProductIds(loadingIds);
-      
-      // Fetch all prices in parallel
-      const pricePromises = products.map(product => fetchUpdatedPrice(product));
-      const updatedPrices = await Promise.all(pricePromises);
-      
-      // Update products with new prices
-      setProducts(prevProducts => {
-        return prevProducts.map(product => {
-          const updatedPrice = updatedPrices.find(p => p.id === product.id);
-          if (updatedPrice) {
-            return { ...product, price: updatedPrice.price };
-          }
-          return product;
-        });
-      });
-      
-      setPricesFetched(true);
-      setLoadingProductIds(new Set());
-      toast.success("Precios actualizados correctamente");
-    } catch (error) {
-      console.error("Error updating prices:", error);
-      toast.error("Error al actualizar los precios");
-    } finally {
-      setIsUpdatingPrices(false);
-    }
-  };
-
-  useEffect(() => {
-    // Set initial state with product base data
-    if (category.products.length > 0 && !pricesFetched) {
-      // Initialize all products with their default prices first
-      const initialProducts = category.products.map(product => ({ 
-        ...product, 
-        defaultPrice: product.price 
-      }));
-      setProducts(initialProducts);
-      
-      // Setup initial quantities based on cart items
-      const initialQuantities: Record<string, number> = {};
-      initialProducts.forEach(product => {
-        const cartItem = currentCartItems.find(item => 
-          item.productId === product.id && 
-          item.categoryId === category.id &&
-          item.serviceId === serviceId
-        );
-        
-        initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
-      });
-      setProductQuantities(initialQuantities);
-      
-      // Mark all products as loading prices
-      const loadingIds = new Set(initialProducts.map(p => p.id));
-      setLoadingProductIds(loadingIds);
-      
-      // Always update prices when a category is selected and products are loaded
-      if (purchaseLocationId && serviceId) {
-        // Always update prices when component mounts with a purchase location
-        updateAllPrices();
-      } else {
-        // Mark prices as fetched to prevent refetching
-        setPricesFetched(true);
-      }
-    }
-  }, [category, currentCartItems]);
-
-  // Added a separate effect to update prices when purchaseLocationId changes
-  useEffect(() => {
-    // If we have a purchase location ID and it changes, update prices automatically
-    if (purchaseLocationId && serviceId && category.products.length > 0) {
-      console.log("Purchase location changed, updating prices automatically");
-      updateAllPrices();
-    }
-  }, [purchaseLocationId, serviceId]);
-
-  const updateCart = (productId: string, newQuantity: number) => {
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-    const purchaseLocation = { departmentId: undefined, locationId: undefined };
-
-    addToCart({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: newQuantity,
-      image: product.image,
-      serviceCategory: `${serviceName} - ${category.name}`,
-      serviceId: serviceId,
-      categoryId: category.id,
-      productId: product.id,
-      departmentId: purchaseLocation?.departmentId,
-      locationId: purchaseLocation?.locationId,
-      textosId: product.textosId
-    });
-
-    setCartAnimating(prev => ({ ...prev, [productId]: true }));
-    setTimeout(() => {
-      setCartAnimating(prev => ({ ...prev, [productId]: false }));
-    }, 700);
-  };
-
-  const increaseQuantity = (productId: string) => {
-    setProductQuantities(prev => {
-      const newValue = (prev[productId] || 0) + 1;
-      setTimeout(() => updateCart(productId, newValue), 0);
-      return { ...prev, [productId]: newValue };
-    });
-  };
-
-  const decreaseQuantity = (productId: string) => {
-    setProductQuantities(prev => {
-      const newValue = Math.max(0, (prev[productId] || 0) - 1);
-      setTimeout(() => updateCart(productId, newValue), 0);
-      return { ...prev, [productId]: newValue };
-    });
-  };
-
-  const handleAddAllToCart = () => {
-    const purchaseLocation = { departmentId: undefined, locationId: undefined };
-    const itemsToAdd = products
-      .filter(product => productQuantities[product.id] > 0)
-      .map(product => ({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        quantity: productQuantities[product.id],
-        image: product.image,
-        serviceCategory: `${serviceName} - ${category.name}`,
-        serviceId: serviceId,
-        categoryId: category.id,
-        productId: product.id,
-        departmentId: purchaseLocation?.departmentId,
-        locationId: purchaseLocation?.locationId,
-        textosId: product.textosId
-      }));
-
-    if (itemsToAdd.length > 0) {
-      itemsToAdd.forEach(item => addToCart(item));
-      closeDialog();
-      const currentPath = location.pathname;
-      navigate(currentPath, { state: { openCart: true } });
-    } else {
-      toast.error("Seleccione al menos un producto");
-    }
-  };
-
-  const handleContractNow = () => {
-    const purchaseLocation = { departmentId: undefined, locationId: undefined };
-    
-    const itemsToAdd = products
-      .filter(product => productQuantities[product.id] > 0)
-      .map(product => ({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        quantity: productQuantities[product.id],
-        image: product.image,
-        serviceCategory: `${serviceName} - ${category.name}`,
-        serviceId: serviceId,
-        categoryId: category.id,
-        productId: product.id,
-        departmentId: purchaseLocation?.departmentId,
-        locationId: purchaseLocation?.locationId,
-        textosId: product.textosId
-      }));
-
-    if (itemsToAdd.length > 0) {
-      itemsToAdd.forEach(item => addToCart(item));
-      closeDialog();
-      const currentPath = location.pathname;
-      navigate(currentPath, { state: { openCart: true } });
-    } else {
-      toast.error("Seleccione al menos un producto");
-    }
-  };
-
-  const handleAddAnotherService = () => {
-    const purchaseLocation = { departmentId: undefined, locationId: undefined };
-    
-    const itemsToAdd = products
-      .filter(product => productQuantities[product.id] > 0)
-      .map(product => ({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        quantity: productQuantities[product.id],
-        image: product.image,
-        serviceCategory: `${serviceName} - ${category.name}`,
-        serviceId: serviceId,
-        categoryId: category.id,
-        productId: product.id,
-        departmentId: purchaseLocation?.departmentId,
-        locationId: purchaseLocation?.locationId,
-        textosId: product.textosId
-      }));
-
-    if (itemsToAdd.length > 0) {
-      itemsToAdd.forEach(item => addToCart(item));
-      closeDialog();
-      navigate('/servicios');
-    } else {
-      toast.error("Seleccione al menos un producto");
-    }
-  };
-
-  const hasSelectedProducts = Object.values(productQuantities).some(qty => qty > 0);
-
-  // Determine if we need to show loading message
-  const allProductsLoading = products.length === 0;
-
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center mb-4">
-        <div className="flex gap-2 items-center">
-          <button 
-            onClick={onBack}
-            className="flex items-center gap-2 text-primary hover:underline"
-          >
-            <ArrowLeft size={16} />
-            <span>Volver a Categorías</span>
-          </button>
-          
-          {/* Nuevo botón para actualizar precios - visible solo cuando hay location */}
-          {purchaseLocationId && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={updateAllPrices}
-              disabled={isUpdatingPrices}
-              className="flex items-center gap-1 text-xs"
-            >
-              <RefreshCw size={14} className={isUpdatingPrices ? "animate-spin" : ""} />
-              <span>Actualizar Precios</span>
-            </Button>
-          )}
-        </div>
-        <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
-      </div>
-      
-      {allProductsLoading ? (
-        <div className="flex flex-col items-center justify-center h-64 gap-4">
-          <TextSkeleton text="Calculando precios..." />
-        </div>
-      ) : products.length === 0 ? (
-        <div className="flex items-center justify-center h-40">
-          <p className="text-gray-500">No hay productos disponibles</p>
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {products.map(product => (
-              <ProductCard 
-                key={product.id} 
-                product={product}
-                quantity={productQuantities[product.id] || 0}
-                onIncrease={() => increaseQuantity(product.id)}
-                onDecrease={() => decreaseQuantity(product.id)}
-                animating={!!cartAnimating[product.id]}
-                purchaseLocationId={purchaseLocationId}
-                serviceId={serviceId}
-                categoryId={category.id}
-                isPriceLoading={loadingProductIds.has(product.id)}
-              />
-            ))}
-          </div>
-          {hasSelectedProducts && (
-            <div className="flex justify-center gap-2 sm:gap-4 mt-8 sticky bottom-4 bg-white p-4 rounded-lg shadow-md">
-              <Button 
-                onClick={handleAddAnotherService}
-                variant="outline"
-                className="text-secondary border-secondary hover:bg-secondary hover:text-white transition-colors text-xs sm:text-sm px-2 sm:px-4"
-              >
-                Agregar otro servicio
-              </Button>
-              <Button 
-                onClick={handleContractNow}
-                className="bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm px-2 sm:px-4"
-              >
-                Contratar ahora
-              </Button>
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  );
-};
 
 interface ServiceCardProps {
   id?: string;
@@ -653,12 +180,108 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     }
   };
 
-  // Update the fetchProducts function to automatically update prices
+  // Function to fetch updated price for a specific product
+  const fetchUpdatedPrice = async (product: Product, serviceId: string, categoryId: string, purchaseLocationId?: string): Promise<{id: string, price: number}> => {
+    if (!purchaseLocationId || !serviceId || !categoryId) {
+      console.log("Missing required parameters for price fetch:", { 
+        purchaseLocationId, 
+        serviceId, 
+        categoryId 
+      });
+      return { id: product.id, price: product.defaultPrice || product.price };
+    }
+
+    try {
+      // Log the API call for debugging
+      console.log(`ServiceCard: Fetching price for: proveedorId=${purchaseLocationId}, nivel0=${serviceId}, nivel1=${categoryId}, nivel2=${product.id}`);
+      
+      const response = await fetch(
+        `/api/AlmangoXV1NETFramework/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${categoryId}&Nivel2=${product.id}`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Error al obtener precio: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log(`ServiceCard: Price data received for ${product.id}:`, data);
+      
+      // IMPORTANT: Only use ObtenerPrecio price if it's greater than 0
+      if (data && typeof data.Precio === 'number') {
+        if (data.Precio > 0) {
+          console.log(`ServiceCard: Using ObtenerPrecio price for product ${product.id}: ${data.Precio}`);
+          return { 
+            id: product.id,
+            price: data.Precio 
+          };
+        } else {
+          console.log(`ServiceCard: ObtenerPrecio returned zero for product ${product.id}, using default price: ${product.defaultPrice || product.price}`);
+          return { 
+            id: product.id,
+            price: product.defaultPrice || product.price 
+          };
+        }
+      } else {
+        console.warn(`ServiceCard: Invalid price data format for product ${product.id}:`, data);
+        return { 
+          id: product.id,
+          price: product.defaultPrice || product.price 
+        };
+      }
+    } catch (error) {
+      console.error(`ServiceCard: Error fetching price for product ${product.id}:`, error);
+      return { 
+        id: product.id,
+        price: product.defaultPrice || product.price 
+      };
+    }
+  };
+
+  // Fetch prices for all products in a category
+  const fetchAllPrices = async (products: Product[], serviceId: string, categoryId: string, purchaseLocationId?: string) => {
+    if (!purchaseLocationId || !serviceId || products.length === 0) {
+      console.log("ServiceCard: Skipping price update - missing data", { 
+        purchaseLocationId, 
+        serviceId,
+        productCount: products.length 
+      });
+      return products;
+    }
+    
+    console.log(`ServiceCard: Updating prices for all ${products.length} products in category ${categoryId}`);
+    
+    try {
+      // Fetch updated prices in parallel
+      const pricePromises = products.map(product => 
+        fetchUpdatedPrice(product, serviceId, categoryId, purchaseLocationId)
+      );
+      
+      const updatedPrices = await Promise.all(pricePromises);
+      console.log("ServiceCard: All prices fetched successfully:", updatedPrices);
+      
+      // Update product prices with the fetched values
+      const updatedProducts = products.map(product => {
+        const updatedPrice = updatedPrices.find(p => p.id === product.id);
+        if (updatedPrice) {
+          return { ...product, price: updatedPrice.price };
+        }
+        return product;
+      });
+      
+      console.log("ServiceCard: Products with updated prices:", updatedProducts);
+      return updatedProducts;
+    } catch (error) {
+      console.error("ServiceCard: Error updating all prices:", error);
+      return products; // Return original products if there's an error
+    }
+  };
+
+  // Update the fetchProducts function to include price fetching
   const fetchProducts = async (serviceId: string, categoryId: string) => {
-    console.log(`Fetching products for service ${serviceId} and category ${categoryId}`);
+    console.log(`ServiceCard: Fetching products for service ${serviceId} and category ${categoryId}`);
     setIsLoading(true);
     try {
-      // Llamada directa a ObtenerNivel2
+      // Call ObtenerNivel2 to get initial product data
       const response = await fetch(
         `/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`
       );
@@ -668,12 +291,14 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       }
       
       const data = await response.json();
-      console.log('Products data received:', data);
+      console.log('ServiceCard: Products data received from ObtenerNivel2:', data);
       
-      const transformedProducts = data.map((product: any) => ({
+      // Transform products and set default prices
+      let transformedProducts = data.map((product: any) => ({
         id: product.id || product.Nivel2Id,
         name: product.name || product.Nivel2Descripcion,
-        price: product.price ? parseFloat(product.price) : (product.Precio ? parseFloat(product.Precio) : 0),
+        price: 0, // Initialize with 0 to show loading state
+        defaultPrice: product.price ? parseFloat(product.price) : (product.Precio ? parseFloat(product.Precio) : 0),
         image: product.image || product.Imagen || "",
         category: categoryId,
         textosId: product.TextosId || null
@@ -682,9 +307,16 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       // Buscar la categoría existente o crear una temporal
       let categoryToUpdate: Category | undefined = categories.find(cat => cat.id === categoryId);
       
+      // CRITICAL CHANGE: Fetch prices immediately after ObtenerNivel2 when purchase location is available
+      const purchaseLocationId = purchaseLocation ? purchaseLocation.storeId : undefined;
+      if (purchaseLocationId) {
+        console.log(`ServiceCard: Purchase location found (${purchaseLocationId}), fetching prices immediately`);
+        transformedProducts = await fetchAllPrices(transformedProducts, serviceId, categoryId, purchaseLocationId);
+      }
+      
       if (!categoryToUpdate) {
         // Si la categoría no existe en el estado, crear una temporal
-        console.log("Category not found in state, creating temporary one");
+        console.log("ServiceCard: Category not found in state, creating temporary one");
         const categoryName = pendingCategoryName || purchaseLocation?.categoryName || "Productos";
         categoryToUpdate = {
           id: categoryId,
@@ -697,7 +329,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
         setCategories(prev => [...prev, categoryToUpdate!]);
       } else {
         // Si la categoría existe, actualizar sus productos
-        console.log("Category found in state, updating products");
+        console.log("ServiceCard: Category found in state, updating products");
         categoryToUpdate = {
           ...categoryToUpdate,
           products: transformedProducts
@@ -710,15 +342,17 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       }
       
       // Siempre actualizar selectedCategory para mostrar los productos
-      console.log("Setting selected category:", categoryToUpdate);
+      console.log("ServiceCard: Setting selected category:", categoryToUpdate);
       setSelectedCategory(categoryToUpdate);
       
-      // Prices will be automatically updated when ProductGrid mounts with the new category
+      // After setting the category and products, dispatch an event to notify any components
+      // that the product grid has been shown with updated data
+      document.dispatchEvent(new CustomEvent('productGridShown'));
       
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar productos');
       toast.error("Error al cargar productos");
-      console.error("Error fetching products:", err);
+      console.error("ServiceCard: Error fetching products:", err);
     } finally {
       setIsLoading(false);
       // Reset the category selection flag once products are loaded
@@ -739,19 +373,19 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   };
   
   const handleCategorySelect = (category: Category) => {
-    console.log("Category selected:", category);
+    console.log("ServiceCard: Category selected:", category);
     
     // Set the flag to prevent closing the dialog while loading products
     categorySelectionInProgressRef.current = true;
     
     // Siempre cargamos productos primero, independientemente de si hay ubicación o no
     if (id) {
-      console.log("Fetching products for category - regardless of purchase location:", category.id);
+      console.log("ServiceCard: Fetching products for category - regardless of purchase location:", category.id);
       fetchProducts(id, category.id);
       
       // Si NO hay ubicación de compra, notificamos al padre para mostrar el modal después
       if (!purchaseLocation && onCategorySelect) {
-        console.log("Calling onCategorySelect from parent - no purchase location exists");
+        console.log("ServiceCard: Calling onCategorySelect from parent - no purchase location exists");
         
         // Usamos setTimeout para asegurarnos de que los productos se carguen primero
         setTimeout(() => {
