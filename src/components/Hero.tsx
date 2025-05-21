@@ -30,14 +30,23 @@ const Hero = () => {
       {/* Imagen ajustada a bordes superior y derecho */}
       <div className="absolute inset-0 z-1 overflow-hidden">
         {isMobile ? (
-          <img 
-            src="/lovable-uploads/61c4eb76-3dac-472b-ad75-4c5029d686f7.png" 
-            alt="Apretón de manos profesional" 
-            className="animate-fade-in w-full h-full object-cover object-left"
-            style={{
-              opacity: 0.8,
-            }} 
-          />
+          <div className="absolute right-0 top-0 h-full w-full">
+            <img 
+              src="/lovable-uploads/61c4eb76-3dac-472b-ad75-4c5029d686f7.png" 
+              alt="Apretón de manos profesional" 
+              className="animate-fade-in h-full w-auto object-cover object-right"
+              style={{
+                opacity: 0.8,
+                maxWidth: 'none',
+                position: 'absolute',
+                right: '-135%', // Modificado a 60% más a la derecha
+                top: 0,
+                height: '100%',
+                width: 'auto',
+                minHeight: '100%'
+              }} 
+            />
+          </div>
         ) : (
           <div className="absolute right-0 top-0 h-full w-auto">
             <img 
