@@ -1,4 +1,3 @@
-
 import { ArrowRight, UserRound, UserRoundPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -6,44 +5,35 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import ContactInfo from "@/components/ContactInfo";
 import { useEffect, useState } from "react";
 import LottieAnimation from "./LottieAnimation";
-
 const Hero = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [isLoaded, setIsLoaded] = useState(false);
-  
   useEffect(() => {
     // Set loaded state after initial render
     setIsLoaded(true);
   }, []);
-  
-  return (
-    <div className={`relative w-full overflow-hidden overflow-x-hidden ${isMobile ? "min-h-[calc(75vh-40px)]" : "min-h-[75vh] md:min-h-[82vh]"} flex items-start pt-16 md:pt-20`}>
+  return <div className={`relative w-full overflow-hidden overflow-x-hidden ${isMobile ? "min-h-[calc(75vh-40px)]" : "min-h-[75vh] md:min-h-[82vh]"} flex items-start pt-16 md:pt-20`}>
       {/* Hero background with primary colors */}
       <div className="absolute inset-0 z-0 bg-[#14162c]">
         <div className="absolute inset-0 z-1" style={{
-          background: "radial-gradient(circle at 20% 30%, #008be1 0%, transparent 40%), radial-gradient(circle at 80% 70%, #ff6900 0%, transparent 40%), radial-gradient(circle at 50% 50%, #0EA5E9 0%, transparent 30%)",
-          opacity: 0.8
-        }}></div>
+        background: "radial-gradient(circle at 20% 30%, #008be1 0%, transparent 40%), radial-gradient(circle at 80% 70%, #ff6900 0%, transparent 40%), radial-gradient(circle at 50% 50%, #0EA5E9 0%, transparent 30%)",
+        opacity: 0.8
+      }}></div>
         <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
       </div>
       
       {/* Imagen de apretón de manos - Ahora más centrada y detrás del texto */}
       <div className="absolute z-1 top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2" style={{
-        maxHeight: '90%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <img 
-          src="/lovable-uploads/61c4eb76-3dac-472b-ad75-4c5029d686f7.png" 
-          alt="Apretón de manos profesional" 
-          className="h-auto max-h-full animate-fade-in"
-          style={{
-            maxWidth: isMobile ? '260px' : '500px',
-            opacity: 0.8
-          }}
-        />
+      maxHeight: '90%',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+        <img src="/lovable-uploads/61c4eb76-3dac-472b-ad75-4c5029d686f7.png" alt="Apretón de manos profesional" style={{
+        maxWidth: isMobile ? '260px' : '500px',
+        opacity: 0.8
+      }} className="h-auto max-h-full animate-fade-in ml-auto" />
       </div>
       
       {/* Contenedor principal con ajuste de margen para bajar el texto */}
@@ -55,14 +45,13 @@ const Hero = () => {
           RÁPIDO. FÁCIL. SEGURO. SIN VUELTAS.
         </p>
         <Button onClick={() => navigate('/servicios')} className="bg-primary hover:bg-primary/80 text-white px-4 py-2 rounded-md text-lg shadow-lg flex items-center transition-all hover:scale-105 animate-fade-in my-0 mx-0 py-[20px] px-[21px] font-serif" style={{
-          animation: 'buttonGlow 2s infinite ease-in-out'
-        }}>
+        animation: 'buttonGlow 2s infinite ease-in-out'
+      }}>
           SOLICITAR SERVICIO <ArrowRight className="ml-2" size={18} />
         </Button>
       </div>
 
       <ContactInfo />
-    </div>
-  );
+    </div>;
 };
 export default Hero;
