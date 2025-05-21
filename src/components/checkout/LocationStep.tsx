@@ -65,12 +65,16 @@ const LocationStep: React.FC<LocationStepProps> = ({
         console.log("LocationStep: Dispatching openCategory event for:", categoryId);
         // Dispatch the event with the category ID
         try {
+          // Get category name from window if available
+          const categoryName = window.lastSelectedCategoryName || undefined;
+          console.log("LocationStep: Category name for event:", categoryName);
+          
           const openCategoryEvent = new CustomEvent('openCategory', { 
             detail: { 
               categoryId,
               // Use global variable if available
               serviceId: window.lastSelectedServiceId || undefined,
-              categoryName: window.lastSelectedCategoryName || undefined
+              categoryName
             } 
           });
           document.dispatchEvent(openCategoryEvent);

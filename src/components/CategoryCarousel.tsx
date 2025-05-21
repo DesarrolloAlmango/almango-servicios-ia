@@ -49,9 +49,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const [cachedImages, setCachedImages] = useState<Record<string, string>>({});
   const [visibleItems, setVisibleItems] = useState<Set<string>>(new Set());
   const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
-  const intersectionObserver = useRef<IntersectionObserver | null>(null);
-  const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
-  const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const categoryCardsRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const hasAutoSelectedRef = useRef(false);
   const autoSelectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -178,11 +175,25 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     };
   }, [categories, selectedService.id, onSelectCategory]);
 
-  // New function to focus on a specific category card
+  // New function to focus and automatically click on a specific category card
   const focusCategoryCard = (categoryId: string) => {
     try {
       // Try to get the reference to the card from our refs map
       const cardRef = categoryCardsRefs.current.get(categoryId);
+      
+      // Find the category name to match with the selected one
+      const category = categories.find(cat => cat.id === categoryId);
+      const categoryName = category ? category.name : null;
+      
+      // Debug if there's a match between displayed name and category name
+      if (categoryName && selectedCategoryName) {
+        if (categoryName === selectedCategoryName) {
+          console.debug(`✅ MATCH FOUND: Category name "${categoryName}" matches selected name "${selectedCategoryName}"`);
+          toast.success(`Categoría seleccionada: ${categoryName}`, { duration: 2000 });
+        } else {
+          console.debug(`❌ NO MATCH: Category name "${categoryName}" does NOT match selected name "${selectedCategoryName}"`);
+        }
+      }
       
       if (cardRef) {
         // Scroll the card into view and focus it
@@ -193,6 +204,14 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
         
         // Set focus on the card (for accessibility)
         cardRef.focus();
+        
+        // Simulate click on the card after focusing
+        setTimeout(() => {
+          if (categoryName === selectedCategoryName) {
+            console.debug(`🖱️ Simulating click on category card: ${categoryName}`);
+            cardRef.click();
+          }
+        }, 300);
         
         console.log("Successfully focused category card:", categoryId);
       } else {
@@ -205,9 +224,24 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
           });
           
           categoryElement.focus();
+          
+          // Also try to click it if it's a match
+          if (categoryName === selectedCategoryName) {
+            setTimeout(() => {
+              const clickableElement = categoryElement.querySelector('.cursor-pointer');
+              if (clickableElement && clickableElement instanceof HTMLElement) {
+                console.debug(`🖱️ Simulating click on category card (fallback): ${categoryName}`);
+                clickableElement.click();
+              }
+            }, 300);
+          }
+          
           console.log("Focused category card with query selector:", categoryId);
         } else {
           console.warn("Could not find category card to focus:", categoryId);
+          if (categoryName) {
+            console.debug(`⚠️ Unable to find and click category card for: ${categoryName}`);
+          }
         }
       }
     } catch (error) {
@@ -492,7 +526,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }
   };
 
-  // Handle category selection with global variable storage
+  // Handle category selection with global variable storage and enhanced debug
   const handleCategoryClick = (category: Category) => {
     console.log("Category clicked:", category.name, "Purchase location:", purchaseLocation ? "exists" : "does not exist", "Category ID:", category.id);
     
@@ -504,6 +538,11 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     setSelectedCategoryName(category.name);
     
     console.log("Saved last selected category:", lastSelectedCategoryId, lastSelectedCategoryName);
+    
+    // Check if this was triggered by a name match and log it
+    if (selectedCategoryName === category.name) {
+      console.debug(`🎯 Category click triggered by name match: "${category.name}"`);
+    }
     
     // Dispatch a custom event to notify any listening components about the category selection
     const categorySelectedEvent = new CustomEvent('categorySelected', { 
@@ -574,6 +613,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
                 className="cursor-pointer hover:scale-105 transition-transform mx-5px"
                 ref={el => el && categoryCardsRefs.current.set(category.id, el)}
                 tabIndex={0} // Make it focusable
+                data-category-name={category.name} // Add data attribute for easier debugging
               >
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                   <AspectRatio ratio={1} className="bg-gray-100">
