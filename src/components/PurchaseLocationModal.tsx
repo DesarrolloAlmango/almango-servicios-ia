@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -438,7 +439,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
           categoryName: finalCategoryName
         };
         
-        // Start pre-fetching products but don't await it - let it happen in background
+        // Pre-fetch products to make the transition smoother - now calling immediately 
+        // to ensure products are ready when needed
         fetchProductsForCategory(storeId, localServiceId, finalCategoryId);
       }
       
@@ -454,23 +456,22 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         selectedStore === "other" ? otherStore || searchQuery : undefined
       );
       
-      // If this is a new category selection, dispatch event after a short delay
+      // Immediately dispatch the openCategory event with the category information
+      // This is key to making direct product loading work
       if (finalCategoryId && localServiceId) {
-        setTimeout(() => {
-          try {
-            // Use a custom event to notify the parent component to open the category
-            const openCategoryEvent = new CustomEvent('openCategory', {
-              detail: {
-                serviceId: localServiceId,
-                categoryId: finalCategoryId,
-                categoryName: finalCategoryName
-              }
-            });
-            document.dispatchEvent(openCategoryEvent);
-          } catch (error) {
-            console.error("Error dispatching category event:", error);
-          }
-        }, 300);
+        try {
+          console.log("Dispatching openCategory event immediately after location confirmation");
+          const openCategoryEvent = new CustomEvent('openCategory', {
+            detail: {
+              serviceId: localServiceId,
+              categoryId: finalCategoryId,
+              categoryName: finalCategoryName
+            }
+          });
+          document.dispatchEvent(openCategoryEvent);
+        } catch (error) {
+          console.error("Error dispatching category event:", error);
+        }
       }
     } catch (error) {
       console.error("Error in handleConfirm:", error);

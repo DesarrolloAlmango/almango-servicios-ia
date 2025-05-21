@@ -613,6 +613,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     }
   };
 
+  // Update the fetchProducts function to be more robust
   const fetchProducts = async (serviceId: string, categoryId: string) => {
     console.log(`Fetching products for service ${serviceId} and category ${categoryId}`);
     setIsLoading(true);
