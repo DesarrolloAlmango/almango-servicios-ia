@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import CheckoutSummary from "./checkout/CheckoutSummary";
 import { CheckoutData, getProviderAuxiliary } from "@/types/checkoutTypes";
 import { getTimeSlotNumber } from "@/utils/timeUtils";
+
 interface CartDrawerProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
@@ -149,11 +150,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           ProductoID: Number(item.categoryId),
           DetalleID: Number(item.productId),
           Cantidad: item.quantity,
-          Precio: Number(item.price.toFixed(2)),
+          Precio: Number(item.price), // Ensure price is a number
           SR: "N",
           Comision: 0,
           ComisionTipo: "P",
-          PrecioFinal: Number((item.price * item.quantity).toFixed(2)),
+          PrecioFinal: Number((item.price * item.quantity)), // Ensure calculation is done with numbers
           productoNombre: item.name
         })),
         serviceName: location.serviceName || `Servicio ${serviceId}`
