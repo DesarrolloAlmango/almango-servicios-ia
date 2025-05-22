@@ -76,13 +76,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
   const imageSource = getImageSource();
+  
+  // Determine if buttons should be disabled
+  const buttonsDisabled = !hasPurchaseLocation || isPriceLoading || product.price === 0;
+  
   const handleButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!hasPurchaseLocation) {
       toast.error("Por favor, seleccione un lugar de compra primero");
       onBackToCategories();
+    } else if (isPriceLoading || product.price === 0) {
+      toast.info("Esperando carga de precios...");
     }
   };
+  
   return <Card className="overflow-hidden h-full flex flex-col relative">
       <div className="relative h-40 bg-gray-100 flex items-center justify-center">
         {!imageLoaded && <Skeleton className="absolute inset-0 w-full h-full" />}
@@ -98,27 +105,35 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>}
         <div className="absolute inset-0 flex items-center justify-center bg-black/20">
           <div className="bg-white rounded-full p-1 shadow-md flex items-center">
-            <button className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${!hasPurchaseLocation ? 'cursor-not-allowed opacity-50' : ''}`} onClick={e => {
-            if (!hasPurchaseLocation) {
-              handleButtonClick(e);
-            } else {
-              e.stopPropagation();
-              onDecrease();
-            }
-          }} disabled={!hasPurchaseLocation}>
+            <button 
+              className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${buttonsDisabled ? 'cursor-not-allowed opacity-50' : ''}`} 
+              onClick={e => {
+                if (buttonsDisabled) {
+                  handleButtonClick(e);
+                } else {
+                  e.stopPropagation();
+                  onDecrease();
+                }
+              }} 
+              disabled={buttonsDisabled}
+            >
               -
             </button>
             <span className="w-8 h-8 flex items-center justify-center font-medium">
               {quantity}
             </span>
-            <button className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${!hasPurchaseLocation ? 'cursor-not-allowed opacity-50' : ''}`} onClick={e => {
-            if (!hasPurchaseLocation) {
-              handleButtonClick(e);
-            } else {
-              e.stopPropagation();
-              onIncrease();
-            }
-          }} disabled={!hasPurchaseLocation}>
+            <button 
+              className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${buttonsDisabled ? 'cursor-not-allowed opacity-50' : ''}`} 
+              onClick={e => {
+                if (buttonsDisabled) {
+                  handleButtonClick(e);
+                } else {
+                  e.stopPropagation();
+                  onIncrease();
+                }
+              }} 
+              disabled={buttonsDisabled}
+            >
               +
             </button>
           </div>
@@ -127,7 +142,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <CardContent className="p-4 flex-grow">
         <h4 className="font-medium mb-1 line-clamp-2">{product.name}</h4>
         <div className="flex justify-between items-center mt-2">
-          {isPriceLoading ? <PriceSkeleton /> : product.price !== undefined ? <span className="font-bold">
+          {isPriceLoading ? <PriceSkeleton /> : product.price !== undefined && product.price > 0 ? <span className="font-bold">
               ${product.price.toLocaleString('es-UY', {
             maximumFractionDigits: 0
           })}
@@ -136,6 +151,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </CardContent>
     </Card>;
 };
+
 interface ProductGridProps {
   category: Category;
   addToCart: (item: CartItem) => void;

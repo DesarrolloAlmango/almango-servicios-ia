@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, forwardRef, useEffect, useRef } from 'react';
 import { Button } from "./ui/button";
 import CategoryCarousel from "./CategoryCarousel";
@@ -297,7 +296,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       let transformedProducts = data.map((product: any) => ({
         id: product.id || product.Nivel2Id,
         name: product.name || product.Nivel2Descripcion,
-        price: 0, // Initialize with 0 to show loading state
+        price: 0, // Initialize with 0 to show loading state and disable buttons
         defaultPrice: product.price ? parseFloat(product.price) : (product.Precio ? parseFloat(product.Precio) : 0),
         image: product.image || product.Imagen || "",
         category: categoryId,
