@@ -95,7 +95,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                         "0";
       
       const jsonSolicitud = JSON.stringify(serviceData);
-      const url = new URL("/api/AlmangoXV1NETFramework/WebAPI/AltaSolicitud", window.location.origin);
+      const url = new URL("/api/WebAPI/AltaSolicitud", window.location.origin);
       url.searchParams.append("Userconect", "NoEmpty");
       url.searchParams.append("Key", "d3d3LmF6bWl0YS5jb20=");
       url.searchParams.append("Proveedorid", providerId); // Using the correct provider ID

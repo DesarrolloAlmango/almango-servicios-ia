@@ -33,7 +33,7 @@ export function GeneralTermsModal({ isOpen, onClose }: GeneralTermsModalProps) {
     try {
       const textosId = 1; // Fixed ID as required
       const response = await fetch(
-        `/api/AlmangoXV1NETFramework/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`
+        `/api/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`
       );
       
       if (!response.ok) {

@@ -255,7 +255,7 @@ const Servicios = () => {
           });
 
           // Direct API call to fetch products
-          fetch(`/api/AlmangoXV1NETFramework/WebAPI/ObtenerNivel2?Nivel0=${selectedServiceId}&Nivel1=${selectedCategoryId}`).then(response => response.json()).then(data => {
+          fetch(`/api/WebAPI/ObtenerNivel2?Nivel0=${selectedServiceId}&Nivel1=${selectedCategoryId}`).then(response => response.json()).then(data => {
             console.log(`Fetched ${data.length} products for category ${selectedCategoryId}`);
           }).catch(error => {
             console.error("Error fetching products:", error);
