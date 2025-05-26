@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     proxy: {
       '/api': {
-        target: 'http://109.199.100.16',
+        target: 'https://app.almango.com.uy',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
         secure: false,
@@ -18,8 +18,8 @@ export default defineConfig(({ mode }) => ({
           proxy.on('proxyReq', (proxyReq, req, res) => {
             // Establecer encabezados necesarios para evitar problemas de CORS
             proxyReq.setHeader('X-Forwarded-Host', 'localhost');
-            proxyReq.setHeader('Origin', 'http://109.199.100.16');
-            proxyReq.setHeader('Referer', 'http://109.199.100.16/');
+            proxyReq.setHeader('Origin', 'https://app.almango.com.uy');
+            proxyReq.setHeader('Referer', 'https://app.almango.com.uy/');
           });
         }
       }
