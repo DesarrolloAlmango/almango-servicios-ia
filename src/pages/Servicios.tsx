@@ -106,7 +106,7 @@ const fallbackMudanzaServices: TarjetaServicio[] = [{
 }];
 const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
   try {
-    const response = await fetch("/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios");
+    const response = await fetch("/api/WebAPI/GetTarjetasServicios");
     if (!response.ok) {
       throw new Error("Error al obtener las tarjetas de servicios");
     }
@@ -122,7 +122,7 @@ const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
 };
 const fetchTarjetasMudanza = async (): Promise<TarjetaServicio[]> => {
   try {
-    const response = await fetch("/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetTarjetasServicios2");
+    const response = await fetch("/api/WebAPI/GetTarjetasServicios2");
     if (!response.ok) {
       throw new Error("Error al obtener las tarjetas de servicios de mudanza");
     }
