@@ -101,12 +101,6 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                 <h4 className="font-medium">{item.name}</h4>
                 <p className="text-sm text-muted-foreground">{item.serviceCategory}</p>
                 
-                {/* Debug info */}
-                <div className="text-xs text-gray-500 mt-1">
-                  <strong>Debug TextosId:</strong> {item.textosId ? item.textosId : 'null'} 
-                  (tipo: {typeof item.textosId})
-                </div>
-                
                 <Button
                   variant="link"
                   className="text-sm text-orange-500 hover:text-orange-600 mt-1 p-0 h-auto cursor-pointer"
