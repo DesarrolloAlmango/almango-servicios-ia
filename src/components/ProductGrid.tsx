@@ -141,6 +141,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </div>
       <CardContent className="p-4 flex-grow">
         <h4 className="font-medium mb-1 line-clamp-2">{product.name}</h4>
+        
+        {/* DEBUG: Show textosId information */}
+        <div className="bg-blue-50 border border-blue-200 p-2 mb-2 rounded text-xs">
+          <div className="font-semibold text-blue-700">DEBUG - TextosId:</div>
+          <div className="text-blue-600">
+            Value: {product.textosId || 'null/undefined'}
+          </div>
+          <div className="text-blue-600">
+            Type: {typeof product.textosId}
+          </div>
+        </div>
+        
         <div className="flex justify-between items-center mt-2">
           {isPriceLoading ? <PriceSkeleton /> : product.price !== undefined && product.price > 0 ? <span className="font-bold">
               ${product.price.toLocaleString('es-UY', {
@@ -314,12 +326,25 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       // CRITICAL CHANGE: Initialize products with their default prices from ObtenerNivel2
       // but explicitly set price to 0 to ensure we always show loading state
       // until ObtenerPrecio completes
-      const initialProducts = productsData.map((product: any) => ({
-        ...product,
-        defaultPrice: product.price,
-        // Store the original price as defaultPrice
-        price: 0 // Set initial price to 0 to ensure we show loading state until ObtenerPrecio completes
-      }));
+      const initialProducts = productsData.map((product: any) => {
+        console.log('=== DEBUG Product Mapping in fetchProducts ===');
+        console.log('Original product from ObtenerNivel2:', product);
+        console.log('Product TextosId from API:', product.TextosId);
+        console.log('Product TextosId type:', typeof product.TextosId);
+        console.log('=== END Product Mapping DEBUG ===');
+        
+        return {
+          id: product.id || product.Nivel2Id,
+          name: product.name || product.Nivel2Descripcion,
+          price: 0, // Initialize with 0 to show loading state and disable buttons
+          defaultPrice: product.price ? parseFloat(product.price) : (product.Precio ? parseFloat(product.Precio) : 0),
+          image: product.image || product.Imagen || "",
+          category: category.id,
+          textosId: product.TextosId || null // Ensure textosId is captured
+        };
+      });
+      
+      console.log('ProductGrid: Transformed products with textosId:', initialProducts);
 
       // Setting the products with initial data, but prices will be updated immediately
       setProducts(initialProducts);
@@ -496,13 +521,13 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       locationId: undefined
     };
     
-    console.log('=== DEBUG updateCart ===');
+    console.log('=== DEBUG updateCart in ProductGrid ===');
     console.log('Product found:', product);
-    console.log('Product textosId:', product.textosId);
+    console.log('Product textosId being added to cart:', product.textosId);
     console.log('Product textosId type:', typeof product.textosId);
     console.log('=== END updateCart DEBUG ===');
     
-    addToCart({
+    const cartItem: CartItem = {
       id: product.id,
       name: product.name,
       price: product.price,
@@ -515,7 +540,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       departmentId: purchaseLocation?.departmentId,
       locationId: purchaseLocation?.locationId,
       textosId: product.textosId || null
-    });
+    };
+    
+    console.log('ProductGrid: Cart item being added with textosId:', cartItem);
+    addToCart(cartItem);
+    
     setCartAnimating(prev => ({
       ...prev,
       [productId]: true
@@ -527,6 +556,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       }));
     }, 700);
   };
+
+  // ... keep existing code (increaseQuantity, decreaseQuantity functions)
   const increaseQuantity = (productId: string) => {
     if (!purchaseLocationId) {
       toast.error("Por favor, seleccione un lugar de compra primero");
@@ -557,6 +588,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       };
     });
   };
+
+  // ... keep existing code (handleAddAllToCart, handleContractNow, handleAddAnotherService functions)
   const handleAddAllToCart = () => {
     const purchaseLocation = {
       departmentId: undefined,
