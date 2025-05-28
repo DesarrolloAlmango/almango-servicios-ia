@@ -152,7 +152,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerNivel1?Nivel0=${serviceId}`);
+      const response = await fetch(`/api/WebAPI/ObtenerNivel1?Nivel0=${serviceId}`);
       
       if (!response.ok) {
         throw new Error(`Error al cargar categorías: ${response.status}`);
@@ -195,7 +195,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       console.log(`ServiceCard: Fetching price for: proveedorId=${purchaseLocationId}, nivel0=${serviceId}, nivel1=${categoryId}, nivel2=${product.id}`);
       
       const response = await fetch(
-        `https://app.almango.com.uy/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${categoryId}&Nivel2=${product.id}`
+        `/api/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${categoryId}&Nivel2=${product.id}`
       );
       
       if (!response.ok) {
@@ -282,7 +282,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     try {
       // Call ObtenerNivel2 to get initial product data
       const response = await fetch(
-        `https://app.almango.com.uy/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`
+        `/api/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`
       );
       
       if (!response.ok) {

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "@/pages/Servicios";
@@ -52,19 +51,6 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
     }
   };
 
-  const handleViewTerms = (item: CartItem, event: React.MouseEvent) => {
-    event.preventDefault();
-    event.stopPropagation();
-    console.log("Ver términos clicked for:", item.name, "textosId:", item.textosId);
-    
-    if (item.textosId) {
-      setSelectedTerms({ 
-        textosId: item.textosId, 
-        productName: item.name 
-      });
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -83,28 +69,25 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
               <div className="flex-1">
                 <h4 className="font-medium">{item.name}</h4>
                 <p className="text-sm text-muted-foreground">{item.serviceCategory}</p>
-                {item.textosId && (
-                  <Button
-                    variant="link"
-                    size="sm"
-                    onClick={(e) => handleViewTerms(item, e)}
-                    className="text-orange-500 hover:text-orange-600 p-0 h-auto mt-1 text-sm font-normal"
-                  >
-                    Ver Condiciones
-                  </Button>
-                )}
+                <button
+                  onClick={() => setSelectedTerms({ textosId: item.textosId || null, productName: item.name })}
+                  className="text-sm text-orange-500 hover:text-orange-600 mt-1"
+                  disabled={!item.textosId}
+                >
+                  Ver Condiciones
+                </button>
               </div>
               <div className="flex items-center gap-3">
                 <div className="bg-white rounded-md border flex items-center">
                   <button 
-                    className="px-2 py-1 text-lg hover:bg-gray-100"
+                    className="px-2 py-1 text-lg"
                     onClick={() => handleDecreaseQuantity(item.id, item.quantity)}
                   >
                     -
                   </button>
                   <span className="px-3 py-1">{item.quantity}</span>
                   <button 
-                    className="px-2 py-1 text-lg hover:bg-gray-100"
+                    className="px-2 py-1 text-lg"
                     onClick={() => handleIncreaseQuantity(item.id, item.quantity)}
                   >
                     +

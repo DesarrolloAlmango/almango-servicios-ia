@@ -46,7 +46,7 @@ export const useMercadoPagoPayment = (
       for (const request of pendingRequests) {
         console.log(`Verificando estado de pago para solicitud ${request.solicitudId}`);
         
-        const checkUrl = `https://app.almango.com.uy/WebAPI/ConsultarPagoPendiente?Solicitudesid=${request.solicitudId}`;
+        const checkUrl = `/api/WebAPI/ConsultarPagoPendiente?Solicitudesid=${request.solicitudId}`;
         console.log(`URL de verificación: ${checkUrl}`);
         
         try {

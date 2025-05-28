@@ -208,7 +208,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     try {
       // Log the API call with explicit params for debugging
       console.log(`Fetching price for: proveedorId=${purchaseLocationId}, nivel0=${serviceId}, nivel1=${category.id}, nivel2=${product.id}`);
-      const response = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`);
+      const response = await fetch(`/api/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`);
       if (!response.ok) {
         console.error(`Error response from price API: ${response.status} ${response.statusText}`);
         throw new Error(`Error al obtener precio: ${response.status}`);
@@ -304,7 +304,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
       // First, mark all products as loading to show loading UI
       setLoadingProductIds(new Set(['loading-all']));
-      const response = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${category.id}`);
+      const response = await fetch(`/api/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${category.id}`);
       if (!response.ok) {
         throw new Error(`Error al obtener productos: ${response.status}`);
       }
