@@ -52,8 +52,14 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
   };
 
   const handleViewTerms = (item: CartItem) => {
-    console.log('Clicking Ver Condiciones for:', item);
-    console.log('TextosId:', item.textosId);
+    console.log('=== DEBUG Ver Condiciones ===');
+    console.log('Complete item object:', item);
+    console.log('Item keys:', Object.keys(item));
+    console.log('TextosId value:', item.textosId);
+    console.log('TextosId type:', typeof item.textosId);
+    console.log('All cart items:', cartItems);
+    console.log('=== END DEBUG ===');
+    
     setSelectedTerms({ 
       textosId: item.textosId || null, 
       productName: item.name 
