@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "@/pages/Servicios";
@@ -27,6 +28,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
 }) => {
   const [selectedTerms, setSelectedTerms] = useState<SelectedTerms | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [debugEndpoint, setDebugEndpoint] = useState<string>("");
   const nextButtonRef = useRef<HTMLDivElement>(null);
   
   const handleIncreaseQuantity = (id: string, currentQuantity: number) => {
@@ -60,6 +62,11 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
     console.log('All cart items:', cartItems);
     console.log('=== END DEBUG ===');
     
+    // Mostrar el endpoint que se va a ejecutar
+    const endpoint = `/api/WebAPI/ObtenerTyCProductos?Textosid=${item.textosId || 'null'}`;
+    setDebugEndpoint(endpoint);
+    console.log('Endpoint a ejecutar:', endpoint);
+    
     setSelectedTerms({ 
       textosId: item.textosId || null, 
       productName: item.name 
@@ -73,6 +80,15 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
         <p className="text-muted-foreground">Revisa y confirma tus servicios seleccionados</p>
       </div>
 
+      {/* Debug endpoint display */}
+      {debugEndpoint && (
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+          <strong>Debug - Último endpoint ejecutado:</strong>
+          <br />
+          <code className="text-xs">{debugEndpoint}</code>
+        </div>
+      )}
+
       {cartItems.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-muted-foreground">No hay servicios en el carrito</p>
@@ -84,6 +100,13 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
               <div className="flex-1">
                 <h4 className="font-medium">{item.name}</h4>
                 <p className="text-sm text-muted-foreground">{item.serviceCategory}</p>
+                
+                {/* Debug info */}
+                <div className="text-xs text-gray-500 mt-1">
+                  <strong>Debug TextosId:</strong> {item.textosId ? item.textosId : 'null'} 
+                  (tipo: {typeof item.textosId})
+                </div>
+                
                 <Button
                   variant="link"
                   className="text-sm text-orange-500 hover:text-orange-600 mt-1 p-0 h-auto cursor-pointer"
