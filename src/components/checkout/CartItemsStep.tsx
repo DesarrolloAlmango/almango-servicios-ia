@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "@/pages/Servicios";
@@ -51,6 +52,13 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
     }
   };
 
+  const handleViewTerms = (item: CartItem) => {
+    setSelectedTerms({ 
+      textosId: item.textosId || null, 
+      productName: item.name 
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -69,13 +77,14 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
               <div className="flex-1">
                 <h4 className="font-medium">{item.name}</h4>
                 <p className="text-sm text-muted-foreground">{item.serviceCategory}</p>
-                <button
-                  onClick={() => setSelectedTerms({ textosId: item.textosId || null, productName: item.name })}
-                  className="text-sm text-orange-500 hover:text-orange-600 mt-1"
+                <Button
+                  variant="link"
+                  className="text-sm text-orange-500 hover:text-orange-600 mt-1 p-0 h-auto"
+                  onClick={() => handleViewTerms(item)}
                   disabled={!item.textosId}
                 >
                   Ver Condiciones
-                </button>
+                </Button>
               </div>
               <div className="flex items-center gap-3">
                 <div className="bg-white rounded-md border flex items-center">
