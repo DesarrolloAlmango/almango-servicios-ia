@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "@/pages/Servicios";
@@ -53,6 +52,8 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
   };
 
   const handleViewTerms = (item: CartItem) => {
+    console.log('Clicking Ver Condiciones for:', item);
+    console.log('TextosId:', item.textosId);
     setSelectedTerms({ 
       textosId: item.textosId || null, 
       productName: item.name 
@@ -79,9 +80,9 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                 <p className="text-sm text-muted-foreground">{item.serviceCategory}</p>
                 <Button
                   variant="link"
-                  className="text-sm text-orange-500 hover:text-orange-600 mt-1 p-0 h-auto"
+                  className="text-sm text-orange-500 hover:text-orange-600 mt-1 p-0 h-auto cursor-pointer"
                   onClick={() => handleViewTerms(item)}
-                  disabled={!item.textosId}
+                  type="button"
                 >
                   Ver Condiciones
                 </Button>
