@@ -5,7 +5,6 @@ import { Skeleton, PriceSkeleton, TextSkeleton } from "./ui/skeleton";
 import { toast } from "sonner";
 import { ArrowLeft, ShoppingCart, RefreshCw } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-
 interface CartItem {
   id: string;
   name: string;
@@ -76,10 +75,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
   const imageSource = getImageSource();
-  
+
   // Determine if buttons should be disabled
   const buttonsDisabled = !hasPurchaseLocation || isPriceLoading || product.price === 0;
-  
   const handleButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!hasPurchaseLocation) {
@@ -89,7 +87,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
       toast.info("Esperando carga de precios...");
     }
   };
-  
   return <Card className="overflow-hidden h-full flex flex-col relative">
       <div className="relative h-40 bg-gray-100 flex items-center justify-center">
         {!imageLoaded && <Skeleton className="absolute inset-0 w-full h-full" />}
@@ -105,35 +102,27 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>}
         <div className="absolute inset-0 flex items-center justify-center bg-black/20">
           <div className="bg-white rounded-full p-1 shadow-md flex items-center">
-            <button 
-              className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${buttonsDisabled ? 'cursor-not-allowed opacity-50' : ''}`} 
-              onClick={e => {
-                if (buttonsDisabled) {
-                  handleButtonClick(e);
-                } else {
-                  e.stopPropagation();
-                  onDecrease();
-                }
-              }} 
-              disabled={buttonsDisabled}
-            >
+            <button className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${buttonsDisabled ? 'cursor-not-allowed opacity-50' : ''}`} onClick={e => {
+            if (buttonsDisabled) {
+              handleButtonClick(e);
+            } else {
+              e.stopPropagation();
+              onDecrease();
+            }
+          }} disabled={buttonsDisabled}>
               -
             </button>
             <span className="w-8 h-8 flex items-center justify-center font-medium">
               {quantity}
             </span>
-            <button 
-              className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${buttonsDisabled ? 'cursor-not-allowed opacity-50' : ''}`} 
-              onClick={e => {
-                if (buttonsDisabled) {
-                  handleButtonClick(e);
-                } else {
-                  e.stopPropagation();
-                  onIncrease();
-                }
-              }} 
-              disabled={buttonsDisabled}
-            >
+            <button className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${buttonsDisabled ? 'cursor-not-allowed opacity-50' : ''}`} onClick={e => {
+            if (buttonsDisabled) {
+              handleButtonClick(e);
+            } else {
+              e.stopPropagation();
+              onIncrease();
+            }
+          }} disabled={buttonsDisabled}>
               +
             </button>
           </div>
@@ -143,15 +132,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <h4 className="font-medium mb-1 line-clamp-2">{product.name}</h4>
         
         {/* DEBUG: Show textosId information */}
-        <div className="bg-blue-50 border border-blue-200 p-2 mb-2 rounded text-xs">
-          <div className="font-semibold text-blue-700">DEBUG - TextosId:</div>
-          <div className="text-blue-600">
-            Value: {product.textosId || 'null/undefined'}
-          </div>
-          <div className="text-blue-600">
-            Type: {typeof product.textosId}
-          </div>
-        </div>
+        
         
         <div className="flex justify-between items-center mt-2">
           {isPriceLoading ? <PriceSkeleton /> : product.price !== undefined && product.price > 0 ? <span className="font-bold">
@@ -163,7 +144,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </CardContent>
     </Card>;
 };
-
 interface ProductGridProps {
   category: Category;
   addToCart: (item: CartItem) => void;
@@ -191,11 +171,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [loadingProductIds, setLoadingProductIds] = useState<Set<string>>(new Set());
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
-  
+
   // FIXED: Only set flashBackButton to true when purchaseLocationId is not set
   // And ensure it updates when purchaseLocationId changes
   const [flashBackButton, setFlashBackButton] = useState(false);
-  
   const initialLoadComplete = useRef(false);
   const productsInitialized = useRef(false);
   const categorySelected = useRef(false);
@@ -332,18 +311,17 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         console.log('Product TextosId from API:', product.TextosId);
         console.log('Product TextosId type:', typeof product.TextosId);
         console.log('=== END Product Mapping DEBUG ===');
-        
         return {
           id: product.id || product.Nivel2Id,
           name: product.name || product.Nivel2Descripcion,
-          price: 0, // Initialize with 0 to show loading state and disable buttons
-          defaultPrice: product.price ? parseFloat(product.price) : (product.Precio ? parseFloat(product.Precio) : 0),
+          price: 0,
+          // Initialize with 0 to show loading state and disable buttons
+          defaultPrice: product.price ? parseFloat(product.price) : product.Precio ? parseFloat(product.Precio) : 0,
           image: product.image || product.Imagen || "",
           category: category.id,
           textosId: product.TextosId || null // Ensure textosId is captured
         };
       });
-      
       console.log('ProductGrid: Transformed products with textosId:', initialProducts);
 
       // Setting the products with initial data, but prices will be updated immediately
@@ -520,13 +498,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       departmentId: undefined,
       locationId: undefined
     };
-    
     console.log('=== DEBUG updateCart in ProductGrid ===');
     console.log('Product found:', product);
     console.log('Product textosId being added to cart:', product.textosId);
     console.log('Product textosId type:', typeof product.textosId);
     console.log('=== END updateCart DEBUG ===');
-    
     const cartItem: CartItem = {
       id: product.id,
       name: product.name,
@@ -541,10 +517,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       locationId: purchaseLocation?.locationId,
       textosId: product.textosId || null
     };
-    
     console.log('ProductGrid: Cart item being added with textosId:', cartItem);
     addToCart(cartItem);
-    
     setCartAnimating(prev => ({
       ...prev,
       [productId]: true
@@ -600,7 +574,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       console.log('Product:', product.name);
       console.log('Product textosId:', product.textosId);
       console.log('=== END handleAddAllToCart DEBUG ===');
-      
       return {
         id: product.id,
         name: product.name,
@@ -639,7 +612,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       console.log('Product:', product.name);
       console.log('Product textosId:', product.textosId);
       console.log('=== END handleContractNow DEBUG ===');
-      
       return {
         id: product.id,
         name: product.name,
@@ -678,7 +650,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       console.log('Product:', product.name);
       console.log('Product textosId:', product.textosId);
       console.log('=== END handleAddAnotherService DEBUG ===');
-      
       return {
         id: product.id,
         name: product.name,
@@ -706,7 +677,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   // Determine if we need to show loading message
   const allProductsLoading = products.length === 0 || loadingProductIds.has('loading-all');
-  
   return <div className="space-y-6">
       <div className="flex items-center mb-4">
         <button onClick={onBack} className={`flex items-center gap-2 text-primary hover:underline ${!purchaseLocationId ? 'relative' : ''}`} aria-label="back-to-categories">
@@ -714,16 +684,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
           <span>Volver a Categorías</span>
           
           {/* Lighter yellow flash animation with adjusted height - only show when flashBackButton is true */}
-          {flashBackButton && (
-            <span 
-              className="absolute inset-0 bg-yellow-100 animate-pulse rounded-md opacity-20 z-[-1]" 
-              style={{
-                maxHeight: '35px',
-                transform: 'scale(1.05)',
-                animation: 'pulse 2s infinite alternate',
-              }}
-            ></span>
-          )}
+          {flashBackButton && <span className="absolute inset-0 bg-yellow-100 animate-pulse rounded-md opacity-20 z-[-1]" style={{
+          maxHeight: '35px',
+          transform: 'scale(1.05)',
+          animation: 'pulse 2s infinite alternate'
+        }}></span>}
         </button>
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
         
@@ -762,5 +727,4 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         </>}
     </div>;
 };
-
 export default ProductGrid;
