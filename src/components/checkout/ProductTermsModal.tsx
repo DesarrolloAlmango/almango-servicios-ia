@@ -51,18 +51,12 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
           return;
         }
         
-<<<<<<< HEAD
-        const response = await fetch(
-          `https://app.almango.com.uy/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`
-        );
-=======
         const url = `/api/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`;
         console.log('Fetching URL:', url);
         
         const response = await fetch(url);
         console.log('Response status:', response.status);
         console.log('Response ok:', response.ok);
->>>>>>> 497747fb78d38f102439b783aa31ba49ce060167
         
         if (!response.ok) {
           throw new Error(`Error al obtener términos y condiciones: ${response.status}`);
