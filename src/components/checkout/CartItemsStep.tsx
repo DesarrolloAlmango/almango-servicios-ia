@@ -4,6 +4,7 @@ import { CartItem } from "@/pages/Servicios";
 import ProductTermsModal from "./ProductTermsModal";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+
 export interface CartItemsStepProps {
   cartItems: CartItem[];
   updateCartItem: (id: string, quantity: number) => void;
@@ -11,10 +12,12 @@ export interface CartItemsStepProps {
   onNext: () => void;
   onPrevious: () => void;
 }
+
 interface SelectedTerms {
   textosId: string | null;
   productName: string;
 }
+
 const CartItemsStep: React.FC<CartItemsStepProps> = ({
   cartItems,
   updateCartItem,
@@ -26,6 +29,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [debugEndpoint, setDebugEndpoint] = useState<string>("");
   const nextButtonRef = useRef<HTMLDivElement>(null);
+
   const handleIncreaseQuantity = (id: string, currentQuantity: number) => {
     updateCartItem(id, currentQuantity + 1);
   };
@@ -44,6 +48,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
       }, 100);
     }
   };
+
   const handleViewTerms = (item: CartItem) => {
     console.log('=== DEBUG Ver Condiciones ===');
     console.log('Complete item object:', item);
@@ -57,24 +62,28 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
     const endpoint = `/api/WebAPI/ObtenerTyCProductos?Textosid=${item.textosId || 'null'}`;
     setDebugEndpoint(endpoint);
     console.log('Endpoint a ejecutar:', endpoint);
+    
     setSelectedTerms({
       textosId: item.textosId || null,
       productName: item.name
     });
   };
-  return <div className="space-y-6">
+
+  return (
+    <div className="space-y-6">
       <div className="text-center mb-6">
         <h3 className="text-xl font-semibold">Resumen de Servicios</h3>
         <p className="text-muted-foreground">Revisa y confirma tus servicios seleccionados</p>
       </div>
 
-      {/* Debug endpoint display */}
-      {debugEndpoint}
-
-      {cartItems.length === 0 ? <div className="text-center py-8">
+      {cartItems.length === 0 ? (
+        <div className="text-center py-8">
           <p className="text-muted-foreground">No hay servicios en el carrito</p>
-        </div> : <div className="space-y-4">
-          {cartItems.map(item => <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {cartItems.map(item => (
+            <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
               <div className="flex-1">
                 <h4 className="font-medium">{item.name}</h4>
                 <p className="text-sm text-muted-foreground">{item.serviceCategory}</p>
@@ -95,28 +104,32 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                 </div>
                 <span className="font-medium min-w-[70px] text-right">
                   ${(item.price * item.quantity).toLocaleString('es-UY', {
-              maximumFractionDigits: 0
-            })}
+                    maximumFractionDigits: 0
+                  })}
                 </span>
               </div>
-            </div>)}
+            </div>
+          ))}
 
           <div className="flex justify-between p-4 bg-orange-50 rounded-lg text-orange-800 font-medium">
             <span>Total</span>
             <span>${total.toLocaleString('es-UY', {
-            maximumFractionDigits: 0
-          })}</span>
+              maximumFractionDigits: 0
+            })}</span>
           </div>
-        </div>}
+        </div>
+      )}
 
-      {cartItems.length > 0 && <div className="flex items-start space-x-2">
+      {cartItems.length > 0 && (
+        <div className="flex items-start space-x-2">
           <Checkbox id="terms" checked={termsAccepted} onCheckedChange={handleTermsAcceptance} />
           <div className="grid gap-1.5 leading-none">
             <Label htmlFor="terms" className="text-sm text-muted-foreground">
               Acepto los términos y condiciones de todos los servicios seleccionados
             </Label>
           </div>
-        </div>}
+        </div>
+      )}
 
       <div className="flex justify-between pt-4 mb-8" ref={nextButtonRef}>
         <div className="ml-auto">
@@ -126,7 +139,16 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
         </div>
       </div>
 
-      {selectedTerms && <ProductTermsModal isOpen={!!selectedTerms} onClose={() => setSelectedTerms(null)} textosId={selectedTerms.textosId} productName={selectedTerms.productName} />}
-    </div>;
+      {selectedTerms && (
+        <ProductTermsModal 
+          isOpen={!!selectedTerms} 
+          onClose={() => setSelectedTerms(null)} 
+          textosId={selectedTerms.textosId} 
+          productName={selectedTerms.productName} 
+        />
+      )}
+    </div>
+  );
 };
+
 export default CartItemsStep;
