@@ -495,6 +495,13 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       departmentId: undefined,
       locationId: undefined
     };
+    
+    console.log('=== DEBUG updateCart ===');
+    console.log('Product found:', product);
+    console.log('Product textosId:', product.textosId);
+    console.log('Product textosId type:', typeof product.textosId);
+    console.log('=== END updateCart DEBUG ===');
+    
     addToCart({
       id: product.id,
       name: product.name,
@@ -507,7 +514,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       productId: product.id,
       departmentId: purchaseLocation?.departmentId,
       locationId: purchaseLocation?.locationId,
-      textosId: product.textosId
+      textosId: product.textosId || null
     });
     setCartAnimating(prev => ({
       ...prev,
@@ -555,20 +562,27 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       departmentId: undefined,
       locationId: undefined
     };
-    const itemsToAdd = products.filter(product => productQuantities[product.id] > 0).map(product => ({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: productQuantities[product.id],
-      image: product.image,
-      serviceCategory: `${serviceName} - ${category.name}`,
-      serviceId: serviceId,
-      categoryId: category.id,
-      productId: product.id,
-      departmentId: purchaseLocation?.departmentId,
-      locationId: purchaseLocation?.locationId,
-      textosId: product.textosId
-    }));
+    const itemsToAdd = products.filter(product => productQuantities[product.id] > 0).map(product => {
+      console.log('=== DEBUG handleAddAllToCart ===');
+      console.log('Product:', product.name);
+      console.log('Product textosId:', product.textosId);
+      console.log('=== END handleAddAllToCart DEBUG ===');
+      
+      return {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: productQuantities[product.id],
+        image: product.image,
+        serviceCategory: `${serviceName} - ${category.name}`,
+        serviceId: serviceId,
+        categoryId: category.id,
+        productId: product.id,
+        departmentId: purchaseLocation?.departmentId,
+        locationId: purchaseLocation?.locationId,
+        textosId: product.textosId || null
+      };
+    });
     if (itemsToAdd.length > 0) {
       itemsToAdd.forEach(item => addToCart(item));
       closeDialog();
@@ -587,20 +601,27 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       departmentId: undefined,
       locationId: undefined
     };
-    const itemsToAdd = products.filter(product => productQuantities[product.id] > 0).map(product => ({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: productQuantities[product.id],
-      image: product.image,
-      serviceCategory: `${serviceName} - ${category.name}`,
-      serviceId: serviceId,
-      categoryId: category.id,
-      productId: product.id,
-      departmentId: purchaseLocation?.departmentId,
-      locationId: purchaseLocation?.locationId,
-      textosId: product.textosId
-    }));
+    const itemsToAdd = products.filter(product => productQuantities[product.id] > 0).map(product => {
+      console.log('=== DEBUG handleContractNow ===');
+      console.log('Product:', product.name);
+      console.log('Product textosId:', product.textosId);
+      console.log('=== END handleContractNow DEBUG ===');
+      
+      return {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: productQuantities[product.id],
+        image: product.image,
+        serviceCategory: `${serviceName} - ${category.name}`,
+        serviceId: serviceId,
+        categoryId: category.id,
+        productId: product.id,
+        departmentId: purchaseLocation?.departmentId,
+        locationId: purchaseLocation?.locationId,
+        textosId: product.textosId || null
+      };
+    });
     if (itemsToAdd.length > 0) {
       itemsToAdd.forEach(item => addToCart(item));
       closeDialog();
@@ -619,20 +640,27 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       departmentId: undefined,
       locationId: undefined
     };
-    const itemsToAdd = products.filter(product => productQuantities[product.id] > 0).map(product => ({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: productQuantities[product.id],
-      image: product.image,
-      serviceCategory: `${serviceName} - ${category.name}`,
-      serviceId: serviceId,
-      categoryId: category.id,
-      productId: product.id,
-      departmentId: purchaseLocation?.departmentId,
-      locationId: purchaseLocation?.locationId,
-      textosId: product.textosId
-    }));
+    const itemsToAdd = products.filter(product => productQuantities[product.id] > 0).map(product => {
+      console.log('=== DEBUG handleAddAnotherService ===');
+      console.log('Product:', product.name);
+      console.log('Product textosId:', product.textosId);
+      console.log('=== END handleAddAnotherService DEBUG ===');
+      
+      return {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: productQuantities[product.id],
+        image: product.image,
+        serviceCategory: `${serviceName} - ${category.name}`,
+        serviceId: serviceId,
+        categoryId: category.id,
+        productId: product.id,
+        departmentId: purchaseLocation?.departmentId,
+        locationId: purchaseLocation?.locationId,
+        textosId: product.textosId || null
+      };
+    });
     if (itemsToAdd.length > 0) {
       itemsToAdd.forEach(item => addToCart(item));
       closeDialog();

@@ -293,16 +293,26 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       console.log('ServiceCard: Products data received from ObtenerNivel2:', data);
       
       // Transform products and set default prices
-      let transformedProducts = data.map((product: any) => ({
-        id: product.id || product.Nivel2Id,
-        name: product.name || product.Nivel2Descripcion,
-        price: 0, // Initialize with 0 to show loading state and disable buttons
-        defaultPrice: product.price ? parseFloat(product.price) : (product.Precio ? parseFloat(product.Precio) : 0),
-        image: product.image || product.Imagen || "",
-        category: categoryId,
-        textosId: product.TextosId || null
-      }));
+      let transformedProducts = data.map((product: any) => {
+        console.log('=== DEBUG Product Mapping ===');
+        console.log('Original product:', product);
+        console.log('Product TextosId from API:', product.TextosId);
+        console.log('Product TextosId type:', typeof product.TextosId);
+        console.log('=== END Product Mapping DEBUG ===');
+        
+        return {
+          id: product.id || product.Nivel2Id,
+          name: product.name || product.Nivel2Descripcion,
+          price: 0, // Initialize with 0 to show loading state and disable buttons
+          defaultPrice: product.price ? parseFloat(product.price) : (product.Precio ? parseFloat(product.Precio) : 0),
+          image: product.image || product.Imagen || "",
+          category: categoryId,
+          textosId: product.TextosId || null
+        };
+      });
       
+      console.log('ServiceCard: Transformed products with textosId:', transformedProducts);
+
       // Buscar la categoría existente o crear una temporal
       let categoryToUpdate: Category | undefined = categories.find(cat => cat.id === categoryId);
       
