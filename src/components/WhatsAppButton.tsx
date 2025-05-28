@@ -16,13 +16,9 @@ const WhatsAppButton = () => {
   }
 
   const handleWhatsAppClick = () => {
-    // WhatsApp number and predefined message
-    const phoneNumber = "59899999999"; // Replace with your actual number
-    const message = "Hola! Estoy interesado en sus servicios.";
-
-    // Create the WhatsApp URL
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-
+    // Updated WhatsApp URL as requested
+    const whatsappUrl = "https://api.whatsapp.com/send?phone=+59892612655&text=Hola%2C+Me+interesa+contratar+un+servicio.";
+    
     // Open WhatsApp in a new tab
     window.open(whatsappUrl, '_blank');
   };
