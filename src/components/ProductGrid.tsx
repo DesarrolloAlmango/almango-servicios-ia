@@ -5,7 +5,6 @@ import { Skeleton, PriceSkeleton, TextSkeleton } from "./ui/skeleton";
 import { toast } from "sonner";
 import { ArrowLeft, ShoppingCart, RefreshCw } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-
 interface CartItem {
   id: string;
   name: string;
@@ -76,10 +75,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
   const imageSource = getImageSource();
-  
+
   // Determine if buttons should be disabled
   const buttonsDisabled = !hasPurchaseLocation || isPriceLoading || product.price === 0;
-  
   const handleButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!hasPurchaseLocation) {
@@ -89,7 +87,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
       toast.info("Esperando carga de precios...");
     }
   };
-  
   return <Card className="overflow-hidden h-full flex flex-col relative">
       <div className="relative h-40 bg-gray-100 flex items-center justify-center">
         {!imageLoaded && <Skeleton className="absolute inset-0 w-full h-full" />}
@@ -105,35 +102,27 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>}
         <div className="absolute inset-0 flex items-center justify-center bg-black/20">
           <div className="bg-white rounded-full p-1 shadow-md flex items-center">
-            <button 
-              className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${buttonsDisabled ? 'cursor-not-allowed opacity-50' : ''}`} 
-              onClick={e => {
-                if (buttonsDisabled) {
-                  handleButtonClick(e);
-                } else {
-                  e.stopPropagation();
-                  onDecrease();
-                }
-              }} 
-              disabled={buttonsDisabled}
-            >
+            <button className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${buttonsDisabled ? 'cursor-not-allowed opacity-50' : ''}`} onClick={e => {
+            if (buttonsDisabled) {
+              handleButtonClick(e);
+            } else {
+              e.stopPropagation();
+              onDecrease();
+            }
+          }} disabled={buttonsDisabled}>
               -
             </button>
             <span className="w-8 h-8 flex items-center justify-center font-medium">
               {quantity}
             </span>
-            <button 
-              className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${buttonsDisabled ? 'cursor-not-allowed opacity-50' : ''}`} 
-              onClick={e => {
-                if (buttonsDisabled) {
-                  handleButtonClick(e);
-                } else {
-                  e.stopPropagation();
-                  onIncrease();
-                }
-              }} 
-              disabled={buttonsDisabled}
-            >
+            <button className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${buttonsDisabled ? 'cursor-not-allowed opacity-50' : ''}`} onClick={e => {
+            if (buttonsDisabled) {
+              handleButtonClick(e);
+            } else {
+              e.stopPropagation();
+              onIncrease();
+            }
+          }} disabled={buttonsDisabled}>
               +
             </button>
           </div>
@@ -141,6 +130,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </div>
       <CardContent className="p-4 flex-grow">
         <h4 className="font-medium mb-1 line-clamp-2">{product.name}</h4>
+        
+        {/* DEBUG: Show textosId information */}
+        
+        
         <div className="flex justify-between items-center mt-2">
           {isPriceLoading ? <PriceSkeleton /> : product.price !== undefined && product.price > 0 ? <span className="font-bold">
               ${product.price.toLocaleString('es-UY', {
@@ -151,7 +144,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </CardContent>
     </Card>;
 };
-
 interface ProductGridProps {
   category: Category;
   addToCart: (item: CartItem) => void;
@@ -179,11 +171,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [loadingProductIds, setLoadingProductIds] = useState<Set<string>>(new Set());
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
-  
+
   // FIXED: Only set flashBackButton to true when purchaseLocationId is not set
   // And ensure it updates when purchaseLocationId changes
   const [flashBackButton, setFlashBackButton] = useState(false);
-  
   const initialLoadComplete = useRef(false);
   const productsInitialized = useRef(false);
   const categorySelected = useRef(false);
@@ -314,12 +305,24 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       // CRITICAL CHANGE: Initialize products with their default prices from ObtenerNivel2
       // but explicitly set price to 0 to ensure we always show loading state
       // until ObtenerPrecio completes
-      const initialProducts = productsData.map((product: any) => ({
-        ...product,
-        defaultPrice: product.price,
-        // Store the original price as defaultPrice
-        price: 0 // Set initial price to 0 to ensure we show loading state until ObtenerPrecio completes
-      }));
+      const initialProducts = productsData.map((product: any) => {
+        console.log('=== DEBUG Product Mapping in fetchProducts ===');
+        console.log('Original product from ObtenerNivel2:', product);
+        console.log('Product TextosId from API:', product.TextosId);
+        console.log('Product TextosId type:', typeof product.TextosId);
+        console.log('=== END Product Mapping DEBUG ===');
+        return {
+          id: product.id || product.Nivel2Id,
+          name: product.name || product.Nivel2Descripcion,
+          price: 0,
+          // Initialize with 0 to show loading state and disable buttons
+          defaultPrice: product.price ? parseFloat(product.price) : product.Precio ? parseFloat(product.Precio) : 0,
+          image: product.image || product.Imagen || "",
+          category: category.id,
+          textosId: product.TextosId || null // Ensure textosId is captured
+        };
+      });
+      console.log('ProductGrid: Transformed products with textosId:', initialProducts);
 
       // Setting the products with initial data, but prices will be updated immediately
       setProducts(initialProducts);
@@ -495,7 +498,12 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       departmentId: undefined,
       locationId: undefined
     };
-    addToCart({
+    console.log('=== DEBUG updateCart in ProductGrid ===');
+    console.log('Product found:', product);
+    console.log('Product textosId being added to cart:', product.textosId);
+    console.log('Product textosId type:', typeof product.textosId);
+    console.log('=== END updateCart DEBUG ===');
+    const cartItem: CartItem = {
       id: product.id,
       name: product.name,
       price: product.price,
@@ -507,8 +515,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       productId: product.id,
       departmentId: purchaseLocation?.departmentId,
       locationId: purchaseLocation?.locationId,
-      textosId: product.textosId
-    });
+      textosId: product.textosId || null
+    };
+    console.log('ProductGrid: Cart item being added with textosId:', cartItem);
+    addToCart(cartItem);
     setCartAnimating(prev => ({
       ...prev,
       [productId]: true
@@ -520,6 +530,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       }));
     }, 700);
   };
+
+  // ... keep existing code (increaseQuantity, decreaseQuantity functions)
   const increaseQuantity = (productId: string) => {
     if (!purchaseLocationId) {
       toast.error("Por favor, seleccione un lugar de compra primero");
@@ -550,25 +562,33 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       };
     });
   };
+
+  // ... keep existing code (handleAddAllToCart, handleContractNow, handleAddAnotherService functions)
   const handleAddAllToCart = () => {
     const purchaseLocation = {
       departmentId: undefined,
       locationId: undefined
     };
-    const itemsToAdd = products.filter(product => productQuantities[product.id] > 0).map(product => ({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: productQuantities[product.id],
-      image: product.image,
-      serviceCategory: `${serviceName} - ${category.name}`,
-      serviceId: serviceId,
-      categoryId: category.id,
-      productId: product.id,
-      departmentId: purchaseLocation?.departmentId,
-      locationId: purchaseLocation?.locationId,
-      textosId: product.textosId
-    }));
+    const itemsToAdd = products.filter(product => productQuantities[product.id] > 0).map(product => {
+      console.log('=== DEBUG handleAddAllToCart ===');
+      console.log('Product:', product.name);
+      console.log('Product textosId:', product.textosId);
+      console.log('=== END handleAddAllToCart DEBUG ===');
+      return {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: productQuantities[product.id],
+        image: product.image,
+        serviceCategory: `${serviceName} - ${category.name}`,
+        serviceId: serviceId,
+        categoryId: category.id,
+        productId: product.id,
+        departmentId: purchaseLocation?.departmentId,
+        locationId: purchaseLocation?.locationId,
+        textosId: product.textosId || null
+      };
+    });
     if (itemsToAdd.length > 0) {
       itemsToAdd.forEach(item => addToCart(item));
       closeDialog();
@@ -587,20 +607,26 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       departmentId: undefined,
       locationId: undefined
     };
-    const itemsToAdd = products.filter(product => productQuantities[product.id] > 0).map(product => ({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: productQuantities[product.id],
-      image: product.image,
-      serviceCategory: `${serviceName} - ${category.name}`,
-      serviceId: serviceId,
-      categoryId: category.id,
-      productId: product.id,
-      departmentId: purchaseLocation?.departmentId,
-      locationId: purchaseLocation?.locationId,
-      textosId: product.textosId
-    }));
+    const itemsToAdd = products.filter(product => productQuantities[product.id] > 0).map(product => {
+      console.log('=== DEBUG handleContractNow ===');
+      console.log('Product:', product.name);
+      console.log('Product textosId:', product.textosId);
+      console.log('=== END handleContractNow DEBUG ===');
+      return {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: productQuantities[product.id],
+        image: product.image,
+        serviceCategory: `${serviceName} - ${category.name}`,
+        serviceId: serviceId,
+        categoryId: category.id,
+        productId: product.id,
+        departmentId: purchaseLocation?.departmentId,
+        locationId: purchaseLocation?.locationId,
+        textosId: product.textosId || null
+      };
+    });
     if (itemsToAdd.length > 0) {
       itemsToAdd.forEach(item => addToCart(item));
       closeDialog();
@@ -619,20 +645,26 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       departmentId: undefined,
       locationId: undefined
     };
-    const itemsToAdd = products.filter(product => productQuantities[product.id] > 0).map(product => ({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      quantity: productQuantities[product.id],
-      image: product.image,
-      serviceCategory: `${serviceName} - ${category.name}`,
-      serviceId: serviceId,
-      categoryId: category.id,
-      productId: product.id,
-      departmentId: purchaseLocation?.departmentId,
-      locationId: purchaseLocation?.locationId,
-      textosId: product.textosId
-    }));
+    const itemsToAdd = products.filter(product => productQuantities[product.id] > 0).map(product => {
+      console.log('=== DEBUG handleAddAnotherService ===');
+      console.log('Product:', product.name);
+      console.log('Product textosId:', product.textosId);
+      console.log('=== END handleAddAnotherService DEBUG ===');
+      return {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: productQuantities[product.id],
+        image: product.image,
+        serviceCategory: `${serviceName} - ${category.name}`,
+        serviceId: serviceId,
+        categoryId: category.id,
+        productId: product.id,
+        departmentId: purchaseLocation?.departmentId,
+        locationId: purchaseLocation?.locationId,
+        textosId: product.textosId || null
+      };
+    });
     if (itemsToAdd.length > 0) {
       itemsToAdd.forEach(item => addToCart(item));
       closeDialog();
@@ -645,7 +677,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   // Determine if we need to show loading message
   const allProductsLoading = products.length === 0 || loadingProductIds.has('loading-all');
-  
   return <div className="space-y-6">
       <div className="flex items-center mb-4">
         <button onClick={onBack} className={`flex items-center gap-2 text-primary hover:underline ${!purchaseLocationId ? 'relative' : ''}`} aria-label="back-to-categories">
@@ -653,16 +684,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
           <span>Volver a Categorías</span>
           
           {/* Lighter yellow flash animation with adjusted height - only show when flashBackButton is true */}
-          {flashBackButton && (
-            <span 
-              className="absolute inset-0 bg-yellow-100 animate-pulse rounded-md opacity-20 z-[-1]" 
-              style={{
-                maxHeight: '35px',
-                transform: 'scale(1.05)',
-                animation: 'pulse 2s infinite alternate',
-              }}
-            ></span>
-          )}
+          {flashBackButton && <span className="absolute inset-0 bg-yellow-100 animate-pulse rounded-md opacity-20 z-[-1]" style={{
+          maxHeight: '35px',
+          transform: 'scale(1.05)',
+          animation: 'pulse 2s infinite alternate'
+        }}></span>}
         </button>
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
         
@@ -701,5 +727,4 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         </>}
     </div>;
 };
-
 export default ProductGrid;

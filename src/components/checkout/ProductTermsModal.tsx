@@ -39,19 +39,37 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
       setError(null);
       
       try {
+        console.log('=== FETCHING TERMS DEBUG ===');
+        console.log('textosId received:', textosId);
+        console.log('textosId type:', typeof textosId);
+        
         if (!textosId) {
-          throw new Error("No se ha encontrado ID de términos para este producto");
+          console.log('No textosId provided, using default value 1');
+          // Si no hay textosId específico, usar términos generales (ID 1)
+          setTermsContent("Este producto no tiene términos y condiciones específicos. Se aplicarán los términos y condiciones generales de la empresa.");
+          setIsLoading(false);
+          return;
         }
         
+<<<<<<< HEAD
         const response = await fetch(
           `https://app.almango.com.uy/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`
         );
+=======
+        const url = `/api/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`;
+        console.log('Fetching URL:', url);
+        
+        const response = await fetch(url);
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+>>>>>>> 497747fb78d38f102439b783aa31ba49ce060167
         
         if (!response.ok) {
           throw new Error(`Error al obtener términos y condiciones: ${response.status}`);
         }
         
         const data: TermsResponse = await response.json();
+        console.log('Response data:', data);
         
         // Decodificar las secuencias Unicode y establecer el HTML
         const decodedContent = data.Texto
@@ -60,6 +78,7 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
           .replace(/\\/g, '');        // Eliminar barras invertidas restantes
         
         setTermsContent(decodedContent);
+        console.log('=== END FETCHING TERMS DEBUG ===');
       } catch (error) {
         console.error("Error fetching terms:", error);
         setError(`No se pudieron cargar los términos y condiciones: ${error instanceof Error ? error.message : 'Error desconocido'}`);
@@ -96,7 +115,6 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
           )}
         </div>
 
-        {/* Add close button with bottom padding */}
         <DialogFooter className="mt-4 pb-[30px]">
           <Button 
             onClick={onClose}
