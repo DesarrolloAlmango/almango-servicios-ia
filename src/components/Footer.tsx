@@ -94,7 +94,7 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-white/20 mt-8 pt-4 text-center text-white/70 text-xs">
-          <p>© ALMANGO {new Date().getFullYear()} - Diseño por WesolveIT</p>
+          <p>© ALMANGO {new Date().getFullYear()}</p>
         </div>
       </div>
     </footer>;
