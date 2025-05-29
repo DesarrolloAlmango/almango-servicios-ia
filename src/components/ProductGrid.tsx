@@ -62,6 +62,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  
+  // DEBUG: Log button state
+  console.log('=== ProductCard DEBUG ===');
+  console.log('purchaseLocationId:', purchaseLocationId);
+  console.log('hasPurchaseLocation:', hasPurchaseLocation);
+  console.log('isPriceLoading:', isPriceLoading);
+  console.log('product.price:', product.price);
+  console.log('=== END ProductCard DEBUG ===');
+  
   const getImageSource = () => {
     if (!product.image) return null;
     if (product.image.startsWith('data:image')) {
@@ -78,8 +87,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   // Determine if buttons should be disabled
   const buttonsDisabled = !hasPurchaseLocation || isPriceLoading || product.price === 0;
+  
+  // DEBUG: Log final button state
+  console.log('buttonsDisabled for product', product.name, ':', buttonsDisabled);
+  
   const handleButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('Button clicked but disabled - reason:', {
+      hasPurchaseLocation,
+      isPriceLoading,
+      price: product.price,
+      buttonsDisabled
+    });
     if (!hasPurchaseLocation) {
       toast.error("Por favor, seleccione un lugar de compra primero");
       onBackToCategories();
