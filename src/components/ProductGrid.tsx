@@ -4,7 +4,8 @@ import { Card, CardContent } from "./ui/card";
 import { Skeleton, PriceSkeleton, TextSkeleton } from "./ui/skeleton";
 import { toast } from "sonner";
 import { ArrowLeft, ShoppingCart, RefreshCw } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
+
 interface CartItem {
   id: string;
   name: string;
@@ -62,6 +63,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  
+  // DEBUG: Log button state
+  console.log('=== ProductCard DEBUG ===');
+  console.log('purchaseLocationId:', purchaseLocationId);
+  console.log('hasPurchaseLocation:', hasPurchaseLocation);
+  console.log('isPriceLoading:', isPriceLoading);
+  console.log('product.price:', product.price);
+  console.log('=== END ProductCard DEBUG ===');
+  
   const getImageSource = () => {
     if (!product.image) return null;
     if (product.image.startsWith('data:image')) {
@@ -78,8 +88,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   // Determine if buttons should be disabled
   const buttonsDisabled = !hasPurchaseLocation || isPriceLoading || product.price === 0;
+  
+  // DEBUG: Log final button state
+  console.log('buttonsDisabled for product', product.name, ':', buttonsDisabled);
+  
   const handleButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    console.log('Button clicked but disabled - reason:', {
+      hasPurchaseLocation,
+      isPriceLoading,
+      price: product.price,
+      buttonsDisabled
+    });
     if (!hasPurchaseLocation) {
       toast.error("Por favor, seleccione un lugar de compra primero");
       onBackToCategories();
@@ -166,6 +186,17 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const params = useParams();
+  
+  // CRITICAL FIX: Get proveedorid from URL params if purchaseLocationId is not provided
+  const effectivePurchaseLocationId = purchaseLocationId || params.commerceId;
+  
+  console.log('=== ProductGrid URL Params DEBUG ===');
+  console.log('params:', params);
+  console.log('purchaseLocationId prop:', purchaseLocationId);
+  console.log('effectivePurchaseLocationId:', effectivePurchaseLocationId);
+  console.log('=== END URL Params DEBUG ===');
+
   const [productQuantities, setProductQuantities] = useState<Record<string, number>>({});
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProductIds, setLoadingProductIds] = useState<Set<string>>(new Set());
@@ -185,9 +216,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     id: string;
     price: number;
   }> => {
-    if (!purchaseLocationId || !serviceId || !category.id) {
+    if (!effectivePurchaseLocationId || !serviceId || !category.id) {
       console.log("Missing required parameters for price fetch:", {
-        purchaseLocationId,
+        effectivePurchaseLocationId,
         serviceId,
         categoryId: category.id
       });
@@ -199,13 +230,15 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     try {
       // Log the API call with explicit params for debugging
       console.log(`Fetching price for: proveedorId=${purchaseLocationId}, nivel0=${serviceId}, nivel1=${category.id}, nivel2=${product.id}`);
-      const response = await fetch(`https://app.almango.com.uy/webapi/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`);
+      const response = await fetch(`/api/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`);
       if (!response.ok) {
         console.error(`Error response from price API: ${response.status} ${response.statusText}`);
         throw new Error(`Error al obtener precio: ${response.status}`);
       }
+      
       const data = await response.json();
       console.log(`Price data received for ${product.id}:`, data);
+      
       if (data && typeof data.Precio === 'number') {
         // IMPORTANT: Only use ObtenerPrecio price if it's greater than 0
         // Otherwise, fall back to the product's default price from ObtenerNivel2
@@ -240,9 +273,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   // Function to update all product prices - CRITICAL path
   const updateAllPrices = async () => {
-    if (!purchaseLocationId || !serviceId || isUpdatingPrices || products.length === 0) {
+    if (!effectivePurchaseLocationId || !serviceId || isUpdatingPrices || products.length === 0) {
       console.log("Skipping price update - missing data or already updating", {
-        purchaseLocationId,
+        effectivePurchaseLocationId,
         serviceId,
         isUpdatingPrices,
         productCount: products.length
@@ -250,7 +283,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       return false;
     }
     try {
-      console.log(`Updating all prices for category ${category.name} with proveedorId=${purchaseLocationId}`);
+      console.log(`Updating all prices for category ${category.name} with proveedorId=${effectivePurchaseLocationId}`);
       setIsUpdatingPrices(true);
 
       // Mark all products as loading prices
@@ -342,7 +375,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       // IMMEDIATELY fetch prices from ObtenerPrecio for each product
       // No conditional check here - we ALWAYS update prices after loading products
       // This ensures prices are ALWAYS current
-      console.log(`Products loaded, IMMEDIATELY fetching prices with proveedorId=${purchaseLocationId}`);
+      console.log(`Products loaded, IMMEDIATELY fetching prices with proveedorId=${effectivePurchaseLocationId}`);
 
       // CRITICAL FIX: Always call updateAllPrices right after fetching products, 
       // regardless of where the selection came from (modal or carousel)
@@ -389,17 +422,17 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   // Effect to update prices when purchase location is set/changed
   useEffect(() => {
-    if (!purchaseLocationId || !serviceId) return;
-    if (products.length > 0 && purchaseLocationId) {
-      console.log(`Purchase location changed to ${purchaseLocationId}, updating prices`);
+    if (!effectivePurchaseLocationId || !serviceId) return;
+    if (products.length > 0 && effectivePurchaseLocationId) {
+      console.log(`Purchase location changed to ${effectivePurchaseLocationId}, updating prices`);
       // Always update prices when purchase location changes - no caching
       updateAllPrices();
     }
-  }, [purchaseLocationId, serviceId]);
+  }, [effectivePurchaseLocationId, serviceId]);
 
   // CRITICAL: Force price update when the component first mounts with products
   useEffect(() => {
-    if (products.length > 0 && purchaseLocationId && serviceId && !initialLoadComplete.current) {
+    if (products.length > 0 && effectivePurchaseLocationId && serviceId && !initialLoadComplete.current) {
       console.log("Products loaded initially, updating prices");
       updateAllPrices();
       initialLoadComplete.current = true;
@@ -407,12 +440,12 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   }, [products.length]);
 
   // CRITICAL: Additional effect to ensure prices are ALWAYS fetched when component is shown
-  // This runs on component mount and any time serviceId or purchaseLocationId changes
+  // This runs on component mount and any time serviceId or effectivePurchaseLocationId changes
   useEffect(() => {
     componentMounted.current = true;
 
     // This effect runs when the component mounts
-    if (componentMounted.current && products.length > 0 && purchaseLocationId && serviceId) {
+    if (componentMounted.current && products.length > 0 && effectivePurchaseLocationId && serviceId) {
       console.log("Component mounted/visible, forcing price refresh");
       // Always update prices when component becomes visible - no caching
       updateAllPrices();
@@ -428,7 +461,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   // NEW: Add a visibility change effect to refresh prices when tab becomes visible again
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && componentMounted.current && products.length > 0 && purchaseLocationId && serviceId) {
+      if (document.visibilityState === 'visible' && componentMounted.current && products.length > 0 && effectivePurchaseLocationId && serviceId) {
         console.log("Page became visible again, refreshing prices");
         updateAllPrices();
       }
@@ -437,7 +470,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [products, purchaseLocationId, serviceId]);
+  }, [products, effectivePurchaseLocationId, serviceId]);
 
   // Listen for the categorySelected event from CategoryCarousel
   useEffect(() => {
@@ -467,7 +500,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   // NEW: Add event listener for product grid being shown in any way
   useEffect(() => {
     const handleProductGridShown = () => {
-      if (products.length > 0 && purchaseLocationId && serviceId) {
+      if (products.length > 0 && effectivePurchaseLocationId && serviceId) {
         console.log("ProductGrid shown event detected, refreshing prices");
         updateAllPrices();
       }
@@ -478,7 +511,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
     // Also refresh on route changes that might show this component
     const handleRouteChange = () => {
-      if (location.pathname === '/servicios' && products.length > 0 && purchaseLocationId && serviceId) {
+      if (location.pathname === '/servicios' && products.length > 0 && effectivePurchaseLocationId && serviceId) {
         console.log("Route changed to /servicios, refreshing prices");
         updateAllPrices();
       }
@@ -488,7 +521,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       document.removeEventListener('productGridShown', handleProductGridShown);
       window.removeEventListener('popstate', handleRouteChange);
     };
-  }, [products, purchaseLocationId, serviceId, location.pathname]);
+  }, [products, effectivePurchaseLocationId, serviceId, location.pathname]);
 
   // Update cart helpers
   const updateCart = (productId: string, newQuantity: number) => {
@@ -533,7 +566,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   // ... keep existing code (increaseQuantity, decreaseQuantity functions)
   const increaseQuantity = (productId: string) => {
-    if (!purchaseLocationId) {
+    if (!effectivePurchaseLocationId) {
       toast.error("Por favor, seleccione un lugar de compra primero");
       onBack();
       return;
@@ -548,7 +581,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     });
   };
   const decreaseQuantity = (productId: string) => {
-    if (!purchaseLocationId) {
+    if (!effectivePurchaseLocationId) {
       toast.error("Por favor, seleccione un lugar de compra primero");
       onBack();
       return;
@@ -679,7 +712,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const allProductsLoading = products.length === 0 || loadingProductIds.has('loading-all');
   return <div className="space-y-6">
       <div className="flex items-center mb-4">
-        <button onClick={onBack} className={`flex items-center gap-2 text-primary hover:underline ${!purchaseLocationId ? 'relative' : ''}`} aria-label="back-to-categories">
+        <button onClick={onBack} className={`flex items-center gap-2 text-primary hover:underline ${!effectivePurchaseLocationId ? 'relative' : ''}`} aria-label="back-to-categories">
           <ArrowLeft size={16} />
           <span>Volver a Categorías</span>
           
@@ -692,13 +725,13 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         </button>
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
         
-        {purchaseLocationId && <Button onClick={() => updateAllPrices()} variant="outline" size="sm" className="ml-2" disabled={isUpdatingPrices}>
+        {effectivePurchaseLocationId && <Button onClick={() => updateAllPrices()} variant="outline" size="sm" className="ml-2" disabled={isUpdatingPrices}>
             <RefreshCw className={`h-4 w-4 mr-1 ${isUpdatingPrices ? 'animate-spin' : ''}`} />
             {isUpdatingPrices ? 'Actualizando...' : 'Actualizar precios'}
           </Button>}
       </div>
       
-      {!purchaseLocationId && <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+      {!effectivePurchaseLocationId && <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
           <div className="flex">
             <div className="ml-3">
               <p className="text-sm text-yellow-700">
@@ -714,7 +747,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
           <p className="text-gray-500">No hay productos disponibles</p>
         </div> : <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {products.map(product => <ProductCard key={product.id} product={product} quantity={productQuantities[product.id] || 0} onIncrease={() => increaseQuantity(product.id)} onDecrease={() => decreaseQuantity(product.id)} animating={!!cartAnimating[product.id]} purchaseLocationId={purchaseLocationId} serviceId={serviceId} categoryId={category.id} isPriceLoading={loadingProductIds.has(product.id)} hasPurchaseLocation={!!purchaseLocationId} onBackToCategories={onBack} />)}
+            {products.map(product => <ProductCard key={product.id} product={product} quantity={productQuantities[product.id] || 0} onIncrease={() => increaseQuantity(product.id)} onDecrease={() => decreaseQuantity(product.id)} animating={!!cartAnimating[product.id]} purchaseLocationId={effectivePurchaseLocationId} serviceId={serviceId} categoryId={category.id} isPriceLoading={loadingProductIds.has(product.id)} hasPurchaseLocation={!!effectivePurchaseLocationId} onBackToCategories={onBack} />)}
           </div>
           {hasSelectedProducts && <div className="flex justify-center gap-2 sm:gap-4 mt-8 sticky bottom-4 bg-white p-4 rounded-lg shadow-md">
               <Button onClick={handleAddAnotherService} variant="outline" className="text-secondary border-secondary hover:bg-secondary hover:text-white transition-colors text-xs sm:text-sm px-2 sm:px-4">
