@@ -106,7 +106,7 @@ const fallbackMudanzaServices: TarjetaServicio[] = [{
 }];
 const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
   try {
-    const response = await fetch("/api/WebAPI/GetTarjetasServicios");
+    const response = await fetch("https://app.almango.com.uy/webapi/GetTarjetasServicios");
     if (!response.ok) {
       throw new Error("Error al obtener las tarjetas de servicios");
     }
@@ -122,7 +122,7 @@ const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
 };
 const fetchTarjetasMudanza = async (): Promise<TarjetaServicio[]> => {
   try {
-    const response = await fetch("/api/WebAPI/GetTarjetasServicios2");
+    const response = await fetch("https://app.almango.com.uy/webapi/GetTarjetasServicios2");
     if (!response.ok) {
       throw new Error("Error al obtener las tarjetas de servicios de mudanza");
     }
@@ -255,7 +255,7 @@ const Servicios = () => {
           });
 
           // Direct API call to fetch products
-          fetch(`/api/WebAPI/ObtenerNivel2?Nivel0=${selectedServiceId}&Nivel1=${selectedCategoryId}`).then(response => response.json()).then(data => {
+          fetch(`https://app.almango.com.uy/webapi/ObtenerNivel2?Nivel0=${selectedServiceId}&Nivel1=${selectedCategoryId}`).then(response => response.json()).then(data => {
             console.log(`Fetched ${data.length} products for category ${selectedCategoryId}`);
           }).catch(error => {
             console.error("Error fetching products:", error);

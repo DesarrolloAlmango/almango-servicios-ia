@@ -66,8 +66,8 @@ const ServiceCardsGrid = () => {
     const fetchServices = async () => {
       try {
         // Use the API endpoint that's working based on the network logs
-        const response = await fetch('/api/WebAPI/GetTarjetasServicios');
-        const mudanzaResponse = await fetch('/api/WebAPI/GetTarjetasServicios2');
+        const response = await fetch('https://app.almango.com.uy/webapi/GetTarjetasServicios');
+        const mudanzaResponse = await fetch('https://app.almango.com.uy/webapi/GetTarjetasServicios2');
         
         if (!response.ok || !mudanzaResponse.ok) {
           throw new Error(`HTTP error! Status: ${!response.ok ? response.status : mudanzaResponse.status}`);

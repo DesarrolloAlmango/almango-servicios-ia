@@ -199,7 +199,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const fetchDepartments = async () => {
     setLoadingLocation(prev => ({...prev, departments: true}));
     try {
-      const response = await fetch("/api/WebAPI/ObtenerDepto");
+      const response = await fetch("https://app.almango.com.uy/webapi/ObtenerDepto");
       
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -232,7 +232,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     setSelectedLocation("");
     try {
       const response = await fetch(
-        `/api/WebAPI/ObtenerMunicipio?DepartamentoId=${departmentId}`
+        `https://app.almango.com.uy/webapi/ObtenerMunicipio?DepartamentoId=${departmentId}`
       );
       
       if (!response.ok) {
@@ -268,7 +268,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const fetchProviders = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/WebAPI/ObtenerProveedor");
+      const response = await fetch("https://app.almango.com.uy/webapi/ObtenerProveedor");
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -369,7 +369,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     try {
       console.log(`Fetching products for store: ${storeId}, service: ${serviceId}, category: ${categoryId}`);
       // Make a direct call to fetch products
-      const endpoint = `/api/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
+      const endpoint = `https://app.almango.com.uy/webapi/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
       
       const response = await fetch(endpoint);
       if (!response.ok) {
