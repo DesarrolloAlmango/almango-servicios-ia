@@ -188,11 +188,14 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const location = useLocation();
   const params = useParams();
   
-  // CRITICAL FIX: Get proveedorid from URL params if purchaseLocationId is not provided
-  const effectivePurchaseLocationId = purchaseLocationId || params.commerceId;
+  // CRITICAL FIX: Extract commerceId correctly from the route /servicios/:userId/:commerceId
+  const { userId, commerceId } = params;
+  const effectivePurchaseLocationId = purchaseLocationId || commerceId;
   
   console.log('=== ProductGrid URL Params DEBUG ===');
-  console.log('params:', params);
+  console.log('Full params:', params);
+  console.log('userId from params:', userId);
+  console.log('commerceId from params:', commerceId);
   console.log('purchaseLocationId prop:', purchaseLocationId);
   console.log('effectivePurchaseLocationId:', effectivePurchaseLocationId);
   console.log('=== END URL Params DEBUG ===');
@@ -229,8 +232,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
     try {
       // Log the API call with explicit params for debugging
-      console.log(`Fetching price for: proveedorId=${purchaseLocationId}, nivel0=${serviceId}, nivel1=${category.id}, nivel2=${product.id}`);
-      const response = await fetch(`/api/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`);
+      console.log(`Fetching price for: proveedorId=${effectivePurchaseLocationId}, nivel0=${serviceId}, nivel1=${category.id}, nivel2=${product.id}`);
+      const response = await fetch(`/api/WebAPI/ObtenerPrecio?Proveedorid=${effectivePurchaseLocationId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`);
       if (!response.ok) {
         console.error(`Error response from price API: ${response.status} ${response.statusText}`);
         throw new Error(`Error al obtener precio: ${response.status}`);
