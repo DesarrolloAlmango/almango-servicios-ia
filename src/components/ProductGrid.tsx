@@ -86,8 +86,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
   const imageSource = getImageSource();
 
-  // Determine if buttons should be disabled
-  const buttonsDisabled = !hasPurchaseLocation || isPriceLoading || product.price === 0;
+  // FIXED: Determine if buttons should be disabled - only check for purchase location and loading state
+  // Don't disable for price === 0 since that might be a valid price after loading
+  const buttonsDisabled = !hasPurchaseLocation || isPriceLoading;
   
   // DEBUG: Log final button state
   console.log('buttonsDisabled for product', product.name, ':', buttonsDisabled);
@@ -103,7 +104,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     if (!hasPurchaseLocation) {
       toast.error("Por favor, seleccione un lugar de compra primero");
       onBackToCategories();
-    } else if (isPriceLoading || product.price === 0) {
+    } else if (isPriceLoading) {
       toast.info("Esperando carga de precios...");
     }
   };
@@ -155,7 +156,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         
         
         <div className="flex justify-between items-center mt-2">
-          {isPriceLoading ? <PriceSkeleton /> : product.price !== undefined && product.price > 0 ? <span className="font-bold">
+          {isPriceLoading ? <PriceSkeleton /> : product.price !== undefined && product.price >= 0 ? <span className="font-bold">
               ${product.price.toLocaleString('es-UY', {
             maximumFractionDigits: 0
           })}
