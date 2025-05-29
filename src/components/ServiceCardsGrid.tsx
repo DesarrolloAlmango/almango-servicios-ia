@@ -93,13 +93,22 @@ const ServiceCardsGrid = () => {
           console.info('Datos de servicios de mudanza parseados:', mudanzaServicesData);
         }
 
-        // Combine both types of services
-        setServices([...servicesData, ...mudanzaServicesData]);
+        // Reorder services: put mudanza service in position 2 (index 1)
+        const reorderedServices = [...servicesData];
+        if (mudanzaServicesData.length > 0) {
+          // Insert mudanza service at position 1 (second position)
+          reorderedServices.splice(1, 0, ...mudanzaServicesData);
+        }
+
+        setServices(reorderedServices);
       } catch (err) {
         console.error('Error fetching services:', err);
 
-        // Use mock data as fallback
-        setServices([...mockServices, ...mockMudanzaServices]);
+        // Use mock data as fallback with same reordering logic
+        const reorderedMockServices = [...mockServices];
+        reorderedMockServices.splice(1, 0, ...mockMudanzaServices);
+        
+        setServices(reorderedMockServices);
         toast({
           title: "No se pudieron cargar servicios desde el servidor",
           description: "Mostrando servicios de ejemplo",
