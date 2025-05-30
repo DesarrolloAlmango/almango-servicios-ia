@@ -207,13 +207,12 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
 
-  // FIXED: Only set flashBackButton to true when purchaseLocationId is not set
-  // And ensure it updates when purchaseLocationId changes
+  // Control flags to prevent infinite loops
   const [flashBackButton, setFlashBackButton] = useState(false);
   const initialLoadComplete = useRef(false);
   const productsInitialized = useRef(false);
   const categorySelected = useRef(false);
-  const componentMounted = useRef(false);
+  const pricesUpdatedForLocation = useRef<string | null>(null);
 
   // Function to fetch updated price for a specific product
   const fetchUpdatedPrice = async (product: Product): Promise<{
@@ -286,6 +285,13 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       });
       return false;
     }
+
+    // CRITICAL: Prevent duplicate price updates for the same location
+    if (pricesUpdatedForLocation.current === effectivePurchaseLocationId) {
+      console.log("Prices already updated for this location, skipping");
+      return false;
+    }
+
     try {
       console.log(`Updating all prices for category ${category.name} with proveedorId=${effectivePurchaseLocationId}`);
       setIsUpdatingPrices(true);
@@ -308,8 +314,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         } : p;
       }));
 
-      // Clear loading state
+      // Clear loading state and mark location as updated
       setLoadingProductIds(new Set());
+      pricesUpdatedForLocation.current = effectivePurchaseLocationId;
       console.log("Prices updated successfully for all products");
       return true;
     } catch (error) {
@@ -329,6 +336,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
     try {
       console.log(`Fetching products: serviceId=${serviceId}, categoryId=${category.id}`);
+
+      // Reset price update flag when fetching new products
+      pricesUpdatedForLocation.current = null;
 
       // First, mark all products as loading to show loading UI
       setLoadingProductIds(new Set(['loading-all']));
@@ -376,14 +386,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       // Mark all products as loading prices
       setLoadingProductIds(new Set(initialProducts.map((p: Product) => p.id)));
 
-      // IMMEDIATELY fetch prices from ObtenerPrecio for each product
-      // No conditional check here - we ALWAYS update prices after loading products
-      // This ensures prices are ALWAYS current
-      console.log(`Products loaded, IMMEDIATELY fetching prices with proveedorId=${effectivePurchaseLocationId}`);
-
-      // CRITICAL FIX: Always call updateAllPrices right after fetching products, 
-      // regardless of where the selection came from (modal or carousel)
-      await updateAllPrices();
       return initialProducts;
     } catch (error) {
       console.error("Error loading products:", error);
@@ -402,130 +404,30 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   }, [category.id, serviceId]);
 
-  // Effect to update quantities from cart
+  // Effect to update quantities from cart - SIMPLIFIED to prevent loops
   useEffect(() => {
-    // Setup initial quantities based on cart items when they change
     if (products.length > 0) {
-      const initialQuantities: Record<string, number> = {
-        ...productQuantities
-      };
-      let hasChanges = false;
+      const initialQuantities: Record<string, number> = {};
       products.forEach(product => {
-        const cartItem = currentCartItems.find(item => item.productId === product.id && item.categoryId === category.id && item.serviceId === serviceId);
-        const newQuantity = cartItem ? cartItem.quantity : 0;
-        if (initialQuantities[product.id] !== newQuantity) {
-          initialQuantities[product.id] = newQuantity;
-          hasChanges = true;
-        }
+        const cartItem = currentCartItems.find(item => 
+          item.productId === product.id && 
+          item.categoryId === category.id && 
+          item.serviceId === serviceId
+        );
+        initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
       });
-      if (hasChanges) {
-        setProductQuantities(initialQuantities);
-      }
+      setProductQuantities(initialQuantities);
     }
-  }, [currentCartItems, products]);
+  }, [currentCartItems.length, products.length]); // Only depend on lengths to prevent loops
 
-  // Effect to update prices when purchase location is set/changed
+  // SIMPLIFIED: Effect to update prices when purchase location is available
   useEffect(() => {
-    if (!effectivePurchaseLocationId || !serviceId) return;
-    if (products.length > 0 && effectivePurchaseLocationId) {
-      console.log(`Purchase location changed to ${effectivePurchaseLocationId}, updating prices`);
-      // Always update prices when purchase location changes - no caching
+    if (products.length > 0 && effectivePurchaseLocationId && serviceId && 
+        pricesUpdatedForLocation.current !== effectivePurchaseLocationId) {
+      console.log("Products and purchase location available, updating prices");
       updateAllPrices();
     }
-  }, [effectivePurchaseLocationId, serviceId]);
-
-  // CRITICAL: Force price update when the component first mounts with products
-  useEffect(() => {
-    if (products.length > 0 && effectivePurchaseLocationId && serviceId && !initialLoadComplete.current) {
-      console.log("Products loaded initially, updating prices");
-      updateAllPrices();
-      initialLoadComplete.current = true;
-    }
-  }, [products.length]);
-
-  // CRITICAL: Additional effect to ensure prices are ALWAYS fetched when component is shown
-  // This runs on component mount and any time serviceId or effectivePurchaseLocationId changes
-  useEffect(() => {
-    componentMounted.current = true;
-
-    // This effect runs when the component mounts
-    if (componentMounted.current && products.length > 0 && effectivePurchaseLocationId && serviceId) {
-      console.log("Component mounted/visible, forcing price refresh");
-      // Always update prices when component becomes visible - no caching
-      updateAllPrices();
-    }
-
-    // Cleanup function to prevent memory leaks
-    return () => {
-      initialLoadComplete.current = false; // Reset for next time
-      componentMounted.current = false;
-    };
-  }, []);
-
-  // NEW: Add a visibility change effect to refresh prices when tab becomes visible again
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && componentMounted.current && products.length > 0 && effectivePurchaseLocationId && serviceId) {
-        console.log("Page became visible again, refreshing prices");
-        updateAllPrices();
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [products, effectivePurchaseLocationId, serviceId]);
-
-  // Listen for the categorySelected event from CategoryCarousel
-  useEffect(() => {
-    const handleCategorySelected = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail) {
-        const {
-          categoryId,
-          categoryName,
-          serviceId: eventServiceId
-        } = customEvent.detail;
-        console.log("ProductGrid received categorySelected event:", categoryId, categoryName);
-
-        // Check if this event is for our current service
-        if (eventServiceId === serviceId) {
-          // Set flag to indicate we need to refresh prices when products load
-          categorySelected.current = true;
-        }
-      }
-    };
-    document.addEventListener('categorySelected', handleCategorySelected);
-    return () => {
-      document.removeEventListener('categorySelected', handleCategorySelected);
-    };
-  }, [serviceId]);
-
-  // NEW: Add event listener for product grid being shown in any way
-  useEffect(() => {
-    const handleProductGridShown = () => {
-      if (products.length > 0 && effectivePurchaseLocationId && serviceId) {
-        console.log("ProductGrid shown event detected, refreshing prices");
-        updateAllPrices();
-      }
-    };
-
-    // Custom event for any component that shows the ProductGrid
-    document.addEventListener('productGridShown', handleProductGridShown);
-
-    // Also refresh on route changes that might show this component
-    const handleRouteChange = () => {
-      if (location.pathname === '/servicios' && products.length > 0 && effectivePurchaseLocationId && serviceId) {
-        console.log("Route changed to /servicios, refreshing prices");
-        updateAllPrices();
-      }
-    };
-    window.addEventListener('popstate', handleRouteChange);
-    return () => {
-      document.removeEventListener('productGridShown', handleProductGridShown);
-      window.removeEventListener('popstate', handleRouteChange);
-    };
-  }, [products, effectivePurchaseLocationId, serviceId, location.pathname]);
+  }, [products.length, effectivePurchaseLocationId, serviceId]);
 
   // Update cart helpers
   const updateCart = (productId: string, newQuantity: number) => {
@@ -568,7 +470,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }, 700);
   };
 
-  // ... keep existing code (increaseQuantity, decreaseQuantity functions)
   const increaseQuantity = (productId: string) => {
     if (!effectivePurchaseLocationId) {
       toast.error("Por favor, seleccione un lugar de compra primero");
@@ -600,7 +501,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     });
   };
 
-  // ... keep existing code (handleAddAllToCart, handleContractNow, handleAddAnotherService functions)
   const handleAddAllToCart = () => {
     const purchaseLocation = {
       departmentId: undefined,
@@ -714,6 +614,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   // Determine if we need to show loading message
   const allProductsLoading = products.length === 0 || loadingProductIds.has('loading-all');
+  
   return <div className="space-y-6">
       <div className="flex items-center mb-4">
         <button onClick={onBack} className={`flex items-center gap-2 text-primary hover:underline ${!effectivePurchaseLocationId ? 'relative' : ''}`} aria-label="back-to-categories">
@@ -729,7 +630,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         </button>
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
         
-        {effectivePurchaseLocationId && <Button onClick={() => updateAllPrices()} variant="outline" size="sm" className="ml-2" disabled={isUpdatingPrices}>
+        {effectivePurchaseLocationId && <Button onClick={() => {
+            pricesUpdatedForLocation.current = null;
+            updateAllPrices();
+          }} variant="outline" size="sm" className="ml-2" disabled={isUpdatingPrices}>
             <RefreshCw className={`h-4 w-4 mr-1 ${isUpdatingPrices ? 'animate-spin' : ''}`} />
             {isUpdatingPrices ? 'Actualizando...' : 'Actualizar precios'}
           </Button>}
