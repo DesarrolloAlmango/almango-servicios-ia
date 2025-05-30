@@ -196,11 +196,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [loadingProductIds, setLoadingProductIds] = useState<Set<string>>(new Set());
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
-  const [locationConfirmed, setLocationConfirmed] = useState(false);
-
-  // Track if products should be loaded
-  const shouldLoadProducts = useRef(false);
-  const productsInitialized = useRef(false);
+  const [shouldShowProducts, setShouldShowProducts] = useState(false);
 
   // Function to fetch updated price for a specific product
   const fetchUpdatedPrice = async (product: Product): Promise<{
@@ -331,7 +327,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       });
 
       setProducts(initialProducts);
-      productsInitialized.current = true;
 
       // Setup initial quantities based on cart items
       const initialQuantities: Record<string, number> = {};
@@ -344,6 +339,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       // Mark all products as loading prices
       setLoadingProductIds(new Set(initialProducts.map((p: Product) => p.id)));
 
+      // Automatically update prices after products are loaded
+      setTimeout(() => {
+        updateAllPrices();
+      }, 100);
+
       return initialProducts;
     } catch (error) {
       console.error("Error loading products:", error);
@@ -352,25 +352,38 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   };
 
-  // Effect to load products when the category changes - ONLY if location is confirmed or no commerceId
+  // Listen for openCategory event - this triggers loading products and prices
   useEffect(() => {
-    if (category.id && serviceId) {
-      console.log("Category changed, checking if should fetch products:", category.name);
-      console.log("commerceId:", commerceId);
-      console.log("locationConfirmed:", locationConfirmed);
-      
-      // If there's no commerceId (manual selection) OR location has been confirmed, load products
-      if (!commerceId || locationConfirmed) {
-        console.log("Loading products immediately");
-        productsInitialized.current = false;
-        shouldLoadProducts.current = true;
-        fetchProducts();
-      } else {
-        console.log("Waiting for location confirmation before loading products");
-        shouldLoadProducts.current = false;
+    const handleOpenCategory = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        const { categoryId: eventCategoryId, serviceId: eventServiceId } = customEvent.detail;
+        console.log("ProductGrid received openCategory event:", eventCategoryId, eventServiceId);
+        
+        // Check if this event is for our current category and service
+        if (eventCategoryId === category.id && eventServiceId === serviceId) {
+          console.log("Opening category matches current category, loading products");
+          setShouldShowProducts(true);
+          fetchProducts();
+        }
       }
+    };
+
+    document.addEventListener('openCategory', handleOpenCategory);
+    
+    return () => {
+      document.removeEventListener('openCategory', handleOpenCategory);
+    };
+  }, [category.id, serviceId]);
+
+  // For manual selection (no commerceId), show products immediately
+  useEffect(() => {
+    if (!commerceId && category.id && serviceId) {
+      console.log("Manual selection mode - showing products immediately");
+      setShouldShowProducts(true);
+      fetchProducts();
     }
-  }, [category.id, serviceId, locationConfirmed, commerceId]);
+  }, [category.id, serviceId, commerceId]);
 
   // Effect to update quantities from cart
   useEffect(() => {
@@ -393,93 +406,13 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   }, [currentCartItems, products]);
 
-  // Listen for location confirmation event
-  useEffect(() => {
-    const handleLocationConfirmed = () => {
-      console.log("Location confirmed, setting locationConfirmed to true");
-      setLocationConfirmed(true);
-    };
-
-    document.addEventListener('locationConfirmed', handleLocationConfirmed);
-    
-    return () => {
-      document.removeEventListener('locationConfirmed', handleLocationConfirmed);
-    };
-  }, []);
-
-  // Effect to load products and prices when location is confirmed
-  useEffect(() => {
-    if (locationConfirmed && category.id && serviceId && commerceId) {
-      console.log("Location confirmed, loading products and then prices");
-      
-      // First load products
-      fetchProducts().then(() => {
-        // Then load prices after a small delay
-        setTimeout(() => {
-          updateAllPrices();
-        }, 100);
-      });
-    }
-  }, [locationConfirmed, category.id, serviceId, commerceId]);
-
-  // Effect to update prices when purchase location is set/changed (for manual selection)
+  // Effect to update prices when purchase location is set/changed (for manual selection only)
   useEffect(() => {
     if (!commerceId && effectivePurchaseLocationId && serviceId && products.length > 0) {
       console.log(`Purchase location changed to ${effectivePurchaseLocationId}, updating prices (manual selection)`);
       updateAllPrices();
     }
-  }, [effectivePurchaseLocationId, serviceId, products.length]);
-
-  // Listen for the categorySelected event from CategoryCarousel
-  useEffect(() => {
-    const handleCategorySelected = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail) {
-        const {
-          categoryId,
-          categoryName,
-          serviceId: eventServiceId
-        } = customEvent.detail;
-        console.log("ProductGrid received categorySelected event:", categoryId, categoryName);
-
-        // Check if this event is for our current service
-        if (eventServiceId === serviceId) {
-          // Set flag to indicate we need to refresh prices when products load
-          
-        }
-      }
-    };
-    document.addEventListener('categorySelected', handleCategorySelected);
-    return () => {
-      document.removeEventListener('categorySelected', handleCategorySelected);
-    };
-  }, [serviceId]);
-
-  // NEW: Add event listener for product grid being shown in any way
-  useEffect(() => {
-    const handleProductGridShown = () => {
-      if (products.length > 0 && effectivePurchaseLocationId && serviceId) {
-        console.log("ProductGrid shown event detected, refreshing prices");
-        updateAllPrices();
-      }
-    };
-
-    // Custom event for any component that shows the ProductGrid
-    document.addEventListener('productGridShown', handleProductGridShown);
-
-    // Also refresh on route changes that might show this component
-    const handleRouteChange = () => {
-      if (location.pathname === '/servicios' && products.length > 0 && effectivePurchaseLocationId && serviceId) {
-        console.log("Route changed to /servicios, refreshing prices");
-        updateAllPrices();
-      }
-    };
-    window.addEventListener('popstate', handleRouteChange);
-    return () => {
-      document.removeEventListener('productGridShown', handleProductGridShown);
-      window.removeEventListener('popstate', handleRouteChange);
-    };
-  }, [products, effectivePurchaseLocationId, serviceId, location.pathname]);
+  }, [effectivePurchaseLocationId, serviceId, products.length, commerceId]);
 
   // Update cart helpers
   const updateCart = (productId: string, newQuantity: number) => {
@@ -656,8 +589,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   // Determine if we need to show loading message
   const allProductsLoading = products.length === 0 || loadingProductIds.has('loading-all');
   
-  // Show waiting message when commerceId exists but location not confirmed
-  const waitingForLocation = commerceId && !locationConfirmed;
+  // Show waiting message when we should not show products yet
+  const waitingForLocation = !shouldShowProducts;
 
   return (
     <div className="space-y-6">

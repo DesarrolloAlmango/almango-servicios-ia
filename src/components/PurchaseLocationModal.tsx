@@ -437,24 +437,13 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         serviceId: localServiceId,
         categoryId: finalCategoryId,
         categoryName: finalCategoryName,
-        globalTemp: lastSelectedCategoryId 
+        commerceId: storeId
       });
       
-      // Store the category information in global variable for automatic opening
-      if (localServiceId && finalCategoryId) {
-        globalLastSelectedCategory = {
-          serviceId: localServiceId,
-          categoryId: finalCategoryId,
-          categoryName: finalCategoryName
-        };
-        
-        // Pre-fetch products to make the transition smoother - now calling immediately 
-        // to ensure products are ready when needed
-        fetchProductsForCategory(storeId, localServiceId, finalCategoryId);
-      }
-      
-      // Close the modal and call onSelectLocation right away
+      // Close the modal first
       onClose();
+      
+      // Call onSelectLocation to update the purchase location
       onSelectLocation(
         storeId, 
         storeName,
@@ -465,11 +454,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         selectedStore === "other" ? otherStore || searchQuery : undefined
       );
       
-      // Immediately dispatch the openCategory event with the category information
-      // This is key to making direct product loading work
-      if (finalCategoryId && localServiceId) {
-        try {
-          console.log("Dispatching openCategory event immediately after location confirmation");
+      // For commerceId scenarios, dispatch the openCategory event immediately
+      // This will open the ProductGrid with the confirmed location
+      if (commerceId && finalCategoryId && localServiceId) {
+        setTimeout(() => {
+          console.log("Dispatching openCategory event for commerceId scenario");
           const openCategoryEvent = new CustomEvent('openCategory', {
             detail: {
               serviceId: localServiceId,
@@ -478,10 +467,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             }
           });
           document.dispatchEvent(openCategoryEvent);
-        } catch (error) {
-          console.error("Error dispatching category event:", error);
-        }
+        }, 100);
       }
+      
     } catch (error) {
       console.error("Error in handleConfirm:", error);
       toast.error("Ocurrió un error al procesar la solicitud");
