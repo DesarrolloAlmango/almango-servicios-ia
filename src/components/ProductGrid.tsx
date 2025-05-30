@@ -4,8 +4,7 @@ import { Card, CardContent } from "./ui/card";
 import { Skeleton, PriceSkeleton, TextSkeleton } from "./ui/skeleton";
 import { toast } from "sonner";
 import { ArrowLeft, ShoppingCart, RefreshCw } from "lucide-react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
-
+import { useNavigate, useLocation } from "react-router-dom";
 interface CartItem {
   id: string;
   name: string;
@@ -63,7 +62,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  
   const getImageSource = () => {
     if (!product.image) return null;
     if (product.image.startsWith('data:image')) {
@@ -80,15 +78,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   // Determine if buttons should be disabled
   const buttonsDisabled = !hasPurchaseLocation || isPriceLoading || product.price === 0;
-  
   const handleButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log('Button clicked but disabled - reason:', {
-      hasPurchaseLocation,
-      isPriceLoading,
-      price: product.price,
-      buttonsDisabled
-    });
     if (!hasPurchaseLocation) {
       toast.error("Por favor, seleccione un lugar de compra primero");
       onBackToCategories();
@@ -96,7 +87,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
       toast.info("Esperando carga de precios...");
     }
   };
-
   return <Card className="overflow-hidden h-full flex flex-col relative">
       <div className="relative h-40 bg-gray-100 flex items-center justify-center">
         {!imageLoaded && <Skeleton className="absolute inset-0 w-full h-full" />}
@@ -141,6 +131,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <CardContent className="p-4 flex-grow">
         <h4 className="font-medium mb-1 line-clamp-2">{product.name}</h4>
         
+        {/* DEBUG: Show textosId information */}
         
         
         <div className="flex justify-between items-center mt-2">
@@ -153,7 +144,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
       </CardContent>
     </Card>;
 };
-
 interface ProductGridProps {
   category: Category;
   addToCart: (item: CartItem) => void;
@@ -164,7 +154,6 @@ interface ProductGridProps {
   purchaseLocationId?: string;
   currentCartItems: CartItem[];
 }
-
 const ProductGrid: React.FC<ProductGridProps> = ({
   category,
   addToCart,
@@ -177,35 +166,28 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const params = useParams();
-  
-  // Extract commerceId correctly from the route /servicios/:userId/:commerceId
-  const { userId, commerceId } = params;
-  const effectivePurchaseLocationId = purchaseLocationId || commerceId;
-  
-  console.log('=== ProductGrid URL Params DEBUG ===');
-  console.log('Full params:', params);
-  console.log('userId from params:', userId);
-  console.log('commerceId from params:', commerceId);
-  console.log('purchaseLocationId prop:', purchaseLocationId);
-  console.log('effectivePurchaseLocationId:', effectivePurchaseLocationId);
-  console.log('=== END URL Params DEBUG ===');
-
   const [productQuantities, setProductQuantities] = useState<Record<string, number>>({});
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProductIds, setLoadingProductIds] = useState<Set<string>>(new Set());
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
-  const [shouldShowProducts, setShouldShowProducts] = useState(false);
+
+  // FIXED: Only set flashBackButton to true when purchaseLocationId is not set
+  // And ensure it updates when purchaseLocationId changes
+  const [flashBackButton, setFlashBackButton] = useState(false);
+  const initialLoadComplete = useRef(false);
+  const productsInitialized = useRef(false);
+  const categorySelected = useRef(false);
+  const componentMounted = useRef(false);
 
   // Function to fetch updated price for a specific product
   const fetchUpdatedPrice = async (product: Product): Promise<{
     id: string;
     price: number;
   }> => {
-    if (!effectivePurchaseLocationId || !serviceId || !category.id) {
+    if (!purchaseLocationId || !serviceId || !category.id) {
       console.log("Missing required parameters for price fetch:", {
-        effectivePurchaseLocationId,
+        purchaseLocationId,
         serviceId,
         categoryId: category.id
       });
@@ -215,17 +197,18 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       };
     }
     try {
-      console.log(`Fetching price for: proveedorId=${effectivePurchaseLocationId}, nivel0=${serviceId}, nivel1=${category.id}, nivel2=${product.id}`);
-      const response = await fetch(`/api/WebAPI/ObtenerPrecio?Proveedorid=${effectivePurchaseLocationId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`);
+      // Log the API call with explicit params for debugging
+      console.log(`Fetching price for: proveedorId=${purchaseLocationId}, nivel0=${serviceId}, nivel1=${category.id}, nivel2=${product.id}`);
+      const response = await fetch(`/api/WebAPI/ObtenerPrecio?Proveedorid=${purchaseLocationId}&Nivel0=${serviceId}&Nivel1=${category.id}&Nivel2=${product.id}`);
       if (!response.ok) {
         console.error(`Error response from price API: ${response.status} ${response.statusText}`);
         throw new Error(`Error al obtener precio: ${response.status}`);
       }
-      
       const data = await response.json();
       console.log(`Price data received for ${product.id}:`, data);
-      
       if (data && typeof data.Precio === 'number') {
+        // IMPORTANT: Only use ObtenerPrecio price if it's greater than 0
+        // Otherwise, fall back to the product's default price from ObtenerNivel2
         if (data.Precio > 0) {
           console.log(`Using ObtenerPrecio price for product ${product.id}: ${data.Precio}`);
           return {
@@ -255,11 +238,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   };
 
-  // Function to update all product prices
+  // Function to update all product prices - CRITICAL path
   const updateAllPrices = async () => {
-    if (!effectivePurchaseLocationId || !serviceId || isUpdatingPrices || products.length === 0) {
+    if (!purchaseLocationId || !serviceId || isUpdatingPrices || products.length === 0) {
       console.log("Skipping price update - missing data or already updating", {
-        effectivePurchaseLocationId,
+        purchaseLocationId,
         serviceId,
         isUpdatingPrices,
         productCount: products.length
@@ -267,16 +250,19 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       return false;
     }
     try {
-      console.log(`Updating all prices for category ${category.name} with proveedorId=${effectivePurchaseLocationId}`);
+      console.log(`Updating all prices for category ${category.name} with proveedorId=${purchaseLocationId}`);
       setIsUpdatingPrices(true);
 
+      // Mark all products as loading prices
       const loadingIds = new Set(products.map(p => p.id));
       setLoadingProductIds(loadingIds);
 
+      // Fetch updated prices individually for each product
       const pricePromises = products.map(product => fetchUpdatedPrice(product));
       const updatedPrices = await Promise.all(pricePromises);
       console.log("All prices fetched successfully:", updatedPrices);
 
+      // Update all product prices at once
       setProducts(prevProducts => prevProducts.map(p => {
         const updatedPrice = updatedPrices.find(up => up.id === p.id);
         return updatedPrice ? {
@@ -285,6 +271,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         } : p;
       }));
 
+      // Clear loading state
       setLoadingProductIds(new Set());
       console.log("Prices updated successfully for all products");
       return true;
@@ -306,27 +293,40 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     try {
       console.log(`Fetching products: serviceId=${serviceId}, categoryId=${category.id}`);
 
+      // First, mark all products as loading to show loading UI
       setLoadingProductIds(new Set(['loading-all']));
-      const response = await fetch(`https://app.almango.com.uy/webapi/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${category.id}`);
+      const response = await fetch(`/api/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${category.id}`);
       if (!response.ok) {
         throw new Error(`Error al obtener productos: ${response.status}`);
       }
       const productsData = await response.json();
       console.log(`Fetched ${productsData.length} products for category ${category.id}`);
 
+      // CRITICAL CHANGE: Initialize products with their default prices from ObtenerNivel2
+      // but explicitly set price to 0 to ensure we always show loading state
+      // until ObtenerPrecio completes
       const initialProducts = productsData.map((product: any) => {
+        console.log('=== DEBUG Product Mapping in fetchProducts ===');
+        console.log('Original product from ObtenerNivel2:', product);
+        console.log('Product TextosId from API:', product.TextosId);
+        console.log('Product TextosId type:', typeof product.TextosId);
+        console.log('=== END Product Mapping DEBUG ===');
         return {
           id: product.id || product.Nivel2Id,
           name: product.name || product.Nivel2Descripcion,
-          price: 0, // Always start with 0 to show loading state
+          price: 0,
+          // Initialize with 0 to show loading state and disable buttons
           defaultPrice: product.price ? parseFloat(product.price) : product.Precio ? parseFloat(product.Precio) : 0,
           image: product.image || product.Imagen || "",
           category: category.id,
-          textosId: product.TextosId || null
+          textosId: product.TextosId || null // Ensure textosId is captured
         };
       });
+      console.log('ProductGrid: Transformed products with textosId:', initialProducts);
 
+      // Setting the products with initial data, but prices will be updated immediately
       setProducts(initialProducts);
+      productsInitialized.current = true;
 
       // Setup initial quantities based on cart items
       const initialQuantities: Record<string, number> = {};
@@ -339,11 +339,14 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       // Mark all products as loading prices
       setLoadingProductIds(new Set(initialProducts.map((p: Product) => p.id)));
 
-      // Automatically update prices after products are loaded
-      setTimeout(() => {
-        updateAllPrices();
-      }, 100);
+      // IMMEDIATELY fetch prices from ObtenerPrecio for each product
+      // No conditional check here - we ALWAYS update prices after loading products
+      // This ensures prices are ALWAYS current
+      console.log(`Products loaded, IMMEDIATELY fetching prices with proveedorId=${purchaseLocationId}`);
 
+      // CRITICAL FIX: Always call updateAllPrices right after fetching products, 
+      // regardless of where the selection came from (modal or carousel)
+      await updateAllPrices();
       return initialProducts;
     } catch (error) {
       console.error("Error loading products:", error);
@@ -352,41 +355,19 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   };
 
-  // Listen for openCategory event - this triggers loading products and prices
+  // Effect to load products when the category changes
   useEffect(() => {
-    const handleOpenCategory = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail) {
-        const { categoryId: eventCategoryId, serviceId: eventServiceId } = customEvent.detail;
-        console.log("ProductGrid received openCategory event:", eventCategoryId, eventServiceId);
-        
-        // Check if this event is for our current category and service
-        if (eventCategoryId === category.id && eventServiceId === serviceId) {
-          console.log("Opening category matches current category, loading products");
-          setShouldShowProducts(true);
-          fetchProducts();
-        }
-      }
-    };
-
-    document.addEventListener('openCategory', handleOpenCategory);
-    
-    return () => {
-      document.removeEventListener('openCategory', handleOpenCategory);
-    };
-  }, [category.id, serviceId]);
-
-  // For manual selection (no commerceId), show products immediately
-  useEffect(() => {
-    if (!commerceId && category.id && serviceId) {
-      console.log("Manual selection mode - showing products immediately");
-      setShouldShowProducts(true);
+    if (category.id && serviceId) {
+      console.log("Category changed, fetching products:", category.name);
+      productsInitialized.current = false; // Reset initialization flag
+      categorySelected.current = true; // Mark that a category has been selected
       fetchProducts();
     }
-  }, [category.id, serviceId, commerceId]);
+  }, [category.id, serviceId]);
 
   // Effect to update quantities from cart
   useEffect(() => {
+    // Setup initial quantities based on cart items when they change
     if (products.length > 0) {
       const initialQuantities: Record<string, number> = {
         ...productQuantities
@@ -406,13 +387,108 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   }, [currentCartItems, products]);
 
-  // Effect to update prices when purchase location is set/changed (for manual selection only)
+  // Effect to update prices when purchase location is set/changed
   useEffect(() => {
-    if (!commerceId && effectivePurchaseLocationId && serviceId && products.length > 0) {
-      console.log(`Purchase location changed to ${effectivePurchaseLocationId}, updating prices (manual selection)`);
+    if (!purchaseLocationId || !serviceId) return;
+    if (products.length > 0 && purchaseLocationId) {
+      console.log(`Purchase location changed to ${purchaseLocationId}, updating prices`);
+      // Always update prices when purchase location changes - no caching
       updateAllPrices();
     }
-  }, [effectivePurchaseLocationId, serviceId, products.length, commerceId]);
+  }, [purchaseLocationId, serviceId]);
+
+  // CRITICAL: Force price update when the component first mounts with products
+  useEffect(() => {
+    if (products.length > 0 && purchaseLocationId && serviceId && !initialLoadComplete.current) {
+      console.log("Products loaded initially, updating prices");
+      updateAllPrices();
+      initialLoadComplete.current = true;
+    }
+  }, [products.length]);
+
+  // CRITICAL: Additional effect to ensure prices are ALWAYS fetched when component is shown
+  // This runs on component mount and any time serviceId or purchaseLocationId changes
+  useEffect(() => {
+    componentMounted.current = true;
+
+    // This effect runs when the component mounts
+    if (componentMounted.current && products.length > 0 && purchaseLocationId && serviceId) {
+      console.log("Component mounted/visible, forcing price refresh");
+      // Always update prices when component becomes visible - no caching
+      updateAllPrices();
+    }
+
+    // Cleanup function to prevent memory leaks
+    return () => {
+      initialLoadComplete.current = false; // Reset for next time
+      componentMounted.current = false;
+    };
+  }, []);
+
+  // NEW: Add a visibility change effect to refresh prices when tab becomes visible again
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && componentMounted.current && products.length > 0 && purchaseLocationId && serviceId) {
+        console.log("Page became visible again, refreshing prices");
+        updateAllPrices();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [products, purchaseLocationId, serviceId]);
+
+  // Listen for the categorySelected event from CategoryCarousel
+  useEffect(() => {
+    const handleCategorySelected = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        const {
+          categoryId,
+          categoryName,
+          serviceId: eventServiceId
+        } = customEvent.detail;
+        console.log("ProductGrid received categorySelected event:", categoryId, categoryName);
+
+        // Check if this event is for our current service
+        if (eventServiceId === serviceId) {
+          // Set flag to indicate we need to refresh prices when products load
+          categorySelected.current = true;
+        }
+      }
+    };
+    document.addEventListener('categorySelected', handleCategorySelected);
+    return () => {
+      document.removeEventListener('categorySelected', handleCategorySelected);
+    };
+  }, [serviceId]);
+
+  // NEW: Add event listener for product grid being shown in any way
+  useEffect(() => {
+    const handleProductGridShown = () => {
+      if (products.length > 0 && purchaseLocationId && serviceId) {
+        console.log("ProductGrid shown event detected, refreshing prices");
+        updateAllPrices();
+      }
+    };
+
+    // Custom event for any component that shows the ProductGrid
+    document.addEventListener('productGridShown', handleProductGridShown);
+
+    // Also refresh on route changes that might show this component
+    const handleRouteChange = () => {
+      if (location.pathname === '/servicios' && products.length > 0 && purchaseLocationId && serviceId) {
+        console.log("Route changed to /servicios, refreshing prices");
+        updateAllPrices();
+      }
+    };
+    window.addEventListener('popstate', handleRouteChange);
+    return () => {
+      document.removeEventListener('productGridShown', handleProductGridShown);
+      window.removeEventListener('popstate', handleRouteChange);
+    };
+  }, [products, purchaseLocationId, serviceId, location.pathname]);
 
   // Update cart helpers
   const updateCart = (productId: string, newQuantity: number) => {
@@ -422,7 +498,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       departmentId: undefined,
       locationId: undefined
     };
-    
+    console.log('=== DEBUG updateCart in ProductGrid ===');
+    console.log('Product found:', product);
+    console.log('Product textosId being added to cart:', product.textosId);
+    console.log('Product textosId type:', typeof product.textosId);
+    console.log('=== END updateCart DEBUG ===');
     const cartItem: CartItem = {
       id: product.id,
       name: product.name,
@@ -437,7 +517,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       locationId: purchaseLocation?.locationId,
       textosId: product.textosId || null
     };
-    
+    console.log('ProductGrid: Cart item being added with textosId:', cartItem);
     addToCart(cartItem);
     setCartAnimating(prev => ({
       ...prev,
@@ -451,8 +531,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }, 700);
   };
 
+  // ... keep existing code (increaseQuantity, decreaseQuantity functions)
   const increaseQuantity = (productId: string) => {
-    if (!effectivePurchaseLocationId) {
+    if (!purchaseLocationId) {
       toast.error("Por favor, seleccione un lugar de compra primero");
       onBack();
       return;
@@ -466,9 +547,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       };
     });
   };
-
   const decreaseQuantity = (productId: string) => {
-    if (!effectivePurchaseLocationId) {
+    if (!purchaseLocationId) {
       toast.error("Por favor, seleccione un lugar de compra primero");
       onBack();
       return;
@@ -483,13 +563,17 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     });
   };
 
+  // ... keep existing code (handleAddAllToCart, handleContractNow, handleAddAnotherService functions)
   const handleAddAllToCart = () => {
     const purchaseLocation = {
       departmentId: undefined,
       locationId: undefined
     };
     const itemsToAdd = products.filter(product => productQuantities[product.id] > 0).map(product => {
-      
+      console.log('=== DEBUG handleAddAllToCart ===');
+      console.log('Product:', product.name);
+      console.log('Product textosId:', product.textosId);
+      console.log('=== END handleAddAllToCart DEBUG ===');
       return {
         id: product.id,
         name: product.name,
@@ -524,7 +608,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       locationId: undefined
     };
     const itemsToAdd = products.filter(product => productQuantities[product.id] > 0).map(product => {
-      
+      console.log('=== DEBUG handleContractNow ===');
+      console.log('Product:', product.name);
+      console.log('Product textosId:', product.textosId);
+      console.log('=== END handleContractNow DEBUG ===');
       return {
         id: product.id,
         name: product.name,
@@ -559,7 +646,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       locationId: undefined
     };
     const itemsToAdd = products.filter(product => productQuantities[product.id] > 0).map(product => {
-      
+      console.log('=== DEBUG handleAddAnotherService ===');
+      console.log('Product:', product.name);
+      console.log('Product textosId:', product.textosId);
+      console.log('=== END handleAddAnotherService DEBUG ===');
       return {
         id: product.id,
         name: product.name,
@@ -583,41 +673,32 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       toast.error("Seleccione al menos un producto");
     }
   };
-
   const hasSelectedProducts = Object.values(productQuantities).some(qty => qty > 0);
 
   // Determine if we need to show loading message
   const allProductsLoading = products.length === 0 || loadingProductIds.has('loading-all');
-  
-  // Show waiting message when we should not show products yet
-  const waitingForLocation = !shouldShowProducts;
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="flex items-center mb-4">
-        <button onClick={onBack} className="flex items-center gap-2 text-primary hover:underline" aria-label="back-to-categories">
+        <button onClick={onBack} className={`flex items-center gap-2 text-primary hover:underline ${!purchaseLocationId ? 'relative' : ''}`} aria-label="back-to-categories">
           <ArrowLeft size={16} />
           <span>Volver a Categorías</span>
+          
+          {/* Lighter yellow flash animation with adjusted height - only show when flashBackButton is true */}
+          {flashBackButton && <span className="absolute inset-0 bg-yellow-100 animate-pulse rounded-md opacity-20 z-[-1]" style={{
+          maxHeight: '35px',
+          transform: 'scale(1.05)',
+          animation: 'pulse 2s infinite alternate'
+        }}></span>}
         </button>
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
         
-        {effectivePurchaseLocationId && products.length > 0 && (
-          <Button onClick={() => updateAllPrices()} variant="outline" size="sm" className="ml-2" disabled={isUpdatingPrices}>
+        {purchaseLocationId && <Button onClick={() => updateAllPrices()} variant="outline" size="sm" className="ml-2" disabled={isUpdatingPrices}>
             <RefreshCw className={`h-4 w-4 mr-1 ${isUpdatingPrices ? 'animate-spin' : ''}`} />
             {isUpdatingPrices ? 'Actualizando...' : 'Actualizar precios'}
-          </Button>
-        )}
+          </Button>}
       </div>
       
-      {waitingForLocation && (
-        <div className="flex flex-col items-center justify-center h-64 gap-4">
-          <TextSkeleton text="Esperando confirmación de ubicación..." />
-          <p className="text-sm text-gray-500">Los productos se mostrarán después de seleccionar departamento y localidad</p>
-        </div>
-      )}
-      
-      {!waitingForLocation && !effectivePurchaseLocationId && (
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+      {!purchaseLocationId && <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
           <div className="flex">
             <div className="ml-3">
               <p className="text-sm text-yellow-700">
@@ -625,55 +706,25 @@ const ProductGrid: React.FC<ProductGridProps> = ({
               </p>
             </div>
           </div>
-        </div>
-      )}
+        </div>}
       
-      {!waitingForLocation && (
-        <>
-          {allProductsLoading ? (
-            <div className="flex flex-col items-center justify-center h-64 gap-4">
-              <TextSkeleton text="Cargando productos..." />
-            </div>
-          ) : products.length === 0 ? (
-            <div className="flex items-center justify-center h-40">
-              <p className="text-gray-500">No hay productos disponibles</p>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {products.map(product => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    quantity={productQuantities[product.id] || 0}
-                    onIncrease={() => increaseQuantity(product.id)}
-                    onDecrease={() => decreaseQuantity(product.id)}
-                    animating={!!cartAnimating[product.id]}
-                    purchaseLocationId={effectivePurchaseLocationId}
-                    serviceId={serviceId}
-                    categoryId={category.id}
-                    isPriceLoading={loadingProductIds.has(product.id)}
-                    hasPurchaseLocation={!!effectivePurchaseLocationId}
-                    onBackToCategories={onBack}
-                  />
-                ))}
-              </div>
-              {hasSelectedProducts && (
-                <div className="flex justify-center gap-2 sm:gap-4 mt-8 sticky bottom-4 bg-white p-4 rounded-lg shadow-md">
-                  <Button onClick={handleAddAnotherService} variant="outline" className="text-secondary border-secondary hover:bg-secondary hover:text-white transition-colors text-xs sm:text-sm px-2 sm:px-4">
-                    Agregar otro servicio
-                  </Button>
-                  <Button onClick={handleContractNow} className="bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm px-2 sm:px-4">
-                    Contratar ahora
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
-        </>
-      )}
-    </div>
-  );
+      {allProductsLoading ? <div className="flex flex-col items-center justify-center h-64 gap-4">
+          <TextSkeleton text="Cargando productos..." />
+        </div> : products.length === 0 ? <div className="flex items-center justify-center h-40">
+          <p className="text-gray-500">No hay productos disponibles</p>
+        </div> : <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {products.map(product => <ProductCard key={product.id} product={product} quantity={productQuantities[product.id] || 0} onIncrease={() => increaseQuantity(product.id)} onDecrease={() => decreaseQuantity(product.id)} animating={!!cartAnimating[product.id]} purchaseLocationId={purchaseLocationId} serviceId={serviceId} categoryId={category.id} isPriceLoading={loadingProductIds.has(product.id)} hasPurchaseLocation={!!purchaseLocationId} onBackToCategories={onBack} />)}
+          </div>
+          {hasSelectedProducts && <div className="flex justify-center gap-2 sm:gap-4 mt-8 sticky bottom-4 bg-white p-4 rounded-lg shadow-md">
+              <Button onClick={handleAddAnotherService} variant="outline" className="text-secondary border-secondary hover:bg-secondary hover:text-white transition-colors text-xs sm:text-sm px-2 sm:px-4">
+                Agregar otro servicio
+              </Button>
+              <Button onClick={handleContractNow} className="bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm px-2 sm:px-4">
+                Contratar ahora
+              </Button>
+            </div>}
+        </>}
+    </div>;
 };
-
 export default ProductGrid;

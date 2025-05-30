@@ -95,7 +95,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                         "0";
       
       const jsonSolicitud = JSON.stringify(serviceData);
-      const url = new URL("https://app.almango.com.uy/webapi/AltaSolicitud", window.location.origin);
+      const url = new URL("/api/WebAPI/AltaSolicitud", window.location.origin);
       url.searchParams.append("Userconect", "NoEmpty");
       url.searchParams.append("Key", "d3d3LmF6bWl0YS5jb20=");
       url.searchParams.append("Proveedorid", providerId); // Using the correct provider ID
@@ -186,7 +186,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   };
 
   const handlePaymentLink = (solicitudId: number) => {
-    const paymentUrl = `https://pay.almango.com.uy/procesarpago.aspx?S${solicitudId}`;
+    const paymentUrl = `http://109.199.100.16:80/PasarelaPagos.NetEnvironment/procesarpago.aspx?S${solicitudId}`;
     if (paymentLinkRef.current) {
       paymentLinkRef.current.href = paymentUrl;
       paymentLinkRef.current.click();

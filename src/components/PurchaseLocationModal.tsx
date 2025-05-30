@@ -199,7 +199,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const fetchDepartments = async () => {
     setLoadingLocation(prev => ({...prev, departments: true}));
     try {
-      const response = await fetch("https://app.almango.com.uy/webapi/ObtenerDepto");
+      const response = await fetch("/api/WebAPI/ObtenerDepto");
       
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -232,7 +232,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     setSelectedLocation("");
     try {
       const response = await fetch(
-        `https://app.almango.com.uy/webapi/ObtenerMunicipio?DepartamentoId=${departmentId}`
+        `/api/WebAPI/ObtenerMunicipio?DepartamentoId=${departmentId}`
       );
       
       if (!response.ok) {
@@ -268,7 +268,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const fetchProviders = async () => {
     setLoading(true);
     try {
-      const response = await fetch("https://app.almango.com.uy/webapi/ObtenerProveedor");
+      const response = await fetch("/api/WebAPI/ObtenerProveedor");
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -369,7 +369,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     try {
       console.log(`Fetching products for store: ${storeId}, service: ${serviceId}, category: ${categoryId}`);
       // Make a direct call to fetch products
-      const endpoint = `https://app.almango.com.uy/webapi/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
+      const endpoint = `/api/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
       
       const response = await fetch(endpoint);
       if (!response.ok) {
@@ -437,13 +437,24 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         serviceId: localServiceId,
         categoryId: finalCategoryId,
         categoryName: finalCategoryName,
-        commerceId: storeId
+        globalTemp: lastSelectedCategoryId 
       });
       
-      // Close the modal first
-      onClose();
+      // Store the category information in global variable for automatic opening
+      if (localServiceId && finalCategoryId) {
+        globalLastSelectedCategory = {
+          serviceId: localServiceId,
+          categoryId: finalCategoryId,
+          categoryName: finalCategoryName
+        };
+        
+        // Pre-fetch products to make the transition smoother - now calling immediately 
+        // to ensure products are ready when needed
+        fetchProductsForCategory(storeId, localServiceId, finalCategoryId);
+      }
       
-      // Call onSelectLocation to update the purchase location
+      // Close the modal and call onSelectLocation right away
+      onClose();
       onSelectLocation(
         storeId, 
         storeName,
@@ -454,11 +465,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         selectedStore === "other" ? otherStore || searchQuery : undefined
       );
       
-      // For commerceId scenarios, dispatch the openCategory event immediately
-      // This will open the ProductGrid with the confirmed location
-      if (commerceId && finalCategoryId && localServiceId) {
-        setTimeout(() => {
-          console.log("Dispatching openCategory event for commerceId scenario");
+      // Immediately dispatch the openCategory event with the category information
+      // This is key to making direct product loading work
+      if (finalCategoryId && localServiceId) {
+        try {
+          console.log("Dispatching openCategory event immediately after location confirmation");
           const openCategoryEvent = new CustomEvent('openCategory', {
             detail: {
               serviceId: localServiceId,
@@ -467,9 +478,10 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             }
           });
           document.dispatchEvent(openCategoryEvent);
-        }, 100);
+        } catch (error) {
+          console.error("Error dispatching category event:", error);
+        }
       }
-      
     } catch (error) {
       console.error("Error in handleConfirm:", error);
       toast.error("Ocurrió un error al procesar la solicitud");

@@ -271,7 +271,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     if (!selectedService.id) return;
     
     try {
-      const endpoint = `https://app.almango.com.uy/webapi/ObtenerNivel2?Nivel0=${selectedService.id}&Nivel1=${categoryId}`;
+      const endpoint = `/api/WebAPI/ObtenerNivel2?Nivel0=${selectedService.id}&Nivel1=${categoryId}`;
       console.log(`Preloading products for service ${selectedService.id}, category ${categoryId}`);
       
       const response = await fetch(endpoint);
