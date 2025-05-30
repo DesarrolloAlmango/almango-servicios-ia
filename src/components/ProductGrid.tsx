@@ -213,7 +213,92 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const categorySelected = useRef(false);
   const componentMounted = useRef(false);
 
-  // Listen for openCategory event from location confirmation (only for commerceId flow)
+  // Function to fetch products via ObtenerNivel2 endpoint
+  const fetchProducts = async () => {
+    if (!serviceId || !category.id) {
+      console.log("Skipping product fetch - missing serviceId or categoryId");
+      return [];
+    }
+
+    try {
+      console.log(`Fetching products: serviceId=${serviceId}, categoryId=${category.id}`);
+
+      // Set loading state
+      setIsLoadingProducts(true);
+      
+      const response = await fetch(`/api/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${category.id}`);
+      if (!response.ok) {
+        throw new Error(`Error al obtener productos: ${response.status}`);
+      }
+
+      const productsData = await response.json();
+      console.log(`Fetched ${productsData.length} products for category ${category.id}`, productsData);
+
+      // Initialize products with their default prices but set price to 0 initially
+      const initialProducts = productsData.map((product: any) => {
+        console.log('=== DEBUG Product Mapping in fetchProducts ===');
+        console.log('Original product from ObtenerNivel2:', product);
+        console.log('Product TextosId from API:', product.TextosId);
+        console.log('Product TextosId type:', typeof product.TextosId);
+        console.log('=== END Product Mapping DEBUG ===');
+        
+        return {
+          id: product.id || product.Nivel2Id,
+          name: product.name || product.Nivel2Descripcion,
+          price: 0, // Initialize with 0 to show loading state
+          defaultPrice: product.price ? parseFloat(product.price) : product.Precio ? parseFloat(product.Precio) : 0,
+          image: product.image || product.Imagen || "",
+          category: category.id,
+          textosId: product.TextosId || null
+        };
+      });
+
+      console.log('ProductGrid: Transformed products with textosId:', initialProducts);
+
+      // Set the products with initial data
+      setProducts(initialProducts);
+      productsInitialized.current = true;
+
+      // Setup initial quantities based on cart items
+      const initialQuantities: Record<string, number> = {};
+      initialProducts.forEach((product: Product) => {
+        const cartItem = currentCartItems.find(item => 
+          item.productId === product.id && 
+          item.categoryId === category.id && 
+          item.serviceId === serviceId
+        );
+        initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
+      });
+      setProductQuantities(initialQuantities);
+
+      // Clear the loading state
+      setIsLoadingProducts(false);
+
+      // If we have a purchase location, immediately fetch prices
+      if (purchaseLocationId) {
+        console.log(`Products loaded, immediately fetching prices with proveedorId=${purchaseLocationId}`);
+        // Mark all products as loading prices before fetching
+        setLoadingProductIds(new Set(initialProducts.map((p: Product) => p.id)));
+        await updateAllPrices();
+      }
+
+      return initialProducts;
+    } catch (error) {
+      console.error("Error loading products:", error);
+      toast.error("Hubo un error al cargar los productos");
+      setIsLoadingProducts(false);
+      setProducts([]); // Ensure products is empty on error
+      return [];
+    }
+  };
+
+  // Effect to load products immediately when component mounts (both flows)
+  useEffect(() => {
+    console.log("ProductGrid mounted - loading products immediately");
+    fetchProducts();
+  }, [category.id, serviceId]);
+
+  // Listen for openCategory event from location confirmation (for price updates)
   useEffect(() => {
     const handleOpenCategory = (e: Event) => {
       const customEvent = e as CustomEvent;
@@ -221,10 +306,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         const { categoryId, serviceId: eventServiceId } = customEvent.detail;
         console.log("ProductGrid: Received openCategory from location confirmation:", categoryId, eventServiceId);
         
-        // Only proceed if this matches our current category and service
-        if (categoryId === category.id && eventServiceId === serviceId) {
-          console.log("ProductGrid: Loading products after location confirmation");
-          fetchProducts();
+        // Only proceed if this matches our current category and service and we have a purchase location
+        if (categoryId === category.id && eventServiceId === serviceId && purchaseLocationId) {
+          console.log("ProductGrid: Updating prices after location confirmation");
+          updateAllPrices();
         }
       }
     };
@@ -234,7 +319,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     return () => {
       document.removeEventListener('openCategory', handleOpenCategory);
     };
-  }, [category.id, serviceId]);
+  }, [category.id, serviceId, purchaseLocationId]);
 
   // Function to fetch updated price for a specific product
   const fetchUpdatedPrice = async (product: Product): Promise<{ id: string; price: number; }> => {
@@ -318,102 +403,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   };
 
-  // Function to fetch products via ObtenerNivel2 endpoint
-  const fetchProducts = async () => {
-    if (!serviceId || !category.id) {
-      console.log("Skipping product fetch - missing serviceId or categoryId");
-      return [];
-    }
-
-    try {
-      console.log(`Fetching products: serviceId=${serviceId}, categoryId=${category.id}`);
-
-      // Set loading state
-      setIsLoadingProducts(true);
-      setProducts([]); // Clear existing products to show loading state
-      
-      const response = await fetch(`/api/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${category.id}`);
-      if (!response.ok) {
-        throw new Error(`Error al obtener productos: ${response.status}`);
-      }
-
-      const productsData = await response.json();
-      console.log(`Fetched ${productsData.length} products for category ${category.id}`, productsData);
-
-      // Initialize products with their default prices but set price to 0 initially
-      const initialProducts = productsData.map((product: any) => {
-        console.log('=== DEBUG Product Mapping in fetchProducts ===');
-        console.log('Original product from ObtenerNivel2:', product);
-        console.log('Product TextosId from API:', product.TextosId);
-        console.log('Product TextosId type:', typeof product.TextosId);
-        console.log('=== END Product Mapping DEBUG ===');
-        
-        return {
-          id: product.id || product.Nivel2Id,
-          name: product.name || product.Nivel2Descripcion,
-          price: 0, // Initialize with 0 to show loading state
-          defaultPrice: product.price ? parseFloat(product.price) : product.Precio ? parseFloat(product.Precio) : 0,
-          image: product.image || product.Imagen || "",
-          category: category.id,
-          textosId: product.TextosId || null
-        };
-      });
-
-      console.log('ProductGrid: Transformed products with textosId:', initialProducts);
-
-      // Set the products with initial data
-      setProducts(initialProducts);
-      productsInitialized.current = true;
-
-      // Setup initial quantities based on cart items
-      const initialQuantities: Record<string, number> = {};
-      initialProducts.forEach((product: Product) => {
-        const cartItem = currentCartItems.find(item => 
-          item.productId === product.id && 
-          item.categoryId === category.id && 
-          item.serviceId === serviceId
-        );
-        initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
-      });
-      setProductQuantities(initialQuantities);
-
-      // Clear the loading state
-      setIsLoadingProducts(false);
-
-      // If we have a purchase location, immediately fetch prices
-      if (purchaseLocationId) {
-        console.log(`Products loaded, immediately fetching prices with proveedorId=${purchaseLocationId}`);
-        // Mark all products as loading prices before fetching
-        setLoadingProductIds(new Set(initialProducts.map((p: Product) => p.id)));
-        await updateAllPrices();
-      }
-
-      return initialProducts;
-    } catch (error) {
-      console.error("Error loading products:", error);
-      toast.error("Hubo un error al cargar los productos");
-      setIsLoadingProducts(false);
-      setProducts([]); // Ensure products is empty on error
-      return [];
-    }
-  };
-
-  // Effect to load products when category changes (normal flow for manual selection)
-  useEffect(() => {
-    // For manual flow (no commerceId in URL), load products immediately when component mounts
-    // For commerceId flow, products only load after location confirmation event
-    const urlParams = new URLSearchParams(window.location.search);
-    const hasCommerceId = urlParams.get('commerceId') || window.location.pathname.includes('/servicios/');
-    
-    if (!hasCommerceId) {
-      console.log("Manual flow detected - loading products immediately");
-      fetchProducts();
-    } else {
-      console.log("CommerceId flow detected - waiting for location confirmation event");
-    }
-  }, [category.id, serviceId]);
-
-  // ... keep existing code (effects for cart updates, price updates, etc.)
+  // ... keep existing code (other useEffects for cart updates, price updates, etc.)
 
   useEffect(() => {
     // Setup initial quantities based on cart items when they change
@@ -705,7 +695,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const hasSelectedProducts = Object.values(productQuantities).some(qty => qty > 0);
 
   // Determine if we need to show loading message
-  const showLoadingMessage = isLoadingProducts || (products.length === 0 && isLoadingProducts);
+  const showLoadingMessage = isLoadingProducts;
 
   return (
     <div className="space-y-6">
