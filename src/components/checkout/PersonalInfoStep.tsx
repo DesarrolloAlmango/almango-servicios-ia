@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,7 +39,7 @@ import { GeneralTermsModal } from "@/components/ui/general-terms-modal";
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre es obligatorio" }),
   phone: z.string().min(8, { message: "El teléfono debe tener al menos 8 dígitos" }),
-  email: z.string().email({ message: "Email inválido" }),
+  email: z.string().optional(),
   street: z.string().min(2, { message: "La calle es obligatoria" }),
   number: z.string().min(1, { message: "El número es obligatorio" }),
   corner: z.string().optional(),
@@ -294,7 +295,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Correo electrónico</FormLabel>
+                <FormLabel>Correo electrónico (opcional)</FormLabel>
                 <FormControl>
                   <Input placeholder="tu@email.com" {...field} />
                 </FormControl>
