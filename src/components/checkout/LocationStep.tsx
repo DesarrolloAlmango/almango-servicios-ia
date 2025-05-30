@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -56,35 +55,35 @@ const LocationStep: React.FC<LocationStepProps> = ({
     // First, call the original onNext function immediately to close the modal
     onNext();
     
+    // Dispatch location confirmed event
+    console.log("LocationStep: Dispatching locationConfirmed event");
+    const locationConfirmedEvent = new CustomEvent('locationConfirmed');
+    document.dispatchEvent(locationConfirmedEvent);
+    
     // If we have a categoryId, dispatch the event after a delay
-    // but don't attempt any direct DOM manipulation which could cause freezing
     if (categoryId) {
       console.log("LocationStep: Scheduling openCategory event for:", categoryId);
       
       setTimeout(() => {
         console.log("LocationStep: Dispatching openCategory event for:", categoryId);
-        // Dispatch the event with the category ID
         try {
-          // Get category name from window if available
           const categoryName = window.lastSelectedCategoryName || undefined;
           console.log("LocationStep: Category name for event:", categoryName);
           
           const openCategoryEvent = new CustomEvent('openCategory', { 
             detail: { 
               categoryId,
-              // Use global variable if available
               serviceId: window.lastSelectedServiceId || undefined,
               categoryName
             } 
           });
           document.dispatchEvent(openCategoryEvent);
           
-          // Add console log to track successful event dispatch
           console.log("LocationStep: Successfully dispatched openCategory event");
         } catch (error) {
           console.error("Error dispatching openCategory event:", error);
         }
-      }, 300);  // Reduced delay to improve responsiveness
+      }, 300);
     }
   };
 
