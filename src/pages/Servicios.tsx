@@ -401,7 +401,15 @@ const Servicios = () => {
       setIsLocationModalOpen(true);
     }
   };
-  const handleLocationSelect = (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string) => {
+  const handleLocationSelect = (
+    storeId: string, 
+    storeName: string, 
+    departmentId: string, 
+    departmentName: string, 
+    locationId: string, 
+    locationName: string, 
+    otherLocation?: string
+  ) => {
     if (selectedServiceId && selectedServiceName) {
       const newLocation: PurchaseLocation = {
         storeId,
@@ -416,17 +424,20 @@ const Servicios = () => {
         categoryId: selectedCategoryId || globalLastSelectedCategory.categoryId || undefined,
         categoryName: selectedCategoryName || globalLastSelectedCategory.categoryName || undefined
       };
+
       const existingLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
       setPurchaseLocations(prev => {
         if (existingLocation) {
-          return prev.map(loc => loc.serviceId === selectedServiceId ? {
-            ...newLocation
-          } : loc);
+          return prev.map(loc => 
+            loc.serviceId === selectedServiceId ? { ...newLocation } : loc
+          );
         } else {
           return [...prev, newLocation];
         }
       });
+
       setIsLocationModalOpen(false);
+
       let successMessage = "";
       if (selectedCategoryId && selectedCategoryName) {
         successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName} - ${selectedCategoryName}`;
@@ -434,6 +445,7 @@ const Servicios = () => {
         successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName}`;
       }
       toast.success(successMessage);
+
       if (selectedCategoryId) {
         setPendingServiceCardAction(true);
 
@@ -703,12 +715,22 @@ const Servicios = () => {
         
         <CartDrawer isOpen={isCartOpen} setIsOpen={setIsCartOpen} cartItems={cartItems} updateCartItem={updateCartItem} total={getCartTotal()} purchaseLocations={getAllPurchaseLocations()} setPurchaseLocations={setPurchaseLocations} />
         
-        <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => {
-        setIsLocationModalOpen(false);
-        if (pendingServiceCardAction) {
-          setPendingServiceCardAction(false);
-        }
-      }} onSelectLocation={handleLocationSelect} serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`} commerceId={commerceId} commerceName={storeName} />
+        <PurchaseLocationModal 
+          isOpen={isLocationModalOpen} 
+          onClose={() => {
+            setIsLocationModalOpen(false);
+            if (pendingServiceCardAction) {
+              setPendingServiceCardAction(false);
+            }
+          }} 
+          onSelectLocation={handleLocationSelect} 
+          serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`}
+          commerceId={commerceId} 
+          commerceName={storeName}
+          serviceId={selectedServiceId || undefined}
+          categoryId={selectedCategoryId || undefined}
+          categoryName={selectedCategoryName || undefined}
+        />
       </main>
 
       <AlertDialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>

@@ -408,9 +408,10 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       // Use the effective category ID from props or the global variable
       const finalCategoryId = localCategoryId || lastSelectedCategoryId || categoryId || null;
       const finalCategoryName = localCategoryName || lastSelectedCategoryName || categoryName || null;
+      const finalServiceId = localServiceId || serviceId || null;
       
       console.log("Confirming location with category info:", { 
-        serviceId: localServiceId,
+        serviceId: finalServiceId,
         categoryId: finalCategoryId,
         categoryName: finalCategoryName,
         commerceId
@@ -430,12 +431,12 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       
       // RESTORED: When commerceId is present, dispatch event to open products AFTER location is confirmed
       // For manual flow (no commerceId), the normal flow continues as before
-      if (commerceId && finalCategoryId && localServiceId) {
+      if (commerceId && finalCategoryId && finalServiceId) {
         setTimeout(() => {
           console.log("Dispatching openCategory event after location confirmation for commerceId flow");
           const openCategoryEvent = new CustomEvent('openCategory', {
             detail: {
-              serviceId: localServiceId,
+              serviceId: finalServiceId,
               categoryId: finalCategoryId,
               categoryName: finalCategoryName,
               fromLocationConfirmation: true // Flag to indicate this comes from location confirmation
