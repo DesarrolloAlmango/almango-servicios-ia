@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -212,7 +213,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const categorySelected = useRef(false);
   const componentMounted = useRef(false);
 
-  // RESTORED: Listen for openCategory event from location confirmation (only for commerceId flow)
+  // Listen for openCategory event from location confirmation (only for commerceId flow)
   useEffect(() => {
     const handleOpenCategory = (e: Event) => {
       const customEvent = e as CustomEvent;
@@ -375,12 +376,14 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       });
       setProductQuantities(initialQuantities);
 
-      // Mark all products as loading prices
-      setLoadingProductIds(new Set(initialProducts.map((p: Product) => p.id)));
+      // Clear the loading-all state
+      setLoadingProductIds(new Set());
 
-      // RESTORED: Immediately fetch prices after loading products if we have a purchase location
+      // If we have a purchase location, immediately fetch prices
       if (purchaseLocationId) {
         console.log(`Products loaded, immediately fetching prices with proveedorId=${purchaseLocationId}`);
+        // Mark all products as loading prices before fetching
+        setLoadingProductIds(new Set(initialProducts.map((p: Product) => p.id)));
         await updateAllPrices();
       }
 
@@ -388,11 +391,12 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     } catch (error) {
       console.error("Error loading products:", error);
       toast.error("Hubo un error al cargar los productos");
+      setLoadingProductIds(new Set()); // Clear loading state on error
       return [];
     }
   };
 
-  // RESTORED: Effect to load products when category changes (normal flow for manual selection)
+  // Effect to load products when category changes (normal flow for manual selection)
   useEffect(() => {
     // For manual flow (no commerceId in URL), load products immediately when component mounts
     // For commerceId flow, products only load after location confirmation event
