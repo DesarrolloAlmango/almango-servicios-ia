@@ -185,6 +185,7 @@ interface ProductGridProps {
   serviceId?: string;
   purchaseLocationId?: string;
   currentCartItems: CartItem[];
+  onOpenLocationModal?: () => void;
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({
@@ -195,7 +196,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   closeDialog,
   serviceId,
   purchaseLocationId,
-  currentCartItems
+  currentCartItems,
+  onOpenLocationModal
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -403,8 +405,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   };
 
-  // ... keep existing code (other useEffects for cart updates, price updates, etc.)
-
   useEffect(() => {
     // Setup initial quantities based on cart items when they change
     if (products.length > 0) {
@@ -520,7 +520,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     };
   }, [products, purchaseLocationId, serviceId, location.pathname]);
 
-  // ... keep existing code (updateCart, increaseQuantity, decreaseQuantity, handleAddAllToCart, etc.)
   const updateCart = (productId: string, newQuantity: number) => {
     const product = products.find(p => p.id === productId);
     if (!product) return;
@@ -697,6 +696,14 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   // Determine if we need to show loading message
   const showLoadingMessage = isLoadingProducts;
 
+  const handleLocationLinkClick = () => {
+    if (onOpenLocationModal) {
+      onOpenLocationModal();
+    } else {
+      onBack();
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center mb-4">
@@ -740,7 +747,13 @@ const ProductGrid: React.FC<ProductGridProps> = ({
           <div className="flex">
             <div className="ml-3">
               <p className="text-sm text-yellow-700">
-                Los precios se mostrarán después de seleccionar un lugar de compra.
+                Los precios se mostrarán después de seleccionar un{' '}
+                <button 
+                  onClick={handleLocationLinkClick}
+                  className="text-blue-600 underline hover:text-blue-800 cursor-pointer"
+                >
+                  lugar de compra
+                </button>.
               </p>
             </div>
           </div>
