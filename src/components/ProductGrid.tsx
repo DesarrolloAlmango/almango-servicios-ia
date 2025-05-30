@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -213,19 +214,37 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const productsInitialized = useRef(false);
   const categorySelected = useRef(false);
   const componentMounted = useRef(false);
+  const hasCommerceId = useRef(false);
+
+  // Check if we're in commerceId mode
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const commerceIdFromParams = urlParams.get('commerceId') || window.location.pathname.includes('/servicios/');
+    hasCommerceId.current = !!commerceIdFromParams;
+    console.log("ProductGrid: commerceId mode detected:", hasCommerceId.current);
+  }, []);
 
   // Listen for openCategory event from location confirmation (only for commerceId flow)
   useEffect(() => {
     const handleOpenCategory = (e: Event) => {
       const customEvent = e as CustomEvent;
-      if (customEvent.detail && customEvent.detail.fromLocationConfirmation) {
-        const { categoryId, serviceId: eventServiceId } = customEvent.detail;
-        console.log("ProductGrid: Received openCategory from location confirmation:", categoryId, eventServiceId);
+      if (customEvent.detail) {
+        const { categoryId, serviceId: eventServiceId, fromLocationConfirmation } = customEvent.detail;
+        console.log("ProductGrid: Received openCategory event:", { categoryId, eventServiceId, fromLocationConfirmation });
         
-        // Only proceed if this matches our current category and service
-        if (categoryId === category.id && eventServiceId === serviceId) {
-          console.log("ProductGrid: Loading products after location confirmation");
-          fetchProducts();
+        // For commerceId flow, only respond to events from location confirmation
+        if (hasCommerceId.current && fromLocationConfirmation) {
+          if (categoryId === category.id && eventServiceId === serviceId) {
+            console.log("ProductGrid: Loading products after location confirmation for commerceId flow");
+            fetchProducts();
+          }
+        }
+        // For manual flow, respond to any openCategory event
+        else if (!hasCommerceId.current) {
+          if (categoryId === category.id && eventServiceId === serviceId) {
+            console.log("ProductGrid: Loading products for manual flow");
+            fetchProducts();
+          }
         }
       }
     };
@@ -401,18 +420,14 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   };
 
-  // Effect to load products when category changes (normal flow for manual selection)
+  // Effect to load products when category changes (manual flow only)
   useEffect(() => {
-    // For manual flow (no commerceId in URL), load products immediately when component mounts
-    // For commerceId flow, products only load after location confirmation event
-    const urlParams = new URLSearchParams(window.location.search);
-    const hasCommerceId = urlParams.get('commerceId') || window.location.pathname.includes('/servicios/');
-    
-    if (!hasCommerceId) {
+    // Only load products immediately for manual flow (no commerceId)
+    if (!hasCommerceId.current) {
       console.log("Manual flow detected - loading products immediately");
       fetchProducts();
     } else {
-      console.log("CommerceId flow detected - waiting for location confirmation event");
+      console.log("CommerceId flow detected - products will load after location confirmation event");
     }
   }, [category.id, serviceId]);
 
