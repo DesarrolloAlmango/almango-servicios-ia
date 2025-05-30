@@ -56,36 +56,35 @@ const LocationStep: React.FC<LocationStepProps> = ({
     // First, call the original onNext function immediately to close the modal
     onNext();
     
-    // Dispatch the productGridShown event to trigger price loading
-    setTimeout(() => {
-      console.log("LocationStep: Dispatching productGridShown event");
-      document.dispatchEvent(new CustomEvent('productGridShown'));
-    }, 300);
-    
     // If we have a categoryId, dispatch the event after a delay
+    // but don't attempt any direct DOM manipulation which could cause freezing
     if (categoryId) {
       console.log("LocationStep: Scheduling openCategory event for:", categoryId);
       
       setTimeout(() => {
         console.log("LocationStep: Dispatching openCategory event for:", categoryId);
+        // Dispatch the event with the category ID
         try {
+          // Get category name from window if available
           const categoryName = window.lastSelectedCategoryName || undefined;
           console.log("LocationStep: Category name for event:", categoryName);
           
           const openCategoryEvent = new CustomEvent('openCategory', { 
             detail: { 
               categoryId,
+              // Use global variable if available
               serviceId: window.lastSelectedServiceId || undefined,
               categoryName
             } 
           });
           document.dispatchEvent(openCategoryEvent);
           
+          // Add console log to track successful event dispatch
           console.log("LocationStep: Successfully dispatched openCategory event");
         } catch (error) {
           console.error("Error dispatching openCategory event:", error);
         }
-      }, 300);
+      }, 300);  // Reduced delay to improve responsiveness
     }
   };
 
