@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -201,9 +202,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [loadingProductIds, setLoadingProductIds] = useState<Set<string>>(new Set());
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
+  const [pricesLoaded, setPricesLoaded] = useState(false);
 
-  // Simplified refs to prevent infinite loops
-  const pricesUpdated = useRef(false);
+  // Refs to prevent infinite loops
   const productsLoaded = useRef(false);
 
   // Function to fetch updated price for a specific product
@@ -243,9 +244,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   };
 
-  // Simplified price update function
+  // Function to update all prices
   const updateAllPrices = async () => {
-    if (!effectivePurchaseLocationId || !serviceId || products.length === 0 || pricesUpdated.current) {
+    if (!effectivePurchaseLocationId || !serviceId || products.length === 0 || pricesLoaded) {
       return;
     }
 
@@ -264,7 +265,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       );
 
       setLoadingProductIds(new Set());
-      pricesUpdated.current = true;
+      setPricesLoaded(true);
     } catch (error) {
       console.error("Error updating prices:", error);
       toast.error("Hubo un error al actualizar los precios");
@@ -291,7 +292,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       const initialProducts = productsData.map((product: any) => ({
         id: product.id || product.Nivel2Id,
         name: product.name || product.Nivel2Descripcion,
-        price: 0,
+        price: 0, // Start with 0, prices will be loaded after location confirmation
         defaultPrice: product.price ? parseFloat(product.price) : product.Precio ? parseFloat(product.Precio) : 0,
         image: product.image || product.Imagen || "",
         category: category.id,
@@ -300,7 +301,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
       setProducts(initialProducts);
       productsLoaded.current = true;
-      pricesUpdated.current = false; // Reset price update flag for new products
+      setLoadingProductIds(new Set());
 
       // Setup initial quantities
       const initialQuantities: Record<string, number> = {};
@@ -317,24 +318,34 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     } catch (error) {
       console.error("Error loading products:", error);
       toast.error("Hubo un error al cargar los productos");
+      setLoadingProductIds(new Set());
     }
   };
 
-  // SIMPLIFIED: Load products when category changes
+  // Load products when category changes
   useEffect(() => {
     if (category.id && serviceId) {
       productsLoaded.current = false;
-      pricesUpdated.current = false;
+      setPricesLoaded(false);
       fetchProducts();
     }
   }, [category.id, serviceId]);
 
-  // SIMPLIFIED: Update prices when products are loaded and purchase location is available
+  // Listen for productGridShown event to trigger price loading
   useEffect(() => {
-    if (products.length > 0 && effectivePurchaseLocationId && !pricesUpdated.current) {
-      updateAllPrices();
-    }
-  }, [products.length, effectivePurchaseLocationId]);
+    const handleProductGridShown = () => {
+      console.log("ProductGrid received productGridShown event - loading prices");
+      if (products.length > 0 && effectivePurchaseLocationId && !pricesLoaded) {
+        updateAllPrices();
+      }
+    };
+
+    document.addEventListener('productGridShown', handleProductGridShown);
+    
+    return () => {
+      document.removeEventListener('productGridShown', handleProductGridShown);
+    };
+  }, [products.length, effectivePurchaseLocationId, pricesLoaded]);
 
   // Update cart helpers
   const updateCart = (productId: string, newQuantity: number) => {
@@ -518,10 +529,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         </button>
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
         
-        {effectivePurchaseLocationId && (
+        {effectivePurchaseLocationId && pricesLoaded && (
           <Button 
             onClick={() => {
-              pricesUpdated.current = false;
+              setPricesLoaded(false);
               updateAllPrices();
             }} 
             variant="outline" 
