@@ -206,45 +206,25 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
   const [flashBackButton, setFlashBackButton] = useState(false);
-  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
-  const [hasTriedToLoadProducts, setHasTriedToLoadProducts] = useState(false);
   
   // Refs to track component state
   const initialLoadComplete = useRef(false);
   const productsInitialized = useRef(false);
   const categorySelected = useRef(false);
   const componentMounted = useRef(false);
-  const hasCommerceId = useRef(false);
-
-  // Check if we're in commerceId mode
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const commerceIdFromParams = urlParams.get('commerceId') || window.location.pathname.includes('/servicios/');
-    hasCommerceId.current = !!commerceIdFromParams;
-    console.log("ProductGrid: commerceId mode detected:", hasCommerceId.current);
-  }, []);
 
   // Listen for openCategory event from location confirmation (only for commerceId flow)
   useEffect(() => {
     const handleOpenCategory = (e: Event) => {
       const customEvent = e as CustomEvent;
-      if (customEvent.detail) {
-        const { categoryId, serviceId: eventServiceId, fromLocationConfirmation } = customEvent.detail;
-        console.log("ProductGrid: Received openCategory event:", { categoryId, eventServiceId, fromLocationConfirmation });
+      if (customEvent.detail && customEvent.detail.fromLocationConfirmation) {
+        const { categoryId, serviceId: eventServiceId } = customEvent.detail;
+        console.log("ProductGrid: Received openCategory from location confirmation:", categoryId, eventServiceId);
         
-        // For commerceId flow, only respond to events from location confirmation
-        if (hasCommerceId.current && fromLocationConfirmation) {
-          if (categoryId === category.id && eventServiceId === serviceId) {
-            console.log("ProductGrid: Loading products after location confirmation for commerceId flow");
-            fetchProducts();
-          }
-        }
-        // For manual flow, respond to any openCategory event
-        else if (!hasCommerceId.current) {
-          if (categoryId === category.id && eventServiceId === serviceId) {
-            console.log("ProductGrid: Loading products for manual flow");
-            fetchProducts();
-          }
+        // Only proceed if this matches our current category and service
+        if (categoryId === category.id && eventServiceId === serviceId) {
+          console.log("ProductGrid: Loading products after location confirmation");
+          fetchProducts();
         }
       }
     };
@@ -348,9 +328,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     try {
       console.log(`Fetching products: serviceId=${serviceId}, categoryId=${category.id}`);
 
-      // Set loading state for products
-      setIsLoadingProducts(true);
-      setHasTriedToLoadProducts(true);
+      // First, mark all products as loading to show loading UI
       setLoadingProductIds(new Set(['loading-all']));
       
       const response = await fetch(`/api/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${category.id}`);
@@ -359,7 +337,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       }
 
       const productsData = await response.json();
-      console.log(`Fetched ${productsData.length} products for category ${category.id}:`, productsData);
+      console.log(`Fetched ${productsData.length} products for category ${category.id}`);
 
       // Initialize products with their default prices but set price to 0 initially
       const initialProducts = productsData.map((product: any) => {
@@ -384,7 +362,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
       // Set the products with initial data
       setProducts(initialProducts);
-      setIsLoadingProducts(false);
       productsInitialized.current = true;
 
       // Setup initial quantities based on cart items
@@ -414,20 +391,23 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     } catch (error) {
       console.error("Error loading products:", error);
       toast.error("Hubo un error al cargar los productos");
-      setIsLoadingProducts(false);
       setLoadingProductIds(new Set()); // Clear loading state on error
       return [];
     }
   };
 
-  // Effect to load products when category changes (manual flow only)
+  // Effect to load products when category changes (normal flow for manual selection)
   useEffect(() => {
-    // Only load products immediately for manual flow (no commerceId)
-    if (!hasCommerceId.current) {
+    // For manual flow (no commerceId in URL), load products immediately when component mounts
+    // For commerceId flow, products only load after location confirmation event
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasCommerceId = urlParams.get('commerceId') || window.location.pathname.includes('/servicios/');
+    
+    if (!hasCommerceId) {
       console.log("Manual flow detected - loading products immediately");
       fetchProducts();
     } else {
-      console.log("CommerceId flow detected - products will load after location confirmation event");
+      console.log("CommerceId flow detected - waiting for location confirmation event");
     }
   }, [category.id, serviceId]);
 
@@ -722,7 +702,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const hasSelectedProducts = Object.values(productQuantities).some(qty => qty > 0);
 
   // Determine if we need to show loading message
-  const allProductsLoading = isLoadingProducts || loadingProductIds.has('loading-all');
+  const allProductsLoading = products.length === 0 || loadingProductIds.has('loading-all');
 
   return (
     <div className="space-y-6">
@@ -778,11 +758,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         <div className="flex flex-col items-center justify-center h-64 gap-4">
           <TextSkeleton text="Cargando productos..." />
         </div>
-      ) : products.length === 0 && hasTriedToLoadProducts ? (
+      ) : products.length === 0 ? (
         <div className="flex items-center justify-center h-40">
           <p className="text-gray-500">No hay productos disponibles</p>
         </div>
-      ) : products.length > 0 ? (
+      ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {products.map(product => (
@@ -821,7 +801,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             </div>
           )}
         </>
-      ) : null}
+      )}
     </div>
   );
 };
