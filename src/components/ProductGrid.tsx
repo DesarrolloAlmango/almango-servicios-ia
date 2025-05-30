@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
@@ -206,6 +205,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [cartAnimating, setCartAnimating] = useState<Record<string, boolean>>({});
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
   const [flashBackButton, setFlashBackButton] = useState(false);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
   
   // Refs to track component state
   const initialLoadComplete = useRef(false);
@@ -328,7 +328,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     try {
       console.log(`Fetching products: serviceId=${serviceId}, categoryId=${category.id}`);
 
-      // First, mark all products as loading to show loading UI
+      // Set loading state for products
+      setIsLoadingProducts(true);
       setLoadingProductIds(new Set(['loading-all']));
       
       const response = await fetch(`/api/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${category.id}`);
@@ -337,7 +338,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       }
 
       const productsData = await response.json();
-      console.log(`Fetched ${productsData.length} products for category ${category.id}`);
+      console.log(`Fetched ${productsData.length} products for category ${category.id}:`, productsData);
 
       // Initialize products with their default prices but set price to 0 initially
       const initialProducts = productsData.map((product: any) => {
@@ -362,6 +363,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
       // Set the products with initial data
       setProducts(initialProducts);
+      setIsLoadingProducts(false);
       productsInitialized.current = true;
 
       // Setup initial quantities based on cart items
@@ -391,6 +393,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     } catch (error) {
       console.error("Error loading products:", error);
       toast.error("Hubo un error al cargar los productos");
+      setIsLoadingProducts(false);
       setLoadingProductIds(new Set()); // Clear loading state on error
       return [];
     }
@@ -702,7 +705,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const hasSelectedProducts = Object.values(productQuantities).some(qty => qty > 0);
 
   // Determine if we need to show loading message
-  const allProductsLoading = products.length === 0 || loadingProductIds.has('loading-all');
+  const allProductsLoading = isLoadingProducts || loadingProductIds.has('loading-all');
 
   return (
     <div className="space-y-6">
