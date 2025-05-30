@@ -362,30 +362,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   // Add state for tracking if we're in the process of confirming
   const [isConfirming, setIsConfirming] = useState(false);
 
-  // Helper function to fetch product categories after location confirmation
-  const fetchProductsForCategory = async (storeId: string, serviceId?: string, categoryId?: string) => {
-    if (!serviceId || !categoryId) return;
-    
-    try {
-      console.log(`Fetching products for store: ${storeId}, service: ${serviceId}, category: ${categoryId}`);
-      // Make a direct call to fetch products
-      const endpoint = `/api/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${categoryId}`;
-      
-      const response = await fetch(endpoint);
-      if (!response.ok) {
-        console.error(`Error fetching products: ${response.status}`);
-        return null;
-      } else {
-        const data = await response.json();
-        console.log(`Preloaded ${data.length} products successfully`);
-        return data;
-      }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      return null;
-    }
-  };
-
   const handleConfirm = async () => {
     // Avoid double-clicking issues
     if (isConfirming) return;
@@ -452,8 +428,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         selectedStore === "other" ? otherStore || searchQuery : undefined
       );
       
-      // CRITICAL CHANGE: When commerceId is present, dispatch event to open products AFTER location is confirmed
-      if (finalCategoryId && localServiceId) {
+      // RESTORED: When commerceId is present, dispatch event to open products AFTER location is confirmed
+      // For manual flow (no commerceId), the normal flow continues as before
+      if (commerceId && finalCategoryId && localServiceId) {
         setTimeout(() => {
           console.log("Dispatching openCategory event after location confirmation for commerceId flow");
           const openCategoryEvent = new CustomEvent('openCategory', {

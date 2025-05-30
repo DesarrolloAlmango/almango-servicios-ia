@@ -212,7 +212,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const categorySelected = useRef(false);
   const componentMounted = useRef(false);
 
-  // CRITICAL CHANGE: Listen for openCategory event from location confirmation
+  // RESTORED: Listen for openCategory event from location confirmation (only for commerceId flow)
   useEffect(() => {
     const handleOpenCategory = (e: Event) => {
       const customEvent = e as CustomEvent;
@@ -378,7 +378,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       // Mark all products as loading prices
       setLoadingProductIds(new Set(initialProducts.map((p: Product) => p.id)));
 
-      // CRITICAL: Immediately fetch prices after loading products if we have a purchase location
+      // RESTORED: Immediately fetch prices after loading products if we have a purchase location
       if (purchaseLocationId) {
         console.log(`Products loaded, immediately fetching prices with proveedorId=${purchaseLocationId}`);
         await updateAllPrices();
@@ -392,9 +392,22 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   };
 
-  // Effect to load products when category changes (products now load only after location confirmation for commerceId flow)
+  // RESTORED: Effect to load products when category changes (normal flow for manual selection)
+  useEffect(() => {
+    // For manual flow (no commerceId in URL), load products immediately when component mounts
+    // For commerceId flow, products only load after location confirmation event
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasCommerceId = urlParams.get('commerceId') || window.location.pathname.includes('/servicios/');
+    
+    if (!hasCommerceId) {
+      console.log("Manual flow detected - loading products immediately");
+      fetchProducts();
+    } else {
+      console.log("CommerceId flow detected - waiting for location confirmation event");
+    }
+  }, [category.id, serviceId]);
 
-  // Effect to update quantities from cart
+  // ... keep existing code (effects for cart updates, price updates, etc.)
   useEffect(() => {
     // Setup initial quantities based on cart items when they change
     if (products.length > 0) {
@@ -431,7 +444,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     }
   }, [purchaseLocationId, serviceId]);
 
-  // ... keep existing code (remaining effects and helper functions)
   useEffect(() => {
     if (products.length > 0 && purchaseLocationId && serviceId && !initialLoadComplete.current) {
       console.log("Products loaded initially, updating prices");
@@ -511,7 +523,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     };
   }, [products, purchaseLocationId, serviceId, location.pathname]);
 
-  // Update cart helpers
+  // ... keep existing code (updateCart, increaseQuantity, decreaseQuantity, handleAddAllToCart, etc.)
   const updateCart = (productId: string, newQuantity: number) => {
     const product = products.find(p => p.id === productId);
     if (!product) return;
@@ -576,7 +588,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     });
   };
 
-  // ... keep existing code (handleAddAllToCart, handleContractNow, handleAddAnotherService functions)
   const handleAddAllToCart = () => {
     const purchaseLocation = { departmentId: undefined, locationId: undefined };
     
