@@ -206,6 +206,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
   const [flashBackButton, setFlashBackButton] = useState(false);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  const [hasTriedToLoadProducts, setHasTriedToLoadProducts] = useState(false);
   
   // Refs to track component state
   const initialLoadComplete = useRef(false);
@@ -330,6 +331,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
       // Set loading state for products
       setIsLoadingProducts(true);
+      setHasTriedToLoadProducts(true);
       setLoadingProductIds(new Set(['loading-all']));
       
       const response = await fetch(`/api/WebAPI/ObtenerNivel2?Nivel0=${serviceId}&Nivel1=${category.id}`);
@@ -761,11 +763,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         <div className="flex flex-col items-center justify-center h-64 gap-4">
           <TextSkeleton text="Cargando productos..." />
         </div>
-      ) : products.length === 0 ? (
+      ) : products.length === 0 && hasTriedToLoadProducts ? (
         <div className="flex items-center justify-center h-40">
           <p className="text-gray-500">No hay productos disponibles</p>
         </div>
-      ) : (
+      ) : products.length > 0 ? (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {products.map(product => (
@@ -804,7 +806,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
             </div>
           )}
         </>
-      )}
+      ) : null}
     </div>
   );
 };
