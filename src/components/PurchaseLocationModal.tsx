@@ -437,21 +437,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         serviceId: localServiceId,
         categoryId: finalCategoryId,
         categoryName: finalCategoryName,
-        globalTemp: lastSelectedCategoryId 
+        commerceId
       });
-      
-      // Store the category information in global variable for automatic opening
-      if (localServiceId && finalCategoryId) {
-        globalLastSelectedCategory = {
-          serviceId: localServiceId,
-          categoryId: finalCategoryId,
-          categoryName: finalCategoryName
-        };
-        
-        // Pre-fetch products to make the transition smoother - now calling immediately 
-        // to ensure products are ready when needed
-        fetchProductsForCategory(storeId, localServiceId, finalCategoryId);
-      }
       
       // Close the modal and call onSelectLocation right away
       onClose();
@@ -465,22 +452,20 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         selectedStore === "other" ? otherStore || searchQuery : undefined
       );
       
-      // Immediately dispatch the openCategory event with the category information
-      // This is key to making direct product loading work
+      // CRITICAL CHANGE: When commerceId is present, dispatch event to open products AFTER location is confirmed
       if (finalCategoryId && localServiceId) {
-        try {
-          console.log("Dispatching openCategory event immediately after location confirmation");
+        setTimeout(() => {
+          console.log("Dispatching openCategory event after location confirmation for commerceId flow");
           const openCategoryEvent = new CustomEvent('openCategory', {
             detail: {
               serviceId: localServiceId,
               categoryId: finalCategoryId,
-              categoryName: finalCategoryName
+              categoryName: finalCategoryName,
+              fromLocationConfirmation: true // Flag to indicate this comes from location confirmation
             }
           });
           document.dispatchEvent(openCategoryEvent);
-        } catch (error) {
-          console.error("Error dispatching category event:", error);
-        }
+        }, 100); // Small delay to ensure modal is closed first
       }
     } catch (error) {
       console.error("Error in handleConfirm:", error);
@@ -549,7 +534,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             buttonText={isConfirming ? "Procesando..." : "Confirmar"}
             showStoreSection={true}
             storeName={commerceName || "Comercio seleccionado"}
-            categoryId={effectiveCategoryId || undefined}
+            categoryId={undefined} // Remove automatic category opening
           />
         ) : (
           <div className="space-y-4">
