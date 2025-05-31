@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -342,7 +341,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                 <FormItem>
                   <FormLabel>Esquina</FormLabel>
                   <FormControl>
-                    <Input placeholder="Esquina (opcional)" {...field} />
+                    <Input placeholder="Intersección más cercana" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -369,10 +368,10 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             name="comments"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Comentarios adicionales</FormLabel>
+                <FormLabel>Comentarios</FormLabel>
                 <FormControl>
                   <Textarea 
-                    placeholder="Instrucciones adicionales para el técnico" 
+                    placeholder="¿Hay algo más que debamos saber?" 
                     {...field} 
                   />
                 </FormControl>
@@ -396,7 +395,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="later" id="payment-later" />
                       <Label htmlFor="payment-later" className="flex items-center gap-2">
-                        Pagar después (directo al profesional)
+                        Pagar después (al profesional)
                         <Banknote size={18} className="text-green-500" />
                       </Label>
                     </div>
