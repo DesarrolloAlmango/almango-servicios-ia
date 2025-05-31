@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -395,9 +394,9 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                   >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="later" id="payment-later" />
-                      <Label htmlFor="payment-later" className="flex items-center gap-2">
-                        Pagar después (directo al profesional)
-                        <Banknote size={18} className="text-green-500" />
+                      <Label htmlFor="payment-later" className="flex items-center gap-1 flex-nowrap">
+                        <span className="whitespace-nowrap">Pagar después (directo al profesional)</span>
+                        <Banknote size={18} className="text-green-500 flex-shrink-0" />
                       </Label>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -407,10 +406,10 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                       />
                       <Label 
                         htmlFor="payment-now" 
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-1 flex-nowrap"
                       >
-                        Pagar ahora (Mercado Pago)
-                        <CreditCard size={18} className="text-sky-500" />
+                        <span className="whitespace-nowrap">Pagar ahora (Mercado Pago)</span>
+                        <CreditCard size={18} className="text-sky-500 flex-shrink-0" />
                       </Label>
                     </div>
                   </RadioGroup>
