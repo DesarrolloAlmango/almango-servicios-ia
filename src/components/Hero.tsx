@@ -50,7 +50,7 @@ const Hero = () => {
         <h1 className="text-4xl sm:text-5xl font-bold text-white mb-[5px] max-w-xl animate-fade-in font-sans drop-shadow-lg px-0 py-0 my-0 lg:text-5xl tracking-tight">
           SOLICITÁ TU SERVICIO EN MINUTOS
         </h1>
-        <p className="text-2xl sm:text-xl text-white mb-2 max-w-xl font-normal animate-fade-in drop-shadow-lg md:text-xl py-[4px] font-serif">RÁPIDO, FÁCIL, SEGURO, SIN VUELTAS.</p>
+        <p className="text-2xl sm:text-xl text-white mb-2 max-w-xl font-normal animate-fade-in drop-shadow-lg md:text-xl py-[4px] font-serif">RÁPIDO, FÁCIL, SEGURO. SIN VUELTAS.</p>
         <Button onClick={() => navigate('/servicios')} className="bg-primary hover:bg-primary/80 text-white px-6 py-3 rounded-md text-xl shadow-lg flex items-center transition-all hover:scale-105 animate-fade-in my-0 mx-0 sm:py-[20px] sm:px-[21px] font-serif" style={{
         animation: 'buttonGlow 2s infinite ease-in-out'
       }}>
