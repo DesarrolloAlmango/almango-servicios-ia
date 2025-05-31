@@ -446,7 +446,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
           <DialogTitle className="sr-only">{name}</DialogTitle>
           
           <div className="p-4 sm:p-6">
-            <h2 className="text-xl sm:text-xl font-bold mb-2 sm:mb-4 text-center px-3 mx-auto text-orange-500 uppercase truncate sm:truncate-0 sm:whitespace-normal sm:break-words">{name}</h2>
+            <h2 className="text-xl sm:text-l font-bold mb-2 sm:mb-4 text-center px-3 mx-auto text-orange-500 uppercase truncate sm:truncate-0 sm:whitespace-normal sm:break-words">{name}</h2>
             
             {purchaseLocation && selectedCategory && <div className="mb-4 bg-blue-50 p-3 rounded-lg border border-blue-200 text-sm">
                 <span className="font-medium text-blue-700">Lugar de compra: </span>
