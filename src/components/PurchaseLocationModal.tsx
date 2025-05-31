@@ -199,7 +199,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const fetchDepartments = async () => {
     setLoadingLocation(prev => ({...prev, departments: true}));
     try {
-      const response = await fetch("/api/WebAPI/ObtenerDepto");
+      const response = await fetch("https://app.almango.com.uy/WebAPI/ObtenerDepto");
       
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -232,7 +232,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     setSelectedLocation("");
     try {
       const response = await fetch(
-        `/api/WebAPI/ObtenerMunicipio?DepartamentoId=${departmentId}`
+        `https://app.almango.com.uy/WebAPI/ObtenerMunicipio?DepartamentoId=${departmentId}`
       );
       
       if (!response.ok) {
@@ -268,7 +268,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const fetchProviders = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/WebAPI/ObtenerProveedor");
+      const response = await fetch("https://app.almango.com.uy/WebAPI/ObtenerProveedor");
 
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);

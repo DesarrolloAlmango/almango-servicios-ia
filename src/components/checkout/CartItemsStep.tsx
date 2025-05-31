@@ -59,7 +59,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
     console.log('=== END DEBUG ===');
 
     // Mostrar el endpoint que se va a ejecutar
-    const endpoint = `/api/WebAPI/ObtenerTyCProductos?Textosid=${item.textosId || 'null'}`;
+    const endpoint = `https://app.almango.com.uy/WebAPI/ObtenerTyCProductos?Textosid=${item.textosId || 'null'}`;
     setDebugEndpoint(endpoint);
     console.log('Endpoint a ejecutar:', endpoint);
     

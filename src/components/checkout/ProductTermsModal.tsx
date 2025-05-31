@@ -51,7 +51,7 @@ const ProductTermsModal: React.FC<ProductTermsModalProps> = ({
           return;
         }
         
-        const url = `/api/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`;
+        const url = `https://app.almango.com.uy/WebAPI/ObtenerTyCProductos?Textosid=${textosId}`;
         console.log('Fetching URL:', url);
         
         const response = await fetch(url);
