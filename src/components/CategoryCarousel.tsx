@@ -577,7 +577,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   // Extraer solo los nombres de categorías para mostrar durante la carga
   const categoryNames = useMemo(() => isLoading ? DEMO_SERVICE_NAMES : categories.map(category => category.name), [categories, isLoading]);
   if (isLoading) {
-    return <div className="w-full px-2">
+    return <div className="w-full">
         <div className="text-center mb-8">
           <h3 className="text-xl font-semibold text-secondary">
             Cargando categorías para {selectedService.name}
@@ -597,20 +597,20 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
         </Carousel>
       </div>;
   }
-  return <div className="py-4 sm:py-6 w-full px-2 sm:px-4">
+  return <div className="py-4 sm:py-6 w-full">
       <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 mx-auto">
         <span>SELECCIONÁ UNA CATEGORÍA</span>
       </h3>
       
-      <Carousel className="w-full mx-auto" opts={{
+      <Carousel className="w-full max-w-xs xs:max-w-sm sm:max-w-md md:max-w-xl lg:max-w-3xl mx-auto" opts={{
       align: "center",
       loop: true
     }}>
         <CarouselContent className="-ml-2 sm:-ml-4">
-          {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="basis-1/2 sm:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4">
+          {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="basis-1/2 sm:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4 mx-1">
               <div 
                 onClick={() => handleCategoryClick(category)} 
-                className="cursor-pointer hover:scale-105 transition-transform"
+                className="cursor-pointer hover:scale-105 transition-transform mx-5px"
                 ref={el => el && categoryCardsRefs.current.set(category.id, el)}
                 tabIndex={0} // Make it focusable
                 data-category-name={category.name} // Add data attribute for easier debugging
