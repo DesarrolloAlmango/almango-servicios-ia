@@ -15,7 +15,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { lastSelectedCategoryId, lastSelectedCategoryName } from "@/components/CategoryCarousel";
-
 export interface CartItem {
   id: string;
   name: string;
@@ -483,43 +482,47 @@ const Servicios = () => {
     const handleOpenCategory = (e: Event) => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail) {
-        const { serviceId, categoryId, categoryName } = customEvent.detail;
+        const {
+          serviceId,
+          categoryId,
+          categoryName
+        } = customEvent.detail;
         console.log("Servicios page received openCategory event:", serviceId, categoryId, categoryName);
-        
+
         // Set the selected service and category IDs
         setSelectedServiceId(serviceId);
         setSelectedCategoryId(categoryId);
         setSelectedCategoryName(categoryName);
-        
+
         // Set pending action to trigger the product modal
         setPendingServiceCardAction(true);
-        
+
         // Set flag for auto-click
         pendingCategoryAutoClickRef.current = true;
-        
+
         // Find the service card element
         const serviceCardElement = serviceCardRefs.current[serviceId];
         if (serviceCardElement) {
           // Scroll to and click the service card
-          serviceCardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          serviceCardElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
           setTimeout(() => {
             serviceCardElement.click();
             console.log("Auto-clicked on service:", serviceId);
-            
+
             // NEW: Dispatch event to notify ProductGrid that it should refresh prices
             document.dispatchEvent(new CustomEvent('productGridShown'));
           }, 300);
         }
       }
     };
-    
     document.addEventListener('openCategory', handleOpenCategory);
-    
     return () => {
       document.removeEventListener('openCategory', handleOpenCategory);
     };
   }, []);
-
   if (isServicesLoading && isLoadingMudanza) {
     return <div className="min-h-screen flex flex-col">
         <div className="absolute inset-0 z-0 bg-[#14162c]">
@@ -638,7 +641,7 @@ const Servicios = () => {
                   </div>
                 </div>
                 <h4 className="text-lg font-semibold mb-2 text-[#498bdd]">Ayudanos a mejorar</h4>
-                <p className="text-gray-700">Calificá el servicio, tus comentarios importan.</p>
+                <p className="text-gray-700">Calificá el servicio, tus comentarios nos importan.</p>
               </div>
             </div>
           </div>
