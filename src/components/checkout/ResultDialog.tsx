@@ -37,6 +37,7 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
 }) => {
   const navigate = useNavigate();
   const [feedback, setFeedback] = useState("");
+  const [feedbackSent, setFeedbackSent] = useState(false);
   const hasPendingMercadoPagoPayments = serviceRequests.some(
     req => req.requestData.MetodoPagosID === 4 && !req.paymentConfirmed
   );
@@ -57,6 +58,7 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
       console.log("Sending feedback:", feedback);
       toast.success("¡Gracias por tu feedback!");
       setFeedback(""); // Clear the feedback input
+      setFeedbackSent(true); // Mark feedback as sent
     }
   };
 
@@ -179,8 +181,8 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
               </div>
             )}
 
-            {/* Feedback textarea - only show when all payments are confirmed */}
-            {allMercadoPagoPaymentsConfirmed && (
+            {/* Feedback textarea - only show when all payments are confirmed and feedback hasn't been sent */}
+            {allMercadoPagoPaymentsConfirmed && !feedbackSent && (
               <div className="mt-6 space-y-2">
                 <div className="text-left mb-2 text-gray-700">
                   <label htmlFor="feedback" className="block text-sm font-medium text-gray-700 mb-1">
@@ -206,6 +208,13 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
                     </Button>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Thank you message after feedback is sent */}
+            {allMercadoPagoPaymentsConfirmed && feedbackSent && (
+              <div className="mt-6 text-center text-green-600 font-medium">
+                ¡Gracias por tu feedback! Tu opinión es muy valiosa para nosotros.
               </div>
             )}
           </div>
