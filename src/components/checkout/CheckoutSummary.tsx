@@ -186,7 +186,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   };
 
   const handlePaymentLink = (solicitudId: number) => {
-    const paymentUrl = `http://109.199.100.16:80/PasarelaPagos.NetEnvironment/procesarpago.aspx?S${solicitudId}`;
+    const paymentUrl = `https://pay.almango.com.uy/procesarpago.aspx?S${solicitudId}`;
     if (paymentLinkRef.current) {
       paymentLinkRef.current.href = paymentUrl;
       paymentLinkRef.current.click();
