@@ -198,10 +198,23 @@ const Servicios = () => {
   }, []);
   useEffect(() => {
     if (location.state && location.state.clickedService) {
-      toast.success(`Has seleccionado: ${location.state.clickedService}`, {
-        duration: 4000,
-        position: "top-center"
+      // Clear any existing toasts first
+      const existingToasts = document.querySelectorAll('[data-sonner-toast]');
+      existingToasts.forEach(toast => {
+        const closeButton = toast.querySelector('[data-close-button]');
+        if (closeButton) {
+          (closeButton as HTMLElement).click();
+        }
       });
+
+      // Show only the service selection message after a brief delay to ensure other toasts are cleared
+      setTimeout(() => {
+        toast.success(`Has seleccionado: ${location.state.clickedService}`, {
+          duration: 4000,
+          position: "top-center"
+        });
+      }, 100);
+
       const findServiceByName = () => {
         const displayedServices = isServicesError ? fallbackServices : services;
         const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
