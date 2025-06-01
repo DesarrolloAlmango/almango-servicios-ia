@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   AlertDialog,
@@ -131,7 +130,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       setSubmitting(true);
       setError(null);
       setServiceRequests([]);
-      setShowBlockingOverlay(true); // Show blocking overlay
 
       const processedRequests = [];
 
@@ -167,14 +165,11 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
     } finally {
       setSubmitting(false);
       setProcessingService(null);
-      // Note: We're not hiding the blocking overlay here because we want it to remain visible
-      // until the ResultDialog is shown and the user interacts with it
     }
   };
 
   const handleCloseResultDialog = () => {
     setShowResultDialog(false);
-    setShowBlockingOverlay(false); // Hide blocking overlay when dialog is closed
     onClose(serviceRequests.length > 0);
     navigate('/servicios');
   };
@@ -203,8 +198,8 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         style={{ display: 'none' }}
       />
 
-      {/* Full-screen blocking overlay - now properly tied to the showBlockingOverlay state */}
-      {showBlockingOverlay && (
+      {/* Full-screen blocking overlay - show when submitting */}
+      {submitting && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center backdrop-blur-sm">
           <div className="bg-background p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
             <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary mb-4" />
@@ -216,7 +211,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         </div>
       )}
 
-      <AlertDialog open={isOpen} onOpenChange={(open) => {
+      <AlertDialog open={isOpen && !submitting} onOpenChange={(open) => {
         if (!open && !submitting && !serviceRequests.length && !error) {
           onClose(false);
         }
@@ -226,11 +221,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
             <AlertDialogTitle>Confirmar Servicios</AlertDialogTitle>
             <AlertDialogDescription>
               ¿Estás seguro que deseas contratar estos servicios?
-              {submitting && processingService && (
-                <div className="mt-2 text-sm text-muted-foreground">
-                  Procesando {processingService}...
-                </div>
-              )}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
