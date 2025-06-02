@@ -7,9 +7,7 @@ const Footer = () => {
           <div className="space-y-6 transform transition-all duration-500 hover:translate-y-[-5px] my-[45px] mx-[64px]">
             <div className="mx-0">
               <h2 className="text-3xl font-bold uppercase mb-4">Contáctanos</h2>
-              <p className="text-white/90 mb-2 px-0">
-                Si tienes alguna consulta puedes comunicarte a través de:
-              </p>
+              <p className="text-white/90 mb-2 px-0">¿TENÉS CONSULTAS? COMUNICATE CON NOSOTROS.</p>
             </div>
             
             <div className="space-y-4">
