@@ -107,11 +107,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const effectiveCategoryId = categoryId || lastSelectedCategoryId || null;
   const effectiveCategoryName = categoryName || lastSelectedCategoryName || null;
 
-  // Function to fetch commerce name by ID
+  // Function to fetch commerce name by ID using ObtenerProveedorTodos
   const fetchCommerceName = async (commerceId: string) => {
     setIsLoadingCommerceName(true);
     try {
-      const response = await fetch("https://app.almango.com.uy/WebAPI/ObtenerProveedor");
+      const response = await fetch("https://app.almango.com.uy/WebAPI/ObtenerProveedorTodos");
       
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
@@ -306,6 +306,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const fetchProviders = async () => {
     setLoading(true);
     try {
+      // Keep using ObtenerProveedor for the providers list
       const response = await fetch("https://app.almango.com.uy/WebAPI/ObtenerProveedor");
 
       if (!response.ok) {
