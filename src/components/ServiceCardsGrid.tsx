@@ -1,8 +1,11 @@
+
 import { useEffect, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { ArrowRight } from "lucide-react";
 
 interface ServiceCard {
   id: string;
@@ -157,10 +160,14 @@ const ServiceCardsGrid = () => {
     });
   };
 
+  const handleVerMasClick = () => {
+    navigate('/servicios');
+  };
+
   if (loading) {
     return <div className="container mx-auto px-4 sm:px-8 md:px-12 lg:px-24 bg-[#F0F0F0] relative z-[100]">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 -mt-24 relative justify-center">
-          {[...Array(6)].map((_, index) => <Card key={`skeleton-${index}`} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 h-40 animate-pulse w-full max-w-md mx-auto">
+          {[...Array(4)].map((_, index) => <Card key={`skeleton-${index}`} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 h-40 animate-pulse w-full max-w-md mx-auto">
               <CardContent className="p-4 flex flex-col items-center justify-center h-full">
                 <div className="w-16 h-16 bg-gray-200 rounded-md mb-2"></div>
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -169,6 +176,9 @@ const ServiceCardsGrid = () => {
         </div>
       </div>;
   }
+
+  // Show only the first 4 services
+  const displayedServices = services.slice(0, 4);
 
   return <div className="bg-[#F0F0F0] py-8 relative z-[100]">
       <div className="container mx-auto px-4 sm:px-8 md:px-12 lg:px-24 relative z-[80]">
@@ -190,8 +200,8 @@ const ServiceCardsGrid = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 -mt-24 relative z-[90] justify-center">
-          {services.map(service => <Card key={service.id} onClick={() => handleServiceClick(service.id, service.name)} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 h-40 overflow-hidden w-full max-w-md mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 -mt-24 relative z-[90] justify-center">
+          {displayedServices.map(service => <Card key={service.id} onClick={() => handleServiceClick(service.id, service.name)} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105 h-40 overflow-hidden w-full max-w-md mx-auto">
               <CardContent className="p-0 flex flex-col items-center justify-center h-full relative">
                 {/* Use AspectRatio to maintain image proportions */}
                 <AspectRatio ratio={1 / 1} className="w-full h-full">
@@ -207,6 +217,16 @@ const ServiceCardsGrid = () => {
                 </div>
               </CardContent>
             </Card>)}
+        </div>
+
+        {/* Ver más button */}
+        <div className="flex justify-center mt-8">
+          <Button 
+            onClick={handleVerMasClick}
+            className="bg-primary hover:bg-primary/80 text-white px-8 py-3 rounded-md text-lg shadow-lg flex items-center transition-all hover:scale-105 font-serif uppercase"
+          >
+            VER MÁS <ArrowRight className="ml-2" size={20} />
+          </Button>
         </div>
       </div>
     </div>;
