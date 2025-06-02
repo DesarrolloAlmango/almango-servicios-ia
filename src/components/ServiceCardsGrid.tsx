@@ -166,7 +166,7 @@ const ServiceCardsGrid = () => {
   if (loading) {
     return <div className="container mx-auto px-4 sm:px-8 md:px-12 lg:px-24 bg-[#F0F0F0] relative z-[100]">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 -mt-24 relative justify-center">
-          {[...Array(4)].map((_, index) => <Card key={`skeleton-${index}`} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 h-40 animate-pulse w-full max-w-md mx-auto">
+          {[...Array(6)].map((_, index) => <Card key={`skeleton-${index}`} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 h-40 animate-pulse w-full max-w-md mx-auto">
               <CardContent className="p-4 flex flex-col items-center justify-center h-full">
                 <div className="w-16 h-16 bg-gray-200 rounded-md mb-2"></div>
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -176,8 +176,8 @@ const ServiceCardsGrid = () => {
       </div>;
   }
 
-  // Show only the first 4 services for the home page
-  const displayedServices = services.slice(0, 4);
+  // Show only the first 6 services for the home page
+  const displayedServices = services.slice(0, 6);
 
   return <div className="bg-[#F0F0F0] py-8 relative z-[100]">
       <div className="container mx-auto px-4 sm:px-8 md:px-12 lg:px-24 relative z-[80]">
