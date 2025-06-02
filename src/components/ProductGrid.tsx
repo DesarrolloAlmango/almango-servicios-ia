@@ -5,7 +5,6 @@ import { Skeleton, PriceSkeleton, TextSkeleton } from "./ui/skeleton";
 import { toast } from "sonner";
 import { ArrowLeft, ShoppingCart, RefreshCw } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-
 interface CartItem {
   id: string;
   name: string;
@@ -173,14 +172,12 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
   const [flashBackButton, setFlashBackButton] = useState(false);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
 
   // Refs to track component state
   const initialLoadComplete = useRef(false);
   const productsInitialized = useRef(false);
   const categorySelected = useRef(false);
   const componentMounted = useRef(false);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Function to fetch products via ObtenerNivel2 endpoint
   const fetchProducts = async () => {
@@ -670,140 +667,54 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       onBack();
     }
   };
-
-  // Add scroll event listener
-  useEffect(() => {
-    const handleScroll = () => {
-      if (scrollContainerRef.current) {
-        const scrollTop = scrollContainerRef.current.scrollTop;
-        setIsScrolled(scrollTop > 100);
-      }
-    };
-
-    const scrollContainer = scrollContainerRef.current;
-    if (scrollContainer) {
-      scrollContainer.addEventListener('scroll', handleScroll);
-      return () => {
-        scrollContainer.removeEventListener('scroll', handleScroll);
-      };
-    }
-  }, []);
-
-  // Emit event to update sheet close button positioning
-  useEffect(() => {
-    const event = new CustomEvent('updateSheetCloseButton', { 
-      detail: { isScrolled } 
-    });
-    window.dispatchEvent(event);
-  }, [isScrolled]);
-
-  return (
-    <div ref={scrollContainerRef} className="space-y-6 h-full overflow-y-auto">
-      <div className={`flex items-center mb-4 transition-all duration-300 ${
-        isScrolled 
-          ? 'fixed top-4 left-4 right-16 z-40 bg-white/95 backdrop-blur-sm p-3 rounded-lg shadow-lg border' 
-          : 'relative'
-      }`}>
-        <button 
-          onClick={onBack} 
-          className={`flex items-center gap-2 text-primary hover:underline ${!purchaseLocationId ? 'relative' : ''}`} 
-          aria-label="back-to-categories"
-        >
+  return <div className="space-y-6">
+      <div className="flex items-center mb-4">
+        <button onClick={onBack} className={`flex items-center gap-2 text-primary hover:underline ${!purchaseLocationId ? 'relative' : ''}`} aria-label="back-to-categories">
           <ArrowLeft size={16} />
           <span>Volver a Categorías</span>
           
-          {flashBackButton && (
-            <span className="absolute inset-0 bg-yellow-100 animate-pulse rounded-md opacity-20 z-[-1]" style={{
-              maxHeight: '35px',
-              transform: 'scale(1.05)',
-              animation: 'pulse 2s infinite alternate'
-            }} />
-          )}
+          {flashBackButton && <span className="absolute inset-0 bg-yellow-100 animate-pulse rounded-md opacity-20 z-[-1]" style={{
+          maxHeight: '35px',
+          transform: 'scale(1.05)',
+          animation: 'pulse 2s infinite alternate'
+        }} />}
         </button>
+        <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
         
-        {!isScrolled && (
-          <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
-        )}
-        
-        {isScrolled && (
-          <div className="ml-auto">
-            <span className="text-lg font-medium">{category.name}</span>
-          </div>
-        )}
-        
-        {purchaseLocationId && products.length > 0 && !isScrolled && (
-          <div className="ml-4" />
-        )}
+        {purchaseLocationId && products.length > 0}
       </div>
       
-      {!purchaseLocationId && (
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+      {!purchaseLocationId && <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
           <div className="flex">
             <div className="ml-3">
               <p className="text-sm text-yellow-700">
                 Los precios se mostrarán después de seleccionar un{' '}
-                <button 
-                  onClick={handleLocationLinkClick} 
-                  className="text-blue-600 underline hover:text-blue-800 cursor-pointer"
-                >
+                <button onClick={handleLocationLinkClick} className="text-blue-600 underline hover:text-blue-800 cursor-pointer">
                   lugar de compra
                 </button>.
               </p>
             </div>
           </div>
-        </div>
-      )}
+        </div>}
       
-      {showLoadingMessage ? (
-        <div className="flex flex-col items-center justify-center h-64 gap-4">
+      {showLoadingMessage ? <div className="flex flex-col items-center justify-center h-64 gap-4">
           <TextSkeleton text="Cargando productos..." />
-        </div>
-      ) : products.length === 0 ? (
-        <div className="flex items-center justify-center h-40">
+        </div> : products.length === 0 ? <div className="flex items-center justify-center h-40">
           <p className="text-gray-500">No hay productos disponibles</p>
-        </div>
-      ) : (
-        <>
+        </div> : <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {products.map(product => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                quantity={productQuantities[product.id] || 0}
-                onIncrease={() => increaseQuantity(product.id)}
-                onDecrease={() => decreaseQuantity(product.id)}
-                animating={!!cartAnimating[product.id]}
-                purchaseLocationId={purchaseLocationId}
-                serviceId={serviceId}
-                categoryId={category.id}
-                isPriceLoading={loadingProductIds.has(product.id)}
-                hasPurchaseLocation={!!purchaseLocationId}
-                onBackToCategories={onBack}
-              />
-            ))}
+            {products.map(product => <ProductCard key={product.id} product={product} quantity={productQuantities[product.id] || 0} onIncrease={() => increaseQuantity(product.id)} onDecrease={() => decreaseQuantity(product.id)} animating={!!cartAnimating[product.id]} purchaseLocationId={purchaseLocationId} serviceId={serviceId} categoryId={category.id} isPriceLoading={loadingProductIds.has(product.id)} hasPurchaseLocation={!!purchaseLocationId} onBackToCategories={onBack} />)}
           </div>
           
-          {hasSelectedProducts && (
-            <div className="flex justify-center gap-2 sm:gap-4 mt-8 sticky bottom-4 bg-white p-4 rounded-lg shadow-md">
-              <Button 
-                onClick={handleAddAnotherService} 
-                variant="outline" 
-                className="text-secondary border-secondary hover:bg-secondary hover:text-white transition-colors text-xs sm:text-sm px-2 sm:px-4"
-              >
+          {hasSelectedProducts && <div className="flex justify-center gap-2 sm:gap-4 mt-8 sticky bottom-4 bg-white p-4 rounded-lg shadow-md">
+              <Button onClick={handleAddAnotherService} variant="outline" className="text-secondary border-secondary hover:bg-secondary hover:text-white transition-colors text-xs sm:text-sm px-2 sm:px-4">
                 Agregar otro servicio
               </Button>
-              <Button 
-                onClick={handleContractNow} 
-                className="bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm px-2 sm:px-4"
-              >
+              <Button onClick={handleContractNow} className="bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm px-2 sm:px-4">
                 Contratar ahora
               </Button>
-            </div>
-          )}
-        </>
-      )}
-    </div>
-  );
+            </div>}
+        </>}
+    </div>;
 };
-
 export default ProductGrid;
