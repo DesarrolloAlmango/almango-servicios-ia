@@ -681,10 +681,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         </button>
         <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
         
-        {purchaseLocationId && products.length > 0 && <Button onClick={() => updateAllPrices()} variant="outline" size="sm" disabled={isUpdatingPrices} className="hidden sm:block sm:ml-2">
-            <RefreshCw className={`h-4 w-4 mr-1 ${isUpdatingPrices ? 'animate-spin' : ''}`} />
-            {isUpdatingPrices ? 'Actualizando...' : 'Actualizar precios'}
-          </Button>}
+        {purchaseLocationId && products.length > 0}
       </div>
       
       {!purchaseLocationId && <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
