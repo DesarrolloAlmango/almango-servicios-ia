@@ -182,7 +182,7 @@ const ServiceCardsGrid = () => {
   return <div className="bg-[#F0F0F0] py-8 relative z-[100]">
       <div className="container mx-auto px-4 sm:px-8 md:px-12 lg:px-24 relative z-[80]">
         {/* Left side rotated "DESTACADOS" text - hidden on medium screens and below */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-10 sm:-translate-x-20 origin-center">
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 translate-y-[10px] -translate-x-10 sm:-translate-x-20 origin-center">
           <p style={{
           whiteSpace: 'nowrap'
         }} className="transform -rotate-90 text-4xl font-bold tracking-widest text-secondary hidden lg:block translate-x-[-15px]">
@@ -191,7 +191,7 @@ const ServiceCardsGrid = () => {
         </div>
 
         {/* Right side rotated "DESTACADOS" text - hidden on medium screens and below */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-10 sm:translate-x-20 origin-center">
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-y-[10px] translate-x-10 sm:translate-x-20 origin-center">
           <p style={{
           whiteSpace: 'nowrap'
         }} className="transform rotate-90 text-4xl font-bold tracking-widest text-primary hidden lg:block translate-x-[15px]">
