@@ -89,6 +89,10 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
+  // Add state for fetched commerce name
+  const [fetchedCommerceName, setFetchedCommerceName] = useState<string>("");
+  const [isLoadingCommerceName, setIsLoadingCommerceName] = useState(false);
+
   const fixedStores: Store[] = [
     { id: "other", name: "Otro" },
     { id: "unknown", name: "No lo sé" }
@@ -102,6 +106,36 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   // Use the global lastSelectedCategoryId if no categoryId is provided
   const effectiveCategoryId = categoryId || lastSelectedCategoryId || null;
   const effectiveCategoryName = categoryName || lastSelectedCategoryName || null;
+
+  // Function to fetch commerce name by ID
+  const fetchCommerceName = async (commerceId: string) => {
+    setIsLoadingCommerceName(true);
+    try {
+      const response = await fetch("https://app.almango.com.uy/WebAPI/ObtenerProveedor");
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      // Find the provider with matching ID
+      const provider = data.find((item: any) => 
+        item.ProveedorID?.toString() === commerceId.toString()
+      );
+      
+      if (provider && provider.ProveedorNombre) {
+        setFetchedCommerceName(provider.ProveedorNombre);
+      } else {
+        setFetchedCommerceName("Comercio seleccionado");
+      }
+    } catch (error) {
+      console.error("Error fetching commerce name:", error);
+      setFetchedCommerceName("Comercio seleccionado");
+    } finally {
+      setIsLoadingCommerceName(false);
+    }
+  };
 
   // Handle modal close event
   const handleModalClose = () => {
@@ -119,7 +153,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       
       if (!commerceId) {
         fetchProviders();
+      } else {
+        // Fetch the commerce name when commerceId is provided
+        fetchCommerceName(commerceId);
       }
+      
       fetchDepartments();
       setSelectedStore(commerceId || "");
       setOtherStore("");
@@ -397,7 +435,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
       const storeId = commerceId || selectedStore || "other";
       const storeName = commerceId ? 
-        commerceName || "Comercio seleccionado" :
+        fetchedCommerceName || commerceName || "Comercio seleccionado" :
         selectedStore === "other" ? 
           otherStore || searchQuery : 
           [...fixedStores, ...localStores].find(store => store.id === selectedStore)?.name || "";
@@ -510,7 +548,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             description="Selecciona la ubicación donde necesitas el servicio"
             buttonText={isConfirming ? "Procesando..." : "Confirmar"}
             showStoreSection={true}
-            storeName={commerceName || "Comercio seleccionado"}
+            storeName={isLoadingCommerceName ? "Cargando..." : (fetchedCommerceName || commerceName || "Comercio seleccionado")}
             categoryId={undefined} // Remove automatic category opening
           />
         ) : (
