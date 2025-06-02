@@ -57,6 +57,7 @@ const SheetContent = React.forwardRef<
   SheetContentProps
 >(({ side = "right", className, children, ...props }, ref) => {
   const closeRef = React.useRef<HTMLButtonElement>(null);
+  const [isScrolled, setIsScrolled] = React.useState(false);
   
   // Add an effect to handle the custom closeProductModal event
   React.useEffect(() => {
@@ -89,6 +90,22 @@ const SheetContent = React.forwardRef<
       window.removeEventListener('closeProductModal', handleCloseProductModal);
     };
   }, []);
+
+  // Listen for scroll position updates from ProductGrid
+  React.useEffect(() => {
+    const handleUpdateCloseButton = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail && typeof customEvent.detail.isScrolled === 'boolean') {
+        setIsScrolled(customEvent.detail.isScrolled);
+      }
+    };
+
+    window.addEventListener('updateSheetCloseButton', handleUpdateCloseButton);
+    
+    return () => {
+      window.removeEventListener('updateSheetCloseButton', handleUpdateCloseButton);
+    };
+  }, []);
   
   return (
     <SheetPortal>
@@ -101,7 +118,12 @@ const SheetContent = React.forwardRef<
         {children}
         <SheetPrimitive.Close 
           ref={closeRef}
-          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary"
+          className={cn(
+            "absolute rounded-sm opacity-70 ring-offset-background transition-all hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary",
+            isScrolled 
+              ? "fixed top-4 right-4 z-50 bg-white/95 backdrop-blur-sm border shadow-lg p-2" 
+              : "right-4 top-4"
+          )}
         >
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
