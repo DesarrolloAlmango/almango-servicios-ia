@@ -38,6 +38,8 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
   const navigate = useNavigate();
   const [feedback, setFeedback] = useState("");
   const [feedbackSent, setFeedbackSent] = useState(false);
+  const [sendingFeedback, setSendingFeedback] = useState(false);
+  
   const hasPendingMercadoPagoPayments = serviceRequests.some(
     req => req.requestData.MetodoPagosID === 4 && !req.paymentConfirmed
   );
@@ -52,13 +54,72 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
     navigate('/'); // Redirect to home page on close
   };
 
-  const handleFeedbackSubmit = () => {
-    if (feedback.trim()) {
-      // Here you would implement sending the feedback to your backend
-      console.log("Sending feedback:", feedback);
-      toast.success("¡Gracias por tu feedback!");
-      setFeedback(""); // Clear the feedback input
-      setFeedbackSent(true); // Mark feedback as sent
+  const sendFeedbackToAPI = async (feedbackText: string) => {
+    if (!feedbackText.trim() || serviceRequests.length === 0) {
+      return { success: false, error: "No hay feedback o solicitudes para enviar" };
+    }
+
+    try {
+      // Prepare the parameters for the API call
+      const solicitudIds = serviceRequests.map(req => req.solicitudId).join(', ');
+      const clientName = serviceRequests[0]?.requestData?.Nombre || 'Cliente';
+      const nombreParam = `(${solicitudIds}) ${clientName}`;
+      
+      const url = new URL("http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/OrganizarMail");
+      url.searchParams.append("Maildesignid", "7");
+      url.searchParams.append("Maildesigntipo", "N");
+      url.searchParams.append("Email", "");
+      url.searchParams.append("Nombre", nombreParam);
+      url.searchParams.append("Urladjunto", "");
+      url.searchParams.append("Htmltext", feedbackText);
+
+      console.log("Sending feedback to API:", url.toString());
+
+      const response = await fetch(url.toString());
+      
+      if (!response.ok) {
+        throw new Error(`Error en la respuesta: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.Ok === true || result.Ok === "true") {
+        return { success: true };
+      } else {
+        return { success: false, error: result.ErrorDescription || "Error desconocido al enviar feedback" };
+      }
+    } catch (error) {
+      console.error("Error sending feedback:", error);
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : "Error de conexión al enviar feedback" 
+      };
+    }
+  };
+
+  const handleFeedbackSubmit = async () => {
+    if (!feedback.trim()) {
+      toast.error("Por favor ingresa tu mensaje antes de enviar");
+      return;
+    }
+
+    setSendingFeedback(true);
+    
+    try {
+      const result = await sendFeedbackToAPI(feedback);
+      
+      if (result.success) {
+        toast.success("¡Gracias por tu feedback! Tu mensaje ha sido enviado correctamente.");
+        setFeedback(""); // Clear the feedback input
+        setFeedbackSent(true); // Mark feedback as sent
+      } else {
+        toast.error(result.error || "Error al enviar el feedback");
+      }
+    } catch (error) {
+      console.error("Error in handleFeedbackSubmit:", error);
+      toast.error("Error inesperado al enviar el feedback");
+    } finally {
+      setSendingFeedback(false);
     }
   };
 
@@ -195,16 +256,26 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
                     placeholder="Tu opinión nos ayuda a mejorar..."
                     className="w-full"
                     rows={3}
+                    disabled={sendingFeedback}
                   />
                   <div className="mt-2 text-right">
                     <Button 
                       variant="outline" 
                       size="sm" 
                       onClick={handleFeedbackSubmit} 
-                      disabled={!feedback.trim()}
+                      disabled={!feedback.trim() || sendingFeedback}
                     >
-                      <MessageSquare className="mr-1 h-4 w-4" />
-                      Enviar
+                      {sendingFeedback ? (
+                        <>
+                          <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                          Enviando...
+                        </>
+                      ) : (
+                        <>
+                          <MessageSquare className="mr-1 h-4 w-4" />
+                          Enviar
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>
