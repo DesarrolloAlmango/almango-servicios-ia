@@ -68,8 +68,8 @@ const Hero = () => {
         {/* Logo */}
         <div className="mb-16 animate-fade-in -ml-4 md:-ml-6">
           <img 
-            src="/lovable-uploads/9ec0d4ca-d977-4d89-88ed-a7359c8178e7.png" 
-            alt="Logo" 
+            src="/lovable-uploads/f7e31232-025c-4933-8701-e87adf8f16e3.png" 
+            alt="Almango Logo" 
             className="h-16 sm:h-20 md:h-24 w-auto drop-shadow-lg"
           />
         </div>
