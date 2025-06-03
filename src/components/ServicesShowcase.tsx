@@ -34,39 +34,27 @@ const ServicesShowcase: React.FC = () => {
   const counterSectionRef = useRef<HTMLDivElement>(null);
   const sealsSectionRef = useRef<HTMLDivElement>(null);
 
-  // Fetch service count from API - updated to try multiple endpoints
+  // Fetch service count from API
   useEffect(() => {
     const fetchServiceCount = async () => {
       console.log('Iniciando obtención del número de servicios...');
       
-      // Array de endpoints para probar en orden
-      const endpoints = [
-        'https://app.almango.com.uy/WebAPI/ObtenerNroServicio',
-        'http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ObtenerNroServicio'
-      ];
-
-      for (const endpoint of endpoints) {
-        try {
-          console.log(`Intentando endpoint: ${endpoint}`);
-          const response = await fetch(endpoint);
-          
-          if (response.ok) {
-            const count = await response.json();
-            console.log('Número de servicios obtenido exitosamente:', count);
-            setServiceCount(count);
-            setIsLoading(false);
-            return; // Salir si fue exitoso
-          } else {
-            console.error(`Error en endpoint ${endpoint}:`, response.status);
-          }
-        } catch (error) {
-          console.error(`Error en la llamada al endpoint ${endpoint}:`, error);
+      try {
+        console.log('Intentando endpoint: https://app.almango.com.uy/WebAPI/ObtenerNroServicio');
+        const response = await fetch('https://app.almango.com.uy/WebAPI/ObtenerNroServicio');
+        
+        if (response.ok) {
+          const count = await response.json();
+          console.log('Número de servicios obtenido exitosamente:', count);
+          setServiceCount(count);
+        } else {
+          console.error('Error en el endpoint:', response.status);
         }
+      } catch (error) {
+        console.error('Error en la llamada al endpoint:', error);
+      } finally {
+        setIsLoading(false);
       }
-      
-      // Si llegamos aquí, todos los endpoints fallaron
-      console.log('Todos los endpoints fallaron, usando valor por defecto');
-      setIsLoading(false);
     };
 
     // Pequeña demora para que se ejecute después de las tarjetas
