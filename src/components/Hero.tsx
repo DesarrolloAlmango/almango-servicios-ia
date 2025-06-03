@@ -64,7 +64,7 @@ const Hero = () => {
       </div>
       
       {/* Contenido principal */}
-      <div className="container relative z-10 mx-auto px-6 text-left pl-8 md:pl-12 mt-[100px] sm:mt-[90px] md:mt-[80px]">
+      <div className="container relative z-10 mx-auto px-6 text-left pl-4 md:pl-8 mt-[60px] sm:mt-[50px] md:mt-[40px]">
         {/* Logo */}
         <div className="mb-4 animate-fade-in">
           <img 
