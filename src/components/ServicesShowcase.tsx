@@ -34,26 +34,47 @@ const ServicesShowcase: React.FC = () => {
   const counterSectionRef = useRef<HTMLDivElement>(null);
   const sealsSectionRef = useRef<HTMLDivElement>(null);
 
-  // Fetch service count from API
+  // Fetch service count from API - updated to try multiple endpoints
   useEffect(() => {
     const fetchServiceCount = async () => {
-      try {
-        const response = await fetch('http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ObtenerNroServicio');
-        if (response.ok) {
-          const count = await response.json();
-          console.log('Número de servicios obtenido:', count);
-          setServiceCount(count);
-        } else {
-          console.error('Error al obtener el número de servicios:', response.status);
+      console.log('Iniciando obtención del número de servicios...');
+      
+      // Array de endpoints para probar en orden
+      const endpoints = [
+        'https://app.almango.com.uy/WebAPI/ObtenerNroServicio',
+        'http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ObtenerNroServicio'
+      ];
+
+      for (const endpoint of endpoints) {
+        try {
+          console.log(`Intentando endpoint: ${endpoint}`);
+          const response = await fetch(endpoint);
+          
+          if (response.ok) {
+            const count = await response.json();
+            console.log('Número de servicios obtenido exitosamente:', count);
+            setServiceCount(count);
+            setIsLoading(false);
+            return; // Salir si fue exitoso
+          } else {
+            console.error(`Error en endpoint ${endpoint}:`, response.status);
+          }
+        } catch (error) {
+          console.error(`Error en la llamada al endpoint ${endpoint}:`, error);
         }
-      } catch (error) {
-        console.error('Error en la llamada al API:', error);
-      } finally {
-        setIsLoading(false);
       }
+      
+      // Si llegamos aquí, todos los endpoints fallaron
+      console.log('Todos los endpoints fallaron, usando valor por defecto');
+      setIsLoading(false);
     };
 
-    fetchServiceCount();
+    // Pequeña demora para que se ejecute después de las tarjetas
+    const timer = setTimeout(() => {
+      fetchServiceCount();
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   // Convert number to array of digits for display
