@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -8,62 +9,60 @@ import LogoCarousel from "@/components/LogoCarousel";
 import { Separator } from "@/components/ui/separator";
 import ServiceCardsGrid from "@/components/ServiceCardsGrid";
 
-// First 8 logos
-const firstHalfLogos = [{
-  url: "https://almango.com.uy/img/logos/logo-sodimac.png",
-  alt: "Sodimac"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-devoto.png",
-  alt: "Devoto"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-disco.png",
-  alt: "Disco"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-geant.png",
-  alt: "Geant"
-}, {
-  url: "https://almango.com.uy/img/logos/Logos-Almango-03.png",
-  alt: "Almango"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-lacueva.png",
-  alt: "La Cueva"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-lamulata.png",
-  alt: "La Mulata"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-prontometal.png",
-  alt: "Pronto Metal"
-}];
+// Logos reorganizados según el orden solicitado con las nuevas URLs
+const organizedLogos = [
+  // DIVINO - ahora disponible
+  { url: "https://almango.com.uy/img/logos/DIVINO.png", alt: "DIVINO" },
+  // EL EMPORIO DEL HOGAR - ahora disponible
+  { url: "https://almango.com.uy/img/logos/EMPORIO.png", alt: "EL EMPORIO DEL HOGAR" },
+  // MUEBLERIA DELMAR - ahora disponible
+  { url: "https://almango.com.uy/img/logos/DELMAR.jpg", alt: "MUEBLERIA DELMAR" },
+  // NARVAJA HOGAR - ahora disponible
+  { url: "https://almango.com.uy/img/logos/NARVAJA.png", alt: "NARVAJA HOGAR" },
+  // SODIMAC - disponible
+  { url: "https://almango.com.uy/img/logos/logo-sodimac.png", alt: "SODIMAC" },
+  // BALTON - ahora disponible
+  { url: "https://almango.com.uy/img/logos/BALTON.jpg", alt: "BALTON" },
+  // FINKEL - ahora disponible
+  { url: "https://almango.com.uy/img/logos/FINKEL.png", alt: "FINKEL" },
+  // CAROLINAS STORE - ahora disponible
+  { url: "https://almango.com.uy/img/logos/STORE.png", alt: "CAROLINAS STORE" },
+  // ACHER CERÁMICAS - ahora disponible
+  { url: "https://almango.com.uy/img/logos/ACHER.png", alt: "ACHER CERÁMICAS" },
+  // LA CUEVA MUEBLES - disponible (La Cueva)
+  { url: "https://almango.com.uy/img/logos/logo-lacueva.png", alt: "LA CUEVA MUEBLES" },
+  // EL CERRO ELECTRODOMÉSTICOS - no disponible, espacio vacío
+  { url: "", alt: "EL CERRO ELECTRODOMÉSTICOS" },
+  // LA MULATA MUEBLES - disponible (La Mulata)
+  { url: "https://almango.com.uy/img/logos/logo-lamulata.png", alt: "LA MULATA MUEBLES" },
+  // PGU URUGUAY - ahora disponible
+  { url: "https://almango.com.uy/img/logos/PGU.png", alt: "PGU URUGUAY" },
+  // LABORATORIO ATGEN - no disponible, espacio vacío
+  { url: "", alt: "LABORATORIO ATGEN" },
+  // LABORATORIO BELTRAN ZUNINO - no disponible, espacio vacío
+  { url: "", alt: "LABORATORIO BELTRAN ZUNINO" },
+  // PRONTOMETAL - disponible (Pronto Metal)
+  { url: "https://almango.com.uy/img/logos/logo-prontometal.png", alt: "PRONTOMETAL" },
+  // ONFLOR - ahora disponible
+  { url: "https://almango.com.uy/img/logos/ONFLOR.png", alt: "ONFLOR" },
+  // MINISTERIO DE GANADERÍA AGRICULTURA Y PESCA (MGAP) - no disponible, espacio vacío
+  { url: "", alt: "MINISTERIO DE GANADERÍA AGRICULTURA Y PESCA (MGAP)" },
+  // PODER JUDICIAL - no disponible, espacio vacío
+  { url: "", alt: "PODER JUDICIAL" },
+  // INTENDENCIA MUNICIPAL DE MONTEVIDEO - no disponible, espacio vacío
+  { url: "", alt: "INTENDENCIA MUNICIPAL DE MONTEVIDEO" },
+  // ENGEL & VOLKERS - disponible (Volkers)
+  { url: "https://almango.com.uy/img/logos/logo-volkers.png", alt: "ENGEL & VOLKERS" },
+  // SUPERMERCADOS: DISCO - disponible
+  { url: "https://almango.com.uy/img/logos/logo-disco.png", alt: "DISCO" },
+  // SUPERMERCADOS: GEANT - disponible
+  { url: "https://almango.com.uy/img/logos/logo-geant.png", alt: "GEANT" },
+  // SUPERMERCADOS: DEVOTO - disponible
+  { url: "https://almango.com.uy/img/logos/logo-devoto.png", alt: "DEVOTO" },
+  // SUPERMERCADOS: LA CABAÑA - no disponible, espacio vacío
+  { url: "", alt: "LA CABAÑA" }
+];
 
-// Last 8 logos
-const secondHalfLogos = [{
-  url: "https://almango.com.uy/img/logos/logo-arte.png",
-  alt: "Arte"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-cimarron.png",
-  alt: "Cimarron"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-ferrobasso.png",
-  alt: "Ferro Basso"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-elombu.png",
-  alt: "El Ombu"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-adi.png",
-  alt: "ADI"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-volkers.png",
-  alt: "Volkers"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-tiendamia.png",
-  alt: "Tienda Mia"
-}, {
-  url: "https://almango.com.uy/img/logos/logo-blanes.png",
-  alt: "Blanes"
-}];
-
-// Combine all logos into a single array for the carousel
-const allLogos = [...firstHalfLogos, ...secondHalfLogos];
 const Index = () => {
   // Create refs for each section to animate
   const contratarSectionRef = useRef<HTMLElement>(null);
@@ -143,6 +142,7 @@ const Index = () => {
       sectionObserver.disconnect();
     };
   }, []);
+
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden">
       <Header />
@@ -171,7 +171,7 @@ const Index = () => {
           
           <div className="w-full px-4 py-0">
             <div className="w-full overflow-hidden max-w-6xl mx-auto">
-              <LogoCarousel logos={allLogos} direction="rtl" speed="super-slow" />
+              <LogoCarousel logos={organizedLogos} direction="rtl" speed="super-slow" />
             </div>
           </div>
         </section>
