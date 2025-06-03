@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface SealItem {
   imageUrl: string;
@@ -26,10 +26,40 @@ const SealItems: SealItem[] = [{
 }];
 
 const ServicesShowcase: React.FC = () => {
+  const [serviceCount, setServiceCount] = useState<number>(98800);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  
   // Create refs for each section to animate
   const servicesDescriptionRef = useRef<HTMLDivElement>(null);
   const counterSectionRef = useRef<HTMLDivElement>(null);
   const sealsSectionRef = useRef<HTMLDivElement>(null);
+
+  // Fetch service count from API
+  useEffect(() => {
+    const fetchServiceCount = async () => {
+      try {
+        const response = await fetch('http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ObtenerNroServicio');
+        if (response.ok) {
+          const count = await response.json();
+          console.log('Número de servicios obtenido:', count);
+          setServiceCount(count);
+        } else {
+          console.error('Error al obtener el número de servicios:', response.status);
+        }
+      } catch (error) {
+        console.error('Error en la llamada al API:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchServiceCount();
+  }, []);
+
+  // Convert number to array of digits for display
+  const getDigitsArray = (number: number): number[] => {
+    return number.toString().padStart(6, '0').split('').map(digit => parseInt(digit));
+  };
 
   useEffect(() => {
     const options = {
@@ -129,22 +159,29 @@ const ServicesShowcase: React.FC = () => {
           {/* Services Description Content */}
         </div>
         
-        {/* Services Counter Section - Updated with proper orange and blue colors */}
+        {/* Services Counter Section - Updated with dynamic number */}
         <div ref={counterSectionRef} className="mt-14 flex flex-col md:flex-row items-center justify-center gap-6 animate-from-left opacity-0 bg-white/80 py-8 px-6 rounded-md shadow-md">
           <div className="text-gray-800 text-2xl md:text-3xl font-bold uppercase">
             SERVICIOS REALIZADOS
           </div>
           
           <div className="flex">
-            {[0, 9, 8, 8, 0, 0].map((digit, index) => (
-              <div 
-                key={index} 
-                className="service-item opacity-0 text-white w-10 h-14 md:w-12 md:h-16 flex items-center justify-center text-xl md:text-2xl font-bold mx-1 rounded-md shadow-md"
-                style={{backgroundColor: index % 2 === 0 ? '#ff6900' : '#008be1'}}
-              >
-                {digit}
+            {isLoading ? (
+              // Loading state - show spinning placeholder
+              <div className="w-10 h-14 md:w-12 md:h-16 flex items-center justify-center text-xl md:text-2xl font-bold mx-1 rounded-md shadow-md bg-gray-400 animate-pulse">
+                <span className="text-white">...</span>
               </div>
-            ))}
+            ) : (
+              getDigitsArray(serviceCount).map((digit, index) => (
+                <div 
+                  key={index} 
+                  className="service-item opacity-0 text-white w-10 h-14 md:w-12 md:h-16 flex items-center justify-center text-xl md:text-2xl font-bold mx-1 rounded-md shadow-md"
+                  style={{backgroundColor: index % 2 === 0 ? '#ff6900' : '#008be1'}}
+                >
+                  {digit}
+                </div>
+              ))
+            )}
           </div>
           
           <div className="text-gray-800 text-2xl md:text-3xl font-bold uppercase">
