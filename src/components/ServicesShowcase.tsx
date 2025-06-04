@@ -1,4 +1,5 @@
 
+
 import React, { useEffect, useRef, useState } from 'react';
 
 interface SealItem {
@@ -28,7 +29,9 @@ const SealItems: SealItem[] = [{
 
 const ServicesShowcase: React.FC = () => {
   const [serviceCount, setServiceCount] = useState<number>(98800);
+  const [displayCount, setDisplayCount] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isAnimating, setIsAnimating] = useState<boolean>(false);
   
   // Create refs for each section to animate
   const servicesDescriptionRef = useRef<HTMLDivElement>(null);
@@ -75,6 +78,29 @@ const ServicesShowcase: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Animate counter when section becomes visible
+  const animateCounter = () => {
+    if (isAnimating || isLoading) return;
+    
+    setIsAnimating(true);
+    setDisplayCount(1);
+    
+    const duration = 2000; // 2 seconds
+    const increment = serviceCount / (duration / 20); // Update every 20ms
+    let current = 1;
+    
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= serviceCount) {
+        setDisplayCount(serviceCount);
+        clearInterval(timer);
+        setIsAnimating(false);
+      } else {
+        setDisplayCount(Math.floor(current));
+      }
+    }, 20);
+  };
+
   // Convert number to array of digits for display
   const getDigitsArray = (number: number): number[] => {
     return number.toString().padStart(6, '0').split('').map(digit => parseInt(digit));
@@ -118,7 +144,7 @@ const ServicesShowcase: React.FC = () => {
       threshold: 0.1
     });
 
-    // Special observer for counter digits to animate them individually
+    // Special observer for counter digits to animate them individually and trigger counter animation
     const counterObserver = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -128,6 +154,12 @@ const ServicesShowcase: React.FC = () => {
             (item as HTMLElement).style.animationDelay = `${delay}s`;
             item.classList.add('animate-item-appear');
           });
+          
+          // Start counter animation when section becomes visible
+          setTimeout(() => {
+            animateCounter();
+          }, 800); // Start after digit boxes appear
+          
           counterObserver.unobserve(entry.target);
         }
       });
@@ -157,7 +189,7 @@ const ServicesShowcase: React.FC = () => {
       itemObserver.disconnect();
       counterObserver.disconnect();
     };
-  }, []);
+  }, [serviceCount, isLoading]);
 
   return (
     <section className="py-16 bg-[#F0F0F0] overflow-x-hidden">
@@ -191,10 +223,10 @@ const ServicesShowcase: React.FC = () => {
                 <span className="text-white">...</span>
               </div>
             ) : (
-              getDigitsArray(serviceCount).map((digit, index) => (
+              getDigitsArray(displayCount).map((digit, index) => (
                 <div 
                   key={index} 
-                  className="service-item opacity-0 text-white w-10 h-14 md:w-12 md:h-16 flex items-center justify-center text-xl md:text-2xl font-bold mx-1 rounded-md shadow-md"
+                  className="service-item opacity-0 text-white w-10 h-14 md:w-12 md:h-16 flex items-center justify-center text-xl md:text-2xl font-bold mx-1 rounded-md shadow-md transition-all duration-100"
                   style={{backgroundColor: index % 2 === 0 ? '#ff6900' : '#008be1'}}
                 >
                   {digit}
@@ -233,3 +265,4 @@ const ServicesShowcase: React.FC = () => {
 };
 
 export default ServicesShowcase;
+
