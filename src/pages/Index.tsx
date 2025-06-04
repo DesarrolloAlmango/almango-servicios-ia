@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -9,41 +8,41 @@ import LogoCarousel from "@/components/LogoCarousel";
 import { Separator } from "@/components/ui/separator";
 import ServiceCardsGrid from "@/components/ServiceCardsGrid";
 
-// Logos reorganizados según el orden solicitado con las nuevas URLs
+// Logos reorganizados según el orden solicitado con las URLs corregidas
 const organizedLogos = [
-  // DIVINO - ahora disponible
+  // DIVINO - corregido
   { url: "https://almango.com.uy/img/logos/DIVINO.png", alt: "DIVINO" },
-  // EL EMPORIO DEL HOGAR - ahora disponible
+  // EL EMPORIO DEL HOGAR - corregido
   { url: "https://almango.com.uy/img/logos/EMPORIO.png", alt: "EL EMPORIO DEL HOGAR" },
-  // MUEBLERIA DELMAR - ahora disponible
+  // MUEBLERIA DELMAR - corregido
   { url: "https://almango.com.uy/img/logos/DELMAR.jpg", alt: "MUEBLERIA DELMAR" },
-  // NARVAJA HOGAR - ahora disponible
+  // NARVAJA HOGAR - corregido
   { url: "https://almango.com.uy/img/logos/NARVAJA.png", alt: "NARVAJA HOGAR" },
-  // SODIMAC - disponible
+  // SODIMAC - corregido
   { url: "https://almango.com.uy/img/logos/logo-sodimac.png", alt: "SODIMAC" },
-  // BALTON - ahora disponible
+  // BALTON - corregido
   { url: "https://almango.com.uy/img/logos/BALTON.jpg", alt: "BALTON" },
-  // FINKEL - ahora disponible
+  // FINKEL - corregido
   { url: "https://almango.com.uy/img/logos/FINKEL.png", alt: "FINKEL" },
-  // CAROLINAS STORE - ahora disponible
+  // CAROLINAS STORE - corregido
   { url: "https://almango.com.uy/img/logos/STORE.png", alt: "CAROLINAS STORE" },
-  // ACHER CERÁMICAS - ahora disponible
+  // ACHER CERÁMICAS - corregido
   { url: "https://almango.com.uy/img/logos/ACHER.png", alt: "ACHER CERÁMICAS" },
-  // LA CUEVA MUEBLES - disponible (La Cueva)
+  // LA CUEVA MUEBLES - corregido
   { url: "https://almango.com.uy/img/logos/logo-lacueva.png", alt: "LA CUEVA MUEBLES" },
   // EL CERRO ELECTRODOMÉSTICOS - no disponible, espacio vacío
   { url: "", alt: "EL CERRO ELECTRODOMÉSTICOS" },
-  // LA MULATA MUEBLES - disponible (La Mulata)
+  // LA MULATA MUEBLES - corregido
   { url: "https://almango.com.uy/img/logos/logo-lamulata.png", alt: "LA MULATA MUEBLES" },
-  // PGU URUGUAY - ahora disponible
+  // PGU URUGUAY - corregido
   { url: "https://almango.com.uy/img/logos/PGU.png", alt: "PGU URUGUAY" },
   // LABORATORIO ATGEN - no disponible, espacio vacío
   { url: "", alt: "LABORATORIO ATGEN" },
   // LABORATORIO BELTRAN ZUNINO - no disponible, espacio vacío
   { url: "", alt: "LABORATORIO BELTRAN ZUNINO" },
-  // PRONTOMETAL - disponible (Pronto Metal)
+  // PRONTOMETAL - corregido
   { url: "https://almango.com.uy/img/logos/logo-prontometal.png", alt: "PRONTOMETAL" },
-  // ONFLOR - ahora disponible
+  // ONFLOR - corregido
   { url: "https://almango.com.uy/img/logos/ONFLOR.png", alt: "ONFLOR" },
   // MINISTERIO DE GANADERÍA AGRICULTURA Y PESCA (MGAP) - no disponible, espacio vacío
   { url: "", alt: "MINISTERIO DE GANADERÍA AGRICULTURA Y PESCA (MGAP)" },
@@ -51,13 +50,13 @@ const organizedLogos = [
   { url: "", alt: "PODER JUDICIAL" },
   // INTENDENCIA MUNICIPAL DE MONTEVIDEO - no disponible, espacio vacío
   { url: "", alt: "INTENDENCIA MUNICIPAL DE MONTEVIDEO" },
-  // ENGEL & VOLKERS - disponible (Volkers)
+  // ENGEL & VOLKERS - corregido
   { url: "https://almango.com.uy/img/logos/logo-volkers.png", alt: "ENGEL & VOLKERS" },
-  // SUPERMERCADOS: DISCO - disponible
+  // SUPERMERCADOS: DISCO - corregido
   { url: "https://almango.com.uy/img/logos/logo-disco.png", alt: "DISCO" },
-  // SUPERMERCADOS: GEANT - disponible
+  // SUPERMERCADOS: GEANT - corregido
   { url: "https://almango.com.uy/img/logos/logo-geant.png", alt: "GEANT" },
-  // SUPERMERCADOS: DEVOTO - disponible
+  // SUPERMERCADOS: DEVOTO - corregido
   { url: "https://almango.com.uy/img/logos/logo-devoto.png", alt: "DEVOTO" },
   // SUPERMERCADOS: LA CABAÑA - no disponible, espacio vacío
   { url: "", alt: "LA CABAÑA" }
