@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 
 interface SealItem {
@@ -44,9 +45,18 @@ const ServicesShowcase: React.FC = () => {
         const response = await fetch('https://app.almango.com.uy/WebAPI/ObtenerNroServicio');
         
         if (response.ok) {
-          const count = await response.json();
-          console.log('Número de servicios obtenido exitosamente:', count);
-          setServiceCount(count);
+          const data = await response.json();
+          console.log('Respuesta completa del API:', data);
+          
+          // Extraer el número de la propiedad "Numero"
+          const count = data.Numero;
+          console.log('Número de servicios extraído:', count);
+          
+          if (typeof count === 'number' && !isNaN(count)) {
+            setServiceCount(count);
+          } else {
+            console.error('El número recibido no es válido:', count);
+          }
         } else {
           console.error('Error en el endpoint:', response.status);
         }
