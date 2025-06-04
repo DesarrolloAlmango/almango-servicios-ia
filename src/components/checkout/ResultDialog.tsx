@@ -65,7 +65,7 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
       const clientName = serviceRequests[0]?.requestData?.Nombre || 'Cliente';
       const nombreParam = `(${solicitudIds}) ${clientName}`;
       
-      const url = new URL("http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/OrganizarMail");
+      const url = new URL("https://app.almango.com.uy/WebAPI/OrganizarMail");
       url.searchParams.append("Maildesignid", "7");
       url.searchParams.append("Maildesigntipo", "N");
       url.searchParams.append("Email", "");
