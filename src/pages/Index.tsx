@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -24,8 +25,8 @@ const organizedLogos = [
   { url: "https://almango.com.uy/img/logos/BALTON.jpg", alt: "BALTON" },
   // FINKEL - corregido
   { url: "https://almango.com.uy/img/logos/FINKEL.png", alt: "FINKEL" },
-  // CAROLINAS STORE - corregido
-  { url: "https://almango.com.uy/img/logos/STORE.png", alt: "CAROLINAS STORE" },
+  // CAROLINAS STORE - corregido extensión a .jpg
+  { url: "https://almango.com.uy/img/logos/STORE.jpg", alt: "CAROLINAS STORE" },
   // ACHER CERÁMICAS - corregido
   { url: "https://almango.com.uy/img/logos/ACHER.png", alt: "ACHER CERÁMICAS" },
   // LA CUEVA MUEBLES - corregido
