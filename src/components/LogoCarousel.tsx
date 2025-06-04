@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 interface LogoCarouselProps {
@@ -6,7 +7,7 @@ interface LogoCarouselProps {
     alt: string;
   }[];
   direction?: "ltr" | "rtl";
-  speed?: "normal" | "fast" | "super-fast" | "ultra-fast" | "slow" | "super-slow";
+  speed?: "normal" | "fast" | "super-fast" | "ultra-fast" | "slow" | "super-slow" | "ultra-slow";
 }
 const LogoCarousel: React.FC<LogoCarouselProps> = ({
   logos,
@@ -34,6 +35,8 @@ const LogoCarousel: React.FC<LogoCarouselProps> = ({
         return "animate-[infinite-scroll-reverse_45s_linear_infinite]";
       case "super-slow":
         return "animate-[infinite-scroll-reverse_60s_linear_infinite]";
+      case "ultra-slow":
+        return "animate-[infinite-scroll-reverse_90s_linear_infinite]";
       default:
         return "animate-[infinite-scroll-reverse_30s_linear_infinite]";
     }

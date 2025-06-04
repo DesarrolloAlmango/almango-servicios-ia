@@ -171,7 +171,7 @@ const Index = () => {
           
           <div className="w-full px-4 py-0">
             <div className="w-full overflow-hidden max-w-6xl mx-auto">
-              <LogoCarousel logos={organizedLogos} direction="rtl" speed="super-slow" />
+              <LogoCarousel logos={organizedLogos} direction="rtl" speed="ultra-slow" />
             </div>
           </div>
         </section>
