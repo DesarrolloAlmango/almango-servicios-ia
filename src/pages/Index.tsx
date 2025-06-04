@@ -31,26 +31,26 @@ const organizedLogos = [
   { url: "https://almango.com.uy/img/logos/ACHER.png", alt: "ACHER CERÁMICAS" },
   // LA CUEVA MUEBLES - corregido
   { url: "https://almango.com.uy/img/logos/logo-lacueva.png", alt: "LA CUEVA MUEBLES" },
-  // EL CERRO ELECTRODOMÉSTICOS - no disponible, espacio vacío
-  { url: "", alt: "EL CERRO ELECTRODOMÉSTICOS" },
+  // EL CERRO ELECTRODOMÉSTICOS - corregido
+  { url: "https://almango.com.uy/img/logos/ELCERRO.PNG", alt: "EL CERRO ELECTRODOMÉSTICOS" },
   // LA MULATA MUEBLES - corregido
   { url: "https://almango.com.uy/img/logos/logo-lamulata.png", alt: "LA MULATA MUEBLES" },
   // PGU URUGUAY - corregido
   { url: "https://almango.com.uy/img/logos/PGU.png", alt: "PGU URUGUAY" },
-  // LABORATORIO ATGEN - no disponible, espacio vacío
-  { url: "", alt: "LABORATORIO ATGEN" },
-  // LABORATORIO BELTRAN ZUNINO - no disponible, espacio vacío
-  { url: "", alt: "LABORATORIO BELTRAN ZUNINO" },
+  // LABORATORIO ATGEN - corregido
+  { url: "https://almango.com.uy/img/logos/ATGEN.png", alt: "LABORATORIO ATGEN" },
+  // LABORATORIO BELTRAN ZUNINO - corregido
+  { url: "https://almango.com.uy/img/logos/BELTRAN.png", alt: "LABORATORIO BELTRAN ZUNINO" },
   // PRONTOMETAL - corregido
   { url: "https://almango.com.uy/img/logos/logo-prontometal.png", alt: "PRONTOMETAL" },
   // ONFLOR - corregido
   { url: "https://almango.com.uy/img/logos/ONFLOR.png", alt: "ONFLOR" },
-  // MINISTERIO DE GANADERÍA AGRICULTURA Y PESCA (MGAP) - no disponible, espacio vacío
-  { url: "", alt: "MINISTERIO DE GANADERÍA AGRICULTURA Y PESCA (MGAP)" },
-  // PODER JUDICIAL - no disponible, espacio vacío
-  { url: "", alt: "PODER JUDICIAL" },
-  // INTENDENCIA MUNICIPAL DE MONTEVIDEO - no disponible, espacio vacío
-  { url: "", alt: "INTENDENCIA MUNICIPAL DE MONTEVIDEO" },
+  // MINISTERIO DE GANADERÍA AGRICULTURA Y PESCA (MGAP) - corregido
+  { url: "https://almango.com.uy/img/logos/MGAP.png", alt: "MINISTERIO DE GANADERÍA AGRICULTURA Y PESCA (MGAP)" },
+  // PODER JUDICIAL - corregido
+  { url: "https://almango.com.uy/img/logos/JUDICIAL.png", alt: "PODER JUDICIAL" },
+  // INTENDENCIA MUNICIPAL DE MONTEVIDEO - corregido
+  { url: "https://almango.com.uy/img/logos/IMM.png", alt: "INTENDENCIA MUNICIPAL DE MONTEVIDEO" },
   // ENGEL & VOLKERS - corregido
   { url: "https://almango.com.uy/img/logos/logo-volkers.png", alt: "ENGEL & VOLKERS" },
   // SUPERMERCADOS: DISCO - corregido
@@ -59,8 +59,8 @@ const organizedLogos = [
   { url: "https://almango.com.uy/img/logos/logo-geant.png", alt: "GEANT" },
   // SUPERMERCADOS: DEVOTO - corregido
   { url: "https://almango.com.uy/img/logos/logo-devoto.png", alt: "DEVOTO" },
-  // SUPERMERCADOS: LA CABAÑA - no disponible, espacio vacío
-  { url: "", alt: "LA CABAÑA" }
+  // SUPERMERCADOS: LA CABAÑA - corregido
+  { url: "https://almango.com.uy/img/logos/LACABAÑA.jpg", alt: "LA CABAÑA" }
 ];
 
 const Index = () => {
