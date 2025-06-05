@@ -57,8 +57,8 @@ const organizedLogos = [
   { url: "https://almango.com.uy/img/logos/logo-disco.png", alt: "DISCO" },
   // SUPERMERCADOS: GEANT - corregido
   { url: "https://almango.com.uy/img/logos/logo-geant.png", alt: "GEANT" },
-  // SUPERMERCADOS: DEVOTO - corregido
-  { url: "https://almango.com.uy/img/logos/logo-devoto.png", alt: "DEVOTO" },
+  // SUPERMERCADOS: DEVOTO - actualizado con nueva URL
+  { url: "https://almango.com.uy/img/logos/DEVOTO.JPG", alt: "DEVOTO" },
   // SUPERMERCADOS: LA CABAÑA - corregido
   { url: "https://almango.com.uy/img/logos/LACABAÑA.jpg", alt: "LA CABAÑA" }
 ];
