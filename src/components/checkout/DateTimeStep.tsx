@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -30,11 +31,11 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const timeSlotsRef = useRef<HTMLDivElement>(null);
 
-  // Establecer la fecha actual como seleccionada por defecto
+  // Establecer el día siguiente como fecha seleccionada por defecto
   useEffect(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    setSelectedDate(today);
+    const tomorrow = addDays(new Date(), 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    setSelectedDate(tomorrow);
   }, []);
 
   useEffect(() => {
@@ -77,8 +78,8 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    // Deshabilitar domingos y fechas pasadas (permitir el día actual)
-    return date.getDay() === 0 || isBefore(date, today);
+    // Deshabilitar domingos, el día de hoy y fechas pasadas
+    return date.getDay() === 0 || isBefore(date, today) || isToday(date);
   };
 
   return (
@@ -100,7 +101,7 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
               disabled={disabledDays}
               locale={es}
               className="rounded-md border"
-              fromDate={new Date()} // Comienza desde hoy
+              fromDate={addDays(new Date(), 1)} // Comienza desde mañana
               toDate={addDays(new Date(), 60)}
             />
           </div>
