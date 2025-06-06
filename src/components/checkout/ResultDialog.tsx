@@ -103,6 +103,8 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
       return;
     }
 
+    // Immediately mark feedback as sent to hide the form
+    setFeedbackSent(true);
     setSendingFeedback(true);
     
     try {
@@ -110,14 +112,17 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
       
       if (result.success) {
         toast.success("¡Gracias por tu feedback! Tu mensaje ha sido enviado correctamente.");
-        setFeedbackSent(true); // Mark feedback as sent to hide the form
         setFeedback(""); // Clear the feedback input
       } else {
         toast.error(result.error || "Error al enviar el feedback");
+        // If there's an error, show the form again
+        setFeedbackSent(false);
       }
     } catch (error) {
       console.error("Error in handleFeedbackSubmit:", error);
       toast.error("Error inesperado al enviar el feedback");
+      // If there's an error, show the form again
+      setFeedbackSent(false);
     } finally {
       setSendingFeedback(false);
     }
@@ -286,7 +291,14 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
                   <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
                     <CheckCircle className="h-6 w-6 text-green-600 mx-auto mb-2" />
                     <p className="text-green-600 font-medium">
-                      ¡Gracias por tu feedback! Tu sugerencia se envió correctamente.
+                      {sendingFeedback ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Enviando tu sugerencia...
+                        </span>
+                      ) : (
+                        "¡Gracias por tu feedback! Tu sugerencia se envió correctamente."
+                      )}
                     </p>
                   </div>
                 )}
