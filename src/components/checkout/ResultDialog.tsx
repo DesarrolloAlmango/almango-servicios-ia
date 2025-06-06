@@ -110,8 +110,8 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
       
       if (result.success) {
         toast.success("¡Gracias por tu feedback! Tu mensaje ha sido enviado correctamente.");
+        setFeedbackSent(true); // Mark feedback as sent to hide the form
         setFeedback(""); // Clear the feedback input
-        setFeedbackSent(true); // Mark feedback as sent
       } else {
         toast.error(result.error || "Error al enviar el feedback");
       }
@@ -242,50 +242,54 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
               </div>
             )}
 
-            {/* Feedback textarea - only show when all payments are confirmed and feedback hasn't been sent */}
-            {allMercadoPagoPaymentsConfirmed && !feedbackSent && (
+            {/* Feedback section - only show when all payments are confirmed */}
+            {allMercadoPagoPaymentsConfirmed && (
               <div className="mt-6 space-y-2">
-                <div className="text-left mb-2 text-gray-700">
-                  <label htmlFor="feedback" className="block text-sm font-medium text-gray-700 mb-1">
-                    ¿Cómo podemos mejorar? Te leemos...
-                  </label>
-                  <Textarea
-                    id="feedback"
-                    value={feedback}
-                    onChange={(e) => setFeedback(e.target.value)}
-                    placeholder="Tu opinión nos ayuda a mejorar..."
-                    className="w-full"
-                    rows={3}
-                    disabled={sendingFeedback}
-                  />
-                  <div className="mt-2 text-right">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={handleFeedbackSubmit} 
-                      disabled={!feedback.trim() || sendingFeedback}
-                    >
-                      {sendingFeedback ? (
-                        <>
-                          <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                          Enviando...
-                        </>
-                      ) : (
-                        <>
-                          <MessageSquare className="mr-1 h-4 w-4" />
-                          Enviar
-                        </>
-                      )}
-                    </Button>
+                {!feedbackSent ? (
+                  // Show feedback form if not sent yet
+                  <div className="text-left mb-2 text-gray-700">
+                    <label htmlFor="feedback" className="block text-sm font-medium text-gray-700 mb-1">
+                      ¿Cómo podemos mejorar? Te leemos...
+                    </label>
+                    <Textarea
+                      id="feedback"
+                      value={feedback}
+                      onChange={(e) => setFeedback(e.target.value)}
+                      placeholder="Tu opinión nos ayuda a mejorar..."
+                      className="w-full"
+                      rows={3}
+                      disabled={sendingFeedback}
+                    />
+                    <div className="mt-2 text-right">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={handleFeedbackSubmit} 
+                        disabled={!feedback.trim() || sendingFeedback}
+                      >
+                        {sendingFeedback ? (
+                          <>
+                            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+                            Enviando...
+                          </>
+                        ) : (
+                          <>
+                            <MessageSquare className="mr-1 h-4 w-4" />
+                            Enviar
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              </div>
-            )}
-
-            {/* Thank you message after feedback is sent */}
-            {allMercadoPagoPaymentsConfirmed && feedbackSent && (
-              <div className="mt-6 text-center text-green-600 font-medium">
-                ¡Gracias por tu feedback! Tu opinión es muy valiosa para nosotros.
+                ) : (
+                  // Show success message after feedback is sent
+                  <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <CheckCircle className="h-6 w-6 text-green-600 mx-auto mb-2" />
+                    <p className="text-green-600 font-medium">
+                      ¡Gracias por tu feedback! Tu sugerencia se envió correctamente.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
