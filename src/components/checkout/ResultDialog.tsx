@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import {
   Dialog,
@@ -250,7 +249,22 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
             {/* Feedback section - only show when all payments are confirmed */}
             {allMercadoPagoPaymentsConfirmed && (
               <div className="mt-6 space-y-2">
-                {!feedbackSent ? (
+                {feedbackSent ? (
+                  // Show success message after feedback is sent
+                  <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <CheckCircle className="h-6 w-6 text-green-600 mx-auto mb-2" />
+                    <p className="text-green-600 font-medium">
+                      {sendingFeedback ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Enviando tu sugerencia...
+                        </span>
+                      ) : (
+                        "¡Gracias por tu feedback! Tu sugerencia se envió correctamente."
+                      )}
+                    </p>
+                  </div>
+                ) : (
                   // Show feedback form if not sent yet
                   <div className="text-left mb-2 text-gray-700">
                     <label htmlFor="feedback" className="block text-sm font-medium text-gray-700 mb-1">
@@ -285,21 +299,6 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
                         )}
                       </Button>
                     </div>
-                  </div>
-                ) : (
-                  // Show success message after feedback is sent
-                  <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <CheckCircle className="h-6 w-6 text-green-600 mx-auto mb-2" />
-                    <p className="text-green-600 font-medium">
-                      {sendingFeedback ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Enviando tu sugerencia...
-                        </span>
-                      ) : (
-                        "¡Gracias por tu feedback! Tu sugerencia se envió correctamente."
-                      )}
-                    </p>
                   </div>
                 )}
               </div>
