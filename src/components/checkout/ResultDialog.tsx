@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import {
   Dialog,
@@ -283,10 +284,8 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
 
             {/* Thank you message after feedback is sent */}
             {allMercadoPagoPaymentsConfirmed && feedbackSent && (
-              <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <div className="text-center text-green-700 font-medium">
-                  ¡Gracias por tu sugerencia! Tu mensaje ha sido enviado correctamente.
-                </div>
+              <div className="mt-6 text-center text-green-600 font-medium">
+                ¡Gracias por tu feedback! Tu opinión es muy valiosa para nosotros.
               </div>
             )}
           </div>
