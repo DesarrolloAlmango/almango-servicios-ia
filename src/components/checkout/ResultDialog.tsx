@@ -102,7 +102,7 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
       return;
     }
 
-    // Immediately mark feedback as sent to hide the form
+    // Immediately hide the form and show loading state
     setFeedbackSent(true);
     setSendingFeedback(true);
     
@@ -114,14 +114,10 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
         setFeedback(""); // Clear the feedback input
       } else {
         toast.error(result.error || "Error al enviar el feedback");
-        // If there's an error, show the form again
-        setFeedbackSent(false);
       }
     } catch (error) {
       console.error("Error in handleFeedbackSubmit:", error);
       toast.error("Error inesperado al enviar el feedback");
-      // If there's an error, show the form again
-      setFeedbackSent(false);
     } finally {
       setSendingFeedback(false);
     }
@@ -277,26 +273,16 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
                       placeholder="Tu opinión nos ayuda a mejorar..."
                       className="w-full"
                       rows={3}
-                      disabled={sendingFeedback}
                     />
                     <div className="mt-2 text-right">
                       <Button 
                         variant="outline" 
                         size="sm" 
                         onClick={handleFeedbackSubmit} 
-                        disabled={!feedback.trim() || sendingFeedback}
+                        disabled={!feedback.trim()}
                       >
-                        {sendingFeedback ? (
-                          <>
-                            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
-                            Enviando...
-                          </>
-                        ) : (
-                          <>
-                            <MessageSquare className="mr-1 h-4 w-4" />
-                            Enviar
-                          </>
-                        )}
+                        <MessageSquare className="mr-1 h-4 w-4" />
+                        Enviar
                       </Button>
                     </div>
                   </div>
