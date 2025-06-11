@@ -15,6 +15,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { lastSelectedCategoryId, lastSelectedCategoryName } from "@/components/CategoryCarousel";
+
 export interface CartItem {
   id: string;
   name: string;
@@ -29,12 +30,14 @@ export interface CartItem {
   locationId?: string;
   textosId?: string | null;
 }
+
 interface TarjetaServicio {
   id?: string;
   name: string;
   icon: keyof typeof iconComponents | string;
   url?: string;
 }
+
 interface PurchaseLocation {
   storeId: string;
   storeName: string;
@@ -48,6 +51,7 @@ interface PurchaseLocation {
   categoryId?: string;
   categoryName?: string;
 }
+
 const iconComponents = {
   Package,
   Baby,
@@ -57,6 +61,7 @@ const iconComponents = {
   Zap,
   Truck
 };
+
 const fallbackServices: TarjetaServicio[] = [{
   id: "elec-1",
   name: "Electricidades",
@@ -86,6 +91,7 @@ const fallbackServices: TarjetaServicio[] = [{
   name: "Cuidado Infantil",
   icon: "Baby"
 }];
+
 const fallbackMudanzaServices: TarjetaServicio[] = [{
   id: "mudz-local-1",
   name: "Mudanza Local",
@@ -103,6 +109,7 @@ const fallbackMudanzaServices: TarjetaServicio[] = [{
   name: "Servicio de Embalaje",
   icon: "Package"
 }];
+
 const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
   try {
     const response = await fetch("https://app.almango.com.uy/WebAPI/GetTarjetasServicios");
@@ -119,6 +126,7 @@ const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
     throw error;
   }
 };
+
 const fetchTarjetasMudanza = async (): Promise<TarjetaServicio[]> => {
   try {
     const response = await fetch("https://app.almango.com.uy/WebAPI/GetTarjetasServicios2");
@@ -135,11 +143,13 @@ const fetchTarjetasMudanza = async (): Promise<TarjetaServicio[]> => {
     throw error;
   }
 };
+
 const Servicios = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const {
-    commerceId
+    commerceId,
+    serviceId: urlServiceId
   } = useParams();
   const isMobile = useIsMobile();
   const [storeName, setStoreName] = useState<string>("");
@@ -162,6 +172,7 @@ const Servicios = () => {
   const [autoClickTriggered, setAutoClickTriggered] = useState(false);
   const serviceCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const pendingCategoryAutoClickRef = useRef<boolean>(false);
+
   const {
     data: services,
     isLoading: isServicesLoading,
@@ -176,6 +187,7 @@ const Servicios = () => {
       }
     }
   });
+
   const {
     data: mudanzaServices,
     isLoading: isLoadingMudanza,
@@ -190,12 +202,46 @@ const Servicios = () => {
       }
     }
   });
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setTitleVisible(true);
     }, 300);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (urlServiceId && !isServicesLoading && !isLoadingMudanza) {
+      console.log("URL contains serviceId parameter:", urlServiceId);
+      
+      const displayedServices = isServicesError ? fallbackServices : services;
+      const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
+      const allServices = [...(displayedServices || []), ...(displayedMudanzaServices || [])];
+      
+      const foundService = allServices.find(service => service.id === urlServiceId);
+      
+      if (foundService) {
+        console.log("Found service with ID:", urlServiceId, foundService);
+        setHighlightedServiceId(urlServiceId);
+        setAutoClickTriggered(false);
+        
+        // Auto-click the service to open its categories popup
+        setTimeout(() => {
+          const serviceCardElement = serviceCardRefs.current[urlServiceId];
+          if (serviceCardElement) {
+            setAutoClickTriggered(true);
+            setHighlightedServiceId(null);
+            serviceCardElement.click();
+            console.log("Auto-clicked on service from URL:", urlServiceId);
+          }
+        }, 1000);
+      } else {
+        console.warn("Service not found with ID:", urlServiceId);
+        toast.error(`Servicio con ID ${urlServiceId} no encontrado`);
+      }
+    }
+  }, [urlServiceId, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza]);
+
   useEffect(() => {
     if (location.state && location.state.clickedService) {
       // Clear any existing toasts first
@@ -231,6 +277,7 @@ const Servicios = () => {
       window.history.replaceState({}, document.title);
     }
   }, [location.state, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza]);
+
   useEffect(() => {
     if (highlightedServiceId && serviceCardRefs.current[highlightedServiceId] && !autoClickTriggered) {
       const timer = setTimeout(() => {
@@ -245,6 +292,7 @@ const Servicios = () => {
       return () => clearTimeout(timer);
     }
   }, [highlightedServiceId, autoClickTriggered]);
+
   useEffect(() => {
     if (pendingCategoryAutoClickRef.current && selectedServiceId && selectedCategoryId) {
       console.log("Processing pending category auto-click:", {
@@ -277,6 +325,7 @@ const Servicios = () => {
       return () => clearTimeout(timer);
     }
   }, [purchaseLocations, selectedServiceId, selectedCategoryId, selectedCategoryName]);
+
   useEffect(() => {
     const fetchStoreName = async () => {
       if (commerceId) {
@@ -308,20 +357,25 @@ const Servicios = () => {
     };
     fetchStoreName();
   }, [commerceId, services]);
+
   const displayedServices = isServicesError ? fallbackServices : services;
   const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
+
   const getPurchaseLocationForService = (serviceId: string) => {
     return purchaseLocations.find(location => location.serviceId === serviceId) || null;
   };
+
   const getAllPurchaseLocations = () => {
     return purchaseLocations;
   };
+
   useEffect(() => {
     if (location.state && location.state.openCart) {
       setIsCartOpen(true);
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
+
   useEffect(() => {
     if (pendingServiceCardAction && selectedServiceId) {
       const timer = setTimeout(() => {
@@ -330,9 +384,11 @@ const Servicios = () => {
       return () => clearTimeout(timer);
     }
   }, [pendingServiceCardAction, selectedServiceId]);
+
   const handleBackToHome = () => {
     navigate('/');
   };
+
   const addToCart = (item: CartItem) => {
     const serviceLocation = purchaseLocations.find(loc => loc.serviceId === item.serviceId);
     const itemWithLocation = serviceLocation ? {
@@ -348,18 +404,22 @@ const Servicios = () => {
       return filteredItems;
     });
   };
+
   const updateCartItem = (id: string, quantity: number) => {
     setCartItems(prevItems => prevItems.map(item => item.id === id ? {
       ...item,
       quantity: Math.max(0, quantity)
     } : item).filter(item => item.quantity > 0));
   };
+
   const getCartTotal = () => {
     return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
   };
+
   const getCartItemsCount = () => {
     return cartItems.reduce((count, item) => count + item.quantity, 0);
   };
+
   const handleServiceCardClick = (serviceId: string | undefined, serviceName: string) => {
     if (!serviceId) return false;
     if (commerceId) {
@@ -386,6 +446,7 @@ const Servicios = () => {
       return false;
     }
   };
+
   const handleCategorySelect = (serviceId: string, categoryId: string, categoryName: string) => {
     setSelectedServiceId(serviceId);
     setSelectedCategoryId(categoryId);
@@ -413,6 +474,7 @@ const Servicios = () => {
       setIsLocationModalOpen(true);
     }
   };
+
   const handleLocationSelect = (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string) => {
     if (selectedServiceId && selectedServiceName) {
       const newLocation: PurchaseLocation = {
@@ -456,6 +518,7 @@ const Servicios = () => {
       }
     }
   };
+
   const clearPurchaseLocation = (serviceId: string, categoryId?: string) => {
     if (commerceId) return;
     const locationsToRemove = categoryId ? purchaseLocations.filter(loc => loc.serviceId === serviceId && loc.categoryId === categoryId) : purchaseLocations.filter(loc => loc.serviceId === serviceId);
@@ -482,6 +545,7 @@ const Servicios = () => {
       toast.success("Lugar de compra eliminado");
     }
   };
+
   const confirmDeleteLocation = () => {
     if (!locationToDelete) return;
     setCartItems(prev => prev.filter(item => item.serviceId !== locationToDelete.serviceId));
@@ -490,6 +554,7 @@ const Servicios = () => {
     setLocationToDelete(null);
     toast.success("Lugar de compra y productos asociados eliminados");
   };
+
   // Add new listener for automatic category opening
   useEffect(() => {
     const handleOpenCategory = (e: Event) => {
@@ -536,6 +601,7 @@ const Servicios = () => {
       document.removeEventListener('openCategory', handleOpenCategory);
     };
   }, []);
+
   if (isServicesLoading && isLoadingMudanza) {
     return <div className="min-h-screen flex flex-col">
         <div className="absolute inset-0 z-0 bg-[#14162c]">
@@ -581,6 +647,7 @@ const Servicios = () => {
         </main>
       </div>;
   }
+
   return <div className="min-h-screen flex flex-col relative">
       {/* Split background color - adjusted for mobile devices */}
       <div className="absolute inset-0 z-0">
@@ -796,4 +863,5 @@ const Servicios = () => {
       `}</style>
     </div>;
 };
+
 export default Servicios;
