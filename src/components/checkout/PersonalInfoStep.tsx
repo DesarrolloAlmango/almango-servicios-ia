@@ -474,64 +474,67 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="paymentMethod"
-            render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel>Forma de pago</FormLabel>
-                {isLoadingPaymentStatus ? (
-                  <div className="text-sm text-muted-foreground">
-                    Verificando disponibilidad de pagos...
-                  </div>
-                ) : (
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={handlePaymentMethodChange}
-                      defaultValue={field.value}
-                      className="flex flex-col space-y-1"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem 
-                          value="later" 
-                          id="payment-later" 
-                          disabled={!paymentEnabled}
-                        />
-                        <Label 
-                          htmlFor="payment-later" 
-                          className={`flex items-center gap-2 ${!paymentEnabled ? 'text-muted-foreground cursor-not-allowed' : ''}`}
-                        >
-                          Pagar después (al profesional)
-                          <Banknote size={18} className={!paymentEnabled ? 'text-muted-foreground' : 'text-green-500'} />
-                          {!paymentEnabled && (
-                            <span className="text-xs text-muted-foreground">(No disponible)</span>
-                          )}
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem 
-                          value="now" 
-                          id="payment-now"
-                          disabled={!paymentEnabled}
-                        />
-                        <Label 
-                          htmlFor="payment-now" 
-                          className={`flex items-center gap-2 ${!paymentEnabled ? 'text-muted-foreground cursor-not-allowed' : ''}`}
-                        >
-                          Pagar ahora (Mercado Pago)
-                          <CreditCard size={18} className={!paymentEnabled ? 'text-muted-foreground' : 'text-sky-500'} />
-                          {!paymentEnabled && (
-                            <span className="text-xs text-muted-foreground">(No disponible)</span>
-                          )}
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                )}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* Only show payment method section if payment is enabled or still loading */}
+          {(paymentEnabled || isLoadingPaymentStatus) && (
+            <FormField
+              control={form.control}
+              name="paymentMethod"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel>Forma de pago</FormLabel>
+                  {isLoadingPaymentStatus ? (
+                    <div className="text-sm text-muted-foreground">
+                      Verificando disponibilidad de pagos...
+                    </div>
+                  ) : (
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={handlePaymentMethodChange}
+                        defaultValue={field.value}
+                        className="flex flex-col space-y-1"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem 
+                            value="later" 
+                            id="payment-later" 
+                            disabled={!paymentEnabled}
+                          />
+                          <Label 
+                            htmlFor="payment-later" 
+                            className={`flex items-center gap-2 ${!paymentEnabled ? 'text-muted-foreground cursor-not-allowed' : ''}`}
+                          >
+                            Pagar después (al profesional)
+                            <Banknote size={18} className={!paymentEnabled ? 'text-muted-foreground' : 'text-green-500'} />
+                            {!paymentEnabled && (
+                              <span className="text-xs text-muted-foreground">(No disponible)</span>
+                            )}
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem 
+                            value="now" 
+                            id="payment-now"
+                            disabled={!paymentEnabled}
+                          />
+                          <Label 
+                            htmlFor="payment-now" 
+                            className={`flex items-center gap-2 ${!paymentEnabled ? 'text-muted-foreground cursor-not-allowed' : ''}`}
+                          >
+                            Pagar ahora (Mercado Pago)
+                            <CreditCard size={18} className={!paymentEnabled ? 'text-muted-foreground' : 'text-sky-500'} />
+                            {!paymentEnabled && (
+                              <span className="text-xs text-muted-foreground">(No disponible)</span>
+                            )}
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           <FormField
             control={form.control}
