@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -71,7 +70,7 @@ type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 interface PersonalInfoStepProps {
   onPrevious: () => void;
-  onSubmit: (data: FormValues) => void;
+  onSubmit: (data: FormValues & { paymentMethodId?: number }) => void;
   cartItems: CartItem[];
   total: number;
   selectedDepartment: string;
@@ -249,7 +248,22 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       return;
     }
 
-    onSubmit(data);
+    // Determine the correct payment method ID based on payment availability
+    let paymentMethodId: number;
+    
+    if (!paymentEnabled) {
+      // When payment is disabled, always send 0
+      paymentMethodId = 0;
+    } else {
+      // When payment is enabled, use the selected method
+      paymentMethodId = data.paymentMethod === "later" ? 1 : 4;
+    }
+
+    console.log("Payment enabled:", paymentEnabled);
+    console.log("Selected payment method:", data.paymentMethod);
+    console.log("Final payment method ID:", paymentMethodId);
+
+    onSubmit({ ...data, paymentMethodId });
   };
 
   const showPaymentWarning = () => {
