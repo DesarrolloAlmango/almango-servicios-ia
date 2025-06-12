@@ -1,20 +1,20 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import ServiceCard from '../components/ServiceCard';
-import PurchaseLocationModal from '../components/PurchaseLocationModal';
-import { Button } from "../components/ui/button";
-import { ArrowLeft, Search, X } from "lucide-react";
-import { Input } from "../components/ui/input";
-import { Card, CardContent } from "../components/ui/card";
-import { AspectRatio } from "../components/ui/aspect-ratio";
-import { useToast } from "@/hooks/use-toast";
-
-interface Service {
-  id: string;
-  name: string;
-  icon: string;
-  url: string;
-}
+import React, { useState, useEffect, useRef } from "react";
+import { ArrowLeft, ShoppingCart, Home, Wind, Droplets, Zap, Package, Truck, Baby, X, MapPin, CalendarClock, UserCheck, CreditCard, Star } from "lucide-react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import ServiceCard from "@/components/ServiceCard";
+import CartDrawer from "@/components/CartDrawer";
+import ServiceCarousel from "@/components/ServiceCarousel";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useQuery } from "@tanstack/react-query";
+import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
+import PurchaseLocationModal, { globalLastSelectedCategory } from "@/components/PurchaseLocationModal";
+import { Separator } from "@/components/ui/separator";
+import { useIsMobile } from "@/hooks/use-mobile";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { lastSelectedCategoryId, lastSelectedCategoryName } from "@/components/CategoryCarousel";
 
 export interface CartItem {
   id: string;
@@ -31,346 +31,837 @@ export interface CartItem {
   textosId?: string | null;
 }
 
-// Mock data for when API fails
-const mockServices: Service[] = [
-  {
-    id: "1",
-    name: "Armado de Muebles",
-    icon: "https://roble.store/cdn/shop/articles/NordicStory_mueble_flotante_aparador_de_pared_comoda_mueble_de_TV_madera_maciza_roble_diseno_nordico_escandinavo_moderno_13_3024x.jpg?v=1662470702",
-    url: ""
-  }, {
-    id: "3333",
-    name: "Aire Libre",
-    icon: "https://graniteliquidators.com/wp-content/uploads/2017/03/3359339afae91e1d7fe16fad86e028849ed1db81.jpg",
-    url: ""
-  }, {
-    id: "7",
-    name: "Decohogar",
-    icon: "https://content.elmueble.com/medio/2024/10/29/un-estante-de-lado-a-lado-para-exponer-cuadros_22e02709_241029102653_900x900.webp",
-    url: ""
-  }, {
-    id: "9",
-    name: "Equipo Sanitario, Baño y Cocina",
-    icon: "https://blog.decorcenter.pe/wp-content/uploads/2022/05/portada-como-decorar-un-bano-de-visitas-moderno.jpg",
-    url: ""
-  }, {
-    id: "10",
-    name: "Instalación de Electrodomésticos",
-    icon: "https://serviciotecnicotrivino.com.ar/wp-content/uploads/2022/03/11-mitos-768x472.jpg",
-    url: ""
-  }, {
-    id: "3",
-    name: "Aire Acondicionado",
-    icon: "https://services.meteored.com/img/article/ola-de-calor-disipador-de-agua-para-que-tu-aire-acondicionado-no-gotee-pronostico-1673072259870_1024.jpg",
-    url: ""
-  }
-];
+interface TarjetaServicio {
+  id?: string;
+  name: string;
+  icon: keyof typeof iconComponents | string;
+  url?: string;
+}
 
-// Mock data for mudanza (separate endpoint)
-const mockMudanzaServices: Service[] = [
-  {
-    id: "1111",
-    name: "Mudanza",
-    icon: "https://tn.com.ar/resizer/v2/en-febrero-hacer-una-mudanza-en-el-amba-puede-costar-hasta-500000-foto-blogdeseguroscom-R76YF6LYRVFEHIWDAB5QT4S2EM.png?auth=0e45d37cfd3288d80391fb141181b48361378c8617a55a19aed4d0348d10ac9a&width=1440",
-    url: "https://app.almango.com.uy/mudanza.aspx?Mode=INS&MudanzaId=0&ProveedorId=0&SecUserId=0"
+interface PurchaseLocation {
+  storeId: string;
+  storeName: string;
+  otherLocation?: string;
+  serviceId?: string;
+  serviceName?: string;
+  departmentId?: string;
+  departmentName?: string;
+  locationId?: string;
+  locationName?: string;
+  categoryId?: string;
+  categoryName?: string;
+}
+
+const iconComponents = {
+  Package,
+  Baby,
+  Wind,
+  Home,
+  Droplets,
+  Zap,
+  Truck
+};
+
+const fallbackServices: TarjetaServicio[] = [{
+  id: "elec-1",
+  name: "Electricidades",
+  icon: "Zap"
+}, {
+  id: "plum-2",
+  name: "Plomería",
+  icon: "Droplets"
+}, {
+  id: "cerr-3",
+  name: "Cerrajería",
+  icon: "Home"
+}, {
+  id: "clim-4",
+  name: "Climatización",
+  icon: "Wind"
+}, {
+  id: "mudz-5",
+  name: "Mudanzas",
+  icon: "Truck"
+}, {
+  id: "paqt-6",
+  name: "Paquetería",
+  icon: "Package"
+}, {
+  id: "baby-7",
+  name: "Cuidado Infantil",
+  icon: "Baby"
+}];
+
+const fallbackMudanzaServices: TarjetaServicio[] = [{
+  id: "mudz-local-1",
+  name: "Mudanza Local",
+  icon: "Truck"
+}, {
+  id: "mudz-inter-2",
+  name: "Mudanza Interestatal",
+  icon: "Truck"
+}, {
+  id: "mudz-corp-3",
+  name: "Mudanza Corporativa",
+  icon: "Package"
+}, {
+  id: "mudz-embalaje-4",
+  name: "Servicio de Embalaje",
+  icon: "Package"
+}];
+
+const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
+  try {
+    const response = await fetch("https://app.almango.com.uy/WebAPI/GetTarjetasServicios");
+    if (!response.ok) {
+      throw new Error("Error al obtener las tarjetas de servicios");
+    }
+    const data = await response.json();
+    console.log("Datos de la API sin procesar:", data);
+    const parsedData = JSON.parse(data.SDTTarjetasServiciosJson);
+    console.log("Datos de servicios parseados:", parsedData);
+    return parsedData;
+  } catch (error) {
+    console.error("Error fetching services:", error);
+    throw error;
   }
-];
+};
+
+const fetchTarjetasMudanza = async (): Promise<TarjetaServicio[]> => {
+  try {
+    const response = await fetch("https://app.almango.com.uy/WebAPI/GetTarjetasServicios2");
+    if (!response.ok) {
+      throw new Error("Error al obtener las tarjetas de servicios de mudanza");
+    }
+    const data = await response.json();
+    console.log("Datos de mudanza sin procesar:", data);
+    const parsedData = JSON.parse(data.SDTTarjetasServiciosJson);
+    console.log("Datos de servicios de mudanza parseados:", parsedData);
+    return parsedData;
+  } catch (error) {
+    console.error("Error fetching mudanza services:", error);
+    throw error;
+  }
+};
 
 const Servicios = () => {
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [showLocationModal, setShowLocationModal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const location = useLocation();
   const navigate = useNavigate();
+  const location = useLocation();
+  const {
+    commerceId,
+    serviceId: urlServiceId
+  } = useParams();
+  const isMobile = useIsMobile();
+  const [storeName, setStoreName] = useState<string>("");
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [pendingCategoryId, setPendingCategoryId] = useState<string | null>(null);
-  const [pendingCategoryName, setPendingCategoryName] = useState<string | null>(null);
-  const { toast } = useToast();
-  const initialRender = useRef(true);
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [purchaseLocations, setPurchaseLocations] = useState<PurchaseLocation[]>([]);
+  const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+  const [selectedServiceName, setSelectedServiceName] = useState<string | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+  const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
+  const [pendingServiceCardAction, setPendingServiceCardAction] = useState<boolean>(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [locationToDelete, setLocationToDelete] = useState<{
+    serviceId: string;
+    locationName: string;
+  } | null>(null);
+  const [titleVisible, setTitleVisible] = useState(false);
+  const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(null);
+  const [autoClickTriggered, setAutoClickTriggered] = useState(false);
+  const serviceCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const pendingCategoryAutoClickRef = useRef<boolean>(false);
 
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        // Use the API endpoint that's working based on the network logs
-        const response = await fetch('https://app.almango.com.uy/WebAPI/GetTarjetasServicios');
-        const mudanzaResponse = await fetch('https://app.almango.com.uy/WebAPI/GetTarjetasServicios2');
-
-        if (!response.ok || !mudanzaResponse.ok) {
-          throw new Error(`HTTP error! Status: ${!response.ok ? response.status : mudanzaResponse.status}`);
-        }
-
-        // Parse the data format from the API
-        const responseData = await response.json();
-        const mudanzaData = await mudanzaResponse.json();
-        console.info('Datos de la API sin procesar:', responseData);
-        console.info('Datos de mudanza sin procesar:', mudanzaData);
-
-        // Extract the services from the JSON strings
-        let servicesData: Service[] = [];
-        let mudanzaServicesData: Service[] = [];
-
-        if (responseData?.SDTTarjetasServiciosJson) {
-          servicesData = JSON.parse(responseData.SDTTarjetasServiciosJson);
-          console.info('Datos de servicios parseados:', servicesData);
-        }
-
-        if (mudanzaData?.SDTTarjetasServiciosJson) {
-          mudanzaServicesData = JSON.parse(mudanzaData.SDTTarjetasServiciosJson);
-          console.info('Datos de servicios de mudanza parseados:', mudanzaServicesData);
-        }
-
-        // Reorder services: put mudanza service in position 2 (index 1)
-        const reorderedServices = [...servicesData];
-        if (mudanzaServicesData.length > 0) {
-          // Insert mudanza service at position 1 (second position)
-          reorderedServices.splice(1, 0, ...mudanzaServicesData);
-        }
-
-        setServices(reorderedServices);
-      } catch (err) {
-        console.error('Error fetching services:', err);
-
-        // Use mock data as fallback with same reordering logic
-        const reorderedMockServices = [...mockServices];
-        reorderedMockServices.splice(1, 0, ...mockMudanzaServices);
-
-        setServices(reorderedMockServices);
-        toast({
-          title: "No se pudieron cargar servicios desde el servidor",
-          description: "Mostrando servicios de ejemplo",
-          variant: "default"
-        });
-      } finally {
-        setLoading(false);
+  const {
+    data: services,
+    isLoading: isServicesLoading,
+    isError: isServicesError
+  } = useQuery({
+    queryKey: ["tarjetasServicios"],
+    queryFn: fetchTarjetasServicios,
+    meta: {
+      onError: (error: Error) => {
+        console.error("Error en la consulta:", error);
+        toast.error("No se pudieron cargar los servicios. Mostrando datos locales.");
       }
-    };
-
-    fetchServices();
-  }, [toast]);
-
-  useEffect(() => {
-    if (location.state?.clickedService) {
-      const serviceName = location.state.clickedService;
-      console.log('Service clicked from home:', serviceName);
-      
-      const matchingService = services.find(service => 
-        service.name.toLowerCase() === serviceName.toLowerCase()
-      );
-      
-      if (matchingService) {
-        console.log('Found matching service:', matchingService);
-        setSelectedService(matchingService);
-        setShowLocationModal(true);
-      }
-      
-      // Clear the state after processing
-      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state, services, navigate]);
+  });
+
+  const {
+    data: mudanzaServices,
+    isLoading: isLoadingMudanza,
+    isError: isErrorMudanza
+  } = useQuery({
+    queryKey: ["tarjetasMudanza"],
+    queryFn: fetchTarjetasMudanza,
+    meta: {
+      onError: (error: Error) => {
+        console.error("Error en la consulta de mudanzas:", error);
+        toast.error("No se pudieron cargar los servicios de mudanza. Mostrando datos locales.");
+      }
+    }
+  });
 
   useEffect(() => {
-    // Listen for the custom event
-    document.addEventListener('openCategory', handleOpenCategoryEvent);
-
-    // Cleanup the event listener when the component unmounts
-    return () => {
-      document.removeEventListener('openCategory', handleOpenCategoryEvent);
-    };
+    const timer = setTimeout(() => {
+      setTitleVisible(true);
+    }, 300);
+    return () => clearTimeout(timer);
   }, []);
 
-  const handleOpenCategoryEvent = (event: Event) => {
-    const customEvent = event as CustomEvent;
-    console.log('Received openCategory event:', customEvent.detail);
-
-    // Extract data from the event detail
-    const { serviceId, categoryId, categoryName } = customEvent.detail;
-
-    // Find the service by ID
-    const service = services.find(s => s.id === serviceId);
-
-    if (service) {
-      console.log('Found service:', service);
-      setSelectedService(service);
-      setPendingCategoryId(categoryId);
-      setPendingCategoryName(categoryName);
-      setShowLocationModal(true);
-    } else {
-      console.log('Service not found');
-    }
-  };
-
-  const handleServiceSelect = (service) => {
-    setSelectedService(service);
-    setShowLocationModal(true);
-  };
-
-  const handleLocationConfirm = (
-    storeId: string, 
-    storeName: string, 
-    departmentId: string,
-    departmentName: string,
-    locationId: string,
-    locationName: string,
-    otherLocation?: string
-  ) => {
-    console.log("Location confirmed:", { 
-      storeId, 
-      storeName, 
-      departmentId, 
-      departmentName, 
-      locationId, 
-      locationName, 
-      otherLocation 
-    });
-    setShowLocationModal(false);
-  };
-
-  const handleCategorySelect = (serviceId, categoryId, categoryName) => {
-    console.log("Category selected:", { serviceId, categoryId, categoryName });
-    setPendingCategoryId(categoryId);
-    setPendingCategoryName(categoryName);
-  };
-
-  const addToCart = (item) => {
-    setCartItems(prevItems => {
-      const existingItemIndex = prevItems.findIndex(i => i.id === item.id);
-
-      if (existingItemIndex > -1) {
-        const updatedItems = [...prevItems];
-        updatedItems[existingItemIndex] = {
-          ...updatedItems[existingItemIndex],
-          quantity: updatedItems[existingItemIndex].quantity + 1
-        };
-        return updatedItems;
+  useEffect(() => {
+    if (urlServiceId && !isServicesLoading && !isLoadingMudanza) {
+      console.log("URL contains serviceId parameter:", urlServiceId);
+      
+      const displayedServices = isServicesError ? fallbackServices : services;
+      const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
+      const allServices = [...(displayedServices || []), ...(displayedMudanzaServices || [])];
+      
+      const foundService = allServices.find(service => service.id === urlServiceId);
+      
+      if (foundService) {
+        console.log("Found service with ID:", urlServiceId, foundService);
+        setHighlightedServiceId(urlServiceId);
+        setAutoClickTriggered(false);
+        
+        // Auto-click the service to open its categories popup
+        setTimeout(() => {
+          const serviceCardElement = serviceCardRefs.current[urlServiceId];
+          if (serviceCardElement) {
+            setAutoClickTriggered(true);
+            setHighlightedServiceId(null);
+            serviceCardElement.click();
+            console.log("Auto-clicked on service from URL:", urlServiceId);
+          }
+        }, 1000);
       } else {
-        return [...prevItems, { ...item, quantity: 1 }];
+        console.warn("Service not found with ID:", urlServiceId);
+        toast.error(`Servicio con ID ${urlServiceId} no encontrado`);
       }
-    });
-    toast({
-      title: "Producto agregado al carrito",
-      description: `${item.name} se ha agregado al carrito.`,
-    });
+    }
+  }, [urlServiceId, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza]);
+
+  useEffect(() => {
+    if (location.state && location.state.clickedService) {
+      // Clear any existing toasts first
+      const existingToasts = document.querySelectorAll('[data-sonner-toast]');
+      existingToasts.forEach(toast => {
+        const closeButton = toast.querySelector('[data-close-button]');
+        if (closeButton) {
+          (closeButton as HTMLElement).click();
+        }
+      });
+
+      // Show only the service selection message after a brief delay to ensure other toasts are cleared
+      setTimeout(() => {
+        toast.success(`Has seleccionado: ${location.state.clickedService}`, {
+          duration: 4000,
+          position: "top-center"
+        });
+      }, 100);
+
+      const findServiceByName = () => {
+        const displayedServices = isServicesError ? fallbackServices : services;
+        const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
+        const allServices = [...(displayedServices || []), ...(displayedMudanzaServices || [])];
+        const foundService = allServices.find(service => service.name === location.state.clickedService);
+        if (foundService && foundService.id) {
+          setHighlightedServiceId(foundService.id);
+          setAutoClickTriggered(false);
+        }
+      };
+      if (!isServicesLoading && !isLoadingMudanza) {
+        findServiceByName();
+      }
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza]);
+
+  useEffect(() => {
+    if (highlightedServiceId && serviceCardRefs.current[highlightedServiceId] && !autoClickTriggered) {
+      const timer = setTimeout(() => {
+        const serviceCardElement = serviceCardRefs.current[highlightedServiceId];
+        if (serviceCardElement) {
+          setAutoClickTriggered(true);
+          setHighlightedServiceId(null);
+          serviceCardElement.click();
+          console.log("Auto-clicked on service:", highlightedServiceId);
+        }
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightedServiceId, autoClickTriggered]);
+
+  useEffect(() => {
+    if (pendingCategoryAutoClickRef.current && selectedServiceId && selectedCategoryId) {
+      console.log("Processing pending category auto-click:", {
+        serviceId: selectedServiceId,
+        categoryId: selectedCategoryId,
+        categoryName: selectedCategoryName
+      });
+
+      // Reset the flag
+      pendingCategoryAutoClickRef.current = false;
+
+      // Small delay to ensure service card has been clicked
+      const timer = setTimeout(() => {
+        // Dispatch a direct product fetch
+        const serviceLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
+        if (serviceLocation) {
+          console.log("Forcing product fetch for:", {
+            serviceId: selectedServiceId,
+            categoryId: selectedCategoryId
+          });
+
+          // Direct API call to fetch products
+          fetch(`https://app.almango.com.uy/WebAPI/ObtenerNivel2?Nivel0=${selectedServiceId}&Nivel1=${selectedCategoryId}`).then(response => response.json()).then(data => {
+            console.log(`Fetched ${data.length} products for category ${selectedCategoryId}`);
+          }).catch(error => {
+            console.error("Error fetching products:", error);
+          });
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [purchaseLocations, selectedServiceId, selectedCategoryId, selectedCategoryName]);
+
+  useEffect(() => {
+    const fetchStoreName = async () => {
+      if (commerceId) {
+        try {
+          const response = await fetch(`/api/AlmangoAPINETFrameworkSQLServer/APIAlmango/GetStoreDetails?storeId=${commerceId}`);
+          if (!response.ok) {
+            throw new Error("Error al obtener los detalles del comercio");
+          }
+          const data = await response.json();
+          const storeDetails = JSON.parse(data.StoreDetailsJson);
+          setStoreName(storeDetails.name);
+          if (services) {
+            const initialLocations = services.map(service => ({
+              storeId: commerceId,
+              storeName: storeDetails.name,
+              serviceId: service.id,
+              serviceName: service.name,
+              departmentId: storeDetails.departmentId,
+              departmentName: storeDetails.departmentName,
+              locationId: storeDetails.locationId,
+              locationName: storeDetails.locationName
+            }));
+            setPurchaseLocations(initialLocations);
+          }
+        } catch (error) {
+          console.error("Error fetching store details:", error);
+        }
+      }
+    };
+    fetchStoreName();
+  }, [commerceId, services]);
+
+  const displayedServices = isServicesError ? fallbackServices : services;
+  const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
+
+  const getPurchaseLocationForService = (serviceId: string) => {
+    return purchaseLocations.find(location => location.serviceId === serviceId) || null;
   };
 
-  const handleGoBack = () => {
+  const getAllPurchaseLocations = () => {
+    return purchaseLocations;
+  };
+
+  useEffect(() => {
+    if (location.state && location.state.openCart) {
+      setIsCartOpen(true);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
+  useEffect(() => {
+    if (pendingServiceCardAction && selectedServiceId) {
+      const timer = setTimeout(() => {
+        setPendingServiceCardAction(false);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [pendingServiceCardAction, selectedServiceId]);
+
+  const handleBackToHome = () => {
     navigate('/');
   };
 
-  const filteredServices = searchTerm
-    ? services.filter(service =>
-        service.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : services;
+  const addToCart = (item: CartItem) => {
+    const serviceLocation = purchaseLocations.find(loc => loc.serviceId === item.serviceId);
+    const itemWithLocation = serviceLocation ? {
+      ...item,
+      departmentId: serviceLocation.departmentId,
+      locationId: serviceLocation.locationId
+    } : item;
+    setCartItems(prevItems => {
+      const filteredItems = prevItems.filter(i => !(i.serviceId === itemWithLocation.serviceId && i.categoryId === itemWithLocation.categoryId && i.productId === itemWithLocation.productId));
+      if (itemWithLocation.quantity > 0) {
+        return [...filteredItems, itemWithLocation];
+      }
+      return filteredItems;
+    });
+  };
 
-  if (loading) {
-    return <div className="container mx-auto px-4 sm:px-8 md:px-12 lg:px-24 bg-[#F0F0F0] relative z-[100]">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 -mt-24 relative justify-center">
-          {[...Array(6)].map((_, index) => (
-            <Card key={`skeleton-${index}`} className="bg-white/90 shadow-md hover:shadow-lg transition-all duration-300 h-40 animate-pulse w-full max-w-md mx-auto">
-              <CardContent className="p-4 flex flex-col items-center justify-center h-full">
-                <div className="w-16 h-16 bg-gray-200 rounded-md mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-              </CardContent>
-            </Card>
-          ))}
+  const updateCartItem = (id: string, quantity: number) => {
+    setCartItems(prevItems => prevItems.map(item => item.id === id ? {
+      ...item,
+      quantity: Math.max(0, quantity)
+    } : item).filter(item => item.quantity > 0));
+  };
+
+  const getCartTotal = () => {
+    return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+  };
+
+  const getCartItemsCount = () => {
+    return cartItems.reduce((count, item) => count + item.quantity, 0);
+  };
+
+  const handleServiceCardClick = (serviceId: string | undefined, serviceName: string) => {
+    if (!serviceId) return false;
+    if (commerceId) {
+      const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId && loc.departmentId && loc.locationId);
+      if (existingLocation) {
+        return true;
+      } else {
+        setSelectedServiceId(serviceId);
+        setSelectedServiceName(serviceName);
+        setIsLocationModalOpen(true);
+        return false;
+      }
+    }
+    if (isLocationModalOpen) {
+      return false;
+    }
+    const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
+    if (existingLocation) {
+      return true;
+    } else {
+      setSelectedServiceId(serviceId);
+      setSelectedServiceName(serviceName);
+      setIsLocationModalOpen(true);
+      return false;
+    }
+  };
+
+  const handleCategorySelect = (serviceId: string, categoryId: string, categoryName: string) => {
+    setSelectedServiceId(serviceId);
+    setSelectedCategoryId(categoryId);
+    setSelectedCategoryName(categoryName);
+    const service = [...(displayedServices || []), ...(displayedMudanzaServices || [])].find(s => s.id === serviceId);
+    if (service) {
+      setSelectedServiceName(service.name);
+    }
+    const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId && loc.departmentId && loc.locationId);
+    if (existingLocation) {
+      setPurchaseLocations(prev => {
+        return prev.map(loc => {
+          if (loc.serviceId === serviceId) {
+            return {
+              ...loc,
+              categoryId: categoryId,
+              categoryName: categoryName
+            };
+          }
+          return loc;
+        });
+      });
+      setPendingServiceCardAction(true);
+    } else {
+      setIsLocationModalOpen(true);
+    }
+  };
+
+  const handleLocationSelect = (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string) => {
+    if (selectedServiceId && selectedServiceName) {
+      const newLocation: PurchaseLocation = {
+        storeId,
+        storeName,
+        otherLocation,
+        serviceId: selectedServiceId,
+        serviceName: selectedServiceName,
+        departmentId,
+        departmentName,
+        locationId,
+        locationName,
+        categoryId: selectedCategoryId || globalLastSelectedCategory.categoryId || undefined,
+        categoryName: selectedCategoryName || globalLastSelectedCategory.categoryName || undefined
+      };
+      const existingLocation = purchaseLocations.find(loc => loc.serviceId === selectedServiceId);
+      setPurchaseLocations(prev => {
+        if (existingLocation) {
+          return prev.map(loc => loc.serviceId === selectedServiceId ? {
+            ...newLocation
+          } : loc);
+        } else {
+          return [...prev, newLocation];
+        }
+      });
+      setIsLocationModalOpen(false);
+      let successMessage = "";
+      if (selectedCategoryId && selectedCategoryName) {
+        successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName} - ${selectedCategoryName}`;
+      } else {
+        successMessage = `Lugar ${commerceId ? "de servicio" : "de compra"} registrado para ${selectedServiceName}`;
+      }
+      toast.success(successMessage);
+      if (selectedCategoryId) {
+        setPendingServiceCardAction(true);
+
+        // If this is the first time registering this service/category, trigger auto-click
+        if (!existingLocation || existingLocation.categoryId !== selectedCategoryId) {
+          pendingCategoryAutoClickRef.current = true;
+        }
+      }
+    }
+  };
+
+  const clearPurchaseLocation = (serviceId: string, categoryId?: string) => {
+    if (commerceId) return;
+    const locationsToRemove = categoryId ? purchaseLocations.filter(loc => loc.serviceId === serviceId && loc.categoryId === categoryId) : purchaseLocations.filter(loc => loc.serviceId === serviceId);
+    if (locationsToRemove.length === 0) return;
+    const hasAssociatedItems = cartItems.some(item => {
+      if (categoryId) {
+        return item.serviceId === serviceId && item.categoryId === categoryId;
+      }
+      return item.serviceId === serviceId;
+    });
+    if (hasAssociatedItems) {
+      const location = locationsToRemove[0];
+      setLocationToDelete({
+        serviceId,
+        locationName: location.storeId === "other" ? location.otherLocation! : location.storeName
+      });
+      setShowDeleteConfirmation(true);
+    } else {
+      if (categoryId) {
+        setPurchaseLocations(prev => prev.filter(loc => !(loc.serviceId === serviceId && loc.categoryId === categoryId)));
+      } else {
+        setPurchaseLocations(prev => prev.filter(loc => loc.serviceId !== serviceId));
+      }
+      toast.success("Lugar de compra eliminado");
+    }
+  };
+
+  const confirmDeleteLocation = () => {
+    if (!locationToDelete) return;
+    setCartItems(prev => prev.filter(item => item.serviceId !== locationToDelete.serviceId));
+    setPurchaseLocations(prev => prev.filter(loc => loc.serviceId !== locationToDelete.serviceId));
+    setShowDeleteConfirmation(false);
+    setLocationToDelete(null);
+    toast.success("Lugar de compra y productos asociados eliminados");
+  };
+
+  // Add new listener for automatic category opening
+  useEffect(() => {
+    const handleOpenCategory = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        const {
+          serviceId,
+          categoryId,
+          categoryName
+        } = customEvent.detail;
+        console.log("Servicios page received openCategory event:", serviceId, categoryId, categoryName);
+
+        // Set the selected service and category IDs
+        setSelectedServiceId(serviceId);
+        setSelectedCategoryId(categoryId);
+        setSelectedCategoryName(categoryName);
+
+        // Set pending action to trigger the product modal
+        setPendingServiceCardAction(true);
+
+        // Set flag for auto-click
+        pendingCategoryAutoClickRef.current = true;
+
+        // Find the service card element
+        const serviceCardElement = serviceCardRefs.current[serviceId];
+        if (serviceCardElement) {
+          // Scroll to and click the service card
+          serviceCardElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+          setTimeout(() => {
+            serviceCardElement.click();
+            console.log("Auto-clicked on service:", serviceId);
+
+            // NEW: Dispatch event to notify ProductGrid that it should refresh prices
+            document.dispatchEvent(new CustomEvent('productGridShown'));
+          }, 300);
+        }
+      }
+    };
+    document.addEventListener('openCategory', handleOpenCategory);
+    return () => {
+      document.removeEventListener('openCategory', handleOpenCategory);
+    };
+  }, []);
+
+  if (isServicesLoading && isLoadingMudanza) {
+    return <div className="min-h-screen flex flex-col">
+        <div className="absolute inset-0 z-0 bg-[#14162c]">
+          <div className="absolute inset-0 z-1" style={{
+          background: "radial-gradient(circle at 20% 30%, #008be1 0%, transparent 40%), radial-gradient(circle at 80% 70%, #ff6900 0%, transparent 40%), radial-gradient(circle at 50% 50%, #0EA5E9 0%, transparent 30%)",
+          opacity: 0.8
+        }}></div>
+          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#14162c] to-transparent z-2"></div>
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#14162c] to-transparent z-2"></div>
         </div>
+        <main className="flex-grow py-8 px-4 relative z-10 servicios-page">
+          <div className="container mx-auto">
+            <div className="flex justify-between items-center mb-8 mt-4">
+              <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 hover:text-gray-300 text-white">
+                <ArrowLeft size={20} />
+                <span>Volver</span>
+              </Button>
+              
+              <div className="relative cursor-pointer" onClick={() => setIsCartOpen(true)}>
+                <ShoppingCart size={24} className="text-white" />
+                {getCartItemsCount() > 0 && <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    {getCartItemsCount()}
+                  </span>}
+              </div>
+            </div>
+            
+            <h1 className="text-4xl md:text-5xl font-bold mb-12 text-center text-[#008be1] uppercase font-display opacity-0 transition-opacity duration-500">
+              Nuestros Servicios
+            </h1>
+            
+            <div className="flex justify-center items-center h-64 gap-6">
+              <div className="w-[220px] h-[220px]">
+                <Skeleton className="w-full h-full rounded-full" />
+              </div>
+              <div className="w-[220px] h-[220px]">
+                <Skeleton className="w-full h-full rounded-full" />
+              </div>
+              <div className="w-[220px] h-[220px]">
+                <Skeleton className="w-full h-full rounded-full" />
+              </div>
+            </div>
+          </div>
+        </main>
       </div>;
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      {/* Header section */}
-      <div className="bg-secondary text-white py-4 shadow-md">
-        <div className="container mx-auto px-4 sm:px-8 md:px-12 lg:px-24 flex items-center justify-between">
-          <Button variant="ghost" onClick={handleGoBack} className="hover:bg-gray-700 text-white">
-            <ArrowLeft className="mr-2" />
-            Volver
-          </Button>
-          <h1 className="text-2xl font-bold text-center">Servicios</h1>
-          <div>
-            {/* Add any additional header content here */}
+  return <div className="min-h-screen flex flex-col relative">
+      {/* Split background color - adjusted for mobile devices */}
+      <div className="absolute inset-0 z-0">
+        {/* Top half - natural grayish color - smaller for mobile */}
+        <div className={`absolute inset-x-0 top-0 ${isMobile ? 'h-[67%]' : 'h-[53%]'} bg-[#F8F4F0]`}></div>
+        {/* Bottom half - orange color - starts lower for mobile */}
+        <div className={`absolute inset-x-0 bottom-0 ${isMobile ? 'h-[33%]' : 'h-[47%]'} bg-[#f06900]`}></div>
+      </div>
+      
+      {/* Fixed header with Back button and Shopping Cart */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-[#F8F4F0] shadow-md">
+        <div className="container mx-auto">
+          <div className="flex justify-between items-center py-4 px-4">
+            <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 text-gray-800">
+              <ArrowLeft size={20} />
+              <span>Volver</span>
+            </Button>
+            
+            <div className="relative cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setIsCartOpen(true)}>
+              <ShoppingCart size={40} className="text-gray-800" />
+              {getCartItemsCount() > 0 && <span className="absolute -top-2 -right-2 bg-primary text-white text-sm rounded-full h-6 w-6 flex items-center justify-center border-2 border-[#FDE1D3]">
+                  {getCartItemsCount()}
+                </span>}
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Main content */}
-      <div className="container mx-auto px-4 sm:px-8 md:px-12 lg:px-24 py-8">
+      
+      <main className="flex-grow py-8 px-4 relative z-10 servicios-page mt-16">
+        <div className="container mx-auto">
+          {/* ¿CÓMO CONTRATAR? Section - Added from Home page */}
+          <div className="py-10 px-4 bg-[#F8F4F0] rounded-lg mb-12">
+            <h2 className="text-3xl font-bold mb-4 text-center uppercase text-[#f06900]">¿CÓMO CONTRATAR?</h2>
+            <h3 className="text-xl font-medium mb-10 text-center text-[#498bdd]">PROCESO DE CONTRATACIÓN</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-6xl mx-auto">
+              <div className="text-center flex flex-col items-center opacity-100">
+                <div className="mb-4 transition-all duration-300 transform hover:scale-110">
+                  <div className="bg-[#F8F4F0] p-4 rounded-full shadow-md">
+                    <CalendarClock size={48} className="text-[#f06900]" />
+                  </div>
+                </div>
+                <h4 className="text-lg font-semibold mb-2 text-[#498bdd]">Agendá fecha y hora</h4>
+                <p className="text-gray-700">Coordinación inmediata.</p>
+              </div>
+              
+              <div className="text-center flex flex-col items-center opacity-100">
+                <div className="mb-4 transition-all duration-300 transform hover:scale-110">
+                  <div className="bg-[#F8F4F0] p-4 rounded-full shadow-md">
+                    <UserCheck size={48} className="text-[#f06900]" />
+                  </div>
+                </div>
+                <h4 className="text-lg font-semibold mb-2 text-[#498bdd]">Recibí al técnico</h4>
+                <p className="text-gray-700">Un profesional calificado realizará el trabajo.</p>
+              </div>
+              
+              <div className="text-center flex flex-col items-center opacity-100">
+                <div className="mb-4 transition-all duration-300 transform hover:scale-110">
+                  <div className="bg-[#F8F4F0] p-4 rounded-full shadow-md">
+                    <CreditCard size={48} className="text-[#f06900]" />
+                  </div>
+                </div>
+                <h4 className="text-lg font-semibold mb-2 text-[#498bdd]">Realizá el pago al finalizar</h4>
+                <p className="text-gray-700">Elegí cómo querés pagar. Online hasta 12 cuotas, o directo al Profesional al finalizar.</p>
+              </div>
+              
+              <div className="text-center flex flex-col items-center opacity-100">
+                <div className="mb-4 transition-all duration-300 transform hover:scale-110">
+                  <div className="bg-[#F8F4F0] p-4 rounded-full shadow-md">
+                    <Star size={48} className="text-[#f06900]" />
+                  </div>
+                </div>
+                <h4 className="text-lg font-semibold mb-2 text-[#498bdd]">Ayudanos a mejorar</h4>
+                <p className="text-gray-700">Calificá el servicio, tus comentarios nos importan.</p>
+              </div>
+            </div>
+          </div>
+          
+          <h1 className={`text-4xl md:text-5xl font-bold mb-12 text-center uppercase font-display transition-all duration-1000 transform ${titleVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+            <span className="text-gray-800 text-5xl">NUESTROS SERVICIOS</span>
+          </h1>
+          
+          {isServicesError && <div className="bg-amber-50 border-l-4 border-amber-500 p-4 mb-6 rounded-md">
+              <p className="text-amber-700">
+                No se pudieron obtener los servicios del servidor. Mostrando información local.
+              </p>
+            </div>}
+          
+          {commerceId && storeName && <div className="mb-6 bg-white/70 p-3 rounded-lg border border-gray-300">
+              <h3 className="font-medium text-gray-800 mb-2">Lugar de compra fijo:</h3>
+              <div className="flex items-center gap-2">
+                <MapPin className="text-gray-800" size={16} />
+                <span className="text-gray-700">{storeName}</span>
+              </div>
+            </div>}
+          
+          {!commerceId && purchaseLocations.length > 0}
+          
+          <div id="armado-instalacion" className="mb-12 relative">
+            <ServiceCarousel primaryTitlePart="ARMADO" secondaryTitlePart=" E INSTALACIÓN" titleClassName="font-bold">
+              {isServicesLoading ? Array(4).fill(0).map((_, index) => <div key={index} className="w-[220px] h-[220px]">
+                    <Skeleton className="w-full h-full rounded-full" />
+                  </div>) : displayedServices?.map((service, index) => {
+              const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
+              const isHighlighted = service.id === highlightedServiceId;
+              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Home} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#F8F4F0]" : ""} ref={element => {
+                if (service.id) {
+                  serviceCardRefs.current[service.id] = element;
+                }
+              }} />;
+            })}
+            </ServiceCarousel>
+          </div>
+          
+          {/* Add a subtle separator line between carousels */}
+          <div className="flex justify-center mb-12">
+            <Separator className="w-4/5 bg-gray-300 opacity-60" />
+          </div>
+          
+          <div className="mb-12">
+            <ServiceCarousel primaryTitlePart="FLETES Y" secondaryTitlePart=" MUDANZAS" showLoadingNames={false} loadingItems={[]} lightTitle={true}>
+              {isLoadingMudanza ? Array(4).fill(0).map((_, index) => <div key={index} className="w-[220px] h-[220px]">
+                    <Skeleton className="w-full h-full rounded-full" />
+                  </div>) : displayedMudanzaServices?.map((service, index) => {
+              const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
+              const isHighlighted = service.id === highlightedServiceId;
+              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Truck} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#f06900]" : ""} ref={element => {
+                if (service.id) {
+                  serviceCardRefs.current[service.id] = element;
+                }
+              }} />;
+            })}
+            </ServiceCarousel>
+          </div>
+        </div>
         
-        {/* Search section */}
-        <div className="mb-8">
-          <div className="relative">
-            <Input
-              type="text"
-              placeholder="Buscar un servicio..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12"
-            />
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
-            {searchTerm && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSearchTerm('')}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 hover:bg-gray-200"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </div>
+        <CartDrawer isOpen={isCartOpen} setIsOpen={setIsCartOpen} cartItems={cartItems} updateCartItem={updateCartItem} total={getCartTotal()} purchaseLocations={getAllPurchaseLocations()} setPurchaseLocations={setPurchaseLocations} />
+        
+        <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => {
+        setIsLocationModalOpen(false);
+        if (pendingServiceCardAction) {
+          setPendingServiceCardAction(false);
+        }
+      }} onSelectLocation={handleLocationSelect} serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`} commerceId={commerceId} commerceName={storeName} />
+      </main>
 
-        {/* Services grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredServices.map(service => (
-            <ServiceCard
-              key={service.id}
-              id={service.id}
-              name={service.name}
-              icon={service.icon}
-              addToCart={addToCart}
-              onCategorySelect={handleCategorySelect}
-              forceOpen={selectedService?.id === service.id}
-              currentCartItems={cartItems}
-              pendingCategoryId={pendingCategoryId}
-              pendingCategoryName={pendingCategoryName}
-            />
-          ))}
-        </div>
-      </div>
+      <AlertDialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar lugar de compra?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {locationToDelete && <>
+                  Al eliminar el lugar de compra "{locationToDelete.locationName}", 
+                  también se eliminarán todos los productos asociados del carrito. 
+                  ¿Desea continuar?
+                </>}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+            setShowDeleteConfirmation(false);
+            setLocationToDelete(null);
+          }}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteLocation}>
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      {/* Modals */}
-      <PurchaseLocationModal
-        isOpen={showLocationModal}
-        onClose={() => {
-          setShowLocationModal(false);
-          setSelectedService(null);
-          setPendingCategoryId(null);
-          setPendingCategoryName(null);
-        }}
-        onSelectLocation={handleLocationConfirm}
-        serviceId={selectedService?.id}
-        serviceName={selectedService?.name}
-      />
-      {selectedService && (
-        <ServiceCard
-          id={selectedService.id}
-          name={selectedService.name}
-          icon={selectedService.icon}
-          addToCart={addToCart}
-          onCategorySelect={handleCategorySelect}
-          forceOpen={showLocationModal}
-          purchaseLocation={null}
-          circular={false}
-          currentCartItems={cartItems}
-          pendingCategoryId={pendingCategoryId}
-          pendingCategoryName={pendingCategoryName}
-        />
-      )}
-    </div>
-  );
+      {/* WhatsApp Button */}
+      <WhatsAppButton />
+
+      <style>{`
+        /* Add custom styling for section titles */
+        .servicios-page h2 {
+          position: relative;
+          z-index: 10;
+          font-size: 1.75rem;
+          font-weight: 600;
+        }
+        
+        /* Style for ARMADO E INSTALACIÓN title */
+        #armado-instalacion h2 {
+          color: #333333;
+        }
+        
+        /* Style for FLETES Y MUDANZAS title - on orange background */
+        #armado-instalacion + div + div h2 {
+          color: white;
+          font-weight: 600;
+        }
+
+        @media (min-width: 640px) and (max-width: 1023px) {
+          .grid-cols-2 > div:nth-child(odd):last-child {
+            grid-column: 1 / span 2;
+            justify-self: center;
+          }
+        }
+        
+        @media (min-width: 1024px) {
+          .grid-cols-3 > div:nth-last-child(1):nth-child(3n-1),
+          .grid-cols-3 > div:nth-last-child(2):nth-child(3n-1) {
+            margin-left: calc(100% / 3);
+          }
+          
+          .grid-cols-3 > div:nth-last-child(1):nth-child(3n-2) {
+            margin-left: calc(100% / 3);
+          }
+        }
+      `}</style>
+    </div>;
 };
 
 export default Servicios;

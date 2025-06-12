@@ -110,7 +110,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     });
   };
   const handleSubmit = (data: any) => {
-    const serviceGroups = (cartItems as CartItem[]).reduce((acc: Record<string, any[]>, item) => {
+    const serviceGroups = cartItems.reduce((acc: Record<string, any[]>, item) => {
       const location = purchaseLocations.find(loc => loc.serviceId === item.serviceId);
       if (location) {
         if (!acc[item.serviceId]) {
@@ -123,11 +123,9 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
       }
       return acc;
     }, {});
-
     const checkoutDataArray: CheckoutData[] = Object.entries(serviceGroups).map(([serviceId, items]) => {
       const location = items[0].location;
       const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      
       const formattedData: CheckoutData = {
         Nombre: data.name,
         Telefono: data.phone,
@@ -152,18 +150,17 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           ProductoID: Number(item.categoryId),
           DetalleID: Number(item.productId),
           Cantidad: item.quantity,
-          Precio: Number(item.price),
+          Precio: Number(item.price), // Ensure price is a number
           SR: "N",
           Comision: 0,
           ComisionTipo: "P",
-          PrecioFinal: Number((item.price * item.quantity)),
+          PrecioFinal: Number((item.price * item.quantity)), // Ensure calculation is done with numbers
           productoNombre: item.name
         })),
         serviceName: location.serviceName || `Servicio ${serviceId}`
       };
       return formattedData;
     });
-
     setCheckoutData(checkoutDataArray);
     setShowSummary(true);
   };
@@ -171,7 +168,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     setCurrentStep(0);
     setSelectedDate(undefined);
     setSelectedTimeSlot("");
-    (cartItems as CartItem[]).forEach(item => {
+    cartItems.forEach(item => {
       updateCartItem(item.id, 0);
     });
     if (setPurchaseLocations) {

@@ -212,7 +212,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   };
 
   const groupServicesByLocation = (items: CartItem[]) => {
-    return (items as CartItem[]).reduce((acc: { [key: string]: CartItem[] }, item) => {
+    return items.reduce((acc: { [key: string]: CartItem[] }, item) => {
       const locationKey = item.departmentId && item.locationId ? 
         `${item.departmentId}-${item.locationId}` : 
         'no-location';
