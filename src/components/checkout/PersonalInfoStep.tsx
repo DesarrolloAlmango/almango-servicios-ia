@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -148,11 +147,17 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     checkPaymentProvider();
   }, [commerceId, form]);
 
-  // Update form validation when paymentMethodsDisabled changes
+  // Create new form instance when paymentMethodsDisabled changes
   useEffect(() => {
     const currentValues = form.getValues();
+    const newForm = useForm<FormValues>({
+      resolver: zodResolver(createFormSchema(paymentMethodsDisabled)),
+      defaultValues: currentValues,
+    });
+    
+    // Reset form with new validation schema
     form.reset(currentValues);
-  }, [paymentMethodsDisabled, form]);
+  }, [paymentMethodsDisabled]);
 
   const formatDate = (date?: Date) => {
     if (!date) return "No seleccionada";
@@ -216,24 +221,6 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       return;
     }
     onSubmit(data);
-  };
-
-  const showPaymentWarning = () => {
-    toast.warning("Método de pago no disponible", {
-      description: "Momentáneamente esta forma de pago no está disponible."
-    });
-  };
-
-  const handlePaymentMethodChange = (value: string) => {
-    // Prevent any selection when payment methods are disabled
-    if (paymentMethodsDisabled) {
-      showPaymentWarning();
-      return;
-    }
-    
-    if (value === "later" || value === "now") {
-      form.setValue("paymentMethod", value);
-    }
   };
 
   const handleOpenTermsModal = () => {
@@ -444,65 +431,53 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="paymentMethod"
-            render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel>Forma de pago</FormLabel>
-                <FormControl>
-                  <RadioGroup
-                    onValueChange={handlePaymentMethodChange}
-                    value={paymentMethodsDisabled ? undefined : field.value}
-                    className="flex flex-col space-y-1"
-                  >
-                    <div 
-                      className={`flex items-center space-x-2 ${paymentMethodsDisabled ? 'pointer-events-none cursor-not-allowed' : ''}`}
-                      onClick={paymentMethodsDisabled ? showPaymentWarning : undefined}
+          {/* Only show payment method section if payment methods are NOT disabled */}
+          {!paymentMethodsDisabled && (
+            <FormField
+              control={form.control}
+              name="paymentMethod"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel>Forma de pago</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      className="flex flex-col space-y-1"
                     >
-                      <RadioGroupItem 
-                        value="later" 
-                        id="payment-later"
-                        disabled={paymentMethodsDisabled}
-                        className={paymentMethodsDisabled ? 'opacity-30 border-gray-300' : ''}
-                      />
-                      <Label 
-                        htmlFor="payment-later" 
-                        className={`flex items-center gap-2 ${paymentMethodsDisabled ? 'opacity-30 cursor-not-allowed text-gray-400' : ''}`}
-                      >
-                        Pagar después (al profesional)
-                        <Banknote size={18} className={paymentMethodsDisabled ? 'text-gray-300' : 'text-green-500'} />
-                      </Label>
-                    </div>
-                    <div 
-                      className={`flex items-center space-x-2 ${paymentMethodsDisabled ? 'pointer-events-none cursor-not-allowed' : ''}`}
-                      onClick={paymentMethodsDisabled ? showPaymentWarning : undefined}
-                    >
-                      <RadioGroupItem 
-                        value="now" 
-                        id="payment-now"
-                        disabled={paymentMethodsDisabled}
-                        className={paymentMethodsDisabled ? 'opacity-30 border-gray-300' : ''}
-                      />
-                      <Label 
-                        htmlFor="payment-now" 
-                        className={`flex items-center gap-2 ${paymentMethodsDisabled ? 'opacity-30 cursor-not-allowed text-gray-400' : ''}`}
-                      >
-                        Pagar ahora (Mercado Pago)
-                        <CreditCard size={18} className={paymentMethodsDisabled ? 'text-gray-300' : 'text-sky-500'} />
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </FormControl>
-                {paymentMethodsDisabled && (
-                  <p className="text-sm text-muted-foreground">
-                    Las formas de pago no están disponibles para este proveedor.
-                  </p>
-                )}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem 
+                          value="later" 
+                          id="payment-later"
+                        />
+                        <Label 
+                          htmlFor="payment-later" 
+                          className="flex items-center gap-2"
+                        >
+                          Pagar después (al profesional)
+                          <Banknote size={18} className="text-green-500" />
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem 
+                          value="now" 
+                          id="payment-now"
+                        />
+                        <Label 
+                          htmlFor="payment-now" 
+                          className="flex items-center gap-2"
+                        >
+                          Pagar ahora (Mercado Pago)
+                          <CreditCard size={18} className="text-sky-500" />
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
           <FormField
             control={form.control}
