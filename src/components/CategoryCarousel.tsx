@@ -59,21 +59,26 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
 
-  // Enhanced auto-select effect with more robust handling and retry logic
+  // Enhanced auto-select effect with URL support
   useEffect(() => {
     // Clear any pending auto-select timeout when dependencies change
     if (autoSelectTimeoutRef.current) {
       clearTimeout(autoSelectTimeoutRef.current);
     }
 
+    // Check for categoryId in URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlCategoryId = window.location.pathname.split('/').pop();
+    const categoryIdToSelect = autoSelectCategoryId || urlCategoryId;
+
     // Only attempt auto-selection if we have all required data and haven't already selected
-    if (autoSelectCategoryId && categories.length > 0 && purchaseLocation) {
-      console.log("Checking for auto-selection. Category ID:", autoSelectCategoryId, 
+    if (categoryIdToSelect && categories.length > 0 && purchaseLocation) {
+      console.log("Checking for auto-selection. Category ID:", categoryIdToSelect, 
                  "Has already selected:", hasAutoSelectedRef.current,
                  "Categories available:", categories.length);
       
       // Find the category we want to select
-      const categoryToSelect = categories.find(cat => cat.id === autoSelectCategoryId);
+      const categoryToSelect = categories.find(cat => cat.id === categoryIdToSelect);
       
       if (categoryToSelect && !hasAutoSelectedRef.current) {
         // Increment attempt counter
@@ -99,8 +104,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
           // Reset attempt counter after successful selection
           autoSelectionAttemptsRef.current = 0;
         }, delay);
-      } else if (!categoryToSelect && autoSelectCategoryId) {
-        console.log("Category not found for auto-selection:", autoSelectCategoryId, 
+      } else if (!categoryToSelect && categoryIdToSelect) {
+        console.log("Category not found for auto-selection:", categoryIdToSelect, 
                    "Available categories:", categories.map(c => `${c.id}:${c.name}`).join(', '));
       }
     }

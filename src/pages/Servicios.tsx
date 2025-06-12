@@ -149,7 +149,8 @@ const Servicios = () => {
   const location = useLocation();
   const {
     commerceId,
-    serviceId: urlServiceId
+    serviceId: urlServiceId,
+    categoryId: urlCategoryId
   } = useParams();
   const isMobile = useIsMobile();
   const [storeName, setStoreName] = useState<string>("");
@@ -223,12 +224,22 @@ const Servicios = () => {
       if (foundService) {
         console.log("Found service with ID:", urlServiceId, foundService);
         setServiceToAutoClick(urlServiceId);
+        
+        // If categoryId is also present in URL, prepare for auto-selection
+        if (urlCategoryId) {
+          console.log("URL also contains categoryId parameter:", urlCategoryId);
+          setSelectedServiceId(urlServiceId);
+          setSelectedCategoryId(urlCategoryId);
+          
+          // Set flag for category auto-click after service is clicked
+          pendingCategoryAutoClickRef.current = true;
+        }
       } else {
         console.warn("Service not found with ID:", urlServiceId);
         toast.error(`Servicio con ID ${urlServiceId} no encontrado`);
       }
     }
-  }, [urlServiceId, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza]);
+  }, [urlServiceId, urlCategoryId, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza]);
 
   useEffect(() => {
     if (location.state?.clickedService && !isServicesLoading && !isLoadingMudanza) {
@@ -275,11 +286,29 @@ const Servicios = () => {
           setServiceToAutoClick(null);
           serviceCardElement.click();
           console.log("Auto-clicked on service:", serviceToAutoClick);
+          
+          // If we have a categoryId from URL, trigger category auto-click
+          if (urlCategoryId && pendingCategoryAutoClickRef.current) {
+            console.log("Preparing to auto-click category:", urlCategoryId);
+            
+            // Dispatch event to open the specific category
+            setTimeout(() => {
+              const openCategoryEvent = new CustomEvent('openCategory', {
+                detail: {
+                  serviceId: serviceToAutoClick,
+                  categoryId: urlCategoryId,
+                  categoryName: selectedCategoryName || `Category ${urlCategoryId}`
+                }
+              });
+              document.dispatchEvent(openCategoryEvent);
+              console.log("Dispatched openCategory event for URL categoryId:", urlCategoryId);
+            }, 1000);
+          }
         }
       }, 800);
       return () => clearTimeout(timer);
     }
-  }, [serviceToAutoClick]);
+  }, [serviceToAutoClick, urlCategoryId, selectedCategoryName]);
 
   useEffect(() => {
     if (pendingCategoryAutoClickRef.current && selectedServiceId && selectedCategoryId) {
