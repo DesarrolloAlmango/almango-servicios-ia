@@ -258,10 +258,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   };
 
   const handlePaymentMethodChange = (value: string) => {
-    if (!paymentEnabled) {
-      showPaymentWarning();
-      return;
-    }
+    if (!paymentEnabled) return;
     
     if (value === "later" || value === "now") {
       form.setValue("paymentMethod", value);
@@ -288,6 +285,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
         <p className="text-muted-foreground">Completa tus datos para finalizar</p>
       </div>
 
+      {/* ... keep existing code (Accordion with order summary) */}
       <Accordion type="single" collapsible className="mb-6 border rounded-md">
         <AccordionItem value="order-summary">
           <AccordionTrigger className="px-4 py-2">
@@ -353,6 +351,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          {/* ... keep existing code (form fields for name, phone, email, address, comments) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -474,8 +473,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             )}
           />
 
-          {/* Only show payment method section if payment is enabled or still loading */}
-          {(paymentEnabled || isLoadingPaymentStatus) && (
+          {paymentEnabled && (
             <FormField
               control={form.control}
               name="paymentMethod"
@@ -487,53 +485,64 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                       Verificando disponibilidad de pagos...
                     </div>
                   ) : (
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={handlePaymentMethodChange}
-                        defaultValue={field.value}
-                        className="flex flex-col space-y-1"
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem 
-                            value="later" 
-                            id="payment-later" 
-                            disabled={!paymentEnabled}
-                          />
-                          <Label 
-                            htmlFor="payment-later" 
-                            className={`flex items-center gap-2 ${!paymentEnabled ? 'text-muted-foreground cursor-not-allowed' : ''}`}
-                          >
-                            Pagar después (al profesional)
-                            <Banknote size={18} className={!paymentEnabled ? 'text-muted-foreground' : 'text-green-500'} />
-                            {!paymentEnabled && (
-                              <span className="text-xs text-muted-foreground">(No disponible)</span>
-                            )}
-                          </Label>
+                    <>
+                      {!paymentEnabled && (
+                        <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-md border border-amber-200 mb-3">
+                          <p className="font-medium">Métodos de pago no disponibles</p>
+                          <p>Los métodos de pago no están disponibles actualmente para este comercio.</p>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem 
-                            value="now" 
-                            id="payment-now"
-                            disabled={!paymentEnabled}
-                          />
-                          <Label 
-                            htmlFor="payment-now" 
-                            className={`flex items-center gap-2 ${!paymentEnabled ? 'text-muted-foreground cursor-not-allowed' : ''}`}
-                          >
-                            Pagar ahora (Mercado Pago)
-                            <CreditCard size={18} className={!paymentEnabled ? 'text-muted-foreground' : 'text-sky-500'} />
-                            {!paymentEnabled && (
-                              <span className="text-xs text-muted-foreground">(No disponible)</span>
-                            )}
-                          </Label>
-                        </div>
-                      </RadioGroup>
-                    </FormControl>
+                      )}
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={handlePaymentMethodChange}
+                          defaultValue={field.value}
+                          className="flex flex-col space-y-1"
+                          disabled={!paymentEnabled}
+                        >
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem 
+                              value="later" 
+                              id="payment-later"
+                              disabled={!paymentEnabled}
+                            />
+                            <Label 
+                              htmlFor="payment-later" 
+                              className={`flex items-center gap-2 ${!paymentEnabled ? 'text-muted-foreground cursor-not-allowed' : 'cursor-pointer'}`}
+                            >
+                              Pagar después (al profesional)
+                              <Banknote size={18} className={paymentEnabled ? "text-green-500" : "text-muted-foreground"} />
+                            </Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem 
+                              value="now" 
+                              id="payment-now"
+                              disabled={!paymentEnabled}
+                            />
+                            <Label 
+                              htmlFor="payment-now" 
+                              className={`flex items-center gap-2 ${!paymentEnabled ? 'text-muted-foreground cursor-not-allowed' : 'cursor-pointer'}`}
+                            >
+                              Pagar ahora (Mercado Pago)
+                              <CreditCard size={18} className={paymentEnabled ? "text-sky-500" : "text-muted-foreground"} />
+                            </Label>
+                          </div>
+                        </RadioGroup>
+                      </FormControl>
+                    </>
                   )}
                   <FormMessage />
                 </FormItem>
               )}
             />
+          )}
+
+          {/* Show message when payment is disabled */}
+          {!paymentEnabled && !isLoadingPaymentStatus && (
+            <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-md border border-amber-200">
+              <p className="font-medium">Métodos de pago no disponibles</p>
+              <p>Los métodos de pago no están disponibles actualmente para este comercio. Puedes continuar con tu solicitud sin seleccionar una forma de pago.</p>
+            </div>
           )}
 
           <FormField
