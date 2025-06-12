@@ -104,8 +104,10 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 
   useEffect(() => {
     const checkPaymentAvailability = async () => {
+      // Only execute the endpoint call if commerceId is present
       if (!commerceId) {
         console.log("No commerce ID found, payment methods remain enabled");
+        setPaymentEnabled(true);
         return;
       }
 
@@ -119,8 +121,12 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
           throw new Error('Failed to fetch payment status');
         }
         
-        const paymentAvailable = await response.json();
-        console.log("Payment availability response:", paymentAvailable);
+        const responseData = await response.json();
+        console.log("Payment availability response:", responseData);
+        
+        // Handle both response formats: direct boolean or {"Boolean": boolean}
+        const paymentAvailable = responseData.Boolean !== undefined ? responseData.Boolean : responseData;
+        console.log("Payment available:", paymentAvailable);
         
         setPaymentEnabled(paymentAvailable === true);
         
