@@ -171,6 +171,7 @@ const Servicios = () => {
   const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(null);
   const [autoClickTriggered, setAutoClickTriggered] = useState(false);
   const [hasShownServiceMessage, setHasShownServiceMessage] = useState(false);
+  const [serviceToAutoClick, setServiceToAutoClick] = useState<string | null>(null);
   const serviceCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const pendingCategoryAutoClickRef = useRef<boolean>(false);
 
@@ -223,19 +224,7 @@ const Servicios = () => {
       
       if (foundService) {
         console.log("Found service with ID:", urlServiceId, foundService);
-        setHighlightedServiceId(urlServiceId);
-        setAutoClickTriggered(false);
-        
-        // Auto-click the service to open its categories popup
-        setTimeout(() => {
-          const serviceCardElement = serviceCardRefs.current[urlServiceId];
-          if (serviceCardElement) {
-            setAutoClickTriggered(true);
-            setHighlightedServiceId(null);
-            serviceCardElement.click();
-            console.log("Auto-clicked on service from URL:", urlServiceId);
-          }
-        }, 1000);
+        setServiceToAutoClick(urlServiceId);
       } else {
         console.warn("Service not found with ID:", urlServiceId);
         toast.error(`Servicio con ID ${urlServiceId} no encontrado`);
@@ -245,13 +234,13 @@ const Servicios = () => {
 
   useEffect(() => {
     if (location.state && location.state.clickedService && !hasShownServiceMessage) {
-      // Dismiss all existing toasts first using sonner's dismiss method
+      // Dismiss all existing toasts first
       toast.dismiss();
 
       // Set the flag to prevent multiple messages
       setHasShownServiceMessage(true);
 
-      // Show the service selection message after a brief delay
+      // Show the service selection message
       setTimeout(() => {
         toast.success(`Has seleccionado: ${location.state.clickedService}`, {
           duration: 4000,
@@ -259,20 +248,22 @@ const Servicios = () => {
         });
       }, 200);
 
+      // Find and set service for auto-click
       const findServiceByName = () => {
         const displayedServices = isServicesError ? fallbackServices : services;
         const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
         const allServices = [...(displayedServices || []), ...(displayedMudanzaServices || [])];
         const foundService = allServices.find(service => service.name === location.state.clickedService);
         if (foundService && foundService.id) {
-          setHighlightedServiceId(foundService.id);
-          setAutoClickTriggered(false);
+          setServiceToAutoClick(foundService.id);
         }
       };
+
       if (!isServicesLoading && !isLoadingMudanza) {
         findServiceByName();
       }
-      // Clear the state and reset the flag after processing
+
+      // Clear the state after processing
       window.history.replaceState({}, document.title);
     }
   }, [location.state, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza, hasShownServiceMessage]);
@@ -285,19 +276,23 @@ const Servicios = () => {
   }, [location.state]);
 
   useEffect(() => {
-    if (highlightedServiceId && serviceCardRefs.current[highlightedServiceId] && !autoClickTriggered) {
+    if (serviceToAutoClick && serviceCardRefs.current[serviceToAutoClick] && !autoClickTriggered) {
+      console.log("Auto-clicking service:", serviceToAutoClick);
+      setHighlightedServiceId(serviceToAutoClick);
+      
       const timer = setTimeout(() => {
-        const serviceCardElement = serviceCardRefs.current[highlightedServiceId];
+        const serviceCardElement = serviceCardRefs.current[serviceToAutoClick];
         if (serviceCardElement) {
           setAutoClickTriggered(true);
           setHighlightedServiceId(null);
+          setServiceToAutoClick(null);
           serviceCardElement.click();
-          console.log("Auto-clicked on service:", highlightedServiceId);
+          console.log("Auto-clicked on service:", serviceToAutoClick);
         }
       }, 800);
       return () => clearTimeout(timer);
     }
-  }, [highlightedServiceId, autoClickTriggered]);
+  }, [serviceToAutoClick, autoClickTriggered]);
 
   useEffect(() => {
     if (pendingCategoryAutoClickRef.current && selectedServiceId && selectedCategoryId) {
