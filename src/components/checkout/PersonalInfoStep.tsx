@@ -485,64 +485,45 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                       Verificando disponibilidad de pagos...
                     </div>
                   ) : (
-                    <>
-                      {!paymentEnabled && (
-                        <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-md border border-amber-200 mb-3">
-                          <p className="font-medium">Métodos de pago no disponibles</p>
-                          <p>Los métodos de pago no están disponibles actualmente para este comercio.</p>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={handlePaymentMethodChange}
+                        defaultValue={field.value}
+                        className="flex flex-col space-y-1"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem 
+                            value="later" 
+                            id="payment-later"
+                          />
+                          <Label 
+                            htmlFor="payment-later" 
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            Pagar después (al profesional)
+                            <Banknote size={18} className="text-green-500" />
+                          </Label>
                         </div>
-                      )}
-                      <FormControl>
-                        <RadioGroup
-                          onValueChange={handlePaymentMethodChange}
-                          defaultValue={field.value}
-                          className="flex flex-col space-y-1"
-                          disabled={!paymentEnabled}
-                        >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem 
-                              value="later" 
-                              id="payment-later"
-                              disabled={!paymentEnabled}
-                            />
-                            <Label 
-                              htmlFor="payment-later" 
-                              className={`flex items-center gap-2 ${!paymentEnabled ? 'text-muted-foreground cursor-not-allowed' : 'cursor-pointer'}`}
-                            >
-                              Pagar después (al profesional)
-                              <Banknote size={18} className={paymentEnabled ? "text-green-500" : "text-muted-foreground"} />
-                            </Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem 
-                              value="now" 
-                              id="payment-now"
-                              disabled={!paymentEnabled}
-                            />
-                            <Label 
-                              htmlFor="payment-now" 
-                              className={`flex items-center gap-2 ${!paymentEnabled ? 'text-muted-foreground cursor-not-allowed' : 'cursor-pointer'}`}
-                            >
-                              Pagar ahora (Mercado Pago)
-                              <CreditCard size={18} className={paymentEnabled ? "text-sky-500" : "text-muted-foreground"} />
-                            </Label>
-                          </div>
-                        </RadioGroup>
-                      </FormControl>
-                    </>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem 
+                            value="now" 
+                            id="payment-now"
+                          />
+                          <Label 
+                            htmlFor="payment-now" 
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            Pagar ahora (Mercado Pago)
+                            <CreditCard size={18} className="text-sky-500" />
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
                   )}
                   <FormMessage />
                 </FormItem>
               )}
             />
-          )}
-
-          {/* Show message when payment is disabled */}
-          {!paymentEnabled && !isLoadingPaymentStatus && (
-            <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-md border border-amber-200">
-              <p className="font-medium">Métodos de pago no disponibles</p>
-              <p>Los métodos de pago no están disponibles actualmente para este comercio. Puedes continuar con tu solicitud sin seleccionar una forma de pago.</p>
-            </div>
           )}
 
           <FormField
