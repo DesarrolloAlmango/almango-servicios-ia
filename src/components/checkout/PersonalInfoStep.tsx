@@ -140,12 +140,10 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     checkPaymentProvider();
   }, [commerceId, form]);
 
-  // Update form resolver when paymentMethodsDisabled changes
+  // Update form validation when paymentMethodsDisabled changes
   useEffect(() => {
     const currentValues = form.getValues();
-    form.reset(currentValues, {
-      resolver: zodResolver(createFormSchema(paymentMethodsDisabled))
-    });
+    form.reset(currentValues);
   }, [paymentMethodsDisabled, form]);
 
   const formatDate = (date?: Date) => {
