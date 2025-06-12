@@ -248,20 +248,36 @@ const Servicios = () => {
         });
       }, 200);
 
-      // Find and set service for auto-click - wait for services to load
-      const findServiceByName = () => {
+      // Find and set service for auto-click - improved logic for post-refresh scenarios
+      const findAndSetServiceByName = () => {
         const displayedServices = isServicesError ? fallbackServices : services;
         const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
         const allServices = [...(displayedServices || []), ...(displayedMudanzaServices || [])];
         const foundService = allServices.find(service => service.name === location.state.clickedService);
+        
         if (foundService && foundService.id) {
+          console.log("Setting service for auto-click:", foundService.id, foundService.name);
           setServiceToAutoClick(foundService.id);
+          return true;
         }
+        return false;
       };
 
-      // Wait for both services to load before finding the service
+      // Try to find the service immediately if data is already loaded
       if (!isServicesLoading && !isLoadingMudanza && (services || isServicesError) && (mudanzaServices || isErrorMudanza)) {
-        findServiceByName();
+        if (!findAndSetServiceByName()) {
+          // If not found immediately, set up a retry mechanism
+          const retryInterval = setInterval(() => {
+            if (findAndSetServiceByName()) {
+              clearInterval(retryInterval);
+            }
+          }, 100);
+          
+          // Clear retry after 2 seconds to avoid infinite retries
+          setTimeout(() => {
+            clearInterval(retryInterval);
+          }, 2000);
+        }
       }
 
       // Clear the state after processing
