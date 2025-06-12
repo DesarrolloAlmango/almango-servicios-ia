@@ -16,7 +16,7 @@ interface Service {
   url: string;
 }
 
-interface CartItem {
+export interface CartItem {
   id: string;
   name: string;
   price: number;
@@ -206,7 +206,7 @@ const Servicios = () => {
     setShowLocationModal(true);
   };
 
-  const handleLocationConfirm = (location) => {
+  const handleLocationConfirm = (location: any) => {
     console.log("Location confirmed:", location);
     setShowLocationModal(false);
   };
@@ -334,7 +334,6 @@ const Servicios = () => {
           setPendingCategoryId(null);
           setPendingCategoryName(null);
         }}
-        onConfirm={handleLocationConfirm}
         service={selectedService}
       />
       {selectedService && (
