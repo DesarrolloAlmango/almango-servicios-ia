@@ -514,6 +514,19 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     );
   }, [displayedStores, searchQuery]);
 
+  // Calculate dynamic height based on number of filtered results
+  const getDropdownHeight = () => {
+    if (loading) return "60px";
+    
+    const itemCount = filteredStores.length;
+    if (itemCount === 0) return "60px"; // Height for "no results" message
+    
+    // Each item is approximately 40px (py-2 with text), max 6 items visible
+    const maxItems = 6;
+    const visibleItems = Math.min(itemCount, maxItems);
+    return `${visibleItems * 40}px`;
+  };
+
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
 
   return (
@@ -597,7 +610,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   <div className="absolute z-50 w-full mt-1 rounded-md border bg-popover shadow-lg">
                     <ScrollArea 
                       ref={scrollAreaRef}
-                      className="h-[200px] rounded-md"
+                      className="rounded-md"
+                      style={{ height: getDropdownHeight() }}
                       onMouseDown={handleScrollAreaMouseDown}
                     >
                       {loading ? (
