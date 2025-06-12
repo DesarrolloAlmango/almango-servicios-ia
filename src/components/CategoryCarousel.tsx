@@ -90,6 +90,18 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
             duration: 5000,
             position: "top-center"
           });
+          
+          // IMMEDIATELY trigger the auto-selection process
+          console.log("🐛 DEBUG: Triggering immediate auto-selection for:", foundCategory.name);
+          
+          // Reset the auto-selection flag to allow new selection
+          hasAutoSelectedRef.current = false;
+          
+          // Force trigger the auto-selection
+          setTimeout(() => {
+            handleCategoryClick(foundCategory);
+          }, 1000);
+          
         } else {
           toast.error(`🐛 DEBUG: Categoría NO encontrada para ID: ${categoryIdFromURL}`, { 
             duration: 5000,
@@ -100,92 +112,44 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }
   }, [categories, autoSelectCategoryId]);
 
-  // Enhanced auto-select effect with URL support - IMPROVED
+  // Simplified auto-select effect
   useEffect(() => {
-    // Clear any pending auto-select timeout when dependencies change
     if (autoSelectTimeoutRef.current) {
       clearTimeout(autoSelectTimeoutRef.current);
     }
 
-    // Check for categoryId in URL params - CONVERT TO STRING for comparison
     let categoryIdToSelect = autoSelectCategoryId;
     
-    // If no autoSelectCategoryId prop, try to get from URL
     if (!categoryIdToSelect) {
-      const urlParams = new URLSearchParams(window.location.search);
       const urlCategoryId = window.location.pathname.split('/').pop();
       categoryIdToSelect = urlCategoryId;
     }
 
-    // Convert to string for consistent comparison
     const categoryIdStr = categoryIdToSelect ? String(categoryIdToSelect) : null;
 
-    // Only attempt auto-selection if we have all required data and haven't already selected
-    if (categoryIdStr && categories.length > 0 && purchaseLocation) {
-      console.log("🐛 DEBUG - Auto-selection check:", {
+    if (categoryIdStr && categories.length > 0 && purchaseLocation && !hasAutoSelectedRef.current) {
+      console.log("🐛 DEBUG - Auto-selection trigger:", {
         categoryIdStr,
-        hasAutoSelected: hasAutoSelectedRef.current,
         categoriesCount: categories.length,
-        purchaseLocation: !!purchaseLocation,
-        selectedServiceId: selectedService.id
+        purchaseLocation: !!purchaseLocation
       });
       
-      // Find the category we want to select - ENSURE STRING COMPARISON
       const categoryToSelect = categories.find(cat => String(cat.id) === categoryIdStr);
       
-      if (categoryToSelect && !hasAutoSelectedRef.current) {
-        // Increment attempt counter
-        autoSelectionAttemptsRef.current += 1;
+      if (categoryToSelect) {
+        console.log(`🐛 DEBUG - Found category for auto-selection: ${categoryToSelect.name}`);
         
-        // Progressive backoff for retries (300ms, 600ms, 900ms, etc.)
-        const delay = Math.min(300 * autoSelectionAttemptsRef.current, 1500);
-        
-        console.log(`🐛 DEBUG - Scheduling auto-selection in ${delay}ms (attempt ${autoSelectionAttemptsRef.current}) for category: ${categoryToSelect.name}`);
+        hasAutoSelectedRef.current = true;
+        setSelectedCategoryName(categoryToSelect.name);
         
         autoSelectTimeoutRef.current = setTimeout(() => {
-          console.log("🐛 DEBUG - Executing auto-selection for category:", categoryToSelect.name, "ID:", categoryToSelect.id);
-          
-          // Mark as selected to prevent multiple selections
-          hasAutoSelectedRef.current = true;
-          
-          // Set the selected category name first
-          setSelectedCategoryName(categoryToSelect.name);
-          
-          // Trigger the category selection through the normal flow
+          console.log("🐛 DEBUG - Executing auto-selection click for:", categoryToSelect.name);
           handleCategoryClick(categoryToSelect);
           
-          // Focus and click on the category card
           setTimeout(() => {
             focusCategoryCard(categoryToSelect.id);
-            // Force click the actual DOM element
-            const categoryElement = document.querySelector(`[data-category-id="${categoryToSelect.id}"]`);
-            if (categoryElement) {
-              const clickableCard = categoryElement.querySelector('.cursor-pointer');
-              if (clickableCard && clickableCard instanceof HTMLElement) {
-                console.log("🐛 DEBUG - Force clicking category card:", categoryToSelect.name);
-                clickableCard.click();
-              }
-            }
-          }, 100);
-          
-          // Reset attempt counter after successful selection
-          autoSelectionAttemptsRef.current = 0;
-        }, delay);
-      } else if (!categoryToSelect && categoryIdStr) {
-        console.log("🐛 DEBUG - Category not found for auto-selection:", categoryIdStr, 
-                   "Available categories:", categories.map(c => `${c.id}:${c.name}`).join(', '));
-        
-        // Retry if we haven't exceeded max attempts
-        if (autoSelectionAttemptsRef.current < 5) {
-          autoSelectionAttemptsRef.current += 1;
-          const retryDelay = 500 * autoSelectionAttemptsRef.current;
-          console.log(`🐛 DEBUG - Retrying category search in ${retryDelay}ms (attempt ${autoSelectionAttemptsRef.current})`);
-          
-          autoSelectTimeoutRef.current = setTimeout(() => {
-            // Trigger a re-check by updating a dummy state
-            setSelectedCategoryName(prev => prev);
-          }, retryDelay);
-        }
+          }, 500);
+        }, 1500);
       }
     }
 
@@ -694,10 +658,11 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     
     console.log("🐛 DEBUG - Saved last selected category:", lastSelectedCategoryId, lastSelectedCategoryName);
     
-    // Check if this was triggered by a name match and log it
-    if (selectedCategoryName === category.name) {
-      console.debug(`🎯 Category click triggered by name match: "${category.name}"`);
-    }
+    // Show debug toast when category is clicked
+    toast.success(`🐛 DEBUG: Categoría clickeada: ${category.name} (ID: ${category.id})`, { 
+      duration: 3000,
+      position: "top-center"
+    });
     
     // Dispatch a custom event to notify any listening components about the category selection
     const categorySelectedEvent = new CustomEvent('categorySelected', { 
