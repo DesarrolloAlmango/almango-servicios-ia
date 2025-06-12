@@ -248,7 +248,7 @@ const Servicios = () => {
         });
       }, 200);
 
-      // Find and set service for auto-click
+      // Find and set service for auto-click - wait for services to load
       const findServiceByName = () => {
         const displayedServices = isServicesError ? fallbackServices : services;
         const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
@@ -259,7 +259,8 @@ const Servicios = () => {
         }
       };
 
-      if (!isServicesLoading && !isLoadingMudanza) {
+      // Wait for both services to load before finding the service
+      if (!isServicesLoading && !isLoadingMudanza && (services || isServicesError) && (mudanzaServices || isErrorMudanza)) {
         findServiceByName();
       }
 
