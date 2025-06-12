@@ -288,23 +288,34 @@ const Servicios = () => {
           serviceCardElement.click();
           console.log("Auto-clicked on service:", serviceToAutoClick);
           
-          // If we have a categoryId from URL, trigger category auto-click with longer delay - IMPROVED TIMING
+          // If we have a categoryId from URL, trigger category auto-click with proper coordination
           if (urlCategoryId && pendingCategoryAutoClickRef.current) {
             const categoryIdStr = String(urlCategoryId);
-            console.log("Preparing to auto-click category:", categoryIdStr, "with extended delay");
+            console.log("Preparing to auto-click category:", categoryIdStr, "with coordinated timing");
             
-            // Increased delay to allow popup to fully open and stabilize
+            // Reset the flag immediately to prevent multiple attempts
+            pendingCategoryAutoClickRef.current = false;
+            
+            // Wait for the service popup to fully open and stabilize, then dispatch event
             setTimeout(() => {
+              console.log("Dispatching openCategory event for URL categoryId:", categoryIdStr);
               const openCategoryEvent = new CustomEvent('openCategory', {
                 detail: {
                   serviceId: serviceToAutoClick,
                   categoryId: categoryIdStr,
-                  categoryName: selectedCategoryName || `Category ${categoryIdStr}`
+                  categoryName: selectedCategoryName || `Category ${categoryIdStr}`,
+                  fromURL: true // Add flag to indicate this is from URL navigation
                 }
               });
               document.dispatchEvent(openCategoryEvent);
-              console.log("Dispatched openCategory event for URL categoryId:", categoryIdStr);
-            }, 2000); // Increased from 1000ms to 2000ms to allow popup to fully stabilize
+              
+              // Additional fallback: directly trigger category selection if event doesn't work
+              setTimeout(() => {
+                console.log("Fallback: Attempting direct category selection");
+                handleCategorySelect(serviceToAutoClick, categoryIdStr, selectedCategoryName || `Category ${categoryIdStr}`);
+              }, 1000);
+              
+            }, 2500); // Increased delay to ensure popup is fully rendered
           }
         }
       }, 800);
@@ -574,7 +585,7 @@ const Servicios = () => {
     toast.success("Lugar de compra y productos asociados eliminados");
   };
 
-  // Add new listener for automatic category opening
+  // Add new listener for automatic category opening with improved handling
   useEffect(() => {
     const handleOpenCategory = (e: Event) => {
       const customEvent = e as CustomEvent;
@@ -582,39 +593,41 @@ const Servicios = () => {
         const {
           serviceId,
           categoryId,
-          categoryName
+          categoryName,
+          fromURL
         } = customEvent.detail;
-        console.log("Servicios page received openCategory event:", serviceId, categoryId, categoryName);
+        console.log("Servicios page received openCategory event:", serviceId, categoryId, categoryName, "fromURL:", fromURL);
 
         // Set the selected service and category IDs
         setSelectedServiceId(serviceId);
         setSelectedCategoryId(categoryId);
         setSelectedCategoryName(categoryName);
 
-        // Set pending action to trigger the product modal
-        setPendingServiceCardAction(true);
-
-        // Set flag for auto-click
-        pendingCategoryAutoClickRef.current = true;
-
-        // Find the service card element
-        const serviceCardElement = serviceCardRefs.current[serviceId];
-        if (serviceCardElement) {
-          // Scroll to and click the service card
-          serviceCardElement.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
-          });
+        // For URL-triggered events, we need to ensure the popup is ready
+        if (fromURL) {
+          // Wait a bit more for URL-triggered events to ensure popup is stable
           setTimeout(() => {
-            serviceCardElement.click();
-            console.log("Auto-clicked on service:", serviceId);
-
-            // NEW: Dispatch event to notify ProductGrid that it should refresh prices
+            setPendingServiceCardAction(true);
+            
+            // Dispatch event to notify ProductGrid that it should refresh prices
             document.dispatchEvent(new CustomEvent('productGridShown'));
-          }, 300);
+            
+            // Force another attempt at category clicking
+            setTimeout(() => {
+              const retryEvent = new CustomEvent('retryCategory', {
+                detail: { serviceId, categoryId, categoryName }
+              });
+              document.dispatchEvent(retryEvent);
+            }, 500);
+          }, 500);
+        } else {
+          // Normal flow for non-URL events
+          setPendingServiceCardAction(true);
+          document.dispatchEvent(new CustomEvent('productGridShown'));
         }
       }
     };
+    
     document.addEventListener('openCategory', handleOpenCategory);
     return () => {
       document.removeEventListener('openCategory', handleOpenCategory);

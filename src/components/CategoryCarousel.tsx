@@ -161,14 +161,14 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }
   }, [categories, purchaseLocation]);
 
-  // Add listener for custom openCategory events - IMPROVED IMPLEMENTATION WITH RETRIES
+  // Add listener for custom openCategory events - ENHANCED WITH BETTER COORDINATION
   useEffect(() => {
     const handleOpenCategoryEvent = (e: Event) => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail) {
-        const { serviceId, categoryId, categoryName } = customEvent.detail;
+        const { serviceId, categoryId, categoryName, fromURL } = customEvent.detail;
         
-        console.log("CategoryCarousel received openCategory event:", categoryId, categoryName);
+        console.log("CategoryCarousel received openCategory event:", categoryId, categoryName, "fromURL:", fromURL);
         
         // Convert categoryId to string for consistent comparison
         const categoryIdStr = String(categoryId);
@@ -182,9 +182,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
           // Update UI to show the selected category name
           setSelectedCategoryName(categoryToSelect.name);
           
-          // Function to attempt category click with retries
-          const attemptCategoryClick = (attempt = 1, maxAttempts = 5) => {
-            console.log(`Attempting category click (attempt ${attempt}/${maxAttempts})`);
+          // Enhanced function to attempt category click with better retry logic
+          const attemptCategoryClick = (attempt = 1, maxAttempts = 8) => {
+            console.log(`Attempting category click (attempt ${attempt}/${maxAttempts}) for category: ${categoryToSelect.name}`);
             
             // First, handle the data selection through the normal flow
             handleCategoryClick(categoryToSelect);
@@ -195,28 +195,47 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
             // Try to find and click the DOM element for the category
             setTimeout(() => {
               const categoryElement = document.querySelector(`[data-category-id="${categoryToSelect.id}"]`);
+              console.log(`Attempt ${attempt}: Category element found:`, !!categoryElement);
+              
               if (categoryElement) {
                 // Find the clickable card within the category element
                 const clickableCard = categoryElement.querySelector('.cursor-pointer');
+                console.log(`Attempt ${attempt}: Clickable card found:`, !!clickableCard);
+                
                 if (clickableCard && clickableCard instanceof HTMLElement) {
-                  console.log("Successfully clicking on category card:", categoryToSelect.name);
-                  clickableCard.click();
+                  console.log(`SUCCESS: Clicking on category card: ${categoryToSelect.name} (attempt ${attempt})`);
+                  
+                  // Ensure the element is visible and scrolled into view
+                  clickableCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  
+                  // Wait a moment for scroll, then click
+                  setTimeout(() => {
+                    clickableCard.click();
+                    console.log("Category card clicked successfully!");
+                  }, 200);
+                  
                   return; // Success, exit
                 }
               }
               
               // If we couldn't find the element and haven't reached max attempts, retry
               if (attempt < maxAttempts) {
-                console.log(`Category element not found, retrying in ${500 * attempt}ms...`);
-                setTimeout(() => attemptCategoryClick(attempt + 1, maxAttempts), 500 * attempt);
+                const retryDelay = fromURL ? 800 * attempt : 500 * attempt; // Longer delays for URL events
+                console.log(`Category element not found, retrying in ${retryDelay}ms... (attempt ${attempt + 1}/${maxAttempts})`);
+                setTimeout(() => attemptCategoryClick(attempt + 1, maxAttempts), retryDelay);
               } else {
-                console.error("Failed to find and click category element after", maxAttempts, "attempts");
+                console.error("FAILED: Could not find and click category element after", maxAttempts, "attempts");
+                
+                // Last resort: try direct onSelectCategory call
+                console.log("Last resort: Calling onSelectCategory directly");
+                onSelectCategory(categoryToSelect.id, categoryToSelect.name);
               }
-            }, 300 * attempt); // Progressive delay for each attempt
+            }, fromURL ? 600 * attempt : 300 * attempt); // Longer initial delays for URL events
           };
           
-          // Start the attempt process with a small initial delay
-          setTimeout(() => attemptCategoryClick(), 500);
+          // Start the attempt process with appropriate delay based on source
+          const initialDelay = fromURL ? 1000 : 500; // Longer delay for URL-triggered events
+          setTimeout(() => attemptCategoryClick(), initialDelay);
           
         } else {
           console.log("Category not found or service ID mismatch", {
@@ -226,6 +245,11 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
             categoryIdStr,
             availableCategories: categories.map(c => String(c.id))
           });
+          
+          // If category not found, maybe categories haven't loaded yet, retry
+          if (!categoryToSelect && categories.length === 0) {
+            console.log("Categories not loaded yet, will retry when they load");
+          }
         }
       }
     };
@@ -236,6 +260,31 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       document.removeEventListener('openCategory', handleOpenCategoryEvent);
     };
   }, [categories, selectedService.id, onSelectCategory]);
+
+  // Add listener for retry events
+  useEffect(() => {
+    const handleRetryCategory = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        const { serviceId, categoryId, categoryName } = customEvent.detail;
+        console.log("CategoryCarousel received retryCategory event:", categoryId);
+        
+        // Dispatch the original openCategory event again
+        setTimeout(() => {
+          const openCategoryEvent = new CustomEvent('openCategory', {
+            detail: { serviceId, categoryId, categoryName, fromURL: true }
+          });
+          document.dispatchEvent(openCategoryEvent);
+        }, 300);
+      }
+    };
+    
+    document.addEventListener('retryCategory', handleRetryCategory);
+    
+    return () => {
+      document.removeEventListener('retryCategory', handleRetryCategory);
+    };
+  }, []);
 
   // New function to focus and automatically click on a specific category card
   const focusCategoryCard = (categoryId: string) => {
