@@ -36,7 +36,8 @@ import { toast } from "sonner";
 import { GeneralTermsModal } from "@/components/ui/general-terms-modal";
 import { useParams } from "react-router-dom";
 
-const formSchema = z.object({
+// Create conditional schema based on payment methods availability
+const createFormSchema = (paymentMethodsDisabled: boolean) => z.object({
   name: z.string().min(2, { message: "El nombre es obligatorio" }),
   phone: z.string().min(8, { message: "El teléfono debe tener al menos 8 dígitos" }),
   email: z.string().optional(),
@@ -45,15 +46,28 @@ const formSchema = z.object({
   corner: z.string().optional(),
   apartment: z.string().optional(),
   comments: z.string().optional(),
-  paymentMethod: z.enum(["later", "now"], {
-    required_error: "Selecciona un método de pago",
-  }),
+  paymentMethod: paymentMethodsDisabled 
+    ? z.string().optional() 
+    : z.enum(["later", "now"], {
+        required_error: "Selecciona un método de pago",
+      }),
   termsAccepted: z.literal(true, {
     errorMap: () => ({ message: "Debes aceptar los términos y condiciones" }),
   }),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+type FormValues = {
+  name: string;
+  phone: string;
+  email?: string;
+  street: string;
+  number: string;
+  corner?: string;
+  apartment?: string;
+  comments?: string;
+  paymentMethod?: "later" | "now";
+  termsAccepted: boolean;
+};
 
 interface PersonalInfoStepProps {
   onPrevious: () => void;
@@ -86,7 +100,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   const { commerceId } = useParams();
   
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(createFormSchema(paymentMethodsDisabled)),
     defaultValues: {
       name: "",
       phone: "",
@@ -96,7 +110,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       corner: "",
       apartment: "",
       comments: "",
-      paymentMethod: "later",
+      paymentMethod: undefined,
       termsAccepted: undefined as any,
     },
   });
@@ -114,7 +128,9 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             // If the result is false, disable payment methods and clear selection
             if (result === false) {
               setPaymentMethodsDisabled(true);
-              form.setValue("paymentMethod", undefined as any);
+              form.setValue("paymentMethod", undefined);
+              // Update form resolver with new schema
+              form.resolver = zodResolver(createFormSchema(true));
             }
           }
         } catch (error) {
@@ -197,7 +213,11 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   };
 
   const handlePaymentMethodChange = (value: string) => {
-    if (paymentMethodsDisabled) return;
+    // Prevent any selection when payment methods are disabled
+    if (paymentMethodsDisabled) {
+      showPaymentWarning();
+      return;
+    }
     
     if (value === "later" || value === "now") {
       form.setValue("paymentMethod", value);
@@ -224,6 +244,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
         <p className="text-muted-foreground">Completa tus datos para finalizar</p>
       </div>
 
+      {/* ... keep existing code (Accordion with order summary) */}
       <Accordion type="single" collapsible className="mb-6 border rounded-md">
         <AccordionItem value="order-summary">
           <AccordionTrigger className="px-4 py-2">
@@ -289,6 +310,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          {/* ... keep existing code (all form fields except payment method) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -419,15 +441,18 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                 <FormControl>
                   <RadioGroup
                     onValueChange={handlePaymentMethodChange}
-                    value={paymentMethodsDisabled ? "" : field.value}
+                    value={paymentMethodsDisabled ? undefined : field.value}
                     className="flex flex-col space-y-1"
-                    disabled={paymentMethodsDisabled}
                   >
-                    <div className="flex items-center space-x-2">
+                    <div 
+                      className={`flex items-center space-x-2 ${paymentMethodsDisabled ? 'pointer-events-none' : ''}`}
+                      onClick={paymentMethodsDisabled ? showPaymentWarning : undefined}
+                    >
                       <RadioGroupItem 
                         value="later" 
                         id="payment-later"
                         disabled={paymentMethodsDisabled}
+                        className={paymentMethodsDisabled ? 'opacity-50' : ''}
                       />
                       <Label 
                         htmlFor="payment-later" 
@@ -437,11 +462,15 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                         <Banknote size={18} className="text-green-500" />
                       </Label>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div 
+                      className={`flex items-center space-x-2 ${paymentMethodsDisabled ? 'pointer-events-none' : ''}`}
+                      onClick={paymentMethodsDisabled ? showPaymentWarning : undefined}
+                    >
                       <RadioGroupItem 
                         value="now" 
                         id="payment-now"
                         disabled={paymentMethodsDisabled}
+                        className={paymentMethodsDisabled ? 'opacity-50' : ''}
                       />
                       <Label 
                         htmlFor="payment-now" 
