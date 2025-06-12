@@ -288,12 +288,12 @@ const Servicios = () => {
           serviceCardElement.click();
           console.log("Auto-clicked on service:", serviceToAutoClick);
           
-          // If we have a categoryId from URL, trigger category auto-click - IMPROVED
+          // If we have a categoryId from URL, trigger category auto-click with longer delay - IMPROVED TIMING
           if (urlCategoryId && pendingCategoryAutoClickRef.current) {
             const categoryIdStr = String(urlCategoryId);
-            console.log("Preparing to auto-click category:", categoryIdStr);
+            console.log("Preparing to auto-click category:", categoryIdStr, "with extended delay");
             
-            // Dispatch event to open the specific category
+            // Increased delay to allow popup to fully open and stabilize
             setTimeout(() => {
               const openCategoryEvent = new CustomEvent('openCategory', {
                 detail: {
@@ -304,7 +304,7 @@ const Servicios = () => {
               });
               document.dispatchEvent(openCategoryEvent);
               console.log("Dispatched openCategory event for URL categoryId:", categoryIdStr);
-            }, 1000);
+            }, 2000); // Increased from 1000ms to 2000ms to allow popup to fully stabilize
           }
         }
       }, 800);

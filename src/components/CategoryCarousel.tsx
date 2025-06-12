@@ -161,7 +161,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }
   }, [categories, purchaseLocation]);
 
-  // Add listener for custom openCategory events - IMPROVED IMPLEMENTATION
+  // Add listener for custom openCategory events - IMPROVED IMPLEMENTATION WITH RETRIES
   useEffect(() => {
     const handleOpenCategoryEvent = (e: Event) => {
       const customEvent = e as CustomEvent;
@@ -177,36 +177,47 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
         const categoryToSelect = categories.find(cat => String(cat.id) === categoryIdStr);
         
         if (categoryToSelect && String(selectedService.id) === String(serviceId)) {
-          console.log("Found matching category, auto-clicking:", categoryToSelect.name);
+          console.log("Found matching category, preparing auto-click:", categoryToSelect.name);
           
           // Update UI to show the selected category name
           setSelectedCategoryName(categoryToSelect.name);
           
-          // Small delay to ensure UI is ready
-          setTimeout(() => {
+          // Function to attempt category click with retries
+          const attemptCategoryClick = (attempt = 1, maxAttempts = 5) => {
+            console.log(`Attempting category click (attempt ${attempt}/${maxAttempts})`);
+            
             // First, handle the data selection through the normal flow
             handleCategoryClick(categoryToSelect);
             
             // Focus on the category card
             focusCategoryCard(categoryToSelect.id);
             
-            // CRITICAL: Find and click the DOM element for the category
+            // Try to find and click the DOM element for the category
             setTimeout(() => {
               const categoryElement = document.querySelector(`[data-category-id="${categoryToSelect.id}"]`);
               if (categoryElement) {
                 // Find the clickable card within the category element
                 const clickableCard = categoryElement.querySelector('.cursor-pointer');
                 if (clickableCard && clickableCard instanceof HTMLElement) {
-                  console.log("Programmatically clicking on category card:", categoryToSelect.name);
+                  console.log("Successfully clicking on category card:", categoryToSelect.name);
                   clickableCard.click();
-                } else {
-                  console.error("Failed to find clickable element within category card", categoryToSelect.id);
+                  return; // Success, exit
                 }
-              } else {
-                console.error("Failed to find category element with ID:", categoryToSelect.id);
               }
-            }, 200);
-          }, 300);
+              
+              // If we couldn't find the element and haven't reached max attempts, retry
+              if (attempt < maxAttempts) {
+                console.log(`Category element not found, retrying in ${500 * attempt}ms...`);
+                setTimeout(() => attemptCategoryClick(attempt + 1, maxAttempts), 500 * attempt);
+              } else {
+                console.error("Failed to find and click category element after", maxAttempts, "attempts");
+              }
+            }, 300 * attempt); // Progressive delay for each attempt
+          };
+          
+          // Start the attempt process with a small initial delay
+          setTimeout(() => attemptCategoryClick(), 500);
+          
         } else {
           console.log("Category not found or service ID mismatch", {
             foundCategory: !!categoryToSelect,
