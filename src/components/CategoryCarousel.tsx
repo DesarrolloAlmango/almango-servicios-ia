@@ -59,6 +59,47 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
 
+  // DEBUG: Extract categoryId from URL when categories load
+  useEffect(() => {
+    if (categories.length > 0) {
+      // Get category ID from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlCategoryId = window.location.pathname.split('/').pop();
+      const categoryIdFromURL = autoSelectCategoryId || urlCategoryId;
+      
+      console.log("🐛 DEBUG - Categories loaded. URL analysis:");
+      console.log("🐛 Full URL:", window.location.href);
+      console.log("🐛 URL pathname:", window.location.pathname);
+      console.log("🐛 URL pathname parts:", window.location.pathname.split('/'));
+      console.log("🐛 Last part of pathname:", urlCategoryId);
+      console.log("🐛 autoSelectCategoryId prop:", autoSelectCategoryId);
+      console.log("🐛 Final categoryId to use:", categoryIdFromURL);
+      console.log("🐛 Available categories:", categories.map(c => `ID: ${c.id}, Name: ${c.name}`));
+      
+      // Show toast with the category ID for debugging
+      if (categoryIdFromURL) {
+        toast.info(`🐛 DEBUG: Intentando auto-seleccionar categoría ID: ${categoryIdFromURL}`, { 
+          duration: 5000,
+          position: "top-center"
+        });
+        
+        // Check if category exists
+        const foundCategory = categories.find(c => String(c.id) === String(categoryIdFromURL));
+        if (foundCategory) {
+          toast.success(`🐛 DEBUG: Categoría encontrada: ${foundCategory.name} (ID: ${foundCategory.id})`, { 
+            duration: 5000,
+            position: "top-center"
+          });
+        } else {
+          toast.error(`🐛 DEBUG: Categoría NO encontrada para ID: ${categoryIdFromURL}`, { 
+            duration: 5000,
+            position: "top-center"
+          });
+        }
+      }
+    }
+  }, [categories, autoSelectCategoryId]);
+
   // Enhanced auto-select effect with URL support - IMPROVED
   useEffect(() => {
     // Clear any pending auto-select timeout when dependencies change
@@ -81,10 +122,13 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
 
     // Only attempt auto-selection if we have all required data and haven't already selected
     if (categoryIdStr && categories.length > 0 && purchaseLocation) {
-      console.log("Checking for auto-selection. Category ID:", categoryIdStr, 
-                 "Has already selected:", hasAutoSelectedRef.current,
-                 "Categories available:", categories.length,
-                 "Categories:", categories.map(c => `${c.id}:${c.name}`));
+      console.log("🐛 DEBUG - Auto-selection check:", {
+        categoryIdStr,
+        hasAutoSelected: hasAutoSelectedRef.current,
+        categoriesCount: categories.length,
+        purchaseLocation: !!purchaseLocation,
+        selectedServiceId: selectedService.id
+      });
       
       // Find the category we want to select - ENSURE STRING COMPARISON
       const categoryToSelect = categories.find(cat => String(cat.id) === categoryIdStr);
@@ -96,10 +140,10 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
         // Progressive backoff for retries (300ms, 600ms, 900ms, etc.)
         const delay = Math.min(300 * autoSelectionAttemptsRef.current, 1500);
         
-        console.log(`Attempting auto-selection in ${delay}ms (attempt ${autoSelectionAttemptsRef.current}) for category: ${categoryToSelect.name}`);
+        console.log(`🐛 DEBUG - Scheduling auto-selection in ${delay}ms (attempt ${autoSelectionAttemptsRef.current}) for category: ${categoryToSelect.name}`);
         
         autoSelectTimeoutRef.current = setTimeout(() => {
-          console.log("Auto-selecting category:", categoryToSelect.name, "ID:", categoryToSelect.id);
+          console.log("🐛 DEBUG - Executing auto-selection for category:", categoryToSelect.name, "ID:", categoryToSelect.id);
           
           // Mark as selected to prevent multiple selections
           hasAutoSelectedRef.current = true;
@@ -118,7 +162,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
             if (categoryElement) {
               const clickableCard = categoryElement.querySelector('.cursor-pointer');
               if (clickableCard && clickableCard instanceof HTMLElement) {
-                console.log("Force clicking category card:", categoryToSelect.name);
+                console.log("🐛 DEBUG - Force clicking category card:", categoryToSelect.name);
                 clickableCard.click();
               }
             }
@@ -128,14 +172,14 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
           autoSelectionAttemptsRef.current = 0;
         }, delay);
       } else if (!categoryToSelect && categoryIdStr) {
-        console.log("Category not found for auto-selection:", categoryIdStr, 
+        console.log("🐛 DEBUG - Category not found for auto-selection:", categoryIdStr, 
                    "Available categories:", categories.map(c => `${c.id}:${c.name}`).join(', '));
         
         // Retry if we haven't exceeded max attempts
         if (autoSelectionAttemptsRef.current < 5) {
           autoSelectionAttemptsRef.current += 1;
           const retryDelay = 500 * autoSelectionAttemptsRef.current;
-          console.log(`Retrying category search in ${retryDelay}ms (attempt ${autoSelectionAttemptsRef.current})`);
+          console.log(`🐛 DEBUG - Retrying category search in ${retryDelay}ms (attempt ${autoSelectionAttemptsRef.current})`);
           
           autoSelectTimeoutRef.current = setTimeout(() => {
             // Trigger a re-check by updating a dummy state
@@ -639,7 +683,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
 
   // Handle category selection with global variable storage and enhanced debug
   const handleCategoryClick = (category: Category) => {
-    console.log("Category clicked:", category.name, "Purchase location:", purchaseLocation ? "exists" : "does not exist", "Category ID:", category.id);
+    console.log("🐛 DEBUG - Category clicked:", category.name, "ID:", category.id, "Purchase location:", purchaseLocation ? "exists" : "does not exist");
     
     // Store the selected category ID and name in global variables
     lastSelectedCategoryId = category.id;
@@ -648,7 +692,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     // Update the local state to show the selected category
     setSelectedCategoryName(category.name);
     
-    console.log("Saved last selected category:", lastSelectedCategoryId, lastSelectedCategoryName);
+    console.log("🐛 DEBUG - Saved last selected category:", lastSelectedCategoryId, lastSelectedCategoryName);
     
     // Check if this was triggered by a name match and log it
     if (selectedCategoryName === category.name) {
