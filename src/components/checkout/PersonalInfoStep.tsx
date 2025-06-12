@@ -129,8 +129,6 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             if (result === false) {
               setPaymentMethodsDisabled(true);
               form.setValue("paymentMethod", undefined);
-              // Update form resolver with new schema
-              form.resolver = zodResolver(createFormSchema(true));
             }
           }
         } catch (error) {
@@ -141,6 +139,14 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 
     checkPaymentProvider();
   }, [commerceId, form]);
+
+  // Update form resolver when paymentMethodsDisabled changes
+  useEffect(() => {
+    const currentValues = form.getValues();
+    form.reset(currentValues, {
+      resolver: zodResolver(createFormSchema(paymentMethodsDisabled))
+    });
+  }, [paymentMethodsDisabled, form]);
 
   const formatDate = (date?: Date) => {
     if (!date) return "No seleccionada";
