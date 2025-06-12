@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -125,15 +126,22 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             const result = await response.json();
             console.log("Payment provider result:", result);
             
-            // If the result is false, disable payment methods and clear selection
+            // Only disable if the result is specifically false
             if (result === false) {
               setPaymentMethodsDisabled(true);
               form.setValue("paymentMethod", undefined);
+            } else {
+              setPaymentMethodsDisabled(false);
             }
           }
         } catch (error) {
           console.error("Error checking payment provider:", error);
+          // On error, don't disable payment methods
+          setPaymentMethodsDisabled(false);
         }
+      } else {
+        // If no commerceId, enable payment methods
+        setPaymentMethodsDisabled(false);
       }
     };
 
@@ -449,39 +457,39 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                     className="flex flex-col space-y-1"
                   >
                     <div 
-                      className={`flex items-center space-x-2 ${paymentMethodsDisabled ? 'pointer-events-none' : ''}`}
+                      className={`flex items-center space-x-2 ${paymentMethodsDisabled ? 'pointer-events-none cursor-not-allowed' : ''}`}
                       onClick={paymentMethodsDisabled ? showPaymentWarning : undefined}
                     >
                       <RadioGroupItem 
                         value="later" 
                         id="payment-later"
                         disabled={paymentMethodsDisabled}
-                        className={paymentMethodsDisabled ? 'opacity-50' : ''}
+                        className={paymentMethodsDisabled ? 'opacity-30 border-gray-300' : ''}
                       />
                       <Label 
                         htmlFor="payment-later" 
-                        className={`flex items-center gap-2 ${paymentMethodsDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`flex items-center gap-2 ${paymentMethodsDisabled ? 'opacity-30 cursor-not-allowed text-gray-400' : ''}`}
                       >
                         Pagar después (al profesional)
-                        <Banknote size={18} className="text-green-500" />
+                        <Banknote size={18} className={paymentMethodsDisabled ? 'text-gray-300' : 'text-green-500'} />
                       </Label>
                     </div>
                     <div 
-                      className={`flex items-center space-x-2 ${paymentMethodsDisabled ? 'pointer-events-none' : ''}`}
+                      className={`flex items-center space-x-2 ${paymentMethodsDisabled ? 'pointer-events-none cursor-not-allowed' : ''}`}
                       onClick={paymentMethodsDisabled ? showPaymentWarning : undefined}
                     >
                       <RadioGroupItem 
                         value="now" 
                         id="payment-now"
                         disabled={paymentMethodsDisabled}
-                        className={paymentMethodsDisabled ? 'opacity-50' : ''}
+                        className={paymentMethodsDisabled ? 'opacity-30 border-gray-300' : ''}
                       />
                       <Label 
                         htmlFor="payment-now" 
-                        className={`flex items-center gap-2 ${paymentMethodsDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`flex items-center gap-2 ${paymentMethodsDisabled ? 'opacity-30 cursor-not-allowed text-gray-400' : ''}`}
                       >
                         Pagar ahora (Mercado Pago)
-                        <CreditCard size={18} className="text-sky-500" />
+                        <CreditCard size={18} className={paymentMethodsDisabled ? 'text-gray-300' : 'text-sky-500'} />
                       </Label>
                     </div>
                   </RadioGroup>
