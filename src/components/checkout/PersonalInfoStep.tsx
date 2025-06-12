@@ -115,10 +115,22 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     },
   });
 
-  // Update form schema when payment availability changes
+  // Update form resolver when payment availability changes
   useEffect(() => {
+    const currentValues = form.getValues();
     const newSchema = createFormSchema(paymentEnabled);
-    form.reset(form.getValues(), { resolver: zodResolver(newSchema) });
+    
+    // Reset the form with new resolver
+    form.reset(currentValues);
+    
+    // Manually update the resolver by recreating the form configuration
+    const newResolver = zodResolver(newSchema);
+    (form as any)._resolver = newResolver;
+    
+    if (!paymentEnabled) {
+      // Clear payment method selection if payment is disabled
+      form.setValue("paymentMethod", undefined as any);
+    }
   }, [paymentEnabled, form]);
 
   useEffect(() => {
@@ -273,6 +285,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
         <p className="text-muted-foreground">Completa tus datos para finalizar</p>
       </div>
 
+      {/* ... keep existing code (Accordion with order summary) */}
       <Accordion type="single" collapsible className="mb-6 border rounded-md">
         <AccordionItem value="order-summary">
           <AccordionTrigger className="px-4 py-2">
@@ -338,6 +351,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          {/* ... keep existing code (form fields for name, phone, email, address, comments) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
