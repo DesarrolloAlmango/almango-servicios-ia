@@ -252,8 +252,8 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     let paymentMethodId: number;
     
     if (!paymentEnabled) {
-      // When payment is disabled, always send 0
-      paymentMethodId = 0;
+      // When payment is disabled, always send 1 (Pagar después)
+      paymentMethodId = 1;
     } else {
       // When payment is enabled, use the selected method
       paymentMethodId = data.paymentMethod === "later" ? 1 : 4;
