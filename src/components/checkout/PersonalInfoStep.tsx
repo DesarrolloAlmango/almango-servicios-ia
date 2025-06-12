@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,10 +34,8 @@ import {
 } from "@/components/ui/accordion";
 import { toast } from "sonner";
 import { GeneralTermsModal } from "@/components/ui/general-terms-modal";
-import { useParams } from "react-router-dom";
 
-// Create conditional schema based on payment methods availability
-const createFormSchema = (paymentMethodsDisabled: boolean) => z.object({
+const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre es obligatorio" }),
   phone: z.string().min(8, { message: "El teléfono debe tener al menos 8 dígitos" }),
   email: z.string().optional(),
@@ -46,28 +44,15 @@ const createFormSchema = (paymentMethodsDisabled: boolean) => z.object({
   corner: z.string().optional(),
   apartment: z.string().optional(),
   comments: z.string().optional(),
-  paymentMethod: paymentMethodsDisabled 
-    ? z.string().optional() 
-    : z.enum(["later", "now"], {
-        required_error: "Selecciona un método de pago",
-      }),
+  paymentMethod: z.enum(["later", "now"], {
+    required_error: "Selecciona un método de pago",
+  }),
   termsAccepted: z.literal(true, {
     errorMap: () => ({ message: "Debes aceptar los términos y condiciones" }),
   }),
 });
 
-type FormValues = {
-  name: string;
-  phone: string;
-  email?: string;
-  street: string;
-  number: string;
-  corner?: string;
-  apartment?: string;
-  comments?: string;
-  paymentMethod?: "later" | "now";
-  termsAccepted: boolean;
-};
+type FormValues = z.infer<typeof formSchema>;
 
 interface PersonalInfoStepProps {
   onPrevious: () => void;
@@ -96,11 +81,9 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 }) => {
   const [showOrderSummary, setShowOrderSummary] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
-  const [paymentMethodsDisabled, setPaymentMethodsDisabled] = useState(false);
-  const { commerceId } = useParams();
   
   const form = useForm<FormValues>({
-    resolver: zodResolver(createFormSchema(paymentMethodsDisabled)),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       phone: "",
@@ -110,54 +93,10 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       corner: "",
       apartment: "",
       comments: "",
-      paymentMethod: undefined,
+      paymentMethod: "later",
       termsAccepted: undefined as any,
     },
   });
-
-  // Check payment provider default when commerceId is present
-  useEffect(() => {
-    const checkPaymentProvider = async () => {
-      if (commerceId) {
-        try {
-          const response = await fetch(`http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ObtenerProveedorPagoDefault?Proveedorid=${commerceId}`);
-          if (response.ok) {
-            const result = await response.json();
-            console.log("Payment provider result:", result);
-            
-            // Only disable if the result is specifically false
-            if (result === false) {
-              setPaymentMethodsDisabled(true);
-              form.setValue("paymentMethod", undefined);
-            } else {
-              setPaymentMethodsDisabled(false);
-            }
-          }
-        } catch (error) {
-          console.error("Error checking payment provider:", error);
-          // On error, don't disable payment methods
-          setPaymentMethodsDisabled(false);
-        }
-      } else {
-        // If no commerceId, enable payment methods
-        setPaymentMethodsDisabled(false);
-      }
-    };
-
-    checkPaymentProvider();
-  }, [commerceId, form]);
-
-  // Create new form instance when paymentMethodsDisabled changes
-  useEffect(() => {
-    const currentValues = form.getValues();
-    const newForm = useForm<FormValues>({
-      resolver: zodResolver(createFormSchema(paymentMethodsDisabled)),
-      defaultValues: currentValues,
-    });
-    
-    // Reset form with new validation schema
-    form.reset(currentValues);
-  }, [paymentMethodsDisabled]);
 
   const formatDate = (date?: Date) => {
     if (!date) return "No seleccionada";
@@ -223,6 +162,18 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     onSubmit(data);
   };
 
+  const showPaymentWarning = () => {
+    toast.warning("Método de pago no disponible", {
+      description: "Momentáneamente esta forma de pago no está disponible."
+    });
+  };
+
+  const handlePaymentMethodChange = (value: string) => {
+    if (value === "later" || value === "now") {
+      form.setValue("paymentMethod", value);
+    }
+  };
+
   const handleOpenTermsModal = () => {
     setIsTermsModalOpen(true);
   };
@@ -243,7 +194,6 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
         <p className="text-muted-foreground">Completa tus datos para finalizar</p>
       </div>
 
-      {/* ... keep existing code (Accordion with order summary) */}
       <Accordion type="single" collapsible className="mb-6 border rounded-md">
         <AccordionItem value="order-summary">
           <AccordionTrigger className="px-4 py-2">
@@ -309,7 +259,6 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-          {/* ... keep existing code (all form fields except payment method) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -431,53 +380,44 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             )}
           />
 
-          {/* Only show payment method section if payment methods are NOT disabled */}
-          {!paymentMethodsDisabled && (
-            <FormField
-              control={form.control}
-              name="paymentMethod"
-              render={({ field }) => (
-                <FormItem className="space-y-2">
-                  <FormLabel>Forma de pago</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      className="flex flex-col space-y-1"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem 
-                          value="later" 
-                          id="payment-later"
-                        />
-                        <Label 
-                          htmlFor="payment-later" 
-                          className="flex items-center gap-2"
-                        >
-                          Pagar después (al profesional)
-                          <Banknote size={18} className="text-green-500" />
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem 
-                          value="now" 
-                          id="payment-now"
-                        />
-                        <Label 
-                          htmlFor="payment-now" 
-                          className="flex items-center gap-2"
-                        >
-                          Pagar ahora (Mercado Pago)
-                          <CreditCard size={18} className="text-sky-500" />
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
+          <FormField
+            control={form.control}
+            name="paymentMethod"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel>Forma de pago</FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={handlePaymentMethodChange}
+                    defaultValue={field.value}
+                    className="flex flex-col space-y-1"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="later" id="payment-later" />
+                      <Label htmlFor="payment-later" className="flex items-center gap-2">
+                        Pagar después (al profesional)
+                        <Banknote size={18} className="text-green-500" />
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem 
+                        value="now" 
+                        id="payment-now"
+                      />
+                      <Label 
+                        htmlFor="payment-now" 
+                        className="flex items-center gap-2"
+                      >
+                        Pagar ahora (Mercado Pago)
+                        <CreditCard size={18} className="text-sky-500" />
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}
