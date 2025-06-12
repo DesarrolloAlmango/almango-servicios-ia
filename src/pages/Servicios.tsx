@@ -206,8 +206,24 @@ const Servicios = () => {
     setShowLocationModal(true);
   };
 
-  const handleLocationConfirm = (location: any) => {
-    console.log("Location confirmed:", location);
+  const handleLocationConfirm = (
+    storeId: string, 
+    storeName: string, 
+    departmentId: string,
+    departmentName: string,
+    locationId: string,
+    locationName: string,
+    otherLocation?: string
+  ) => {
+    console.log("Location confirmed:", { 
+      storeId, 
+      storeName, 
+      departmentId, 
+      departmentName, 
+      locationId, 
+      locationName, 
+      otherLocation 
+    });
     setShowLocationModal(false);
   };
 
@@ -334,7 +350,9 @@ const Servicios = () => {
           setPendingCategoryId(null);
           setPendingCategoryName(null);
         }}
-        service={selectedService}
+        onSelectLocation={handleLocationConfirm}
+        serviceId={selectedService?.id}
+        serviceName={selectedService?.name}
       />
       {selectedService && (
         <ServiceCard
