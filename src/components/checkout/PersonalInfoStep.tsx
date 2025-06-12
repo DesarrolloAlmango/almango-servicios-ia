@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -145,7 +146,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       setIsLoadingPaymentStatus(true);
       try {
         const response = await fetch(
-          `http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ObtenerProveedorPagoDefault?Proveedorid=${commerceId}`
+          `https://app.almango.com.uy/WebAPI/ObtenerProveedorPagoDefault?Proveedorid=${commerceId}`
         );
         
         if (!response.ok) {
