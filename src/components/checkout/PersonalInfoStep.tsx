@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/accordion";
 import { toast } from "sonner";
 import { GeneralTermsModal } from "@/components/ui/general-terms-modal";
+import { useParams } from "react-router-dom";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre es obligatorio" }),
@@ -81,6 +82,9 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 }) => {
   const [showOrderSummary, setShowOrderSummary] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [paymentEnabled, setPaymentEnabled] = useState(true);
+  const [isLoadingPaymentStatus, setIsLoadingPaymentStatus] = useState(false);
+  const { commerceId } = useParams();
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -97,6 +101,45 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       termsAccepted: undefined as any,
     },
   });
+
+  useEffect(() => {
+    const checkPaymentAvailability = async () => {
+      if (!commerceId) {
+        console.log("No commerce ID found, payment methods remain enabled");
+        return;
+      }
+
+      setIsLoadingPaymentStatus(true);
+      try {
+        const response = await fetch(
+          `http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ObtenerProveedorPagoDefault?Proveedorid=${commerceId}`
+        );
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch payment status');
+        }
+        
+        const paymentAvailable = await response.json();
+        console.log("Payment availability response:", paymentAvailable);
+        
+        setPaymentEnabled(paymentAvailable === true);
+        
+        if (paymentAvailable === false) {
+          // Clear payment method selection if payment is disabled
+          form.setValue("paymentMethod", undefined as any);
+        }
+      } catch (error) {
+        console.error("Error checking payment availability:", error);
+        toast.error("Error al verificar disponibilidad de pagos");
+        // Keep payment enabled on error
+        setPaymentEnabled(true);
+      } finally {
+        setIsLoadingPaymentStatus(false);
+      }
+    };
+
+    checkPaymentAvailability();
+  }, [commerceId, form]);
 
   const formatDate = (date?: Date) => {
     if (!date) return "No seleccionada";
@@ -159,6 +202,14 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       });
       return;
     }
+
+    if (!paymentEnabled && !data.paymentMethod) {
+      toast.error("Método de pago requerido", {
+        description: "Debes seleccionar un método de pago para continuar."
+      });
+      return;
+    }
+
     onSubmit(data);
   };
 
@@ -169,6 +220,8 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   };
 
   const handlePaymentMethodChange = (value: string) => {
+    if (!paymentEnabled) return;
+    
     if (value === "later" || value === "now") {
       form.setValue("paymentMethod", value);
     }
@@ -386,34 +439,56 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             render={({ field }) => (
               <FormItem className="space-y-2">
                 <FormLabel>Forma de pago</FormLabel>
-                <FormControl>
-                  <RadioGroup
-                    onValueChange={handlePaymentMethodChange}
-                    defaultValue={field.value}
-                    className="flex flex-col space-y-1"
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="later" id="payment-later" />
-                      <Label htmlFor="payment-later" className="flex items-center gap-2">
-                        Pagar después (al profesional)
-                        <Banknote size={18} className="text-green-500" />
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem 
-                        value="now" 
-                        id="payment-now"
-                      />
-                      <Label 
-                        htmlFor="payment-now" 
-                        className="flex items-center gap-2"
-                      >
-                        Pagar ahora (Mercado Pago)
-                        <CreditCard size={18} className="text-sky-500" />
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                </FormControl>
+                {isLoadingPaymentStatus ? (
+                  <div className="text-sm text-muted-foreground">
+                    Verificando disponibilidad de pagos...
+                  </div>
+                ) : (
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={handlePaymentMethodChange}
+                      defaultValue={field.value}
+                      className="flex flex-col space-y-1"
+                      disabled={!paymentEnabled}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem 
+                          value="later" 
+                          id="payment-later" 
+                          disabled={!paymentEnabled}
+                          className={!paymentEnabled ? "opacity-50 cursor-not-allowed" : ""}
+                        />
+                        <Label 
+                          htmlFor="payment-later" 
+                          className={`flex items-center gap-2 ${!paymentEnabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                        >
+                          Pagar después (al profesional)
+                          <Banknote size={18} className="text-green-500" />
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem 
+                          value="now" 
+                          id="payment-now"
+                          disabled={!paymentEnabled}
+                          className={!paymentEnabled ? "opacity-50 cursor-not-allowed" : ""}
+                        />
+                        <Label 
+                          htmlFor="payment-now" 
+                          className={`flex items-center gap-2 ${!paymentEnabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                        >
+                          Pagar ahora (Mercado Pago)
+                          <CreditCard size={18} className="text-sky-500" />
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </FormControl>
+                )}
+                {!paymentEnabled && (
+                  <div className="text-sm text-amber-600 bg-amber-50 p-2 rounded-md">
+                    Los métodos de pago no están disponibles actualmente para este comercio.
+                  </div>
+                )}
                 <FormMessage />
               </FormItem>
             )}
