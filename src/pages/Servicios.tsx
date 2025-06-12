@@ -170,6 +170,7 @@ const Servicios = () => {
   const [titleVisible, setTitleVisible] = useState(false);
   const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(null);
   const [autoClickTriggered, setAutoClickTriggered] = useState(false);
+  const [hasShownServiceMessage, setHasShownServiceMessage] = useState(false);
   const serviceCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const pendingCategoryAutoClickRef = useRef<boolean>(false);
 
@@ -243,23 +244,20 @@ const Servicios = () => {
   }, [urlServiceId, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza]);
 
   useEffect(() => {
-    if (location.state && location.state.clickedService) {
-      // Clear any existing toasts first
-      const existingToasts = document.querySelectorAll('[data-sonner-toast]');
-      existingToasts.forEach(toast => {
-        const closeButton = toast.querySelector('[data-close-button]');
-        if (closeButton) {
-          (closeButton as HTMLElement).click();
-        }
-      });
+    if (location.state && location.state.clickedService && !hasShownServiceMessage) {
+      // Dismiss all existing toasts first using sonner's dismiss method
+      toast.dismiss();
 
-      // Show only the service selection message after a brief delay to ensure other toasts are cleared
+      // Set the flag to prevent multiple messages
+      setHasShownServiceMessage(true);
+
+      // Show the service selection message after a brief delay
       setTimeout(() => {
         toast.success(`Has seleccionado: ${location.state.clickedService}`, {
           duration: 4000,
           position: "top-center"
         });
-      }, 100);
+      }, 200);
 
       const findServiceByName = () => {
         const displayedServices = isServicesError ? fallbackServices : services;
@@ -274,9 +272,17 @@ const Servicios = () => {
       if (!isServicesLoading && !isLoadingMudanza) {
         findServiceByName();
       }
+      // Clear the state and reset the flag after processing
       window.history.replaceState({}, document.title);
     }
-  }, [location.state, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza]);
+  }, [location.state, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza, hasShownServiceMessage]);
+
+  // Reset the message flag when location changes
+  useEffect(() => {
+    if (!location.state || !location.state.clickedService) {
+      setHasShownServiceMessage(false);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     if (highlightedServiceId && serviceCardRefs.current[highlightedServiceId] && !autoClickTriggered) {
