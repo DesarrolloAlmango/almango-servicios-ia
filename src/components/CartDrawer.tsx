@@ -123,9 +123,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
       }
       return acc;
     }, {});
+
     const checkoutDataArray: CheckoutData[] = Object.entries(serviceGroups).map(([serviceId, items]) => {
       const location = items[0].location;
       const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
       const formattedData: CheckoutData = {
         Nombre: data.name,
         Telefono: data.phone,
@@ -135,7 +137,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         MunicipioId: Number(location.locationId) || null,
         ZonasID: 0,
         Direccion: `${data.street} ${data.number}${data.apartment ? ` Apto ${data.apartment}` : ''}${data.corner ? ` esq. ${data.corner}` : ''}`,
-        MetodoPagosID: data.paymentMethod === "later" ? 1 : 4,
+        MetodoPagosID: data.paymentMethodId || 0, // Use the paymentMethodId from PersonalInfoStep
         SolicitudPagada: "",
         SolicitaCotizacion: total.toString(),
         SolicitaOtroServicio: "",
@@ -150,17 +152,18 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           ProductoID: Number(item.categoryId),
           DetalleID: Number(item.productId),
           Cantidad: item.quantity,
-          Precio: Number(item.price), // Ensure price is a number
+          Precio: Number(item.price),
           SR: "N",
           Comision: 0,
           ComisionTipo: "P",
-          PrecioFinal: Number((item.price * item.quantity)), // Ensure calculation is done with numbers
+          PrecioFinal: Number((item.price * item.quantity)),
           productoNombre: item.name
         })),
         serviceName: location.serviceName || `Servicio ${serviceId}`
       };
       return formattedData;
     });
+
     setCheckoutData(checkoutDataArray);
     setShowSummary(true);
   };
