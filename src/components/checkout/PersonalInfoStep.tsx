@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/accordion";
 import { toast } from "sonner";
 import { GeneralTermsModal } from "@/components/ui/general-terms-modal";
+import { useParams } from "react-router-dom";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre es obligatorio" }),
@@ -81,6 +82,8 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 }) => {
   const [showOrderSummary, setShowOrderSummary] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [paymentMethodsDisabled, setPaymentMethodsDisabled] = useState(false);
+  const { commerceId } = useParams();
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -97,6 +100,31 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       termsAccepted: undefined as any,
     },
   });
+
+  // Check payment provider default when commerceId is present
+  useEffect(() => {
+    const checkPaymentProvider = async () => {
+      if (commerceId) {
+        try {
+          const response = await fetch(`http://109.199.100.16/AlmangoXV1NETFramework/WebAPI/ObtenerProveedorPagoDefault?Proveedorid=${commerceId}`);
+          if (response.ok) {
+            const result = await response.json();
+            console.log("Payment provider result:", result);
+            
+            // If the result is false, disable payment methods and clear selection
+            if (result === false) {
+              setPaymentMethodsDisabled(true);
+              form.setValue("paymentMethod", undefined as any);
+            }
+          }
+        } catch (error) {
+          console.error("Error checking payment provider:", error);
+        }
+      }
+    };
+
+    checkPaymentProvider();
+  }, [commerceId, form]);
 
   const formatDate = (date?: Date) => {
     if (!date) return "No seleccionada";
@@ -169,6 +197,8 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   };
 
   const handlePaymentMethodChange = (value: string) => {
+    if (paymentMethodsDisabled) return;
+    
     if (value === "later" || value === "now") {
       form.setValue("paymentMethod", value);
     }
@@ -389,12 +419,20 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                 <FormControl>
                   <RadioGroup
                     onValueChange={handlePaymentMethodChange}
-                    defaultValue={field.value}
+                    value={paymentMethodsDisabled ? "" : field.value}
                     className="flex flex-col space-y-1"
+                    disabled={paymentMethodsDisabled}
                   >
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="later" id="payment-later" />
-                      <Label htmlFor="payment-later" className="flex items-center gap-2">
+                      <RadioGroupItem 
+                        value="later" 
+                        id="payment-later"
+                        disabled={paymentMethodsDisabled}
+                      />
+                      <Label 
+                        htmlFor="payment-later" 
+                        className={`flex items-center gap-2 ${paymentMethodsDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
                         Pagar después (al profesional)
                         <Banknote size={18} className="text-green-500" />
                       </Label>
@@ -403,10 +441,11 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                       <RadioGroupItem 
                         value="now" 
                         id="payment-now"
+                        disabled={paymentMethodsDisabled}
                       />
                       <Label 
                         htmlFor="payment-now" 
-                        className="flex items-center gap-2"
+                        className={`flex items-center gap-2 ${paymentMethodsDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                       >
                         Pagar ahora (Mercado Pago)
                         <CreditCard size={18} className="text-sky-500" />
@@ -414,6 +453,11 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                     </div>
                   </RadioGroup>
                 </FormControl>
+                {paymentMethodsDisabled && (
+                  <p className="text-sm text-muted-foreground">
+                    Las formas de pago no están disponibles para este proveedor.
+                  </p>
+                )}
                 <FormMessage />
               </FormItem>
             )}
