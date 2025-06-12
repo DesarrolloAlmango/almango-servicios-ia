@@ -36,7 +36,8 @@ import { toast } from "sonner";
 import { GeneralTermsModal } from "@/components/ui/general-terms-modal";
 import { useParams } from "react-router-dom";
 
-const formSchema = z.object({
+// Create base schema without paymentMethod
+const baseFormSchema = z.object({
   name: z.string().min(2, { message: "El nombre es obligatorio" }),
   phone: z.string().min(8, { message: "El teléfono debe tener al menos 8 dígitos" }),
   email: z.string().optional(),
@@ -45,15 +46,27 @@ const formSchema = z.object({
   corner: z.string().optional(),
   apartment: z.string().optional(),
   comments: z.string().optional(),
-  paymentMethod: z.enum(["later", "now"], {
-    required_error: "Selecciona un método de pago",
-  }),
   termsAccepted: z.literal(true, {
     errorMap: () => ({ message: "Debes aceptar los términos y condiciones" }),
   }),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+// Function to create schema based on payment availability
+const createFormSchema = (paymentEnabled: boolean) => {
+  if (paymentEnabled) {
+    return baseFormSchema.extend({
+      paymentMethod: z.enum(["later", "now"], {
+        required_error: "Selecciona un método de pago",
+      }),
+    });
+  } else {
+    return baseFormSchema.extend({
+      paymentMethod: z.enum(["later", "now"]).optional(),
+    });
+  }
+};
+
+type FormValues = z.infer<ReturnType<typeof createFormSchema>>;
 
 interface PersonalInfoStepProps {
   onPrevious: () => void;
@@ -87,7 +100,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   const { commerceId } = useParams();
   
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(createFormSchema(paymentEnabled)),
     defaultValues: {
       name: "",
       phone: "",
@@ -101,6 +114,12 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       termsAccepted: undefined as any,
     },
   });
+
+  // Update form schema when payment availability changes
+  useEffect(() => {
+    const newSchema = createFormSchema(paymentEnabled);
+    form.reset(form.getValues(), { resolver: zodResolver(newSchema) });
+  }, [paymentEnabled, form]);
 
   useEffect(() => {
     const checkPaymentAvailability = async () => {
@@ -209,7 +228,8 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       return;
     }
 
-    if (!paymentEnabled && !data.paymentMethod) {
+    // Only validate payment method if payment is enabled
+    if (paymentEnabled && !data.paymentMethod) {
       toast.error("Método de pago requerido", {
         description: "Debes seleccionar un método de pago para continuar."
       });
@@ -439,66 +459,66 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="paymentMethod"
-            render={({ field }) => (
-              <FormItem className="space-y-2">
-                <FormLabel>Forma de pago</FormLabel>
-                {isLoadingPaymentStatus ? (
-                  <div className="text-sm text-muted-foreground">
-                    Verificando disponibilidad de pagos...
-                  </div>
-                ) : (
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={handlePaymentMethodChange}
-                      defaultValue={field.value}
-                      className="flex flex-col space-y-1"
-                      disabled={!paymentEnabled}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem 
-                          value="later" 
-                          id="payment-later" 
-                          disabled={!paymentEnabled}
-                          className={!paymentEnabled ? "opacity-50 cursor-not-allowed" : ""}
-                        />
-                        <Label 
-                          htmlFor="payment-later" 
-                          className={`flex items-center gap-2 ${!paymentEnabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                        >
-                          Pagar después (al profesional)
-                          <Banknote size={18} className="text-green-500" />
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem 
-                          value="now" 
-                          id="payment-now"
-                          disabled={!paymentEnabled}
-                          className={!paymentEnabled ? "opacity-50 cursor-not-allowed" : ""}
-                        />
-                        <Label 
-                          htmlFor="payment-now" 
-                          className={`flex items-center gap-2 ${!paymentEnabled ? "opacity-50 cursor-not-allowed" : ""}`}
-                        >
-                          Pagar ahora (Mercado Pago)
-                          <CreditCard size={18} className="text-sky-500" />
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                )}
-                {!paymentEnabled && (
-                  <div className="text-sm text-amber-600 bg-amber-50 p-2 rounded-md">
-                    Los métodos de pago no están disponibles actualmente para este comercio.
-                  </div>
-                )}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {paymentEnabled && (
+            <FormField
+              control={form.control}
+              name="paymentMethod"
+              render={({ field }) => (
+                <FormItem className="space-y-2">
+                  <FormLabel>Forma de pago</FormLabel>
+                  {isLoadingPaymentStatus ? (
+                    <div className="text-sm text-muted-foreground">
+                      Verificando disponibilidad de pagos...
+                    </div>
+                  ) : (
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={handlePaymentMethodChange}
+                        defaultValue={field.value}
+                        className="flex flex-col space-y-1"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem 
+                            value="later" 
+                            id="payment-later" 
+                          />
+                          <Label 
+                            htmlFor="payment-later" 
+                            className="flex items-center gap-2"
+                          >
+                            Pagar después (al profesional)
+                            <Banknote size={18} className="text-green-500" />
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem 
+                            value="now" 
+                            id="payment-now"
+                          />
+                          <Label 
+                            htmlFor="payment-now" 
+                            className="flex items-center gap-2"
+                          >
+                            Pagar ahora (Mercado Pago)
+                            <CreditCard size={18} className="text-sky-500" />
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+
+          {/* Show message when payment is disabled */}
+          {!paymentEnabled && !isLoadingPaymentStatus && (
+            <div className="text-sm text-amber-600 bg-amber-50 p-3 rounded-md border border-amber-200">
+              <p className="font-medium">Métodos de pago no disponibles</p>
+              <p>Los métodos de pago no están disponibles actualmente para este comercio. Puedes continuar con tu solicitud sin seleccionar una forma de pago.</p>
+            </div>
+          )}
 
           <FormField
             control={form.control}
