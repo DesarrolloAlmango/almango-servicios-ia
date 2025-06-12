@@ -225,11 +225,12 @@ const Servicios = () => {
         console.log("Found service with ID:", urlServiceId, foundService);
         setServiceToAutoClick(urlServiceId);
         
-        // If categoryId is also present in URL, prepare for auto-selection
+        // If categoryId is also present in URL, prepare for auto-selection - CONVERT TO STRING
         if (urlCategoryId) {
-          console.log("URL also contains categoryId parameter:", urlCategoryId);
+          const categoryIdStr = String(urlCategoryId);
+          console.log("URL also contains categoryId parameter:", categoryIdStr);
           setSelectedServiceId(urlServiceId);
-          setSelectedCategoryId(urlCategoryId);
+          setSelectedCategoryId(categoryIdStr);
           
           // Set flag for category auto-click after service is clicked
           pendingCategoryAutoClickRef.current = true;
@@ -287,21 +288,22 @@ const Servicios = () => {
           serviceCardElement.click();
           console.log("Auto-clicked on service:", serviceToAutoClick);
           
-          // If we have a categoryId from URL, trigger category auto-click
+          // If we have a categoryId from URL, trigger category auto-click - IMPROVED
           if (urlCategoryId && pendingCategoryAutoClickRef.current) {
-            console.log("Preparing to auto-click category:", urlCategoryId);
+            const categoryIdStr = String(urlCategoryId);
+            console.log("Preparing to auto-click category:", categoryIdStr);
             
             // Dispatch event to open the specific category
             setTimeout(() => {
               const openCategoryEvent = new CustomEvent('openCategory', {
                 detail: {
                   serviceId: serviceToAutoClick,
-                  categoryId: urlCategoryId,
-                  categoryName: selectedCategoryName || `Category ${urlCategoryId}`
+                  categoryId: categoryIdStr,
+                  categoryName: selectedCategoryName || `Category ${categoryIdStr}`
                 }
               });
               document.dispatchEvent(openCategoryEvent);
-              console.log("Dispatched openCategory event for URL categoryId:", urlCategoryId);
+              console.log("Dispatched openCategory event for URL categoryId:", categoryIdStr);
             }, 1000);
           }
         }
