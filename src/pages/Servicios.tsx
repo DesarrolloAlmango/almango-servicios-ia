@@ -225,7 +225,7 @@ const Servicios = () => {
         console.log("Found service with ID:", urlServiceId, foundService);
         setServiceToAutoClick(urlServiceId);
         
-        // If categoryId is also present in URL, prepare for auto-selection - CONVERT TO STRING
+        // Only prepare for category auto-selection if categoryId is explicitly present in URL
         if (urlCategoryId) {
           const categoryIdStr = String(urlCategoryId);
           console.log("URL also contains categoryId parameter:", categoryIdStr);
@@ -234,6 +234,12 @@ const Servicios = () => {
           
           // Set flag for category auto-click after service is clicked
           pendingCategoryAutoClickRef.current = true;
+        } else {
+          // Clear any previous category selections when no categoryId in URL
+          console.log("No categoryId in URL, clearing previous category selections");
+          setSelectedCategoryId(null);
+          setSelectedCategoryName(null);
+          pendingCategoryAutoClickRef.current = false;
         }
       } else {
         console.warn("Service not found with ID:", urlServiceId);
@@ -459,7 +465,10 @@ const Servicios = () => {
       } else {
         setSelectedServiceId(serviceId);
         setSelectedServiceName(serviceName);
-        setIsLocationModalOpen(true);
+        // Only open location modal if we don't have a pending category auto-click from URL
+        if (!pendingCategoryAutoClickRef.current) {
+          setIsLocationModalOpen(true);
+        }
         return false;
       }
     }
@@ -472,7 +481,10 @@ const Servicios = () => {
     } else {
       setSelectedServiceId(serviceId);
       setSelectedServiceName(serviceName);
-      setIsLocationModalOpen(true);
+      // Only open location modal if we don't have a pending category auto-click from URL
+      if (!pendingCategoryAutoClickRef.current) {
+        setIsLocationModalOpen(true);
+      }
       return false;
     }
   };
