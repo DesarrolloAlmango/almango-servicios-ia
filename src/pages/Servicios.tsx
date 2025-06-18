@@ -453,21 +453,22 @@ const Servicios = () => {
   const handleServiceCardClick = (serviceId: string | undefined, serviceName: string) => {
     if (!serviceId) return false;
     
-    console.log("handleServiceCardClick called with:", { serviceId, serviceName, commerceId, urlCategoryId });
+    console.log("handleServiceCardClick called with:", { serviceId, serviceName, commerceId, urlCategoryId, urlServiceId });
     
     if (commerceId) {
       const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId && loc.departmentId && loc.locationId);
       if (existingLocation) {
         return true;
       } else {
-        // Only open location modal if there's a categoryId in the URL or if we're not coming from a URL with serviceId
-        if (urlCategoryId || !urlServiceId) {
+        // Only open location modal if there's a categoryId in the URL
+        // If we're coming from a URL with just serviceId (no categoryId), don't open the modal
+        if (urlCategoryId) {
           setSelectedServiceId(serviceId);
           setSelectedServiceName(serviceName);
           setIsLocationModalOpen(true);
           return false;
         }
-        // If we're coming from URL with serviceId but no categoryId, just return true to open the service dialog
+        // If no categoryId in URL, just return true to open the service dialog directly
         return true;
       }
     }
@@ -480,14 +481,15 @@ const Servicios = () => {
     if (existingLocation) {
       return true;
     } else {
-      // Only open location modal if there's a categoryId in the URL or if we're not coming from a URL with serviceId
-      if (urlCategoryId || !urlServiceId) {
+      // Only open location modal if there's a categoryId in the URL
+      // If we're coming from a URL with just serviceId (no categoryId), don't open the modal
+      if (urlCategoryId) {
         setSelectedServiceId(serviceId);
         setSelectedServiceName(serviceName);
         setIsLocationModalOpen(true);
         return false;
       }
-      // If we're coming from URL with serviceId but no categoryId, just return true to open the service dialog
+      // If no categoryId in URL, just return true to open the service dialog directly
       return true;
     }
   };
