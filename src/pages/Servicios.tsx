@@ -482,8 +482,7 @@ const Servicios = () => {
       }
     }
     
-    // When commerceId is 0 or invalid, don't automatically open location modal
-    // unless there's an explicit category to open
+    // When commerceId is 0 or invalid, only process if there's an explicit category in URL
     if (isLocationModalOpen) {
       return false;
     }
@@ -494,13 +493,16 @@ const Servicios = () => {
     } else {
       setSelectedServiceId(serviceId);
       setSelectedServiceName(serviceName);
-      // For commerceId=0 cases, only open location modal if there's a category to process
-      // This prevents automatic opening when just navigating to a service without category
+      
+      // Only open location modal if there's an explicit categoryId in URL AND pending auto-click
       if (urlCategoryId && pendingCategoryAutoClickRef.current) {
         setIsLocationModalOpen(true);
+        return false;
       }
-      // If no category in URL, just set the service but don't force location modal
-      return urlCategoryId ? false : true;
+      
+      // For cases without categoryId in URL, just set the service but don't open any modal
+      // This prevents unwanted popup opening when just navigating to a service
+      return true;
     }
   };
 
