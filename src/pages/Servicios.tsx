@@ -225,7 +225,7 @@ const Servicios = () => {
         console.log("Found service with ID:", urlServiceId, foundService);
         setServiceToAutoClick(urlServiceId);
         
-        // If categoryId is also present in URL, prepare for auto-selection - CONVERT TO STRING
+        // Only prepare for category selection if categoryId is present in URL
         if (urlCategoryId) {
           const categoryIdStr = String(urlCategoryId);
           console.log("URL also contains categoryId parameter:", categoryIdStr);
@@ -452,28 +452,43 @@ const Servicios = () => {
 
   const handleServiceCardClick = (serviceId: string | undefined, serviceName: string) => {
     if (!serviceId) return false;
+    
+    console.log("handleServiceCardClick called with:", { serviceId, serviceName, commerceId, urlCategoryId });
+    
     if (commerceId) {
       const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId && loc.departmentId && loc.locationId);
       if (existingLocation) {
         return true;
       } else {
+        // Only open location modal if there's a categoryId in the URL or if we're not coming from a URL with serviceId
+        if (urlCategoryId || !urlServiceId) {
+          setSelectedServiceId(serviceId);
+          setSelectedServiceName(serviceName);
+          setIsLocationModalOpen(true);
+          return false;
+        }
+        // If we're coming from URL with serviceId but no categoryId, just return true to open the service dialog
+        return true;
+      }
+    }
+    
+    if (isLocationModalOpen) {
+      return false;
+    }
+    
+    const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
+    if (existingLocation) {
+      return true;
+    } else {
+      // Only open location modal if there's a categoryId in the URL or if we're not coming from a URL with serviceId
+      if (urlCategoryId || !urlServiceId) {
         setSelectedServiceId(serviceId);
         setSelectedServiceName(serviceName);
         setIsLocationModalOpen(true);
         return false;
       }
-    }
-    if (isLocationModalOpen) {
-      return false;
-    }
-    const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
-    if (existingLocation) {
+      // If we're coming from URL with serviceId but no categoryId, just return true to open the service dialog
       return true;
-    } else {
-      setSelectedServiceId(serviceId);
-      setSelectedServiceName(serviceName);
-      setIsLocationModalOpen(true);
-      return false;
     }
   };
 
