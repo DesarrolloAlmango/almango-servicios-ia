@@ -225,15 +225,22 @@ const Servicios = () => {
         console.log("Found service with ID:", urlServiceId, foundService);
         setServiceToAutoClick(urlServiceId);
         
-        // If categoryId is also present in URL, prepare for auto-selection - CONVERT TO STRING
-        if (urlCategoryId) {
+        // CRITICAL: Only set category for auto-click if categoryId is explicitly present in URL
+        // and is not undefined, null, or empty string
+        if (urlCategoryId && urlCategoryId.trim() !== '' && urlCategoryId !== 'undefined') {
           const categoryIdStr = String(urlCategoryId);
-          console.log("URL also contains categoryId parameter:", categoryIdStr);
+          console.log("URL contains explicit categoryId parameter:", categoryIdStr);
           setSelectedServiceId(urlServiceId);
           setSelectedCategoryId(categoryIdStr);
           
           // Set flag for category auto-click after service is clicked
           pendingCategoryAutoClickRef.current = true;
+        } else {
+          console.log("No categoryId in URL or categoryId is empty/undefined - will NOT auto-click categories");
+          // Explicitly reset category-related state
+          setSelectedCategoryId(null);
+          setSelectedCategoryName(null);
+          pendingCategoryAutoClickRef.current = false;
         }
       } else {
         console.warn("Service not found with ID:", urlServiceId);
@@ -288,8 +295,10 @@ const Servicios = () => {
           serviceCardElement.click();
           console.log("Auto-clicked on service:", serviceToAutoClick);
           
-          // If we have a categoryId from URL, trigger category auto-click with proper coordination
-          if (urlCategoryId && pendingCategoryAutoClickRef.current) {
+          // CRITICAL: Only trigger category auto-click if we have a valid categoryId from URL
+          // and the pending flag is set
+          if (urlCategoryId && urlCategoryId.trim() !== '' && 
+              urlCategoryId !== 'undefined' && pendingCategoryAutoClickRef.current) {
             const categoryIdStr = String(urlCategoryId);
             console.log("Preparing to auto-click category:", categoryIdStr, "with coordinated timing");
             
@@ -304,7 +313,7 @@ const Servicios = () => {
                   serviceId: serviceToAutoClick,
                   categoryId: categoryIdStr,
                   categoryName: selectedCategoryName || `Category ${categoryIdStr}`,
-                  fromURL: true // Add flag to indicate this is from URL navigation
+                  fromURL: true
                 }
               });
               document.dispatchEvent(openCategoryEvent);
@@ -315,7 +324,9 @@ const Servicios = () => {
                 handleCategorySelect(serviceToAutoClick, categoryIdStr, selectedCategoryName || `Category ${categoryIdStr}`);
               }, 1000);
               
-            }, 2500); // Increased delay to ensure popup is fully rendered
+            }, 2500);
+          } else {
+            console.log("No valid categoryId for auto-click or flag not set - skipping category auto-selection");
           }
         }
       }, 800);
