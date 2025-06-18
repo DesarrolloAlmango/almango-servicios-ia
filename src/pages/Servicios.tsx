@@ -240,6 +240,12 @@ const Servicios = () => {
           setSelectedCategoryId(null);
           setSelectedCategoryName(null);
           pendingCategoryAutoClickRef.current = false;
+          
+          // Clear global category state as well to prevent interference
+          if (typeof window !== 'undefined') {
+            // Reset any global category tracking
+            document.dispatchEvent(new CustomEvent('clearCategorySelection'));
+          }
         }
       } else {
         console.warn("Service not found with ID:", urlServiceId);
@@ -466,7 +472,8 @@ const Servicios = () => {
         setSelectedServiceId(serviceId);
         setSelectedServiceName(serviceName);
         // Only open location modal if we don't have a pending category auto-click from URL
-        if (!pendingCategoryAutoClickRef.current) {
+        // AND there's no explicit categoryId in URL (to prevent auto-opening categories when commerceId=0)
+        if (!pendingCategoryAutoClickRef.current && !urlCategoryId) {
           setIsLocationModalOpen(true);
         }
         return false;
@@ -482,7 +489,8 @@ const Servicios = () => {
       setSelectedServiceId(serviceId);
       setSelectedServiceName(serviceName);
       // Only open location modal if we don't have a pending category auto-click from URL
-      if (!pendingCategoryAutoClickRef.current) {
+      // AND there's no explicit categoryId in URL (to prevent auto-opening categories when commerceId=0)
+      if (!pendingCategoryAutoClickRef.current && !urlCategoryId) {
         setIsLocationModalOpen(true);
       }
       return false;
