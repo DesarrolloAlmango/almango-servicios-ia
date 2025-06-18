@@ -464,7 +464,9 @@ const Servicios = () => {
 
   const handleServiceCardClick = (serviceId: string | undefined, serviceName: string) => {
     if (!serviceId) return false;
-    if (commerceId) {
+    
+    if (commerceId && commerceId !== "0") {
+      // When there's a valid commerceId, use existing logic
       const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId && loc.departmentId && loc.locationId);
       if (existingLocation) {
         return true;
@@ -479,21 +481,26 @@ const Servicios = () => {
         return false;
       }
     }
+    
+    // When commerceId is 0 or invalid, don't automatically open location modal
+    // unless there's an explicit category to open
     if (isLocationModalOpen) {
       return false;
     }
+    
     const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
     if (existingLocation) {
       return true;
     } else {
       setSelectedServiceId(serviceId);
       setSelectedServiceName(serviceName);
-      // Only open location modal if we don't have a pending category auto-click from URL
-      // AND there's no explicit categoryId in URL (to prevent auto-opening categories when commerceId=0)
-      if (!pendingCategoryAutoClickRef.current && !urlCategoryId) {
+      // For commerceId=0 cases, only open location modal if there's a category to process
+      // This prevents automatic opening when just navigating to a service without category
+      if (urlCategoryId && pendingCategoryAutoClickRef.current) {
         setIsLocationModalOpen(true);
       }
-      return false;
+      // If no category in URL, just set the service but don't force location modal
+      return urlCategoryId ? false : true;
     }
   };
 
