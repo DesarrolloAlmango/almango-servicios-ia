@@ -668,6 +668,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
                 
                 <p className="text-center text-sm sm:text-base font-medium mt-1 sm:mt-2 line-clamp-2 px-1 
                   animate-in fade-in duration-300">{category.name}</p>
+                
+                {/* Debug: Show category ID */}
+                <p className="text-center text-xs text-gray-500 mt-1">ID: {category.id}</p>
               </div>
             </CarouselItem>
           ))}
