@@ -225,7 +225,7 @@ const Servicios = () => {
         console.log("Found service with ID:", urlServiceId, foundService);
         setServiceToAutoClick(urlServiceId);
         
-        // Only prepare for category auto-selection if categoryId is explicitly present in URL
+        // If categoryId is also present in URL, prepare for auto-selection - CONVERT TO STRING
         if (urlCategoryId) {
           const categoryIdStr = String(urlCategoryId);
           console.log("URL also contains categoryId parameter:", categoryIdStr);
@@ -234,18 +234,6 @@ const Servicios = () => {
           
           // Set flag for category auto-click after service is clicked
           pendingCategoryAutoClickRef.current = true;
-        } else {
-          // Clear any previous category selections when no categoryId in URL
-          console.log("No categoryId in URL, clearing previous category selections");
-          setSelectedCategoryId(null);
-          setSelectedCategoryName(null);
-          pendingCategoryAutoClickRef.current = false;
-          
-          // Clear global category state as well to prevent interference
-          if (typeof window !== 'undefined') {
-            // Reset any global category tracking
-            document.dispatchEvent(new CustomEvent('clearCategorySelection'));
-          }
         }
       } else {
         console.warn("Service not found with ID:", urlServiceId);
@@ -464,45 +452,28 @@ const Servicios = () => {
 
   const handleServiceCardClick = (serviceId: string | undefined, serviceName: string) => {
     if (!serviceId) return false;
-    
-    if (commerceId && commerceId !== "0") {
-      // When there's a valid commerceId, use existing logic
+    if (commerceId) {
       const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId && loc.departmentId && loc.locationId);
       if (existingLocation) {
         return true;
       } else {
         setSelectedServiceId(serviceId);
         setSelectedServiceName(serviceName);
-        // Only open location modal if we don't have a pending category auto-click from URL
-        // AND there's no explicit categoryId in URL (to prevent auto-opening categories when commerceId=0)
-        if (!pendingCategoryAutoClickRef.current && !urlCategoryId) {
-          setIsLocationModalOpen(true);
-        }
+        setIsLocationModalOpen(true);
         return false;
       }
     }
-    
-    // When commerceId is 0 or invalid, only process if there's an explicit category in URL
     if (isLocationModalOpen) {
       return false;
     }
-    
     const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId);
     if (existingLocation) {
       return true;
     } else {
       setSelectedServiceId(serviceId);
       setSelectedServiceName(serviceName);
-      
-      // Only open location modal if there's an explicit categoryId in URL AND pending auto-click
-      if (urlCategoryId && pendingCategoryAutoClickRef.current) {
-        setIsLocationModalOpen(true);
-        return false;
-      }
-      
-      // For cases without categoryId in URL, just set the service but don't open any modal
-      // This prevents unwanted popup opening when just navigating to a service
-      return true;
+      setIsLocationModalOpen(true);
+      return false;
     }
   };
 
