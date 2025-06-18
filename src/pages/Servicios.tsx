@@ -152,6 +152,10 @@ const Servicios = () => {
     serviceId: urlServiceId,
     categoryId: urlCategoryId
   } = useParams();
+  
+  // Auto-complete categoryId with "0" if missing but serviceId is present
+  const effectiveCategoryId = urlServiceId && !urlCategoryId ? "0" : urlCategoryId;
+  
   const isMobile = useIsMobile();
   const [storeName, setStoreName] = useState<string>("");
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -225,22 +229,24 @@ const Servicios = () => {
         console.log("Found service with ID:", urlServiceId, foundService);
         setServiceToAutoClick(urlServiceId);
         
-        // Only prepare for category selection if categoryId is present in URL
-        if (urlCategoryId) {
-          const categoryIdStr = String(urlCategoryId);
-          console.log("URL also contains categoryId parameter:", categoryIdStr);
+        // Use effectiveCategoryId instead of urlCategoryId
+        if (effectiveCategoryId) {
+          const categoryIdStr = String(effectiveCategoryId);
+          console.log("URL also contains categoryId parameter (or auto-completed):", categoryIdStr);
           setSelectedServiceId(urlServiceId);
           setSelectedCategoryId(categoryIdStr);
           
-          // Set flag for category auto-click after service is clicked
-          pendingCategoryAutoClickRef.current = true;
+          // Set flag for category selection if it's not "0"
+          if (categoryIdStr !== "0") {
+            pendingCategoryAutoClickRef.current = true;
+          }
         }
       } else {
         console.warn("Service not found with ID:", urlServiceId);
         toast.error(`Servicio con ID ${urlServiceId} no encontrado`);
       }
     }
-  }, [urlServiceId, urlCategoryId, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza]);
+  }, [urlServiceId, effectiveCategoryId, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza]);
 
   useEffect(() => {
     if (location.state?.clickedService && !isServicesLoading && !isLoadingMudanza) {
@@ -288,9 +294,9 @@ const Servicios = () => {
           serviceCardElement.click();
           console.log("Auto-clicked on service:", serviceToAutoClick);
           
-          // If we have a categoryId from URL, trigger category auto-click with proper coordination
-          if (urlCategoryId && pendingCategoryAutoClickRef.current) {
-            const categoryIdStr = String(urlCategoryId);
+          // Use effectiveCategoryId and only trigger category auto-click if it's not "0"
+          if (effectiveCategoryId && pendingCategoryAutoClickRef.current && effectiveCategoryId !== "0") {
+            const categoryIdStr = String(effectiveCategoryId);
             console.log("Preparing to auto-click category:", categoryIdStr, "with coordinated timing");
             
             // Reset the flag immediately to prevent multiple attempts
@@ -321,7 +327,7 @@ const Servicios = () => {
       }, 800);
       return () => clearTimeout(timer);
     }
-  }, [serviceToAutoClick, urlCategoryId, selectedCategoryName]);
+  }, [serviceToAutoClick, effectiveCategoryId, selectedCategoryName]);
 
   useEffect(() => {
     if (pendingCategoryAutoClickRef.current && selectedServiceId && selectedCategoryId) {
@@ -453,22 +459,21 @@ const Servicios = () => {
   const handleServiceCardClick = (serviceId: string | undefined, serviceName: string) => {
     if (!serviceId) return false;
     
-    console.log("handleServiceCardClick called with:", { serviceId, serviceName, commerceId, urlCategoryId, urlServiceId });
+    console.log("handleServiceCardClick called with:", { serviceId, serviceName, commerceId, effectiveCategoryId, urlServiceId });
     
     if (commerceId) {
       const existingLocation = purchaseLocations.find(loc => loc.serviceId === serviceId && loc.departmentId && loc.locationId);
       if (existingLocation) {
         return true;
       } else {
-        // Only open location modal if there's a categoryId in the URL
-        // If we're coming from a URL with just serviceId (no categoryId), don't open the modal
-        if (urlCategoryId) {
+        // Only open location modal if there's a valid categoryId (not "0") in the URL
+        if (effectiveCategoryId && effectiveCategoryId !== "0") {
           setSelectedServiceId(serviceId);
           setSelectedServiceName(serviceName);
           setIsLocationModalOpen(true);
           return false;
         }
-        // If no categoryId in URL, just return true to open the service dialog directly
+        // If categoryId is "0" or missing, just return true to open the service dialog directly
         return true;
       }
     }
@@ -481,15 +486,14 @@ const Servicios = () => {
     if (existingLocation) {
       return true;
     } else {
-      // Only open location modal if there's a categoryId in the URL
-      // If we're coming from a URL with just serviceId (no categoryId), don't open the modal
-      if (urlCategoryId) {
+      // Only open location modal if there's a valid categoryId (not "0") in the URL
+      if (effectiveCategoryId && effectiveCategoryId !== "0") {
         setSelectedServiceId(serviceId);
         setSelectedServiceName(serviceName);
         setIsLocationModalOpen(true);
         return false;
       }
-      // If no categoryId in URL, just return true to open the service dialog directly
+      // If categoryId is "0" or missing, just return true to open the service dialog directly
       return true;
     }
   };
