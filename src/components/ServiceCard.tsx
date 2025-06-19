@@ -95,39 +95,65 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     id,
     name
   };
+
   useEffect(() => {
+    // Debug logging for pendingCategoryId
+    if (pendingCategoryId) {
+      console.log("ServiceCard DEBUG: pendingCategoryId received:", pendingCategoryId, "for serviceId:", id);
+      console.log("ServiceCard DEBUG: Are they the same?", pendingCategoryId === id);
+    }
+
     // Track if dialog was just opened to prevent auto-reopen
     if (isDialogOpen) {
       dialogOpenRef.current = true;
     }
 
-    // Special handling for when we have purchase location and pending category ID
-    if (isDialogOpen && id && purchaseLocation && pendingCategoryId) {
-      console.log("Loading products for pending category with existing purchase location:", {
+    // CRITICAL FIX: Prevent using serviceId as categoryId
+    // Only proceed if pendingCategoryId exists AND is different from serviceId
+    const isValidPendingCategory = pendingCategoryId && 
+      pendingCategoryId !== id && 
+      pendingCategoryId.trim() !== '' && 
+      pendingCategoryId !== 'undefined';
+
+    // Special handling for when we have purchase location and VALID pending category ID
+    if (isDialogOpen && id && purchaseLocation && isValidPendingCategory) {
+      console.log("ServiceCard: Loading products for VALID pending category:", {
         serviceId: id,
         categoryId: pendingCategoryId,
-        categoryName: pendingCategoryName
+        categoryName: pendingCategoryName,
+        isValid: true
       });
 
       // Directly fetch products for the pending category
       fetchProducts(id, pendingCategoryId);
     }
+    // Invalid pending category - log but don't proceed
+    else if (isDialogOpen && id && purchaseLocation && pendingCategoryId && !isValidPendingCategory) {
+      console.log("ServiceCard: INVALID pendingCategoryId detected - same as serviceId or empty:", {
+        serviceId: id,
+        pendingCategoryId: pendingCategoryId,
+        reason: pendingCategoryId === id ? "same as serviceId" : "empty or undefined"
+      });
+    }
     // Normal dialog open handling
     else if (forceOpen && id && purchaseLocation && !dialogOpenRef.current) {
-      console.log("Force open dialog with purchase location:", purchaseLocation);
+      console.log("ServiceCard: Force open dialog with purchase location:", purchaseLocation);
       setIsDialogOpen(true);
 
-      // Si tenemos categoryId, cargar directamente los productos
-      if (purchaseLocation.categoryId) {
-        console.log("Category ID found, fetching products directly:", purchaseLocation.categoryId);
+      // Si tenemos categoryId válido, cargar directamente los productos
+      if (purchaseLocation.categoryId && purchaseLocation.categoryId !== id) {
+        console.log("ServiceCard: Valid category ID found in purchase location, fetching products directly:", purchaseLocation.categoryId);
         fetchProducts(id, purchaseLocation.categoryId);
+      } else if (purchaseLocation.categoryId === id) {
+        console.log("ServiceCard: INVALID - Purchase location categoryId same as serviceId, loading categories instead");
+        fetchCategories(id);
       } else {
         // Solo si no hay categoryId, cargamos primero las categorías
-        console.log("No category ID, loading categories first");
+        console.log("ServiceCard: No category ID, loading categories first");
         fetchCategories(id);
       }
     } else if (forceOpen && id && !dialogOpenRef.current) {
-      console.log("Force open dialog without purchase location");
+      console.log("ServiceCard: Force open dialog without purchase location");
       setIsDialogOpen(true);
       fetchCategories(id);
     }
