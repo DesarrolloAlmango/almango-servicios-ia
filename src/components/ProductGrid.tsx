@@ -180,12 +180,42 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const categorySelected = useRef(false);
   const componentMounted = useRef(false);
 
+  // Function to validate if category should be displayed based on URL
+  const shouldDisplayCategory = () => {
+    const pathSegments = location.pathname.split('/').filter(segment => segment.length > 0);
+    const hasCategoryInPath = pathSegments.length === 5;
+    const categoryIdFromPath = hasCategoryInPath ? pathSegments[4] : null;
+    
+    const hasExplicitCategory = hasCategoryInPath && 
+      categoryIdFromPath && 
+      categoryIdFromPath !== serviceId && 
+      categoryIdFromPath.trim() !== '' && 
+      categoryIdFromPath !== 'undefined';
+
+    // Block if no explicit category in URL and serviceId matches categoryId
+    if (!hasExplicitCategory && serviceId === category.id) {
+      console.log("ProductGrid: Blocking product display - no explicit category in URL and serviceId matches categoryId");
+      return false;
+    }
+
+    return true;
+  };
+
   // Function to fetch products via ObtenerNivel2 endpoint
   const fetchProducts = async () => {
     if (!serviceId || !category.id) {
       console.log("Skipping product fetch - missing serviceId or categoryId");
       return [];
     }
+
+    // CRITICAL: Add validation before fetching
+    if (!shouldDisplayCategory()) {
+      console.log("ProductGrid: Skipping product fetch - category display blocked by URL validation");
+      setProducts([]);
+      setIsLoadingProducts(false);
+      return [];
+    }
+
     try {
       console.log(`Fetching products: serviceId=${serviceId}, categoryId=${category.id}`);
 
@@ -252,8 +282,15 @@ const ProductGrid: React.FC<ProductGridProps> = ({
 
   // Effect to load products immediately when component mounts (both flows)
   useEffect(() => {
-    console.log("ProductGrid mounted - loading products immediately");
-    fetchProducts();
+    console.log("ProductGrid mounted - checking if should load products");
+    if (shouldDisplayCategory()) {
+      console.log("ProductGrid mounted - loading products immediately");
+      fetchProducts();
+    } else {
+      console.log("ProductGrid mounted - skipping product load due to URL validation");
+      setProducts([]);
+      setIsLoadingProducts(false);
+    }
   }, [category.id, serviceId]);
 
   // Listen for openCategory event from location confirmation (for price updates)
@@ -668,6 +705,31 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       onBack();
     }
   };
+
+  // Early return if category should not be displayed
+  if (!shouldDisplayCategory()) {
+    return (
+      <div className="space-y-6">
+        <div className="sticky top-0 z-10 bg-white pb-4 border-b border-gray-100">
+          <div className="flex items-center mb-4">
+            <button 
+              onClick={onBack} 
+              className="flex items-center gap-2 text-primary hover:underline" 
+              aria-label="back-to-categories"
+            >
+              <ArrowLeft size={16} />
+              <span>Volver a Categorías</span>
+            </button>
+            <h3 className="text-xl font-semibold ml-auto">{category.name}</h3>
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-center h-40">
+          <p className="text-gray-500">Seleccione una categoría específica para ver productos</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
