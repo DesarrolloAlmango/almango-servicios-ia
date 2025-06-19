@@ -97,7 +97,12 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   };
 
   // Function to validate if category should be selected based on URL
-  const shouldSelectCategory = (categoryId: string) => {
+  const shouldSelectCategory = (categoryId: string, isUserClick: boolean = false) => {
+    // Always allow explicit user clicks
+    if (isUserClick) {
+      return true;
+    }
+
     const pathSegments = location.pathname.split('/').filter(segment => segment.length > 0);
     const hasCategoryInPath = pathSegments.length === 5;
     const categoryIdFromPath = hasCategoryInPath ? pathSegments[4] : null;
@@ -411,11 +416,11 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       fetchCategories(id);
     }
   };
-  const handleCategorySelect = (category: Category) => {
+  const handleCategorySelect = (category: Category, isUserClick: boolean = false) => {
     console.log("ServiceCard: Category selected:", category);
 
-    // CRITICAL: Add validation before proceeding
-    if (!shouldSelectCategory(category.id)) {
+    // CRITICAL: Add validation before proceeding but allow user clicks
+    if (!shouldSelectCategory(category.id, isUserClick)) {
       console.log("ServiceCard: Blocking category selection due to validation");
       return false;
     }
@@ -528,7 +533,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
                   // Find the category object with the matching ID
                   const category = categories.find(cat => cat.id === categoryId);
                   if (category) {
-                    handleCategorySelect(category);
+                    handleCategorySelect(category, true); // Pass true to indicate user click
                   }
                 }} 
                 selectedService={currentService} 
