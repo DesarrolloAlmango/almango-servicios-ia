@@ -643,7 +643,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
                   </AspectRatio>
                 </div>
                 
-                <p className="text-center text-sm sm:text-base font-medium mt-1 sm:mt-2 line-clamp-2 animate-in fade-in duration-300 px-0">{category.name}</p>
+                <p className="text-center text-sm font-medium mt-1 sm:mt-2 line-clamp-2 animate-in fade-in duration-300 px-0 sm:text-sm">{category.name}</p>
               </div>
             </CarouselItem>)}
         </CarouselContent>
