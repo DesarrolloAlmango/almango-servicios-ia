@@ -59,41 +59,16 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
 
-  // DEBUG: Extract categoryId from URL when categories load
+  // Extract categoryId from URL when categories load - REMOVED DEBUG MESSAGES
   useEffect(() => {
     if (categories.length > 0) {
-      // Get category ID from URL
       const urlParams = new URLSearchParams(window.location.search);
       const urlCategoryId = window.location.pathname.split('/').pop();
       const categoryIdFromURL = autoSelectCategoryId || urlCategoryId;
       
-      console.log("🐛 DEBUG - Categories loaded. URL analysis:");
-      console.log("🐛 Full URL:", window.location.href);
-      console.log("🐛 URL pathname:", window.location.pathname);
-      console.log("🐛 URL pathname parts:", window.location.pathname.split('/'));
-      console.log("🐛 Last part of pathname:", urlCategoryId);
-      console.log("🐛 autoSelectCategoryId prop:", autoSelectCategoryId);
-      console.log("🐛 Final categoryId to use:", categoryIdFromURL);
-      console.log("🐛 Available categories:", categories.map(c => `ID: ${c.id}, Name: ${c.name}`));
-      
-      // Show toast with the category ID for debugging
       if (categoryIdFromURL) {
-        toast.info(`🐛 DEBUG: Intentando auto-seleccionar categoría ID: ${categoryIdFromURL}`, { 
-          duration: 5000,
-          position: "top-center"
-        });
-        
-        // Check if category exists
         const foundCategory = categories.find(c => String(c.id) === String(categoryIdFromURL));
         if (foundCategory) {
-          toast.success(`🐛 DEBUG: Categoría encontrada: ${foundCategory.name} (ID: ${foundCategory.id})`, { 
-            duration: 5000,
-            position: "top-center"
-          });
-          
-          // IMMEDIATELY trigger the auto-selection process
-          console.log("🐛 DEBUG: Triggering immediate auto-selection for:", foundCategory.name);
-          
           // Reset the auto-selection flag to allow new selection
           hasAutoSelectedRef.current = false;
           
@@ -101,12 +76,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
           setTimeout(() => {
             handleCategoryClick(foundCategory);
           }, 1000);
-          
-        } else {
-          toast.error(`🐛 DEBUG: Categoría NO encontrada para ID: ${categoryIdFromURL}`, { 
-            duration: 5000,
-            position: "top-center"
-          });
         }
       }
     }
@@ -128,22 +97,13 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     const categoryIdStr = categoryIdToSelect ? String(categoryIdToSelect) : null;
 
     if (categoryIdStr && categories.length > 0 && purchaseLocation && !hasAutoSelectedRef.current) {
-      console.log("🐛 DEBUG - Auto-selection trigger:", {
-        categoryIdStr,
-        categoriesCount: categories.length,
-        purchaseLocation: !!purchaseLocation
-      });
-      
       const categoryToSelect = categories.find(cat => String(cat.id) === categoryIdStr);
       
       if (categoryToSelect) {
-        console.log(`🐛 DEBUG - Found category for auto-selection: ${categoryToSelect.name}`);
-        
         hasAutoSelectedRef.current = true;
         setSelectedCategoryName(categoryToSelect.name);
         
         autoSelectTimeoutRef.current = setTimeout(() => {
-          console.log("🐛 DEBUG - Executing auto-selection click for:", categoryToSelect.name);
           handleCategoryClick(categoryToSelect);
           
           setTimeout(() => {
@@ -163,7 +123,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   // Reset auto-selection flag when key dependencies change
   useEffect(() => {
     if (categories.length > 0) {
-      console.log("Resetting auto-selection state due to dependency change");
       hasAutoSelectedRef.current = false;
       autoSelectionAttemptsRef.current = 0;
     }
@@ -176,8 +135,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       if (customEvent.detail) {
         const { serviceId, categoryId, categoryName, fromURL } = customEvent.detail;
         
-        console.log("CategoryCarousel received openCategory event:", categoryId, categoryName, "fromURL:", fromURL);
-        
         // Convert categoryId to string for consistent comparison
         const categoryIdStr = String(categoryId);
         
@@ -185,15 +142,11 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
         const categoryToSelect = categories.find(cat => String(cat.id) === categoryIdStr);
         
         if (categoryToSelect && String(selectedService.id) === String(serviceId)) {
-          console.log("Found matching category, preparing auto-click:", categoryToSelect.name);
-          
           // Update UI to show the selected category name
           setSelectedCategoryName(categoryToSelect.name);
           
           // Enhanced function to attempt category click with better retry logic
           const attemptCategoryClick = (attempt = 1, maxAttempts = 8) => {
-            console.log(`Attempting category click (attempt ${attempt}/${maxAttempts}) for category: ${categoryToSelect.name}`);
-            
             // First, handle the data selection through the normal flow
             handleCategoryClick(categoryToSelect);
             
@@ -203,23 +156,18 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
             // Try to find and click the DOM element for the category
             setTimeout(() => {
               const categoryElement = document.querySelector(`[data-category-id="${categoryToSelect.id}"]`);
-              console.log(`Attempt ${attempt}: Category element found:`, !!categoryElement);
               
               if (categoryElement) {
                 // Find the clickable card within the category element
                 const clickableCard = categoryElement.querySelector('.cursor-pointer');
-                console.log(`Attempt ${attempt}: Clickable card found:`, !!clickableCard);
                 
                 if (clickableCard && clickableCard instanceof HTMLElement) {
-                  console.log(`SUCCESS: Clicking on category card: ${categoryToSelect.name} (attempt ${attempt})`);
-                  
                   // Ensure the element is visible and scrolled into view
                   clickableCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
                   
                   // Wait a moment for scroll, then click
                   setTimeout(() => {
                     clickableCard.click();
-                    console.log("Category card clicked successfully!");
                   }, 200);
                   
                   return; // Success, exit
@@ -229,13 +177,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
               // If we couldn't find the element and haven't reached max attempts, retry
               if (attempt < maxAttempts) {
                 const retryDelay = fromURL ? 800 * attempt : 500 * attempt; // Longer delays for URL events
-                console.log(`Category element not found, retrying in ${retryDelay}ms... (attempt ${attempt + 1}/${maxAttempts})`);
                 setTimeout(() => attemptCategoryClick(attempt + 1, maxAttempts), retryDelay);
               } else {
-                console.error("FAILED: Could not find and click category element after", maxAttempts, "attempts");
-                
                 // Last resort: try direct onSelectCategory call
-                console.log("Last resort: Calling onSelectCategory directly");
                 onSelectCategory(categoryToSelect.id, categoryToSelect.name);
               }
             }, fromURL ? 600 * attempt : 300 * attempt); // Longer initial delays for URL events
@@ -246,14 +190,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
           setTimeout(() => attemptCategoryClick(), initialDelay);
           
         } else {
-          console.log("Category not found or service ID mismatch", {
-            foundCategory: !!categoryToSelect,
-            expectedServiceId: serviceId, 
-            actualServiceId: selectedService.id,
-            categoryIdStr,
-            availableCategories: categories.map(c => String(c.id))
-          });
-          
           // If category not found, maybe categories haven't loaded yet, retry
           if (!categoryToSelect && categories.length === 0) {
             console.log("Categories not loaded yet, will retry when they load");
@@ -275,7 +211,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       const customEvent = e as CustomEvent;
       if (customEvent.detail) {
         const { serviceId, categoryId, categoryName } = customEvent.detail;
-        console.log("CategoryCarousel received retryCategory event:", categoryId);
         
         // Dispatch the original openCategory event again
         setTimeout(() => {
@@ -304,16 +239,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       const category = categories.find(cat => cat.id === categoryId);
       const categoryName = category ? category.name : null;
       
-      // Debug if there's a match between displayed name and category name
-      if (categoryName && selectedCategoryName) {
-        if (categoryName === selectedCategoryName) {
-          console.debug(`✅ MATCH FOUND: Category name "${categoryName}" matches selected name "${selectedCategoryName}"`);
-          toast.success(`Categoría seleccionada: ${categoryName}`, { duration: 2000 });
-        } else {
-          console.debug(`❌ NO MATCH: Category name "${categoryName}" does NOT match selected name "${selectedCategoryName}"`);
-        }
-      }
-      
       if (cardRef) {
         // Scroll the card into view and focus it
         cardRef.scrollIntoView({ 
@@ -327,12 +252,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
         // Simulate click on the card after focusing
         setTimeout(() => {
           if (categoryName === selectedCategoryName) {
-            console.debug(`🖱️ Simulating click on category card: ${categoryName}`);
             cardRef.click();
           }
         }, 300);
-        
-        console.log("Successfully focused category card:", categoryId);
       } else {
         // Try to find the card by query selector as fallback
         const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
@@ -349,17 +271,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
             setTimeout(() => {
               const clickableElement = categoryElement.querySelector('.cursor-pointer');
               if (clickableElement && clickableElement instanceof HTMLElement) {
-                console.debug(`🖱️ Simulating click on category card (fallback): ${categoryName}`);
                 clickableElement.click();
               }
             }, 300);
-          }
-          
-          console.log("Focused category card with query selector:", categoryId);
-        } else {
-          console.warn("Could not find category card to focus:", categoryId);
-          if (categoryName) {
-            console.debug(`⚠️ Unable to find and click category card for: ${categoryName}`);
           }
         }
       }
@@ -371,8 +285,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   // Log when purchaseLocation changes to aid debugging
   useEffect(() => {
     if (purchaseLocation) {
-      console.log("CategoryCarousel - Purchase location received:", purchaseLocation);
-      
       // If we have a category in the purchase location, update the selectedCategoryName
       if (purchaseLocation.categoryName) {
         setSelectedCategoryName(purchaseLocation.categoryName);
@@ -645,24 +557,14 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }
   };
 
-  // Handle category selection with global variable storage and enhanced debug
+  // Handle category selection with global variable storage - REMOVED DEBUG MESSAGES
   const handleCategoryClick = (category: Category) => {
-    console.log("🐛 DEBUG - Category clicked:", category.name, "ID:", category.id, "Purchase location:", purchaseLocation ? "exists" : "does not exist");
-    
     // Store the selected category ID and name in global variables
     lastSelectedCategoryId = category.id;
     lastSelectedCategoryName = category.name;
     
     // Update the local state to show the selected category
     setSelectedCategoryName(category.name);
-    
-    console.log("🐛 DEBUG - Saved last selected category:", lastSelectedCategoryId, lastSelectedCategoryName);
-    
-    // Show debug toast when category is clicked
-    toast.success(`🐛 DEBUG: Categoría clickeada: ${category.name} (ID: ${category.id})`, { 
-      duration: 3000,
-      position: "top-center"
-    });
     
     // Dispatch a custom event to notify any listening components about the category selection
     const categorySelectedEvent = new CustomEvent('categorySelected', { 
@@ -692,6 +594,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
 
   // Extraer solo los nombres de categorías para mostrar durante la carga
   const categoryNames = useMemo(() => isLoading ? DEMO_SERVICE_NAMES : categories.map(category => category.name), [categories, isLoading]);
+
   if (isLoading) {
     return <div className="w-full">
         <div className="text-center mb-8">
