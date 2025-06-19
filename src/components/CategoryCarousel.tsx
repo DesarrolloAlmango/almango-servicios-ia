@@ -5,7 +5,6 @@ import { CircleEllipsis } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-
 interface Category {
   id: string;
   name: string;
@@ -13,7 +12,6 @@ interface Category {
   price?: number;
   count?: number;
 }
-
 interface CategoryCarouselProps {
   categories: Category[];
   onSelectCategory: (categoryId: string, categoryName: string) => void;
@@ -33,7 +31,6 @@ const DEMO_SERVICE_NAMES = ["Corte de pelo", "Peinado", "Coloración", "Maquilla
 // Global variable for storing the last selected category ID
 export let lastSelectedCategoryId: string | null = null;
 export let lastSelectedCategoryName: string | null = null;
-
 const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   categories,
   onSelectCategory,
@@ -58,7 +55,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
-  
+
   // NEW: Track image loading promises to prevent race conditions
   const imageLoadingPromises = useRef<Map<string, Promise<string>>>(new Map());
 
@@ -316,7 +313,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     let hash = 0;
     for (let i = 0; i < imageContent.length; i++) {
       const char = imageContent.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash; // Convert to 32-bit integer
     }
     return `${categoryId}_${Math.abs(hash)}`;
@@ -325,14 +322,13 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   // FIXED: Optimized function to get image source with proper validation
   const getImageSource = useMemo(() => (imageStr: string, categoryId: string) => {
     if (!imageStr) return null;
-    
+
     // Validate that this image belongs to this category
     const category = categories.find(c => c.id === categoryId);
     if (!category || category.image !== imageStr) {
       console.warn(`Image mismatch for category ${categoryId}`);
       return null;
     }
-    
     if (imageStr.startsWith('data:image')) {
       return imageStr;
     }
@@ -354,7 +350,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
           // Validate that this category still exists
           const category = categories.find(c => c.id === categoryId);
           if (!category) return;
-          
           if (entry.isIntersecting) {
             // Marcar como visible y priorizar su carga
             setVisibleItems(prev => {
@@ -379,11 +374,11 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
 
     // Registrar elementos para observar visibilidad
     itemRefs.current.forEach((ref, id) => {
-      if (categories.find(c => c.id === id)) { // Only observe existing categories
+      if (categories.find(c => c.id === id)) {
+        // Only observe existing categories
         visibilityObserver.observe(ref);
       }
     });
-    
     return () => {
       visibilityObserver.disconnect();
     };
@@ -413,7 +408,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }, {
       rootMargin: '100px'
     });
-    
     return () => {
       if (intersectionObserver.current) {
         intersectionObserver.current.disconnect();
@@ -457,7 +451,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
         console.error('Error al cargar caché de imágenes:', error);
       }
     };
-    
     if (categories.length > 0) {
       loadCache();
     }
@@ -508,7 +501,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     return (categoryId: string, imageData: string) => {
       const category = categories.find(c => c.id === categoryId);
       if (!category) return;
-      
       const cacheKey = createCacheKey(categoryId, category.image);
       clearTimeout(debounceTimer);
 
@@ -521,7 +513,10 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       // Debounce la escritura en localStorage para evitar operaciones frecuentes
       debounceTimer = setTimeout(() => {
         try {
-          const currentCache = { ...cachedImages, [cacheKey]: imageData };
+          const currentCache = {
+            ...cachedImages,
+            [cacheKey]: imageData
+          };
           localStorage.setItem('category_images_cache', JSON.stringify({
             images: currentCache,
             timestamp: Date.now()
@@ -532,14 +527,12 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       }, 300);
     };
   }, [cachedImages, categories]);
-
   const handleImageLoad = (categoryId: string) => {
     setLoadingImages(prev => ({
       ...prev,
       [categoryId]: false
     }));
   };
-
   const handleImageError = (categoryId: string, imageUrl: string) => {
     console.error("Error loading category image:", imageUrl);
     setFailedImages(prev => ({
@@ -556,19 +549,16 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const loadCategoryImage = (categoryId: string) => {
     const category = categories.find(c => c.id === categoryId);
     if (!category) return;
-    
     const cacheKey = createCacheKey(categoryId, category.image);
-    
+
     // Check if already loading to prevent race conditions
     if (imageLoadingPromises.current.has(categoryId)) {
       return imageLoadingPromises.current.get(categoryId);
     }
-    
     setLoadingImages(prev => ({
       ...prev,
       [categoryId]: true
     }));
-    
     const imgSource = getImageSource(category.image, categoryId);
     if (!imgSource) {
       setFailedImages(prev => ({
@@ -581,12 +571,11 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       }));
       return Promise.resolve('');
     }
-    
+
     // Create and store the loading promise
     const loadingPromise = new Promise<string>((resolve, reject) => {
       const img = new Image();
       img.crossOrigin = "anonymous";
-
       img.onload = () => {
         handleImageLoad(categoryId);
 
@@ -596,7 +585,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
           const maxSize = 150;
           let width = img.width;
           let height = img.height;
-
           if (width > height && width > maxSize) {
             height = height * maxSize / width;
             width = maxSize;
@@ -604,14 +592,13 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
             width = width * maxSize / height;
             height = maxSize;
           }
-          
           canvas.width = width;
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           if (ctx) {
             ctx.drawImage(img, 0, 0, width, height);
             const dataURL = canvas.toDataURL('image/jpeg', 0.6);
-            
+
             // Validate that the category still exists and image matches
             const currentCategory = categories.find(c => c.id === categoryId);
             if (currentCategory && currentCategory.image === category.image) {
@@ -632,16 +619,13 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
           imageLoadingPromises.current.delete(categoryId);
         }
       };
-      
       img.onerror = () => {
         handleImageError(categoryId, imgSource);
         imageLoadingPromises.current.delete(categoryId);
         reject(new Error(`Failed to load image for category ${categoryId}`));
       };
-      
       img.src = imgSource;
     });
-    
     imageLoadingPromises.current.set(categoryId, loadingPromise);
     return loadingPromise;
   };
@@ -683,10 +667,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
 
   // Extract category names for loading display
   const categoryNames = useMemo(() => isLoading ? DEMO_SERVICE_NAMES : categories.map(category => category.name), [categories, isLoading]);
-
   if (isLoading) {
-    return (
-      <div className="w-full">
+    return <div className="w-full">
         <div className="text-center mb-8">
           <h3 className="text-xl font-semibold text-secondary">
             Cargando categorías para {selectedService.name}
@@ -699,91 +681,48 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
         {/* Carousel con nombres durante la carga */}
         <Carousel className="w-full" showLoadingNames={true} loadingItems={categoryNames}>
           <CarouselContent>
-            {Array(6).fill(0).map((_, index) => (
-              <CarouselItem key={index} className="md:basis-1/4 pl-4">
+            {Array(6).fill(0).map((_, index) => <CarouselItem key={index} className="md:basis-1/4 pl-4">
                 <div className="aspect-square rounded-full bg-slate-100 animate-pulse"></div>
-              </CarouselItem>
-            ))}
+              </CarouselItem>)}
           </CarouselContent>
         </Carousel>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="py-4 sm:py-6 w-full">
+  return <div className="py-4 sm:py-6 w-full">
       <h3 className="text-lg sm:text-xl font-medium mb-4 sm:mb-6 text-center px-2 mx-auto">
         <span>SELECCIONÁ UNA CATEGORÍA</span>
       </h3>
       
       <Carousel className="w-full max-w-xs xs:max-w-sm sm:max-w-md md:max-w-xl lg:max-w-3xl mx-auto" opts={{
-        align: "center",
-        loop: true
-      }}>
+      align: "center",
+      loop: true
+    }}>
         <CarouselContent className="-ml-2 sm:-ml-4">
           {categories.map(category => {
-            const cacheKey = createCacheKey(category.id, category.image);
-            return (
-              <CarouselItem 
-                key={category.id} 
-                ref={el => el && itemRefs.current.set(category.id, el)} 
-                data-category-id={category.id} 
-                className="basis-1/2 sm:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4 mx-1"
-              >
-                <div 
-                  onClick={() => handleCategoryClick(category)} 
-                  className={`cursor-pointer hover:scale-105 transition-transform mx-5px ${isSelectedCategory(category.id) ? 'ring-2 ring-primary ring-offset-2' : ''}`} 
-                  ref={el => el && categoryCardsRefs.current.set(category.id, el)} 
-                  tabIndex={0} 
-                  data-category-name={category.name}
-                >
+          const cacheKey = createCacheKey(category.id, category.image);
+          return <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="basis-1/2 sm:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4 mx-[7px]">
+                <div onClick={() => handleCategoryClick(category)} className={`cursor-pointer hover:scale-105 transition-transform mx-5px ${isSelectedCategory(category.id) ? 'ring-2 ring-primary ring-offset-2' : ''}`} ref={el => el && categoryCardsRefs.current.set(category.id, el)} tabIndex={0} data-category-name={category.name}>
                   <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                     <AspectRatio ratio={1} className="bg-gray-100">
                       {/* Mostrar skeleton mientras carga la imagen */}
-                      {loadingImages[category.id] && (
-                        <div className="absolute inset-0 flex items-center justify-center z-10">
+                      {loadingImages[category.id] && <div className="absolute inset-0 flex items-center justify-center z-10">
                           <Skeleton className="h-full w-full rounded-full" />
-                        </div>
-                      )}
+                        </div>}
                       
                       {/* FIXED: Show image from cache with proper key validation */}
-                      {cachedImages[cacheKey] && !failedImages[category.id] ? (
-                        <img 
-                          src={cachedImages[cacheKey]} 
-                          alt={category.name} 
-                          className="w-full h-full object-cover" 
-                          onError={() => handleImageError(category.id, category.image)}
-                          style={{
-                            opacity: loadingImages[category.id] ? 0 : 1,
-                            transition: 'opacity 0.3s ease-in-out'
-                          }} 
-                        />
-                      ) : (
-                        <>
+                      {cachedImages[cacheKey] && !failedImages[category.id] ? <img src={cachedImages[cacheKey]} alt={category.name} className="w-full h-full object-cover" onError={() => handleImageError(category.id, category.image)} style={{
+                    opacity: loadingImages[category.id] ? 0 : 1,
+                    transition: 'opacity 0.3s ease-in-out'
+                  }} /> : <>
                           {/* FIXED: Show image from original source with proper validation */}
-                          {getImageSource(category.image, category.id) && !failedImages[category.id] ? (
-                            <img 
-                              ref={el => el && imageRefs.current.set(category.id, el)} 
-                              data-category-id={category.id} 
-                              src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" // placeholder transparente
-                              data-src={getImageSource(category.image, category.id)} 
-                              alt={category.name} 
-                              className="w-full h-full object-cover" 
-                              loading="lazy" 
-                              onLoad={() => handleImageLoad(category.id)} 
-                              onError={() => handleImageError(category.id, category.image)}
-                              style={{
-                                opacity: loadingImages[category.id] ? 0 : 1,
-                                transition: 'opacity 0.3s ease-in-out'
-                              }} 
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                          {getImageSource(category.image, category.id) && !failedImages[category.id] ? <img ref={el => el && imageRefs.current.set(category.id, el)} data-category-id={category.id} src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" // placeholder transparente
+                    data-src={getImageSource(category.image, category.id)} alt={category.name} className="w-full h-full object-cover" loading="lazy" onLoad={() => handleImageLoad(category.id)} onError={() => handleImageError(category.id, category.image)} style={{
+                      opacity: loadingImages[category.id] ? 0 : 1,
+                      transition: 'opacity 0.3s ease-in-out'
+                    }} /> : <div className="w-full h-full bg-gray-200 flex items-center justify-center">
                               <span className="text-gray-500 text-xs">Sin imagen</span>
-                            </div>
-                          )}
-                        </>
-                      )}
+                            </div>}
+                        </>}
                     </AspectRatio>
                   </div>
                   
@@ -791,19 +730,14 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
                     {category.name}
                   </p>
                 </div>
-              </CarouselItem>
-            );
-          })}
+              </CarouselItem>;
+        })}
         </CarouselContent>
-        {!isMobile && (
-          <>
+        {!isMobile && <>
             <CarouselPrevious className="left-0 hidden sm:flex" />
             <CarouselNext className="right-0 hidden sm:flex" />
-          </>
-        )}
+          </>}
       </Carousel>
-    </div>
-  );
+    </div>;
 };
-
 export default CategoryCarousel;
