@@ -62,7 +62,12 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
 
   // Function to validate if a category should be selected/clicked
-  const shouldSelectCategory = (categoryId: string) => {
+  const shouldSelectCategory = (categoryId: string, isUserClick: boolean = false) => {
+    // Always allow explicit user clicks
+    if (isUserClick) {
+      return true;
+    }
+
     const pathSegments = location.pathname.split('/').filter(segment => segment.length > 0);
     const hasCategoryInPath = pathSegments.length === 5;
     const categoryIdFromPath = hasCategoryInPath ? pathSegments[4] : null;
@@ -596,11 +601,11 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
 
   // Handle category selection with global variable storage - ADDED VALIDATION
   const handleCategoryClick = (category: Category) => {
-    // CRITICAL: Add validation before proceeding with category selection
-    if (!shouldSelectCategory(category.id)) {
+    // Allow user clicks, only block programmatic selections that would cause issues
+    if (!shouldSelectCategory(category.id, true)) {
       console.log("CategoryCarousel: Blocking category click due to validation failure");
       toast.info("Esta categoría no se puede seleccionar desde esta URL");
-      return; // Exit early to prevent the infinite loop
+      return;
     }
 
     // Store the selected category ID and name in global variables
