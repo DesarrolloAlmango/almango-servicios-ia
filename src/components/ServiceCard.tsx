@@ -90,6 +90,16 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   const dialogOpenRef = useRef(false);
   const categorySelectionInProgressRef = useRef(false);
 
+  // Add debug logging for props
+  useEffect(() => {
+    console.log("=== ServiceCard Debug Info ===");
+    console.log("ServiceCard ID (prop):", id);
+    console.log("ServiceCard name:", name);
+    console.log("pendingCategoryId:", pendingCategoryId);
+    console.log("Current URL:", location.pathname);
+    console.log("=== End ServiceCard Debug ===");
+  }, [id, pendingCategoryId, location.pathname]);
+
   // Create a service object for the selectedService prop
   const currentService: ServiceDetails = {
     id,
@@ -98,8 +108,15 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
 
   // Function to validate if category should be selected based on URL
   const shouldSelectCategory = (categoryId: string, isUserClick: boolean = false) => {
+    console.log("=== shouldSelectCategory Debug ===");
+    console.log("ServiceCard ID:", id);
+    console.log("Category ID:", categoryId);
+    console.log("Is User Click:", isUserClick);
+    console.log("Current URL:", location.pathname);
+    
     // Always allow explicit user clicks
     if (isUserClick) {
+      console.log("Allowing category selection - user click");
       return true;
     }
 
@@ -107,11 +124,17 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     const hasCategoryInPath = pathSegments.length === 5;
     const categoryIdFromPath = hasCategoryInPath ? pathSegments[4] : null;
     
+    console.log("Path segments:", pathSegments);
+    console.log("Category from path:", categoryIdFromPath);
+    
     const hasExplicitCategory = hasCategoryInPath && 
       categoryIdFromPath && 
       categoryIdFromPath !== id && 
       categoryIdFromPath.trim() !== '' && 
       categoryIdFromPath !== 'undefined';
+
+    console.log("Has explicit category:", hasExplicitCategory);
+    console.log("ServiceId matches categoryId:", id === categoryId);
 
     // Block if no explicit category in URL and serviceId matches categoryId
     if (!hasExplicitCategory && id === categoryId) {
@@ -119,6 +142,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       return false;
     }
 
+    console.log("Category selection allowed");
     return true;
   };
 
@@ -318,6 +342,10 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   // Update the fetchProducts function to include price fetching
   const fetchProducts = async (serviceId: string, categoryId: string) => {
     console.log(`ServiceCard: Fetching products for service ${serviceId} and category ${categoryId}`);
+    console.log("=== fetchProducts Debug ===");
+    console.log("ServiceCard prop ID:", id);
+    console.log("Function serviceId param:", serviceId);
+    console.log("Function categoryId param:", categoryId);
     
     // CRITICAL: Add validation before fetching and setting category
     if (!shouldSelectCategory(categoryId)) {
