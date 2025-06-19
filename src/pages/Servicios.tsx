@@ -226,17 +226,22 @@ const Servicios = () => {
         setServiceToAutoClick(urlServiceId);
         
         // CRITICAL: Only set category for auto-click if categoryId is explicitly present in URL
-        // and is not undefined, null, or empty string
-        if (urlCategoryId && urlCategoryId.trim() !== '' && urlCategoryId !== 'undefined') {
+        // Make sure we're not confusing serviceId with categoryId
+        const hasExplicitCategoryId = urlCategoryId && 
+          urlCategoryId.trim() !== '' && 
+          urlCategoryId !== 'undefined' && 
+          urlCategoryId !== urlServiceId; // Ensure categoryId is different from serviceId
+        
+        if (hasExplicitCategoryId) {
           const categoryIdStr = String(urlCategoryId);
-          console.log("URL contains explicit categoryId parameter:", categoryIdStr);
+          console.log("URL contains explicit categoryId parameter:", categoryIdStr, "different from serviceId:", urlServiceId);
           setSelectedServiceId(urlServiceId);
           setSelectedCategoryId(categoryIdStr);
           
           // Set flag for category auto-click after service is clicked
           pendingCategoryAutoClickRef.current = true;
         } else {
-          console.log("No categoryId in URL or categoryId is empty/undefined - will NOT auto-click categories");
+          console.log("No valid categoryId in URL (missing, empty, or same as serviceId) - will NOT auto-click categories");
           // Explicitly reset category-related state
           setSelectedCategoryId(null);
           setSelectedCategoryName(null);
@@ -296,11 +301,16 @@ const Servicios = () => {
           console.log("Auto-clicked on service:", serviceToAutoClick);
           
           // CRITICAL: Only trigger category auto-click if we have a valid categoryId from URL
-          // and the pending flag is set
-          if (urlCategoryId && urlCategoryId.trim() !== '' && 
-              urlCategoryId !== 'undefined' && pendingCategoryAutoClickRef.current) {
+          // that is different from serviceId and the pending flag is set
+          const hasValidCategoryId = urlCategoryId && 
+            urlCategoryId.trim() !== '' && 
+            urlCategoryId !== 'undefined' && 
+            urlCategoryId !== serviceToAutoClick && // Ensure categoryId is not the same as serviceId
+            pendingCategoryAutoClickRef.current;
+            
+          if (hasValidCategoryId) {
             const categoryIdStr = String(urlCategoryId);
-            console.log("Preparing to auto-click category:", categoryIdStr, "with coordinated timing");
+            console.log("Preparing to auto-click category:", categoryIdStr, "for service:", serviceToAutoClick);
             
             // Reset the flag immediately to prevent multiple attempts
             pendingCategoryAutoClickRef.current = false;
@@ -326,7 +336,7 @@ const Servicios = () => {
               
             }, 2500);
           } else {
-            console.log("No valid categoryId for auto-click or flag not set - skipping category auto-selection");
+            console.log("No valid categoryId for auto-click (missing, same as serviceId, or flag not set) - skipping category auto-selection");
           }
         }
       }, 800);
