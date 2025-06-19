@@ -521,12 +521,26 @@ const Servicios = () => {
   const handleCategorySelect = (serviceId: string, categoryId: string, categoryName: string) => {
     console.log("handleCategorySelect called:", { serviceId, categoryId, categoryName });
     
-    // CRITICAL: Prevent auto-selection if we're coming from URL without explicit categoryId
+    // CRITICAL: Prevent category selection if we're coming from URL without explicit categoryId
     const pathSegments = location.pathname.split('/').filter(segment => segment.length > 0);
-    const hasCategoryInPath = pathSegments.length >= 5 && pathSegments[4] && pathSegments[4] !== 'undefined';
+    const hasCategoryInPath = pathSegments.length === 5;
+    const categoryIdFromPath = hasCategoryInPath ? pathSegments[4] : null;
     
-    if (!hasCategoryInPath && serviceId === categoryId) {
-      console.log("Blocking auto-selection: serviceId matches categoryId and no explicit category in URL");
+    // Additional validation: only proceed if there's an explicit category in URL OR if categoryId != serviceId
+    const hasExplicitCategory = hasCategoryInPath && 
+      categoryIdFromPath && 
+      categoryIdFromPath !== serviceId && 
+      categoryIdFromPath.trim() !== '' && 
+      categoryIdFromPath !== 'undefined';
+    
+    if (!hasExplicitCategory && serviceId === categoryId) {
+      console.log("Blocking category selection: no explicit category in URL and serviceId matches categoryId");
+      return;
+    }
+    
+    // If we have an explicit category in URL, ensure it matches what we're trying to select
+    if (hasExplicitCategory && categoryIdFromPath !== categoryId) {
+      console.log("Category mismatch: URL has", categoryIdFromPath, "but trying to select", categoryId);
       return;
     }
     
