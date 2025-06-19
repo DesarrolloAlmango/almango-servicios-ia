@@ -214,6 +214,7 @@ const Servicios = () => {
   useEffect(() => {
     if (urlServiceId && !isServicesLoading && !isLoadingMudanza) {
       console.log("URL contains serviceId parameter:", urlServiceId);
+      console.log("URL categoryId parameter:", urlCategoryId);
       
       const displayedServices = isServicesError ? fallbackServices : services;
       const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
@@ -225,23 +226,40 @@ const Servicios = () => {
         console.log("Found service with ID:", urlServiceId, foundService);
         setServiceToAutoClick(urlServiceId);
         
-        // CRITICAL: Only set category for auto-click if categoryId is explicitly present in URL
-        // Make sure we're not confusing serviceId with categoryId
-        const hasExplicitCategoryId = urlCategoryId && 
-          urlCategoryId.trim() !== '' && 
-          urlCategoryId !== 'undefined' && 
-          urlCategoryId !== urlServiceId; // Ensure categoryId is different from serviceId
+        // CRITICAL FIX: Only process categoryId if it's explicitly different from serviceId
+        // and is actually present in the URL path segments
+        const pathSegments = location.pathname.split('/').filter(segment => segment.length > 0);
+        console.log("Path segments:", pathSegments);
         
-        if (hasExplicitCategoryId) {
-          const categoryIdStr = String(urlCategoryId);
-          console.log("URL contains explicit categoryId parameter:", categoryIdStr, "different from serviceId:", urlServiceId);
+        // Check if we have exactly 5 segments: ['servicios', userId, commerceId, serviceId, categoryId]
+        const hasCategoryInPath = pathSegments.length >= 5 && pathSegments[4] && pathSegments[4] !== 'undefined';
+        const categoryIdFromPath = hasCategoryInPath ? pathSegments[4] : null;
+        
+        console.log("Category analysis:", {
+          hasCategoryInPath,
+          categoryIdFromPath,
+          urlCategoryId,
+          pathSegments: pathSegments.length
+        });
+        
+        // Only set category for auto-click if:
+        // 1. We have exactly 5 path segments (including categoryId)
+        // 2. The categoryId is different from serviceId
+        // 3. The categoryId is not empty or undefined
+        if (hasCategoryInPath && 
+            categoryIdFromPath && 
+            categoryIdFromPath !== urlServiceId && 
+            categoryIdFromPath.trim() !== '' && 
+            categoryIdFromPath !== 'undefined') {
+          
+          console.log("Valid categoryId found in URL path:", categoryIdFromPath);
           setSelectedServiceId(urlServiceId);
-          setSelectedCategoryId(categoryIdStr);
+          setSelectedCategoryId(categoryIdFromPath);
           
           // Set flag for category auto-click after service is clicked
           pendingCategoryAutoClickRef.current = true;
         } else {
-          console.log("No valid categoryId in URL (missing, empty, or same as serviceId) - will NOT auto-click categories");
+          console.log("NO category auto-selection - invalid or missing categoryId in path");
           // Explicitly reset category-related state
           setSelectedCategoryId(null);
           setSelectedCategoryName(null);
@@ -252,7 +270,7 @@ const Servicios = () => {
         toast.error(`Servicio con ID ${urlServiceId} no encontrado`);
       }
     }
-  }, [urlServiceId, urlCategoryId, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza]);
+  }, [urlServiceId, urlCategoryId, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza, location.pathname]);
 
   useEffect(() => {
     if (location.state?.clickedService && !isServicesLoading && !isLoadingMudanza) {
@@ -499,6 +517,17 @@ const Servicios = () => {
   };
 
   const handleCategorySelect = (serviceId: string, categoryId: string, categoryName: string) => {
+    console.log("handleCategorySelect called:", { serviceId, categoryId, categoryName });
+    
+    // CRITICAL: Prevent auto-selection if we're coming from URL without explicit categoryId
+    const pathSegments = location.pathname.split('/').filter(segment => segment.length > 0);
+    const hasCategoryInPath = pathSegments.length >= 5 && pathSegments[4] && pathSegments[4] !== 'undefined';
+    
+    if (!hasCategoryInPath && serviceId === categoryId) {
+      console.log("Blocking auto-selection: serviceId matches categoryId and no explicit category in URL");
+      return;
+    }
+    
     setSelectedServiceId(serviceId);
     setSelectedCategoryId(categoryId);
     setSelectedCategoryName(categoryName);
