@@ -25,6 +25,7 @@ interface CategoryCarouselProps {
   cartItems?: any[];
   purchaseLocation?: any;
   autoSelectCategoryId?: string;
+  disableAutoPreload?: boolean;
 }
 
 // Random service names for demonstration
@@ -41,7 +42,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   isLoading = false,
   cartItems = [],
   purchaseLocation,
-  autoSelectCategoryId
+  autoSelectCategoryId,
+  disableAutoPreload
 }) => {
   const isMobile = useIsMobile();
   const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
