@@ -561,19 +561,13 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     });
     document.dispatchEvent(categorySelectedEvent);
 
-    // Call the parent's onSelectCategory callback and check if it was processed
-    const wasProcessed = onSelectCategory(category.id, category.name);
-    
-    // If category selection was blocked (shouldStopAutoActions), don't proceed with any automatic actions
-    if (wasProcessed === false) {
-      console.log("CategoryCarousel: Category selection was blocked, stopping all automatic actions");
-      return;
-    }
+    // Call the parent's onSelectCategory callback
+    onSelectCategory(category.id, category.name);
 
     // Preload product data
     try {
       console.log("Preloading products for service", selectedService?.id, "category", category.id);
-      await preloadProductData(selectedService?.id || '', category.id);
+      await preloadProductData(category.id);
     } catch (error) {
       console.error("Error preloading product data:", error);
     }
