@@ -226,26 +226,22 @@ const Servicios = () => {
         console.log("Found service with ID:", urlServiceId, foundService);
         setServiceToAutoClick(urlServiceId);
         
-        // CRITICAL FIX: Only process categoryId if it's explicitly different from serviceId
-        // and is actually present in the URL path segments
+        // CRITICAL FIX: Check if we have exactly 5 segments in URL path
         const pathSegments = location.pathname.split('/').filter(segment => segment.length > 0);
         console.log("Path segments:", pathSegments);
         
-        // Check if we have exactly 5 segments: ['servicios', userId, commerceId, serviceId, categoryId]
-        const hasCategoryInPath = pathSegments.length >= 5 && pathSegments[4] && pathSegments[4] !== 'undefined';
+        // Only process categoryId if we have exactly 5 segments: ['servicios', userId, commerceId, serviceId, categoryId]
+        const hasCategoryInPath = pathSegments.length === 5;
         const categoryIdFromPath = hasCategoryInPath ? pathSegments[4] : null;
         
         console.log("Category analysis:", {
           hasCategoryInPath,
           categoryIdFromPath,
           urlCategoryId,
-          pathSegments: pathSegments.length
+          pathSegments: pathSegments.length,
+          exactlyFiveSegments: pathSegments.length === 5
         });
         
-        // Only set category for auto-click if:
-        // 1. We have exactly 5 path segments (including categoryId)
-        // 2. The categoryId is different from serviceId
-        // 3. The categoryId is not empty or undefined
         if (hasCategoryInPath && 
             categoryIdFromPath && 
             categoryIdFromPath !== urlServiceId && 
@@ -255,12 +251,10 @@ const Servicios = () => {
           console.log("Valid categoryId found in URL path:", categoryIdFromPath);
           setSelectedServiceId(urlServiceId);
           setSelectedCategoryId(categoryIdFromPath);
-          
-          // Set flag for category auto-click after service is clicked
           pendingCategoryAutoClickRef.current = true;
         } else {
-          console.log("NO category auto-selection - invalid or missing categoryId in path");
-          // Explicitly reset category-related state
+          // CRITICAL: Clear any previous category state when URL doesn't contain categoryId
+          console.log("NO category in URL - clearing any previous category state");
           setSelectedCategoryId(null);
           setSelectedCategoryName(null);
           pendingCategoryAutoClickRef.current = false;
@@ -269,6 +263,14 @@ const Servicios = () => {
         console.warn("Service not found with ID:", urlServiceId);
         toast.error(`Servicio con ID ${urlServiceId} no encontrado`);
       }
+    } else if (!urlServiceId) {
+      // CRITICAL: Also clear category state when there's no serviceId in URL
+      console.log("No serviceId in URL - clearing all selection state");
+      setSelectedServiceId(null);
+      setSelectedCategoryId(null);
+      setSelectedCategoryName(null);
+      setServiceToAutoClick(null);
+      pendingCategoryAutoClickRef.current = false;
     }
   }, [urlServiceId, urlCategoryId, services, mudanzaServices, isServicesLoading, isLoadingMudanza, isServicesError, isErrorMudanza, location.pathname]);
 
