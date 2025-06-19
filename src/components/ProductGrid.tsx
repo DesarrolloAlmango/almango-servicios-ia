@@ -5,6 +5,7 @@ import { Skeleton, PriceSkeleton, TextSkeleton } from "./ui/skeleton";
 import { toast } from "sonner";
 import { ArrowLeft, ShoppingCart, RefreshCw } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+
 interface CartItem {
   id: string;
   name: string;
@@ -62,6 +63,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+
   const getImageSource = () => {
     if (!product.image) return null;
     if (product.image.startsWith('data:image')) {
@@ -74,10 +76,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
       return `data:image/png;base64,${product.image}`;
     }
   };
+
   const imageSource = getImageSource();
 
   // Determine if buttons should be disabled
   const buttonsDisabled = !hasPurchaseLocation || isPriceLoading || product.price === 0;
+
   const handleButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!hasPurchaseLocation) {
@@ -87,60 +91,90 @@ const ProductCard: React.FC<ProductCardProps> = ({
       toast.info("Esperando carga de precios...");
     }
   };
-  return <Card className="overflow-hidden h-full flex flex-col relative">
-      <div className="relative h-40 bg-gray-100 flex items-center justify-center">
+
+  return (
+    <Card className="overflow-hidden h-full flex flex-col relative">
+      <div className="relative h-48 bg-gray-100 flex items-center justify-center p-2">
         {!imageLoaded && <Skeleton className="absolute inset-0 w-full h-full" />}
-        {imageSource && !imageError ? <img src={imageSource} alt={product.name} className="w-full h-full object-cover" onError={() => setImageError(true)} onLoad={() => setImageLoaded(true)} style={{
-        opacity: imageLoaded ? 1 : 0
-      }} /> : <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-            <span className="text-gray-500 text-sm">Imagen no disponible</span>
-          </div>}
-        {animating && <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+        {imageSource && !imageError ? (
+          <img 
+            src={imageSource} 
+            alt={product.name} 
+            className="w-full h-full object-contain rounded"
+            onError={() => setImageError(true)} 
+            onLoad={() => setImageLoaded(true)} 
+            style={{ opacity: imageLoaded ? 1 : 0 }}
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded">
+            <span className="text-gray-500 text-sm text-center px-2">Imagen no disponible</span>
+          </div>
+        )}
+        
+        {animating && (
+          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
             <div className="animate-bounce scale-[2.2] bg-white bg-opacity-80 rounded-full shadow-lg flex items-center justify-center duration-500 p-2">
               <ShoppingCart size={32} className="text-orange-500" />
             </div>
-          </div>}
-        <div className="absolute inset-0 flex items-center justify-center bg-black/20 w-full h-full object-contain">
+          </div>
+        )}
+        
+        <div className="absolute bottom-2 right-2 z-10">
           <div className="bg-white rounded-full p-1 shadow-md flex items-center">
-            <button className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${buttonsDisabled ? 'cursor-not-allowed opacity-50' : ''}`} onClick={e => {
-            if (buttonsDisabled) {
-              handleButtonClick(e);
-            } else {
-              e.stopPropagation();
-              onDecrease();
-            }
-          }} disabled={buttonsDisabled}>
+            <button 
+              className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${buttonsDisabled ? 'cursor-not-allowed opacity-50' : ''}`}
+              onClick={e => {
+                if (buttonsDisabled) {
+                  handleButtonClick(e);
+                } else {
+                  e.stopPropagation();
+                  onDecrease();
+                }
+              }}
+              disabled={buttonsDisabled}
+            >
               -
             </button>
             <span className="w-8 h-8 flex items-center justify-center font-medium">
               {quantity}
             </span>
-            <button className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${buttonsDisabled ? 'cursor-not-allowed opacity-50' : ''}`} onClick={e => {
-            if (buttonsDisabled) {
-              handleButtonClick(e);
-            } else {
-              e.stopPropagation();
-              onIncrease();
-            }
-          }} disabled={buttonsDisabled}>
+            <button 
+              className={`w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary ${buttonsDisabled ? 'cursor-not-allowed opacity-50' : ''}`}
+              onClick={e => {
+                if (buttonsDisabled) {
+                  handleButtonClick(e);
+                } else {
+                  e.stopPropagation();
+                  onIncrease();
+                }
+              }}
+              disabled={buttonsDisabled}
+            >
               +
             </button>
           </div>
         </div>
       </div>
+      
       <CardContent className="p-4 flex-grow">
         <h4 className="font-medium mb-1 line-clamp-2">{product.name}</h4>
         
         <div className="flex justify-between items-center mt-2">
-          {isPriceLoading ? <PriceSkeleton /> : product.price !== undefined && product.price > 0 ? <span className="font-bold">
-              ${product.price.toLocaleString('es-UY', {
-            maximumFractionDigits: 0
-          })}
-            </span> : <PriceSkeleton />}
+          {isPriceLoading ? (
+            <PriceSkeleton />
+          ) : product.price !== undefined && product.price > 0 ? (
+            <span className="font-bold">
+              ${product.price.toLocaleString('es-UY', { maximumFractionDigits: 0 })}
+            </span>
+          ) : (
+            <PriceSkeleton />
+          )}
         </div>
       </CardContent>
-    </Card>;
+    </Card>
+  );
 };
+
 interface ProductGridProps {
   category: Category;
   addToCart: (item: CartItem) => void;
