@@ -548,29 +548,32 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   };
 
   // Handle category selection with global variable storage - REMOVED DEBUG MESSAGES
-  const handleCategoryClick = async (category: Category) => {
-    console.log("Modal opened with category:", category.id, category.name);
-    
-    // Dispatch category selection event for other components to listen to
+  const handleCategoryClick = (category: Category) => {
+    // Store the selected category ID and name in global variables
+    lastSelectedCategoryId = category.id;
+    lastSelectedCategoryName = category.name;
+
+    // Update the local state to show the selected category
+    setSelectedCategoryName(category.name);
+
+    // Dispatch a custom event to notify any listening components about the category selection
     const categorySelectedEvent = new CustomEvent('categorySelected', {
       detail: {
-        serviceId: selectedService?.id,
         categoryId: category.id,
-        categoryName: category.name
+        categoryName: category.name,
+        serviceId: selectedService.id
       }
     });
     document.dispatchEvent(categorySelectedEvent);
 
-    // Call the parent's onSelectCategory callback
-    onSelectCategory(category.id, category.name);
+    // Focus on the category card
+    focusCategoryCard(category.id);
 
-    // Preload product data
-    try {
-      console.log("Preloading products for service", selectedService?.id, "category", category.id);
-      await preloadProductData(category.id);
-    } catch (error) {
-      console.error("Error preloading product data:", error);
-    }
+    // Preload product data in the background
+    preloadProductData(category.id);
+
+    // Call the parent's onSelectCategory function
+    onSelectCategory(category.id, category.name);
   };
 
   // Check if this category is the auto-selected one - IMPROVED

@@ -173,7 +173,6 @@ const Servicios = () => {
   const [serviceToAutoClick, setServiceToAutoClick] = useState<string | null>(null);
   const serviceCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const pendingCategoryAutoClickRef = useRef<boolean>(false);
-  const [shouldStopAutoActions, setShouldStopAutoActions] = useState<boolean>(false);
 
   const {
     data: services,
@@ -224,16 +223,10 @@ const Servicios = () => {
       
       if (foundService) {
         console.log("Found service with ID:", urlServiceId, foundService);
+        setServiceToAutoClick(urlServiceId);
         
-        // Check if we should stop auto actions (no categoryId or categoryId is 0)
-        if (!urlCategoryId || urlCategoryId === '0') {
-          console.log("URL has serviceId but no valid categoryId - will stop auto actions after showing categories");
-          setShouldStopAutoActions(true);
-          setServiceToAutoClick(urlServiceId);
-        } else {
-          // Normal flow with valid categoryId
-          setServiceToAutoClick(urlServiceId);
-          
+        // If categoryId is also present in URL, prepare for auto-selection - CONVERT TO STRING
+        if (urlCategoryId) {
           const categoryIdStr = String(urlCategoryId);
           console.log("URL also contains categoryId parameter:", categoryIdStr);
           setSelectedServiceId(urlServiceId);
@@ -295,15 +288,8 @@ const Servicios = () => {
           serviceCardElement.click();
           console.log("Auto-clicked on service:", serviceToAutoClick);
           
-          // Check if we should stop auto actions after showing categories
-          if (shouldStopAutoActions) {
-            console.log("Stopping auto actions - user should manually select category");
-            setShouldStopAutoActions(false); // Reset flag
-            return; // Don't proceed with automatic category selection
-          }
-          
-          // If we have a categoryId from URL and shouldn't stop auto actions, trigger category auto-click
-          if (urlCategoryId && urlCategoryId !== '0' && pendingCategoryAutoClickRef.current) {
+          // If we have a categoryId from URL, trigger category auto-click with proper coordination
+          if (urlCategoryId && pendingCategoryAutoClickRef.current) {
             const categoryIdStr = String(urlCategoryId);
             console.log("Preparing to auto-click category:", categoryIdStr, "with coordinated timing");
             
@@ -335,7 +321,7 @@ const Servicios = () => {
       }, 800);
       return () => clearTimeout(timer);
     }
-  }, [serviceToAutoClick, urlCategoryId, selectedCategoryName, shouldStopAutoActions]);
+  }, [serviceToAutoClick, urlCategoryId, selectedCategoryName]);
 
   useEffect(() => {
     if (pendingCategoryAutoClickRef.current && selectedServiceId && selectedCategoryId) {
@@ -799,7 +785,7 @@ const Servicios = () => {
                   </div>) : displayedServices?.map((service, index) => {
               const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
               const isHighlighted = service.id === highlightedServiceId;
-              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Home} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#F8F4F0]" : ""} shouldStopAutoActions={shouldStopAutoActions} ref={element => {
+              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Home} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#F8F4F0]" : ""} ref={element => {
                 if (service.id) {
                   serviceCardRefs.current[service.id] = element;
                 }
@@ -820,7 +806,7 @@ const Servicios = () => {
                   </div>) : displayedMudanzaServices?.map((service, index) => {
               const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
               const isHighlighted = service.id === highlightedServiceId;
-              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Truck} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#f06900]" : ""} shouldStopAutoActions={shouldStopAutoActions} ref={element => {
+              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Truck} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#f06900]" : ""} ref={element => {
                 if (service.id) {
                   serviceCardRefs.current[service.id] = element;
                 }

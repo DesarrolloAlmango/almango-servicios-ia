@@ -62,7 +62,6 @@ interface ServiceCardProps {
   className?: string;
   pendingCategoryId?: string;
   pendingCategoryName?: string;
-  shouldStopAutoActions?: boolean; // Add new prop
 }
 const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   id = '',
@@ -78,8 +77,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   currentCartItems = [],
   className = "",
   pendingCategoryId,
-  pendingCategoryName,
-  shouldStopAutoActions = false // Add default value
+  pendingCategoryName
 }, ref) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -361,12 +359,6 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   };
   const handleCategorySelect = (category: Category) => {
     console.log("ServiceCard: Category selected:", category);
-
-    // Check if auto actions should be stopped
-    if (shouldStopAutoActions) {
-      console.log("ServiceCard: Auto actions stopped - manual category selection blocked");
-      return false; // Block the category selection
-    }
 
     // Set the flag to prevent closing the dialog while loading products
     categorySelectionInProgressRef.current = true;
