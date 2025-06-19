@@ -5,7 +5,6 @@ import { CircleEllipsis } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-
 interface Category {
   id: string;
   name: string;
@@ -13,7 +12,6 @@ interface Category {
   price?: number;
   count?: number;
 }
-
 interface CategoryCarouselProps {
   categories: Category[];
   onSelectCategory: (categoryId: string, categoryName: string) => void;
@@ -33,7 +31,6 @@ const DEMO_SERVICE_NAMES = ["Corte de pelo", "Peinado", "Coloración", "Maquilla
 // Global variable for storing the last selected category ID
 export let lastSelectedCategoryId: string | null = null;
 export let lastSelectedCategoryName: string | null = null;
-
 const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   categories,
   onSelectCategory,
@@ -53,7 +50,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const hasAutoSelectedRef = useRef(false);
   const autoSelectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const autoSelectionAttemptsRef = useRef(0);
-  
+
   // Add missing refs
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
@@ -65,13 +62,12 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       const urlParams = new URLSearchParams(window.location.search);
       const urlCategoryId = window.location.pathname.split('/').pop();
       const categoryIdFromURL = autoSelectCategoryId || urlCategoryId;
-      
       if (categoryIdFromURL) {
         const foundCategory = categories.find(c => String(c.id) === String(categoryIdFromURL));
         if (foundCategory) {
           // Reset the auto-selection flag to allow new selection
           hasAutoSelectedRef.current = false;
-          
+
           // Force trigger the auto-selection
           setTimeout(() => {
             handleCategoryClick(foundCategory);
@@ -86,33 +82,25 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     if (autoSelectTimeoutRef.current) {
       clearTimeout(autoSelectTimeoutRef.current);
     }
-
     let categoryIdToSelect = autoSelectCategoryId;
-    
     if (!categoryIdToSelect) {
       const urlCategoryId = window.location.pathname.split('/').pop();
       categoryIdToSelect = urlCategoryId;
     }
-
     const categoryIdStr = categoryIdToSelect ? String(categoryIdToSelect) : null;
-
     if (categoryIdStr && categories.length > 0 && purchaseLocation && !hasAutoSelectedRef.current) {
       const categoryToSelect = categories.find(cat => String(cat.id) === categoryIdStr);
-      
       if (categoryToSelect) {
         hasAutoSelectedRef.current = true;
         setSelectedCategoryName(categoryToSelect.name);
-        
         autoSelectTimeoutRef.current = setTimeout(() => {
           handleCategoryClick(categoryToSelect);
-          
           setTimeout(() => {
             focusCategoryCard(categoryToSelect.id);
           }, 500);
         }, 1500);
       }
     }
-
     return () => {
       if (autoSelectTimeoutRef.current) {
         clearTimeout(autoSelectTimeoutRef.current);
@@ -133,47 +121,51 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     const handleOpenCategoryEvent = (e: Event) => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail) {
-        const { serviceId, categoryId, categoryName, fromURL } = customEvent.detail;
-        
+        const {
+          serviceId,
+          categoryId,
+          categoryName,
+          fromURL
+        } = customEvent.detail;
+
         // Convert categoryId to string for consistent comparison
         const categoryIdStr = String(categoryId);
-        
+
         // Find the category we want to select
         const categoryToSelect = categories.find(cat => String(cat.id) === categoryIdStr);
-        
         if (categoryToSelect && String(selectedService.id) === String(serviceId)) {
           // Update UI to show the selected category name
           setSelectedCategoryName(categoryToSelect.name);
-          
+
           // Enhanced function to attempt category click with better retry logic
           const attemptCategoryClick = (attempt = 1, maxAttempts = 8) => {
             // First, handle the data selection through the normal flow
             handleCategoryClick(categoryToSelect);
-            
+
             // Focus on the category card
             focusCategoryCard(categoryToSelect.id);
-            
+
             // Try to find and click the DOM element for the category
             setTimeout(() => {
               const categoryElement = document.querySelector(`[data-category-id="${categoryToSelect.id}"]`);
-              
               if (categoryElement) {
                 // Find the clickable card within the category element
                 const clickableCard = categoryElement.querySelector('.cursor-pointer');
-                
                 if (clickableCard && clickableCard instanceof HTMLElement) {
                   // Ensure the element is visible and scrolled into view
-                  clickableCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                  
+                  clickableCard.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                  });
+
                   // Wait a moment for scroll, then click
                   setTimeout(() => {
                     clickableCard.click();
                   }, 200);
-                  
                   return; // Success, exit
                 }
               }
-              
+
               // If we couldn't find the element and haven't reached max attempts, retry
               if (attempt < maxAttempts) {
                 const retryDelay = fromURL ? 800 * attempt : 500 * attempt; // Longer delays for URL events
@@ -184,11 +176,10 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
               }
             }, fromURL ? 600 * attempt : 300 * attempt); // Longer initial delays for URL events
           };
-          
+
           // Start the attempt process with appropriate delay based on source
           const initialDelay = fromURL ? 1000 : 500; // Longer delay for URL-triggered events
           setTimeout(() => attemptCategoryClick(), initialDelay);
-          
         } else {
           // If category not found, maybe categories haven't loaded yet, retry
           if (!categoryToSelect && categories.length === 0) {
@@ -197,9 +188,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
         }
       }
     };
-    
     document.addEventListener('openCategory', handleOpenCategoryEvent);
-    
     return () => {
       document.removeEventListener('openCategory', handleOpenCategoryEvent);
     };
@@ -210,20 +199,27 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     const handleRetryCategory = (e: Event) => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail) {
-        const { serviceId, categoryId, categoryName } = customEvent.detail;
-        
+        const {
+          serviceId,
+          categoryId,
+          categoryName
+        } = customEvent.detail;
+
         // Dispatch the original openCategory event again
         setTimeout(() => {
           const openCategoryEvent = new CustomEvent('openCategory', {
-            detail: { serviceId, categoryId, categoryName, fromURL: true }
+            detail: {
+              serviceId,
+              categoryId,
+              categoryName,
+              fromURL: true
+            }
           });
           document.dispatchEvent(openCategoryEvent);
         }, 300);
       }
     };
-    
     document.addEventListener('retryCategory', handleRetryCategory);
-    
     return () => {
       document.removeEventListener('retryCategory', handleRetryCategory);
     };
@@ -234,21 +230,20 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     try {
       // Try to get the reference to the card from our refs map
       const cardRef = categoryCardsRefs.current.get(categoryId);
-      
+
       // Find the category name to match with the selected one
       const category = categories.find(cat => cat.id === categoryId);
       const categoryName = category ? category.name : null;
-      
       if (cardRef) {
         // Scroll the card into view and focus it
-        cardRef.scrollIntoView({ 
-          behavior: 'smooth', 
+        cardRef.scrollIntoView({
+          behavior: 'smooth',
           block: 'center'
         });
-        
+
         // Set focus on the card (for accessibility)
         cardRef.focus();
-        
+
         // Simulate click on the card after focusing
         setTimeout(() => {
           if (categoryName === selectedCategoryName) {
@@ -263,9 +258,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
             behavior: 'smooth',
             block: 'center'
           });
-          
           categoryElement.focus();
-          
+
           // Also try to click it if it's a match
           if (categoryName === selectedCategoryName) {
             setTimeout(() => {
@@ -295,11 +289,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   // Function to preload product data when a category is selected
   const preloadProductData = async (categoryId: string) => {
     if (!selectedService.id) return;
-    
     try {
       const endpoint = `npm /ObtenerNivel2?Nivel0=${selectedService.id}&Nivel1=${categoryId}`;
       console.log(`Preloading products for service ${selectedService.id}, category ${categoryId}`);
-      
       const response = await fetch(endpoint);
       if (!response.ok) {
         console.error(`Error preloading products: ${response.status}`);
@@ -477,14 +469,12 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       }, 300);
     };
   }, [cachedImages]);
-  
   const handleImageLoad = (categoryId: string) => {
     setLoadingImages(prev => ({
       ...prev,
       [categoryId]: false
     }));
   };
-  
   const handleImageError = (categoryId: string, imageUrl: string) => {
     console.error("Error loading category image:", imageUrl);
     setFailedImages(prev => ({
@@ -562,26 +552,26 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     // Store the selected category ID and name in global variables
     lastSelectedCategoryId = category.id;
     lastSelectedCategoryName = category.name;
-    
+
     // Update the local state to show the selected category
     setSelectedCategoryName(category.name);
-    
+
     // Dispatch a custom event to notify any listening components about the category selection
-    const categorySelectedEvent = new CustomEvent('categorySelected', { 
-      detail: { 
+    const categorySelectedEvent = new CustomEvent('categorySelected', {
+      detail: {
         categoryId: category.id,
         categoryName: category.name,
-        serviceId: selectedService.id 
-      } 
+        serviceId: selectedService.id
+      }
     });
     document.dispatchEvent(categorySelectedEvent);
-    
+
     // Focus on the category card
     focusCategoryCard(category.id);
-    
+
     // Preload product data in the background
     preloadProductData(category.id);
-    
+
     // Call the parent's onSelectCategory function
     onSelectCategory(category.id, category.name);
   };
@@ -594,7 +584,6 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
 
   // Extraer solo los nombres de categorías para mostrar durante la carga
   const categoryNames = useMemo(() => isLoading ? DEMO_SERVICE_NAMES : categories.map(category => category.name), [categories, isLoading]);
-
   if (isLoading) {
     return <div className="w-full">
         <div className="text-center mb-8">
@@ -626,22 +615,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       loop: true
     }}>
         <CarouselContent className="-ml-2 sm:-ml-4">
-          {categories.map(category => (
-            <CarouselItem 
-              key={category.id} 
-              ref={el => el && itemRefs.current.set(category.id, el)} 
-              data-category-id={category.id} 
-              className="basis-1/2 sm:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4 mx-1"
-            >
-              <div 
-                onClick={() => handleCategoryClick(category)} 
-                className={`cursor-pointer hover:scale-105 transition-transform mx-5px ${
-                  isSelectedCategory(category.id) ? 'ring-2 ring-primary ring-offset-2' : ''
-                }`}
-                ref={el => el && categoryCardsRefs.current.set(category.id, el)}
-                tabIndex={0}
-                data-category-name={category.name}
-              >
+          {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="basis-1/2 sm:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4 mx-1">
+              <div onClick={() => handleCategoryClick(category)} className={`cursor-pointer hover:scale-105 transition-transform mx-5px ${isSelectedCategory(category.id) ? 'ring-2 ring-primary ring-offset-2' : ''}`} ref={el => el && categoryCardsRefs.current.set(category.id, el)} tabIndex={0} data-category-name={category.name}>
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                   <AspectRatio ratio={1} className="bg-gray-100">
                     {/* Mostrar skeleton mientras carga la imagen */}
@@ -666,20 +641,15 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
                   </AspectRatio>
                 </div>
                 
-                <p className="text-center text-sm sm:text-base font-medium mt-1 sm:mt-2 line-clamp-2 px-1 
-                  animate-in fade-in duration-300">{category.name}</p>
+                <p className="text-center text-sm font-medium mt-1 sm:mt-2 line-clamp-2 animate-in fade-in duration-300 px-0 sm:text-sm">{category.name}</p>
               </div>
-            </CarouselItem>
-          ))}
+            </CarouselItem>)}
         </CarouselContent>
-        {!isMobile && (
-          <>
+        {!isMobile && <>
             <CarouselPrevious className="left-0 hidden sm:flex" />
             <CarouselNext className="right-0 hidden sm:flex" />
-          </>
-        )}
+          </>}
       </Carousel>
     </div>;
 };
-
 export default CategoryCarousel;
