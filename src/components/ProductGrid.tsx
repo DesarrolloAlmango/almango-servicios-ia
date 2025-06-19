@@ -701,6 +701,15 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       onBack();
     }
   };
+
+  // Determine grid layout based on number of products
+  const getGridClasses = () => {
+    if (products.length === 2) {
+      return "grid grid-cols-2 gap-6";
+    }
+    return "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6";
+  };
+
   return <div className="space-y-6">
       <div className="sticky top-0 z-10 bg-white pb-4 border-b border-gray-100">
         <div className="flex items-center mb-4">
@@ -738,7 +747,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         </div> : products.length === 0 ? <div className="flex items-center justify-center h-40">
           <p className="text-gray-500">No hay productos disponibles</p>
         </div> : <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className={getGridClasses()}>
             {products.map(product => <ProductCard key={product.id} product={product} quantity={productQuantities[product.id] || 0} onIncrease={() => increaseQuantity(product.id)} onDecrease={() => decreaseQuantity(product.id)} animating={!!cartAnimating[product.id]} purchaseLocationId={purchaseLocationId} serviceId={serviceId} categoryId={category.id} isPriceLoading={loadingProductIds.has(product.id)} hasPurchaseLocation={!!purchaseLocationId} onBackToCategories={onBack} />)}
           </div>
           
@@ -753,4 +762,5 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         </>}
     </div>;
 };
+
 export default ProductGrid;
