@@ -700,7 +700,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
         <CarouselContent className="-ml-2 sm:-ml-4">
           {categories.map(category => {
           const cacheKey = createCacheKey(category.id, category.image);
-          return <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="basis-1/2 sm:basis-1/3 lg:basis-1/2 pl-2 sm:pl-4 mx-[7px]">
+          return <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="basis-1/2 sm:basis-1/3 lg:basis-1/3 pl-2 sm:pl-4 mx-[7px]">
                 <div onClick={() => handleCategoryClick(category)} className={`cursor-pointer hover:scale-105 transition-transform mx-5px ${isSelectedCategory(category.id) ? 'ring-2 ring-primary ring-offset-2' : ''}`} ref={el => el && categoryCardsRefs.current.set(category.id, el)} tabIndex={0} data-category-name={category.name}>
                   <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                     <AspectRatio ratio={1} className="bg-gray-100">
@@ -726,7 +726,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
                     </AspectRatio>
                   </div>
                   
-                  <p className="text-center text-sm font-medium mt-1 sm:mt-2 line-clamp-2 animate-in fade-in duration-300 px-0 sm:text-sm">
+                  <p className="text-center text-sm font-medium mt-1 sm:mt-2 line-clamp-2 animate-in fade-in duration-300 px-0 sm:text-xs">
                     {category.name}
                   </p>
                 </div>
