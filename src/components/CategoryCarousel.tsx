@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -296,10 +297,10 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
 
   // Function to preload product data when a category is selected
   const preloadProductData = async (categoryId: string) => {
-    if (!selectedService.id) return;
+    if (!selectedService.id || disableAutoPreload) return;
     
     try {
-      const endpoint = `npm /ObtenerNivel2?Nivel0=${selectedService.id}&Nivel1=${categoryId}`;
+      const endpoint = `https://app.almango.com.uy/WebAPI/ObtenerNivel2?Nivel0=${selectedService.id}&Nivel1=${categoryId}`;
       console.log(`Preloading products for service ${selectedService.id}, category ${categoryId}`);
       
       const response = await fetch(endpoint);
