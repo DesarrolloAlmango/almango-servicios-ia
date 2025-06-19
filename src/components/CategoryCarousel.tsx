@@ -58,13 +58,34 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
 
+  // Function to validate if a category should be auto-selected
+  const shouldAutoSelectCategory = (categoryId: string) => {
+    const pathSegments = window.location.pathname.split('/').filter(segment => segment.length > 0);
+    const hasCategoryInPath = pathSegments.length === 5;
+    const categoryIdFromPath = hasCategoryInPath ? pathSegments[4] : null;
+    
+    const hasExplicitCategory = hasCategoryInPath && 
+      categoryIdFromPath && 
+      categoryIdFromPath !== selectedService.id && 
+      categoryIdFromPath.trim() !== '' && 
+      categoryIdFromPath !== 'undefined';
+
+    // Block auto-selection if no explicit category in URL and serviceId matches categoryId
+    if (!hasExplicitCategory && selectedService.id === categoryId) {
+      console.log("CategoryCarousel: Blocking auto-selection - no explicit category in URL and serviceId matches categoryId");
+      return false;
+    }
+
+    return true;
+  };
+
   // Extract categoryId from URL when categories load - REMOVED DEBUG MESSAGES
   useEffect(() => {
     if (categories.length > 0) {
       const urlParams = new URLSearchParams(window.location.search);
       const urlCategoryId = window.location.pathname.split('/').pop();
       const categoryIdFromURL = autoSelectCategoryId || urlCategoryId;
-      if (categoryIdFromURL) {
+      if (categoryIdFromURL && shouldAutoSelectCategory(categoryIdFromURL)) {
         const foundCategory = categories.find(c => String(c.id) === String(categoryIdFromURL));
         if (foundCategory) {
           // Reset the auto-selection flag to allow new selection
@@ -90,7 +111,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       categoryIdToSelect = urlCategoryId;
     }
     const categoryIdStr = categoryIdToSelect ? String(categoryIdToSelect) : null;
-    if (categoryIdStr && categories.length > 0 && purchaseLocation && !hasAutoSelectedRef.current) {
+    if (categoryIdStr && categories.length > 0 && purchaseLocation && !hasAutoSelectedRef.current && shouldAutoSelectCategory(categoryIdStr)) {
       const categoryToSelect = categories.find(cat => String(cat.id) === categoryIdStr);
       if (categoryToSelect) {
         hasAutoSelectedRef.current = true;
@@ -578,10 +599,16 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     onSelectCategory(category.id, category.name);
   };
 
-  // Check if this category is the auto-selected one - IMPROVED
+  // Check if this category is the auto-selected one - FIXED
   const isSelectedCategory = (categoryId: string) => {
     const categoryIdStr = autoSelectCategoryId ? String(autoSelectCategoryId) : null;
-    return categoryIdStr === String(categoryId);
+    
+    // Only mark as selected if it should be auto-selected AND it's the right category
+    if (categoryIdStr === String(categoryId) && shouldAutoSelectCategory(categoryId)) {
+      return true;
+    }
+    
+    return false;
   };
 
   // Extraer solo los nombres de categorías para mostrar durante la carga
@@ -617,8 +644,22 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       loop: true
     }}>
         <CarouselContent className="-ml-2 sm:-ml-4">
-          {categories.map(category => <CarouselItem key={category.id} ref={el => el && itemRefs.current.set(category.id, el)} data-category-id={category.id} className="basis-1/2 sm:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4 mx-1">
-              <div onClick={() => handleCategoryClick(category)} className={`cursor-pointer hover:scale-105 transition-transform mx-5px ${isSelectedCategory(category.id) ? 'ring-2 ring-primary ring-offset-2' : ''}`} ref={el => el && categoryCardsRefs.current.set(category.id, el)} tabIndex={0} data-category-name={category.name}>
+          {categories.map(category => (
+            <CarouselItem 
+              key={category.id} 
+              ref={el => el && itemRefs.current.set(category.id, el)} 
+              data-category-id={category.id} 
+              className="basis-1/2 sm:basis-1/3 lg:basis-1/4 pl-2 sm:pl-4 mx-1"
+            >
+              <div 
+                onClick={() => handleCategoryClick(category)} 
+                className={`cursor-pointer hover:scale-105 transition-transform mx-5px ${
+                  isSelectedCategory(category.id) ? 'ring-2 ring-primary ring-offset-2' : ''
+                }`} 
+                ref={el => el && categoryCardsRefs.current.set(category.id, el)} 
+                tabIndex={0} 
+                data-category-name={category.name}
+              >
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
                   <AspectRatio ratio={1} className="bg-gray-100">
                     {/* Mostrar skeleton mientras carga la imagen */}
@@ -645,12 +686,15 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
                 
                 <p className="text-center text-sm font-medium mt-1 sm:mt-2 line-clamp-2 animate-in fade-in duration-300 px-0 sm:text-sm">{category.name}</p>
               </div>
-            </CarouselItem>)}
+            </CarouselItem>
+          ))}
         </CarouselContent>
-        {!isMobile && <>
+        {!isMobile && (
+          <>
             <CarouselPrevious className="left-0 hidden sm:flex" />
             <CarouselNext className="right-0 hidden sm:flex" />
-          </>}
+          </>
+        )}
       </Carousel>
     </div>;
 };
