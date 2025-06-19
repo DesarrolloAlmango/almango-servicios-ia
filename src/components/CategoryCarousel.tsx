@@ -5,6 +5,8 @@ import { CircleEllipsis } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { useLocation } from "react-router-dom";
+
 interface Category {
   id: string;
   name: string;
@@ -43,6 +45,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   disableAutoPreload
 }) => {
   const isMobile = useIsMobile();
+  const location = useLocation();
   const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const [cachedImages, setCachedImages] = useState<Record<string, string>>({});
@@ -57,6 +60,27 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
+
+  // Function to validate if a category should be selected/clicked
+  const shouldSelectCategory = (categoryId: string) => {
+    const pathSegments = location.pathname.split('/').filter(segment => segment.length > 0);
+    const hasCategoryInPath = pathSegments.length === 5;
+    const categoryIdFromPath = hasCategoryInPath ? pathSegments[4] : null;
+    
+    const hasExplicitCategory = hasCategoryInPath && 
+      categoryIdFromPath && 
+      categoryIdFromPath !== selectedService.id && 
+      categoryIdFromPath.trim() !== '' && 
+      categoryIdFromPath !== 'undefined';
+
+    // Block if no explicit category in URL and serviceId matches categoryId
+    if (!hasExplicitCategory && selectedService.id === categoryId) {
+      console.log("CategoryCarousel: Blocking category click - no explicit category in URL and serviceId matches categoryId");
+      return false;
+    }
+
+    return true;
+  };
 
   // Function to validate if a category should be auto-selected
   const shouldAutoSelectCategory = (categoryId: string) => {
@@ -570,8 +594,15 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }
   };
 
-  // Handle category selection with global variable storage - REMOVED DEBUG MESSAGES
+  // Handle category selection with global variable storage - ADDED VALIDATION
   const handleCategoryClick = (category: Category) => {
+    // CRITICAL: Add validation before proceeding with category selection
+    if (!shouldSelectCategory(category.id)) {
+      console.log("CategoryCarousel: Blocking category click due to validation failure");
+      toast.info("Esta categoría no se puede seleccionar desde esta URL");
+      return; // Exit early to prevent the infinite loop
+    }
+
     // Store the selected category ID and name in global variables
     lastSelectedCategoryId = category.id;
     lastSelectedCategoryName = category.name;
