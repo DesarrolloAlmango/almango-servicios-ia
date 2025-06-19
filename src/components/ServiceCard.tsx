@@ -127,6 +127,13 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     console.log("Path segments:", pathSegments);
     console.log("Category from path:", categoryIdFromPath);
     
+    // CRITICAL FIX: If we have an explicit category in the URL path, always allow selection
+    // This handles the case where serviceId=3 and categoryId=3 are legitimately the same
+    if (hasCategoryInPath && categoryIdFromPath && categoryIdFromPath.trim() !== '') {
+      console.log("Has explicit category in URL - allowing selection regardless of ID match");
+      return true;
+    }
+    
     const hasExplicitCategory = hasCategoryInPath && 
       categoryIdFromPath && 
       categoryIdFromPath !== id && 
@@ -136,8 +143,9 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     console.log("Has explicit category:", hasExplicitCategory);
     console.log("ServiceId matches categoryId:", id === categoryId);
 
-    // Block if no explicit category in URL and serviceId matches categoryId
-    if (!hasExplicitCategory && id === categoryId) {
+    // Only block if no explicit category in URL and serviceId matches categoryId
+    // AND we're not in a URL that already specifies a category
+    if (!hasExplicitCategory && id === categoryId && !hasCategoryInPath) {
       console.log("ServiceCard: Blocking category selection - no explicit category in URL and serviceId matches categoryId");
       return false;
     }
