@@ -107,11 +107,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const effectiveCategoryId = categoryId || lastSelectedCategoryId || null;
   const effectiveCategoryName = categoryName || lastSelectedCategoryName || null;
 
-  // Helper function to check if commerceId should be treated as valid
-  const isValidCommerceId = (id?: string) => {
-    return id && id !== "0" && id.trim() !== "";
-  };
-
   // Function to fetch commerce name by ID using ObtenerProveedorTodos
   const fetchCommerceName = async (commerceId: string) => {
     setIsLoadingCommerceName(true);
@@ -156,22 +151,20 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     if (isOpen) {
       console.log("Modal opened with category:", effectiveCategoryId, effectiveCategoryName);
       
-      const validCommerceId = isValidCommerceId(commerceId);
-      
-      if (!validCommerceId) {
+      if (!commerceId) {
         fetchProviders();
       } else {
-        // Fetch the commerce name when commerceId is provided and valid
-        fetchCommerceName(commerceId!);
+        // Fetch the commerce name when commerceId is provided
+        fetchCommerceName(commerceId);
       }
       
       fetchDepartments();
-      setSelectedStore(validCommerceId ? commerceId! : "");
+      setSelectedStore(commerceId || "");
       setOtherStore("");
       setShowOtherInput(false);
       setSelectedDepartment("");
       setSelectedLocation("");
-      setSearchQuery(validCommerceId ? (commerceName || "") : "");
+      setSearchQuery(commerceName || "");
       
       // Set local category state from props or global variable
       if (effectiveCategoryId) {
@@ -415,9 +408,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     try {
       setIsConfirming(true);
       
-      const validCommerceId = isValidCommerceId(commerceId);
-      
-      if (!validCommerceId) {
+      if (!commerceId) {
         if (!selectedStore && searchQuery) {
           setSelectedStore("other");
           setOtherStore(searchQuery);
@@ -443,8 +434,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         return;
       }
 
-      const storeId = validCommerceId ? commerceId! : selectedStore || "other";
-      const storeName = validCommerceId ? 
+      const storeId = commerceId || selectedStore || "other";
+      const storeName = commerceId ? 
         fetchedCommerceName || commerceName || "Comercio seleccionado" :
         selectedStore === "other" ? 
           otherStore || searchQuery : 
@@ -461,8 +452,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         serviceId: localServiceId,
         categoryId: finalCategoryId,
         categoryName: finalCategoryName,
-        commerceId,
-        validCommerceId
+        commerceId
       });
       
       // Close the modal and call onSelectLocation right away
@@ -477,9 +467,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         selectedStore === "other" ? otherStore || searchQuery : undefined
       );
       
-      // RESTORED: When validCommerceId is present, dispatch event to open products AFTER location is confirmed
-      // For manual flow (no valid commerceId), the normal flow continues as before
-      if (validCommerceId && finalCategoryId && localServiceId) {
+      // RESTORED: When commerceId is present, dispatch event to open products AFTER location is confirmed
+      // For manual flow (no commerceId), the normal flow continues as before
+      if (commerceId && finalCategoryId && localServiceId) {
         setTimeout(() => {
           console.log("Dispatching openCategory event after location confirmation for commerceId flow");
           const openCategoryEvent = new CustomEvent('openCategory', {
@@ -502,9 +492,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   };
 
   const isFormValid = useMemo(() => {
-    const validCommerceId = isValidCommerceId(commerceId);
-    
-    if (validCommerceId) {
+    if (commerceId) {
       return selectedDepartment && selectedLocation;
     }
     
@@ -541,8 +529,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
 
-  const validCommerceId = isValidCommerceId(commerceId);
-
   return (
     <Dialog open={isOpen} onOpenChange={(open) => {
       if (!open) {
@@ -553,7 +539,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         {/* Add DialogTitle to fix accessibility warning */}
         <DialogTitle className="sr-only">Selección de lugar de compra</DialogTitle>
         
-        {!validCommerceId && (
+        {!commerceId && (
           <div className="text-center mb-6">
             <MapPin className="h-12 w-12 mx-auto text-orange-500 mb-2" />
             <DialogDescription className="text-center">
@@ -562,7 +548,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
           </div>
         )}
         
-        {validCommerceId ? (
+        {commerceId ? (
           <LocationStep
             selectedDepartment={selectedDepartment}
             setSelectedDepartment={setSelectedDepartment}
@@ -741,7 +727,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
           </div>
         )}
 
-        {!validCommerceId && (
+        {!commerceId && (
           <DialogFooter>
             <Button variant="outline" onClick={handleModalClose} disabled={isConfirming}>
               Cancelar

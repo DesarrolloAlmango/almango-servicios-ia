@@ -90,100 +90,44 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   const dialogOpenRef = useRef(false);
   const categorySelectionInProgressRef = useRef(false);
 
-  // Add debug logging for props
-  useEffect(() => {
-    console.log("=== ServiceCard Debug Info ===");
-    console.log("ServiceCard ID (prop):", id);
-    console.log("ServiceCard name:", name);
-    console.log("pendingCategoryId:", pendingCategoryId);
-    console.log("purchaseLocation:", purchaseLocation);
-    console.log("Current URL:", location.pathname);
-    console.log("=== End ServiceCard Debug ===");
-  }, [id, pendingCategoryId, location.pathname, purchaseLocation]);
-
   // Create a service object for the selectedService prop
   const currentService: ServiceDetails = {
     id,
     name
   };
-
-  // Simplified function - allow all category selections for user clicks
-  const shouldSelectCategory = (categoryId: string, isUserClick: boolean = false) => {
-    console.log("=== shouldSelectCategory Debug ===");
-    console.log("ServiceCard ID:", id);
-    console.log("Category ID:", categoryId);
-    console.log("Is User Click:", isUserClick);
-    console.log("Current URL:", location.pathname);
-    
-    // ALWAYS allow explicit user clicks - no restrictions
-    if (isUserClick) {
-      console.log("Allowing category selection - user click (no restrictions)");
-      return true;
-    }
-
-    // For programmatic selections, also allow all categories
-    console.log("Allowing category selection - programmatic selection (no restrictions)");
-    return true;
-  };
-
   useEffect(() => {
-    // Debug logging for pendingCategoryId
-    if (pendingCategoryId) {
-      console.log("ServiceCard DEBUG: pendingCategoryId received:", pendingCategoryId, "for serviceId:", id);
-      console.log("ServiceCard DEBUG: Are they the same?", pendingCategoryId === id);
-    }
-
     // Track if dialog was just opened to prevent auto-reopen
     if (isDialogOpen) {
       dialogOpenRef.current = true;
     }
 
-    // CRITICAL FIX: Prevent using serviceId as categoryId
-    // Only proceed if pendingCategoryId exists AND is different from serviceId
-    const isValidPendingCategory = pendingCategoryId && 
-      pendingCategoryId !== id && 
-      pendingCategoryId.trim() !== '' && 
-      pendingCategoryId !== 'undefined';
-
-    // Special handling for when we have purchase location and VALID pending category ID
-    if (isDialogOpen && id && purchaseLocation && isValidPendingCategory) {
-      console.log("ServiceCard: Loading products for VALID pending category:", {
+    // Special handling for when we have purchase location and pending category ID
+    if (isDialogOpen && id && purchaseLocation && pendingCategoryId) {
+      console.log("Loading products for pending category with existing purchase location:", {
         serviceId: id,
         categoryId: pendingCategoryId,
-        categoryName: pendingCategoryName,
-        isValid: true
+        categoryName: pendingCategoryName
       });
 
       // Directly fetch products for the pending category
       fetchProducts(id, pendingCategoryId);
     }
-    // Invalid pending category - log but don't proceed
-    else if (isDialogOpen && id && purchaseLocation && pendingCategoryId && !isValidPendingCategory) {
-      console.log("ServiceCard: INVALID pendingCategoryId detected - same as serviceId or empty:", {
-        serviceId: id,
-        pendingCategoryId: pendingCategoryId,
-        reason: pendingCategoryId === id ? "same as serviceId" : "empty or undefined"
-      });
-    }
     // Normal dialog open handling
     else if (forceOpen && id && purchaseLocation && !dialogOpenRef.current) {
-      console.log("ServiceCard: Force open dialog with purchase location:", purchaseLocation);
+      console.log("Force open dialog with purchase location:", purchaseLocation);
       setIsDialogOpen(true);
 
-      // Si tenemos categoryId válido, cargar directamente los productos
-      if (purchaseLocation.categoryId && purchaseLocation.categoryId !== id) {
-        console.log("ServiceCard: Valid category ID found in purchase location, fetching products directly:", purchaseLocation.categoryId);
+      // Si tenemos categoryId, cargar directamente los productos
+      if (purchaseLocation.categoryId) {
+        console.log("Category ID found, fetching products directly:", purchaseLocation.categoryId);
         fetchProducts(id, purchaseLocation.categoryId);
-      } else if (purchaseLocation.categoryId === id) {
-        console.log("ServiceCard: INVALID - Purchase location categoryId same as serviceId, loading categories instead");
-        fetchCategories(id);
       } else {
         // Solo si no hay categoryId, cargamos primero las categorías
-        console.log("ServiceCard: No category ID, loading categories first");
+        console.log("No category ID, loading categories first");
         fetchCategories(id);
       }
     } else if (forceOpen && id && !dialogOpenRef.current) {
-      console.log("ServiceCard: Force open dialog without purchase location");
+      console.log("Force open dialog without purchase location");
       setIsDialogOpen(true);
       fetchCategories(id);
     }
@@ -319,14 +263,9 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     }
   };
 
-  // Update the fetchProducts function - remove validation that was blocking category selection
+  // Update the fetchProducts function to include price fetching
   const fetchProducts = async (serviceId: string, categoryId: string) => {
     console.log(`ServiceCard: Fetching products for service ${serviceId} and category ${categoryId}`);
-    console.log("=== fetchProducts Debug ===");
-    console.log("ServiceCard prop ID:", id);
-    console.log("Function serviceId param:", serviceId);
-    console.log("Function categoryId param:", categoryId);
-    
     setIsLoading(true);
     try {
       // Call ObtenerNivel2 to get initial product data
@@ -366,7 +305,6 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
         console.log(`ServiceCard: Purchase location found (${purchaseLocationId}), fetching prices immediately`);
         transformedProducts = await fetchAllPrices(transformedProducts, serviceId, categoryId, purchaseLocationId);
       }
-
       if (!categoryToUpdate) {
         // Si la categoría no existe en el estado, crear una temporal
         console.log("ServiceCard: Category not found in state, creating temporary one");
@@ -392,7 +330,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
         setCategories(prev => prev.map(cat => cat.id === categoryId ? categoryToUpdate! : cat));
       }
 
-      // Set selectedCategory without any restrictions
+      // Siempre actualizar selectedCategory para mostrar los productos
       console.log("ServiceCard: Setting selected category:", categoryToUpdate);
       setSelectedCategory(categoryToUpdate);
 
@@ -419,31 +357,29 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       fetchCategories(id);
     }
   };
-  const handleCategorySelect = (category: Category, isUserClick: boolean = false) => {
+  const handleCategorySelect = (category: Category) => {
     console.log("ServiceCard: Category selected:", category);
-    console.log("ServiceCard: Purchase location exists:", !!purchaseLocation);
-    console.log("ServiceCard: onCategorySelect exists:", !!onCategorySelect);
 
     // Set the flag to prevent closing the dialog while loading products
     categorySelectionInProgressRef.current = true;
 
-    // Check if we have a purchase location
-    if (purchaseLocation) {
-      // We have purchase location, proceed directly to load products
-      console.log("ServiceCard: Purchase location available, loading products directly");
-      if (id) {
-        fetchProducts(id, category.id);
-      }
-    } else {
-      // No purchase location, need to trigger the location selection modal
-      console.log("ServiceCard: No purchase location, triggering location selection");
-      if (onCategorySelect && id) {
-        // Call parent to show location modal
-        onCategorySelect(id, category.id, category.name);
-      }
-    }
+    // Siempre cargamos productos primero, independientemente de si hay ubicación o no
+    if (id) {
+      console.log("ServiceCard: Fetching products for category - regardless of purchase location:", category.id);
+      fetchProducts(id, category.id);
 
-    return true;
+      // Si NO hay ubicación de compra, notificamos al padre para mostrar el modal después
+      if (!purchaseLocation && onCategorySelect) {
+        console.log("ServiceCard: Calling onCategorySelect from parent - no purchase location exists");
+
+        // Usamos setTimeout para asegurarnos de que los productos se carguen primero
+        setTimeout(() => {
+          onCategorySelect(id, category.id, category.name);
+        }, 100);
+      }
+      return true; // Return true to indicate successful processing
+    }
+    return true; // Default return value
   };
   const purchaseLocationId = purchaseLocation ? purchaseLocation.storeId : undefined;
   const getCardBackground = () => {
@@ -526,27 +462,19 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
                 <Button variant="outline" className="mt-2" onClick={() => id && fetchCategories(id)}>
                   Reintentar
                 </Button>
-              </div> : !selectedCategory ? <CategoryCarousel 
-                categories={categories} 
-                onSelectCategory={(categoryId, categoryName) => {
-                  // Find the category object with the matching ID
-                  const category = categories.find(cat => cat.id === categoryId);
-                  if (category) {
-                    handleCategorySelect(category, true); // Pass true to indicate user click
-                  }
-                }} 
-                selectedService={currentService} 
-                isLoading={isLoading} 
-                cartItems={currentCartItems} 
-                purchaseLocation={purchaseLocation}
-                disableAutoPreload={true} // CRITICAL: Disable auto-preload to prevent unwanted category selection
-              /> : <ProductGrid category={selectedCategory} addToCart={addToCart} onBack={() => {
-                console.log("Back to categories clicked");
-                setSelectedCategory(null);
-              }} serviceName={name} closeDialog={() => {
-                console.log("Close dialog requested from ProductGrid");
-                setIsDialogOpen(false);
-              }} serviceId={id} purchaseLocationId={purchaseLocationId} currentCartItems={currentCartItems} />}
+              </div> : !selectedCategory ? <CategoryCarousel categories={categories} onSelectCategory={(categoryId, categoryName) => {
+            // Find the category object with the matching ID
+            const category = categories.find(cat => cat.id === categoryId);
+            if (category) {
+              handleCategorySelect(category);
+            }
+          }} selectedService={currentService} isLoading={isLoading} cartItems={currentCartItems} purchaseLocation={purchaseLocation} /> : <ProductGrid category={selectedCategory} addToCart={addToCart} onBack={() => {
+            console.log("Back to categories clicked");
+            setSelectedCategory(null);
+          }} serviceName={name} closeDialog={() => {
+            console.log("Close dialog requested from ProductGrid");
+            setIsDialogOpen(false);
+          }} serviceId={id} purchaseLocationId={purchaseLocationId} currentCartItems={currentCartItems} />}
           </div>
         </DialogContent>
       </Dialog>

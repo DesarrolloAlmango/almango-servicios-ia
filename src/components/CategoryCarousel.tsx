@@ -5,7 +5,6 @@ import { CircleEllipsis } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { useLocation } from "react-router-dom";
 
 interface Category {
   id: string;
@@ -14,6 +13,7 @@ interface Category {
   price?: number;
   count?: number;
 }
+
 interface CategoryCarouselProps {
   categories: Category[];
   onSelectCategory: (categoryId: string, categoryName: string) => void;
@@ -25,7 +25,6 @@ interface CategoryCarouselProps {
   cartItems?: any[];
   purchaseLocation?: any;
   autoSelectCategoryId?: string;
-  disableAutoPreload?: boolean;
 }
 
 // Random service names for demonstration
@@ -34,6 +33,7 @@ const DEMO_SERVICE_NAMES = ["Corte de pelo", "Peinado", "Coloración", "Maquilla
 // Global variable for storing the last selected category ID
 export let lastSelectedCategoryId: string | null = null;
 export let lastSelectedCategoryName: string | null = null;
+
 const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   categories,
   onSelectCategory,
@@ -41,11 +41,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   isLoading = false,
   cartItems = [],
   purchaseLocation,
-  autoSelectCategoryId,
-  disableAutoPreload
+  autoSelectCategoryId
 }) => {
   const isMobile = useIsMobile();
-  const location = useLocation();
   const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
   const [failedImages, setFailedImages] = useState<Record<string, boolean>>({});
   const [cachedImages, setCachedImages] = useState<Record<string, string>>({});
@@ -55,75 +53,60 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   const hasAutoSelectedRef = useRef(false);
   const autoSelectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const autoSelectionAttemptsRef = useRef(0);
-
+  
   // Add missing refs
   const itemRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const imageRefs = useRef<Map<string, HTMLImageElement>>(new Map());
   const intersectionObserver = useRef<IntersectionObserver | null>(null);
 
-  // Function to validate if a category should be selected/clicked
-  const shouldSelectCategory = (categoryId: string, isUserClick: boolean = false) => {
-    // Always allow explicit user clicks
-    if (isUserClick) {
-      return true;
-    }
-
-    const pathSegments = location.pathname.split('/').filter(segment => segment.length > 0);
-    const hasCategoryInPath = pathSegments.length === 5;
-    const categoryIdFromPath = hasCategoryInPath ? pathSegments[4] : null;
-    
-    const hasExplicitCategory = hasCategoryInPath && 
-      categoryIdFromPath && 
-      categoryIdFromPath !== selectedService.id && 
-      categoryIdFromPath.trim() !== '' && 
-      categoryIdFromPath !== 'undefined';
-
-    // Block if no explicit category in URL and serviceId matches categoryId
-    if (!hasExplicitCategory && selectedService.id === categoryId) {
-      console.log("CategoryCarousel: Blocking category click - no explicit category in URL and serviceId matches categoryId");
-      return false;
-    }
-
-    return true;
-  };
-
-  // Function to validate if a category should be auto-selected
-  const shouldAutoSelectCategory = (categoryId: string) => {
-    const pathSegments = window.location.pathname.split('/').filter(segment => segment.length > 0);
-    const hasCategoryInPath = pathSegments.length === 5;
-    const categoryIdFromPath = hasCategoryInPath ? pathSegments[4] : null;
-    
-    const hasExplicitCategory = hasCategoryInPath && 
-      categoryIdFromPath && 
-      categoryIdFromPath !== selectedService.id && 
-      categoryIdFromPath.trim() !== '' && 
-      categoryIdFromPath !== 'undefined';
-
-    // Block auto-selection if no explicit category in URL and serviceId matches categoryId
-    if (!hasExplicitCategory && selectedService.id === categoryId) {
-      console.log("CategoryCarousel: Blocking auto-selection - no explicit category in URL and serviceId matches categoryId");
-      return false;
-    }
-
-    return true;
-  };
-
-  // Extract categoryId from URL when categories load - REMOVED DEBUG MESSAGES
+  // DEBUG: Extract categoryId from URL when categories load
   useEffect(() => {
     if (categories.length > 0) {
+      // Get category ID from URL
       const urlParams = new URLSearchParams(window.location.search);
       const urlCategoryId = window.location.pathname.split('/').pop();
       const categoryIdFromURL = autoSelectCategoryId || urlCategoryId;
-      if (categoryIdFromURL && shouldAutoSelectCategory(categoryIdFromURL)) {
+      
+      console.log("🐛 DEBUG - Categories loaded. URL analysis:");
+      console.log("🐛 Full URL:", window.location.href);
+      console.log("🐛 URL pathname:", window.location.pathname);
+      console.log("🐛 URL pathname parts:", window.location.pathname.split('/'));
+      console.log("🐛 Last part of pathname:", urlCategoryId);
+      console.log("🐛 autoSelectCategoryId prop:", autoSelectCategoryId);
+      console.log("🐛 Final categoryId to use:", categoryIdFromURL);
+      console.log("🐛 Available categories:", categories.map(c => `ID: ${c.id}, Name: ${c.name}`));
+      
+      // Show toast with the category ID for debugging
+      if (categoryIdFromURL) {
+        toast.info(`🐛 DEBUG: Intentando auto-seleccionar categoría ID: ${categoryIdFromURL}`, { 
+          duration: 5000,
+          position: "top-center"
+        });
+        
+        // Check if category exists
         const foundCategory = categories.find(c => String(c.id) === String(categoryIdFromURL));
         if (foundCategory) {
+          toast.success(`🐛 DEBUG: Categoría encontrada: ${foundCategory.name} (ID: ${foundCategory.id})`, { 
+            duration: 5000,
+            position: "top-center"
+          });
+          
+          // IMMEDIATELY trigger the auto-selection process
+          console.log("🐛 DEBUG: Triggering immediate auto-selection for:", foundCategory.name);
+          
           // Reset the auto-selection flag to allow new selection
           hasAutoSelectedRef.current = false;
-
+          
           // Force trigger the auto-selection
           setTimeout(() => {
             handleCategoryClick(foundCategory);
           }, 1000);
+          
+        } else {
+          toast.error(`🐛 DEBUG: Categoría NO encontrada para ID: ${categoryIdFromURL}`, { 
+            duration: 5000,
+            position: "top-center"
+          });
         }
       }
     }
@@ -134,25 +117,42 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     if (autoSelectTimeoutRef.current) {
       clearTimeout(autoSelectTimeoutRef.current);
     }
+
     let categoryIdToSelect = autoSelectCategoryId;
+    
     if (!categoryIdToSelect) {
       const urlCategoryId = window.location.pathname.split('/').pop();
       categoryIdToSelect = urlCategoryId;
     }
+
     const categoryIdStr = categoryIdToSelect ? String(categoryIdToSelect) : null;
-    if (categoryIdStr && categories.length > 0 && purchaseLocation && !hasAutoSelectedRef.current && shouldAutoSelectCategory(categoryIdStr)) {
+
+    if (categoryIdStr && categories.length > 0 && purchaseLocation && !hasAutoSelectedRef.current) {
+      console.log("🐛 DEBUG - Auto-selection trigger:", {
+        categoryIdStr,
+        categoriesCount: categories.length,
+        purchaseLocation: !!purchaseLocation
+      });
+      
       const categoryToSelect = categories.find(cat => String(cat.id) === categoryIdStr);
+      
       if (categoryToSelect) {
+        console.log(`🐛 DEBUG - Found category for auto-selection: ${categoryToSelect.name}`);
+        
         hasAutoSelectedRef.current = true;
         setSelectedCategoryName(categoryToSelect.name);
+        
         autoSelectTimeoutRef.current = setTimeout(() => {
+          console.log("🐛 DEBUG - Executing auto-selection click for:", categoryToSelect.name);
           handleCategoryClick(categoryToSelect);
+          
           setTimeout(() => {
             focusCategoryCard(categoryToSelect.id);
           }, 500);
         }, 1500);
       }
     }
+
     return () => {
       if (autoSelectTimeoutRef.current) {
         clearTimeout(autoSelectTimeoutRef.current);
@@ -163,6 +163,7 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   // Reset auto-selection flag when key dependencies change
   useEffect(() => {
     if (categories.length > 0) {
+      console.log("Resetting auto-selection state due to dependency change");
       hasAutoSelectedRef.current = false;
       autoSelectionAttemptsRef.current = 0;
     }
@@ -173,66 +174,86 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     const handleOpenCategoryEvent = (e: Event) => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail) {
-        const {
-          serviceId,
-          categoryId,
-          categoryName,
-          fromURL
-        } = customEvent.detail;
-
+        const { serviceId, categoryId, categoryName, fromURL } = customEvent.detail;
+        
+        console.log("CategoryCarousel received openCategory event:", categoryId, categoryName, "fromURL:", fromURL);
+        
         // Convert categoryId to string for consistent comparison
         const categoryIdStr = String(categoryId);
-
+        
         // Find the category we want to select
         const categoryToSelect = categories.find(cat => String(cat.id) === categoryIdStr);
+        
         if (categoryToSelect && String(selectedService.id) === String(serviceId)) {
+          console.log("Found matching category, preparing auto-click:", categoryToSelect.name);
+          
           // Update UI to show the selected category name
           setSelectedCategoryName(categoryToSelect.name);
-
+          
           // Enhanced function to attempt category click with better retry logic
           const attemptCategoryClick = (attempt = 1, maxAttempts = 8) => {
+            console.log(`Attempting category click (attempt ${attempt}/${maxAttempts}) for category: ${categoryToSelect.name}`);
+            
             // First, handle the data selection through the normal flow
             handleCategoryClick(categoryToSelect);
-
+            
             // Focus on the category card
             focusCategoryCard(categoryToSelect.id);
-
+            
             // Try to find and click the DOM element for the category
             setTimeout(() => {
               const categoryElement = document.querySelector(`[data-category-id="${categoryToSelect.id}"]`);
+              console.log(`Attempt ${attempt}: Category element found:`, !!categoryElement);
+              
               if (categoryElement) {
                 // Find the clickable card within the category element
                 const clickableCard = categoryElement.querySelector('.cursor-pointer');
+                console.log(`Attempt ${attempt}: Clickable card found:`, !!clickableCard);
+                
                 if (clickableCard && clickableCard instanceof HTMLElement) {
+                  console.log(`SUCCESS: Clicking on category card: ${categoryToSelect.name} (attempt ${attempt})`);
+                  
                   // Ensure the element is visible and scrolled into view
-                  clickableCard.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center'
-                  });
-
+                  clickableCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  
                   // Wait a moment for scroll, then click
                   setTimeout(() => {
                     clickableCard.click();
+                    console.log("Category card clicked successfully!");
                   }, 200);
+                  
                   return; // Success, exit
                 }
               }
-
+              
               // If we couldn't find the element and haven't reached max attempts, retry
               if (attempt < maxAttempts) {
                 const retryDelay = fromURL ? 800 * attempt : 500 * attempt; // Longer delays for URL events
+                console.log(`Category element not found, retrying in ${retryDelay}ms... (attempt ${attempt + 1}/${maxAttempts})`);
                 setTimeout(() => attemptCategoryClick(attempt + 1, maxAttempts), retryDelay);
               } else {
+                console.error("FAILED: Could not find and click category element after", maxAttempts, "attempts");
+                
                 // Last resort: try direct onSelectCategory call
+                console.log("Last resort: Calling onSelectCategory directly");
                 onSelectCategory(categoryToSelect.id, categoryToSelect.name);
               }
             }, fromURL ? 600 * attempt : 300 * attempt); // Longer initial delays for URL events
           };
-
+          
           // Start the attempt process with appropriate delay based on source
           const initialDelay = fromURL ? 1000 : 500; // Longer delay for URL-triggered events
           setTimeout(() => attemptCategoryClick(), initialDelay);
+          
         } else {
+          console.log("Category not found or service ID mismatch", {
+            foundCategory: !!categoryToSelect,
+            expectedServiceId: serviceId, 
+            actualServiceId: selectedService.id,
+            categoryIdStr,
+            availableCategories: categories.map(c => String(c.id))
+          });
+          
           // If category not found, maybe categories haven't loaded yet, retry
           if (!categoryToSelect && categories.length === 0) {
             console.log("Categories not loaded yet, will retry when they load");
@@ -240,7 +261,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
         }
       }
     };
+    
     document.addEventListener('openCategory', handleOpenCategoryEvent);
+    
     return () => {
       document.removeEventListener('openCategory', handleOpenCategoryEvent);
     };
@@ -251,27 +274,21 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     const handleRetryCategory = (e: Event) => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail) {
-        const {
-          serviceId,
-          categoryId,
-          categoryName
-        } = customEvent.detail;
-
+        const { serviceId, categoryId, categoryName } = customEvent.detail;
+        console.log("CategoryCarousel received retryCategory event:", categoryId);
+        
         // Dispatch the original openCategory event again
         setTimeout(() => {
           const openCategoryEvent = new CustomEvent('openCategory', {
-            detail: {
-              serviceId,
-              categoryId,
-              categoryName,
-              fromURL: true
-            }
+            detail: { serviceId, categoryId, categoryName, fromURL: true }
           });
           document.dispatchEvent(openCategoryEvent);
         }, 300);
       }
     };
+    
     document.addEventListener('retryCategory', handleRetryCategory);
+    
     return () => {
       document.removeEventListener('retryCategory', handleRetryCategory);
     };
@@ -282,26 +299,40 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     try {
       // Try to get the reference to the card from our refs map
       const cardRef = categoryCardsRefs.current.get(categoryId);
-
+      
       // Find the category name to match with the selected one
       const category = categories.find(cat => cat.id === categoryId);
       const categoryName = category ? category.name : null;
+      
+      // Debug if there's a match between displayed name and category name
+      if (categoryName && selectedCategoryName) {
+        if (categoryName === selectedCategoryName) {
+          console.debug(`✅ MATCH FOUND: Category name "${categoryName}" matches selected name "${selectedCategoryName}"`);
+          toast.success(`Categoría seleccionada: ${categoryName}`, { duration: 2000 });
+        } else {
+          console.debug(`❌ NO MATCH: Category name "${categoryName}" does NOT match selected name "${selectedCategoryName}"`);
+        }
+      }
+      
       if (cardRef) {
         // Scroll the card into view and focus it
-        cardRef.scrollIntoView({
-          behavior: 'smooth',
+        cardRef.scrollIntoView({ 
+          behavior: 'smooth', 
           block: 'center'
         });
-
+        
         // Set focus on the card (for accessibility)
         cardRef.focus();
-
+        
         // Simulate click on the card after focusing
         setTimeout(() => {
           if (categoryName === selectedCategoryName) {
+            console.debug(`🖱️ Simulating click on category card: ${categoryName}`);
             cardRef.click();
           }
         }, 300);
+        
+        console.log("Successfully focused category card:", categoryId);
       } else {
         // Try to find the card by query selector as fallback
         const categoryElement = document.querySelector(`[data-category-id="${categoryId}"]`);
@@ -310,16 +341,25 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
             behavior: 'smooth',
             block: 'center'
           });
+          
           categoryElement.focus();
-
+          
           // Also try to click it if it's a match
           if (categoryName === selectedCategoryName) {
             setTimeout(() => {
               const clickableElement = categoryElement.querySelector('.cursor-pointer');
               if (clickableElement && clickableElement instanceof HTMLElement) {
+                console.debug(`🖱️ Simulating click on category card (fallback): ${categoryName}`);
                 clickableElement.click();
               }
             }, 300);
+          }
+          
+          console.log("Focused category card with query selector:", categoryId);
+        } else {
+          console.warn("Could not find category card to focus:", categoryId);
+          if (categoryName) {
+            console.debug(`⚠️ Unable to find and click category card for: ${categoryName}`);
           }
         }
       }
@@ -331,6 +371,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   // Log when purchaseLocation changes to aid debugging
   useEffect(() => {
     if (purchaseLocation) {
+      console.log("CategoryCarousel - Purchase location received:", purchaseLocation);
+      
       // If we have a category in the purchase location, update the selectedCategoryName
       if (purchaseLocation.categoryName) {
         setSelectedCategoryName(purchaseLocation.categoryName);
@@ -340,10 +382,12 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
 
   // Function to preload product data when a category is selected
   const preloadProductData = async (categoryId: string) => {
-    if (!selectedService.id || disableAutoPreload) return;
+    if (!selectedService.id) return;
+    
     try {
-      const endpoint = `https://app.almango.com.uy/WebAPI/ObtenerNivel2?Nivel0=${selectedService.id}&Nivel1=${categoryId}`;
+      const endpoint = `npm /ObtenerNivel2?Nivel0=${selectedService.id}&Nivel1=${categoryId}`;
       console.log(`Preloading products for service ${selectedService.id}, category ${categoryId}`);
+      
       const response = await fetch(endpoint);
       if (!response.ok) {
         console.error(`Error preloading products: ${response.status}`);
@@ -521,12 +565,14 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       }, 300);
     };
   }, [cachedImages]);
+  
   const handleImageLoad = (categoryId: string) => {
     setLoadingImages(prev => ({
       ...prev,
       [categoryId]: false
     }));
   };
+  
   const handleImageError = (categoryId: string, imageUrl: string) => {
     console.error("Error loading category image:", imageUrl);
     setFailedImages(prev => ({
@@ -599,52 +645,49 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
     }
   };
 
-  // Handle category selection with global variable storage - ADDED VALIDATION
+  // Handle category selection with global variable storage and enhanced debug
   const handleCategoryClick = (category: Category) => {
-    // Allow user clicks, only block programmatic selections that would cause issues
-    if (!shouldSelectCategory(category.id, true)) {
-      console.log("CategoryCarousel: Blocking category click due to validation failure");
-      toast.info("Esta categoría no se puede seleccionar desde esta URL");
-      return;
-    }
-
+    console.log("🐛 DEBUG - Category clicked:", category.name, "ID:", category.id, "Purchase location:", purchaseLocation ? "exists" : "does not exist");
+    
     // Store the selected category ID and name in global variables
     lastSelectedCategoryId = category.id;
     lastSelectedCategoryName = category.name;
-
+    
     // Update the local state to show the selected category
     setSelectedCategoryName(category.name);
-
+    
+    console.log("🐛 DEBUG - Saved last selected category:", lastSelectedCategoryId, lastSelectedCategoryName);
+    
+    // Show debug toast when category is clicked
+    toast.success(`🐛 DEBUG: Categoría clickeada: ${category.name} (ID: ${category.id})`, { 
+      duration: 3000,
+      position: "top-center"
+    });
+    
     // Dispatch a custom event to notify any listening components about the category selection
-    const categorySelectedEvent = new CustomEvent('categorySelected', {
-      detail: {
+    const categorySelectedEvent = new CustomEvent('categorySelected', { 
+      detail: { 
         categoryId: category.id,
         categoryName: category.name,
-        serviceId: selectedService.id
-      }
+        serviceId: selectedService.id 
+      } 
     });
     document.dispatchEvent(categorySelectedEvent);
-
+    
     // Focus on the category card
     focusCategoryCard(category.id);
-
+    
     // Preload product data in the background
     preloadProductData(category.id);
-
+    
     // Call the parent's onSelectCategory function
     onSelectCategory(category.id, category.name);
   };
 
-  // Check if this category is the auto-selected one - FIXED
+  // Check if this category is the auto-selected one - IMPROVED
   const isSelectedCategory = (categoryId: string) => {
     const categoryIdStr = autoSelectCategoryId ? String(autoSelectCategoryId) : null;
-    
-    // Only mark as selected if it should be auto-selected AND it's the right category
-    if (categoryIdStr === String(categoryId) && shouldAutoSelectCategory(categoryId)) {
-      return true;
-    }
-    
-    return false;
+    return categoryIdStr === String(categoryId);
   };
 
   // Extraer solo los nombres de categorías para mostrar durante la carga
@@ -691,9 +734,9 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
                 onClick={() => handleCategoryClick(category)} 
                 className={`cursor-pointer hover:scale-105 transition-transform mx-5px ${
                   isSelectedCategory(category.id) ? 'ring-2 ring-primary ring-offset-2' : ''
-                }`} 
-                ref={el => el && categoryCardsRefs.current.set(category.id, el)} 
-                tabIndex={0} 
+                }`}
+                ref={el => el && categoryCardsRefs.current.set(category.id, el)}
+                tabIndex={0}
                 data-category-name={category.name}
               >
                 <div className="overflow-hidden rounded-full border-2 border-primary mx-auto w-16 sm:w-20 h-16 sm:h-20 mb-2 bg-gray-100 relative">
@@ -720,7 +763,8 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
                   </AspectRatio>
                 </div>
                 
-                <p className="text-center text-sm font-medium mt-1 sm:mt-2 line-clamp-2 animate-in fade-in duration-300 px-0 sm:text-sm">{category.name}</p>
+                <p className="text-center text-sm sm:text-base font-medium mt-1 sm:mt-2 line-clamp-2 px-1 
+                  animate-in fade-in duration-300">{category.name}</p>
               </div>
             </CarouselItem>
           ))}
@@ -734,4 +778,5 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
       </Carousel>
     </div>;
 };
+
 export default CategoryCarousel;
