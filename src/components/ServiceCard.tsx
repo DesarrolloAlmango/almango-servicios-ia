@@ -96,6 +96,27 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     name
   };
 
+  // Function to validate if category should be selected based on URL
+  const shouldSelectCategory = (categoryId: string) => {
+    const pathSegments = location.pathname.split('/').filter(segment => segment.length > 0);
+    const hasCategoryInPath = pathSegments.length === 5;
+    const categoryIdFromPath = hasCategoryInPath ? pathSegments[4] : null;
+    
+    const hasExplicitCategory = hasCategoryInPath && 
+      categoryIdFromPath && 
+      categoryIdFromPath !== id && 
+      categoryIdFromPath.trim() !== '' && 
+      categoryIdFromPath !== 'undefined';
+
+    // Block if no explicit category in URL and serviceId matches categoryId
+    if (!hasExplicitCategory && id === categoryId) {
+      console.log("ServiceCard: Blocking category selection - no explicit category in URL and serviceId matches categoryId");
+      return false;
+    }
+
+    return true;
+  };
+
   useEffect(() => {
     // Debug logging for pendingCategoryId
     if (pendingCategoryId) {
@@ -292,6 +313,13 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   // Update the fetchProducts function to include price fetching
   const fetchProducts = async (serviceId: string, categoryId: string) => {
     console.log(`ServiceCard: Fetching products for service ${serviceId} and category ${categoryId}`);
+    
+    // CRITICAL: Add validation before fetching and setting category
+    if (!shouldSelectCategory(categoryId)) {
+      console.log("ServiceCard: Blocking product fetch and category selection - validation failed");
+      return;
+    }
+    
     setIsLoading(true);
     try {
       // Call ObtenerNivel2 to get initial product data
@@ -356,7 +384,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
         setCategories(prev => prev.map(cat => cat.id === categoryId ? categoryToUpdate! : cat));
       }
 
-      // Siempre actualizar selectedCategory para mostrar los productos
+      // ONLY set selectedCategory if validation passes
       console.log("ServiceCard: Setting selected category:", categoryToUpdate);
       setSelectedCategory(categoryToUpdate);
 
@@ -386,12 +414,18 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   const handleCategorySelect = (category: Category) => {
     console.log("ServiceCard: Category selected:", category);
 
+    // CRITICAL: Add validation before proceeding
+    if (!shouldSelectCategory(category.id)) {
+      console.log("ServiceCard: Blocking category selection due to validation");
+      return false;
+    }
+
     // Set the flag to prevent closing the dialog while loading products
     categorySelectionInProgressRef.current = true;
 
     // Siempre cargamos productos primero, independientemente de si hay ubicación o no
     if (id) {
-      console.log("ServiceCard: Fetching products for category - regardless of purchase location:", category.id);
+      console.log("ServiceCard: Fetching products for category - passed validation:", category.id);
       fetchProducts(id, category.id);
 
       // Si NO hay ubicación de compra, notificamos al padre para mostrar el modal después
