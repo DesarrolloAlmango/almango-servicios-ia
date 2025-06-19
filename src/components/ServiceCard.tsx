@@ -96,9 +96,10 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     console.log("ServiceCard ID (prop):", id);
     console.log("ServiceCard name:", name);
     console.log("pendingCategoryId:", pendingCategoryId);
+    console.log("purchaseLocation:", purchaseLocation);
     console.log("Current URL:", location.pathname);
     console.log("=== End ServiceCard Debug ===");
-  }, [id, pendingCategoryId, location.pathname]);
+  }, [id, pendingCategoryId, location.pathname, purchaseLocation]);
 
   // Create a service object for the selectedService prop
   const currentService: ServiceDetails = {
@@ -121,7 +122,6 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     }
 
     // For programmatic selections, also allow all categories
-    // The restriction was causing issues when serviceId === categoryId
     console.log("Allowing category selection - programmatic selection (no restrictions)");
     return true;
   };
@@ -366,6 +366,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
         console.log(`ServiceCard: Purchase location found (${purchaseLocationId}), fetching prices immediately`);
         transformedProducts = await fetchAllPrices(transformedProducts, serviceId, categoryId, purchaseLocationId);
       }
+
       if (!categoryToUpdate) {
         // Si la categoría no existe en el estado, crear una temporal
         console.log("ServiceCard: Category not found in state, creating temporary one");
@@ -420,30 +421,29 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   };
   const handleCategorySelect = (category: Category, isUserClick: boolean = false) => {
     console.log("ServiceCard: Category selected:", category);
-
-    // Remove all blocking validation - allow all category selections
-    console.log("ServiceCard: Proceeding with category selection (no restrictions)");
+    console.log("ServiceCard: Purchase location exists:", !!purchaseLocation);
+    console.log("ServiceCard: onCategorySelect exists:", !!onCategorySelect);
 
     // Set the flag to prevent closing the dialog while loading products
     categorySelectionInProgressRef.current = true;
 
-    // Siempre cargamos productos primero, independientemente de si hay ubicación o no
-    if (id) {
-      console.log("ServiceCard: Fetching products for category:", category.id);
-      fetchProducts(id, category.id);
-
-      // Si NO hay ubicación de compra, notificamos al padre para mostrar el modal después
-      if (!purchaseLocation && onCategorySelect) {
-        console.log("ServiceCard: Calling onCategorySelect from parent - no purchase location exists");
-
-        // Usamos setTimeout para asegurarnos de que los productos se carguen primero
-        setTimeout(() => {
-          onCategorySelect(id, category.id, category.name);
-        }, 100);
+    // Check if we have a purchase location
+    if (purchaseLocation) {
+      // We have purchase location, proceed directly to load products
+      console.log("ServiceCard: Purchase location available, loading products directly");
+      if (id) {
+        fetchProducts(id, category.id);
       }
-      return true; // Return true to indicate successful processing
+    } else {
+      // No purchase location, need to trigger the location selection modal
+      console.log("ServiceCard: No purchase location, triggering location selection");
+      if (onCategorySelect && id) {
+        // Call parent to show location modal
+        onCategorySelect(id, category.id, category.name);
+      }
     }
-    return true; // Default return value
+
+    return true;
   };
   const purchaseLocationId = purchaseLocation ? purchaseLocation.storeId : undefined;
   const getCardBackground = () => {
