@@ -488,19 +488,27 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
                 <Button variant="outline" className="mt-2" onClick={() => id && fetchCategories(id)}>
                   Reintentar
                 </Button>
-              </div> : !selectedCategory ? <CategoryCarousel categories={categories} onSelectCategory={(categoryId, categoryName) => {
-            // Find the category object with the matching ID
-            const category = categories.find(cat => cat.id === categoryId);
-            if (category) {
-              handleCategorySelect(category);
-            }
-          }} selectedService={currentService} isLoading={isLoading} cartItems={currentCartItems} purchaseLocation={purchaseLocation} /> : <ProductGrid category={selectedCategory} addToCart={addToCart} onBack={() => {
-            console.log("Back to categories clicked");
-            setSelectedCategory(null);
-          }} serviceName={name} closeDialog={() => {
-            console.log("Close dialog requested from ProductGrid");
-            setIsDialogOpen(false);
-          }} serviceId={id} purchaseLocationId={purchaseLocationId} currentCartItems={currentCartItems} />}
+              </div> : !selectedCategory ? <CategoryCarousel 
+                categories={categories} 
+                onSelectCategory={(categoryId, categoryName) => {
+                  // Find the category object with the matching ID
+                  const category = categories.find(cat => cat.id === categoryId);
+                  if (category) {
+                    handleCategorySelect(category);
+                  }
+                }} 
+                selectedService={currentService} 
+                isLoading={isLoading} 
+                cartItems={currentCartItems} 
+                purchaseLocation={purchaseLocation}
+                disableAutoPreload={true} // CRITICAL: Disable auto-preload to prevent unwanted category selection
+              /> : <ProductGrid category={selectedCategory} addToCart={addToCart} onBack={() => {
+                console.log("Back to categories clicked");
+                setSelectedCategory(null);
+              }} serviceName={name} closeDialog={() => {
+                console.log("Close dialog requested from ProductGrid");
+                setIsDialogOpen(false);
+              }} serviceId={id} purchaseLocationId={purchaseLocationId} currentCartItems={currentCartItems} />}
           </div>
         </DialogContent>
       </Dialog>
