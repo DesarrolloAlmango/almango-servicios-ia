@@ -213,8 +213,10 @@ const Servicios = () => {
 
   useEffect(() => {
     if (urlServiceId && !isServicesLoading && !isLoadingMudanza) {
+      console.log("=== URL Processing Effect ===");
       console.log("URL contains serviceId parameter:", urlServiceId);
       console.log("URL categoryId parameter:", urlCategoryId);
+      console.log("Full pathname:", location.pathname);
       
       const displayedServices = isServicesError ? fallbackServices : services;
       const displayedMudanzaServices = isErrorMudanza ? fallbackMudanzaServices : mudanzaServices;
@@ -248,12 +250,14 @@ const Servicios = () => {
             categoryIdFromPath.trim() !== '' && 
             categoryIdFromPath !== 'undefined') {
           
+          console.log("=== VALID CATEGORY FOUND - Setting up auto-selection ===");
           console.log("Valid categoryId found in URL path:", categoryIdFromPath);
           setSelectedServiceId(urlServiceId);
           setSelectedCategoryId(categoryIdFromPath);
           pendingCategoryAutoClickRef.current = true;
         } else {
           // CRITICAL: Clear any previous category state when URL doesn't contain categoryId
+          console.log("=== NO CATEGORY IN URL - Clearing state ===");
           console.log("NO category in URL - clearing any previous category state");
           setSelectedCategoryId(null);
           setSelectedCategoryName(null);
@@ -265,6 +269,7 @@ const Servicios = () => {
       }
     } else if (!urlServiceId) {
       // CRITICAL: Also clear category state when there's no serviceId in URL
+      console.log("=== NO SERVICE ID - Clearing all state ===");
       console.log("No serviceId in URL - clearing all selection state");
       setSelectedServiceId(null);
       setSelectedCategoryId(null);
@@ -519,12 +524,15 @@ const Servicios = () => {
   };
 
   const handleCategorySelect = (serviceId: string, categoryId: string, categoryName: string) => {
+    console.log("=== handleCategorySelect called ===");
     console.log("handleCategorySelect called:", { serviceId, categoryId, categoryName });
     
     // CRITICAL: Prevent category selection if we're coming from URL without explicit categoryId
     const pathSegments = location.pathname.split('/').filter(segment => segment.length > 0);
     const hasCategoryInPath = pathSegments.length === 5;
     const categoryIdFromPath = hasCategoryInPath ? pathSegments[4] : null;
+    
+    console.log("Path validation:", { pathSegments, hasCategoryInPath, categoryIdFromPath });
     
     // Additional validation: only proceed if there's an explicit category in URL OR if categoryId != serviceId
     const hasExplicitCategory = hasCategoryInPath && 
@@ -533,17 +541,22 @@ const Servicios = () => {
       categoryIdFromPath.trim() !== '' && 
       categoryIdFromPath !== 'undefined';
     
+    console.log("Category validation:", { hasExplicitCategory, serviceIdMatchesCategoryId: serviceId === categoryId });
+    
     if (!hasExplicitCategory && serviceId === categoryId) {
+      console.log("=== BLOCKING CATEGORY SELECTION ===");
       console.log("Blocking category selection: no explicit category in URL and serviceId matches categoryId");
       return;
     }
     
     // If we have an explicit category in URL, ensure it matches what we're trying to select
     if (hasExplicitCategory && categoryIdFromPath !== categoryId) {
+      console.log("=== BLOCKING CATEGORY MISMATCH ===");
       console.log("Category mismatch: URL has", categoryIdFromPath, "but trying to select", categoryId);
       return;
     }
     
+    console.log("=== PROCEEDING WITH CATEGORY SELECTION ===");
     setSelectedServiceId(serviceId);
     setSelectedCategoryId(categoryId);
     setSelectedCategoryName(categoryName);
@@ -662,7 +675,25 @@ const Servicios = () => {
           categoryName,
           fromURL
         } = customEvent.detail;
+        console.log("=== openCategory Event Received ===");
         console.log("Servicios page received openCategory event:", serviceId, categoryId, categoryName, "fromURL:", fromURL);
+
+        // CRITICAL: Before processing, check if we should allow this category selection
+        const pathSegments = location.pathname.split('/').filter(segment => segment.length > 0);
+        const hasCategoryInPath = pathSegments.length === 5;
+        const categoryIdFromPath = hasCategoryInPath ? pathSegments[4] : null;
+        
+        const hasExplicitCategory = hasCategoryInPath && 
+          categoryIdFromPath && 
+          categoryIdFromPath !== serviceId && 
+          categoryIdFromPath.trim() !== '' && 
+          categoryIdFromPath !== 'undefined';
+
+        if (!hasExplicitCategory && serviceId === categoryId) {
+          console.log("=== BLOCKING openCategory Event ===");
+          console.log("Blocking openCategory event: no explicit category in URL and serviceId matches categoryId");
+          return;
+        }
 
         // Set the selected service and category IDs
         setSelectedServiceId(serviceId);
@@ -698,7 +729,7 @@ const Servicios = () => {
     return () => {
       document.removeEventListener('openCategory', handleOpenCategory);
     };
-  }, []);
+  }, [location.pathname]);
 
   if (isServicesLoading && isLoadingMudanza) {
     return <div className="min-h-screen flex flex-col">
