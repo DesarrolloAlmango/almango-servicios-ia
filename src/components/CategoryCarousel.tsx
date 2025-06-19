@@ -548,32 +548,35 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
   };
 
   // Handle category selection with global variable storage - REMOVED DEBUG MESSAGES
-  const handleCategoryClick = (category: Category) => {
-    // Store the selected category ID and name in global variables
-    lastSelectedCategoryId = category.id;
-    lastSelectedCategoryName = category.name;
-
-    // Update the local state to show the selected category
-    setSelectedCategoryName(category.name);
-
-    // Dispatch a custom event to notify any listening components about the category selection
+  const handleCategoryClick = async (category: Category) => {
+    console.log("Modal opened with category:", category.id, category.name);
+    
+    // Dispatch category selection event for other components to listen to
     const categorySelectedEvent = new CustomEvent('categorySelected', {
       detail: {
+        serviceId: selectedService?.id,
         categoryId: category.id,
-        categoryName: category.name,
-        serviceId: selectedService.id
+        categoryName: category.name
       }
     });
     document.dispatchEvent(categorySelectedEvent);
 
-    // Focus on the category card
-    focusCategoryCard(category.id);
+    // Call the parent's onSelectCategory callback and check if it was processed
+    const wasProcessed = onSelectCategory(category.id, category.name);
+    
+    // If category selection was blocked (shouldStopAutoActions), don't proceed with any automatic actions
+    if (wasProcessed === false) {
+      console.log("CategoryCarousel: Category selection was blocked, stopping all automatic actions");
+      return;
+    }
 
-    // Preload product data in the background
-    preloadProductData(category.id);
-
-    // Call the parent's onSelectCategory function
-    onSelectCategory(category.id, category.name);
+    // Preload product data
+    try {
+      console.log("Preloading products for service", selectedService?.id, "category", category.id);
+      await preloadProductData(selectedService?.id || '', category.id);
+    } catch (error) {
+      console.error("Error preloading product data:", error);
+    }
   };
 
   // Check if this category is the auto-selected one - IMPROVED
