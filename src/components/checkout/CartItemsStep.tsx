@@ -1,11 +1,10 @@
-
-
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "@/pages/Servicios";
 import ProductTermsModal from "./ProductTermsModal";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { getGlobalZoneCost } from "@/utils/globalZoneCost";
 
 export interface CartItemsStepProps {
   cartItems: CartItem[];
@@ -33,6 +32,9 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [debugEndpoint, setDebugEndpoint] = useState<string>("");
   const nextButtonRef = useRef<HTMLDivElement>(null);
+
+  // Use global zone cost if available, otherwise use prop
+  const effectiveZoneCost = getGlobalZoneCost() || zonaCostoAdicional;
 
   const handleIncreaseQuantity = (id: string, currentQuantity: number) => {
     updateCartItem(id, currentQuantity + 1);
@@ -123,7 +125,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
             </div>
             <div className="flex items-center gap-3">
               <span className="font-medium min-w-[70px] text-right">
-                ${zonaCostoAdicional.toLocaleString('es-UY', {
+                ${effectiveZoneCost.toLocaleString('es-UY', {
                   maximumFractionDigits: 0
                 })}
               </span>
@@ -132,7 +134,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
 
           <div className="flex justify-between p-4 bg-orange-50 rounded-lg text-orange-800 font-medium">
             <span>Total</span>
-            <span>${(total + zonaCostoAdicional).toLocaleString('es-UY', {
+            <span>${(total + effectiveZoneCost).toLocaleString('es-UY', {
               maximumFractionDigits: 0
             })}</span>
           </div>

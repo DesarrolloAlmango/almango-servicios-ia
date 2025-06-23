@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import CheckoutSummary from "./checkout/CheckoutSummary";
 import { CheckoutData, getProviderAuxiliary } from "@/types/checkoutTypes";
 import { getTimeSlotNumber } from "@/utils/timeUtils";
+import { getGlobalZoneCost, resetGlobalZoneCost } from "@/utils/globalZoneCost";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -178,6 +179,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     if (setPurchaseLocations) {
       setPurchaseLocations([]);
     }
+    resetGlobalZoneCost();
   };
   const handleCheckoutClose = (success: boolean) => {
     setShowSummary(false);
@@ -186,15 +188,8 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     }
   };
 
-  // Calculate zone additional cost from purchase locations
-  const zonaCostoAdicional = React.useMemo(() => {
-    if (purchaseLocations.length === 0) return 0;
-    
-    // Get the zone cost from the first purchase location
-    // (assuming all locations have the same zone cost for simplicity)
-    const firstLocation = purchaseLocations[0];
-    return firstLocation.zonaCostoAdicional ? parseFloat(firstLocation.zonaCostoAdicional) : 0;
-  }, [purchaseLocations]);
+  // Use global zone cost instead of calculating from purchase locations
+  const zonaCostoAdicional = getGlobalZoneCost();
 
   return <>
       <Sheet open={isOpen} onOpenChange={setIsOpen}>

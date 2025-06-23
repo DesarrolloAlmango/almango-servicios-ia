@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import LocationStep from "@/components/checkout/LocationStep";
 import { Textarea } from "@/components/ui/textarea";
 import { lastSelectedCategoryId, lastSelectedCategoryName } from "@/components/CategoryCarousel";
+import { setGlobalZoneCost } from "@/utils/globalZoneCost";
 
 interface Store {
   id: string;
@@ -404,6 +405,10 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       const selectedDepartmentObj = departments.find(dept => dept.id === selectedDepartment);
       const selectedLocationObj = currentMunicipalities.find(mun => mun.id === selectedLocation);
 
+      // Set the global zone cost when location is confirmed
+      const zoneCost = selectedLocationObj?.zonaCostoAdicional ? parseFloat(selectedLocationObj.zonaCostoAdicional) : 0;
+      setGlobalZoneCost(zoneCost);
+
       // Use the effective category ID from props or the global variable
       const finalCategoryId = localCategoryId || lastSelectedCategoryId || categoryId || null;
       const finalCategoryName = localCategoryName || lastSelectedCategoryName || categoryName || null;
@@ -412,7 +417,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         categoryId: finalCategoryId,
         categoryName: finalCategoryName,
         commerceId,
-        validCommerceId
+        validCommerceId,
+        zoneCost
       });
 
       // Close the modal and call onSelectLocation with zonaCostoAdicional
