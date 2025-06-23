@@ -46,6 +46,7 @@ interface Department {
 interface Municipality {
   id: string;
   name: string;
+  zonaCostoAdicional?: string; // Add this property
 }
 
 // Global variable to store the last selected category for automatic opening
@@ -289,7 +290,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       const formattedMunicipalities = data
         .map((item: any) => ({
           id: item.DepartamentoMunicipioId?.toString() || "",
-          name: item.DepartamentoMunicipioNombre?.toString() || ""
+          name: item.DepartamentoMunicipioNombre?.toString() || "",
+          zonaCostoAdicional: item.ZonaCostoAdicional?.toString() || "0.00" // Add this line
         }))
         .filter(mun => mun.id && mun.name && mun.name !== "-")
         .sort((a, b) => a.name.localeCompare(b.name));
@@ -541,6 +543,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
 
+  // Get the selected municipality to show its zone cost
+  const selectedMunicipality = currentMunicipalities.find(mun => mun.id === selectedLocation);
+
   const validCommerceId = isValidCommerceId(commerceId);
 
   return (
@@ -737,6 +742,19 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Debug section to show ZonaCostoAdicional */}
+              {selectedMunicipality && (
+                <div className="mt-4 p-3 rounded-md bg-gray-50 border border-gray-200">
+                  <h4 className="font-medium text-gray-700 mb-1">Debug - Zona Costo Adicional:</h4>
+                  <p className="text-gray-600 text-sm">
+                    Localidad: <span className="font-semibold">{selectedMunicipality.name}</span>
+                  </p>
+                  <p className="text-gray-600 text-sm">
+                    ZonaCostoAdicional: <span className="font-semibold">${selectedMunicipality.zonaCostoAdicional}</span>
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
