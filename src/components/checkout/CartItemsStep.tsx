@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "@/pages/Servicios";
@@ -110,6 +111,19 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
               </div>
             </div>
           ))}
+
+          {/* Adicional por zona - siempre mostrar */}
+          <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex-1">
+              <h4 className="font-medium">Adicional por zona</h4>
+              <p className="text-sm text-muted-foreground">Costo adicional según ubicación</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="font-medium min-w-[70px] text-right">
+                $0
+              </span>
+            </div>
+          </div>
 
           <div className="flex justify-between p-4 bg-orange-50 rounded-lg text-orange-800 font-medium">
             <span>Total</span>
