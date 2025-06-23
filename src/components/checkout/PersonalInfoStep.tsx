@@ -46,7 +46,6 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   const [paymentMethodId, setPaymentMethodId] = useState<string>("1");
   const [isDepartmentValid, setIsDepartmentValid] = useState(true);
   const [isLocationValid, setIsLocationValid] = useState(true);
-  const [selectedMunicipality, setSelectedMunicipality] = useState("");
 
   // Get global zone cost
   const zonaCostoAdicional = getGlobalZoneCost();
@@ -86,17 +85,6 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       paymentMethodId
     };
     onSubmit(data);
-  };
-
-  const handleDepartmentChange = (value: string) => {
-    setSelectedDepartment(value);
-    setIsDepartmentValid(true);
-    setSelectedLocation("");
-  };
-
-  const handleLocationChange = (value: string) => {
-    setSelectedLocation(value);
-    setIsLocationValid(true);
   };
 
   return (
@@ -182,7 +170,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
         <div className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="department">Departamento</Label>
-            <Select onValueChange={handleDepartmentChange} defaultValue={selectedDepartment}>
+            <Select value={selectedDepartment} disabled>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Selecciona un departamento" />
               </SelectTrigger>
@@ -202,7 +190,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
           {selectedDepartment && municipalities[selectedDepartment] && municipalities[selectedDepartment].length > 0 && (
             <div className="grid gap-2">
               <Label htmlFor="location">Localidad</Label>
-              <Select onValueChange={handleLocationChange} value={selectedLocation}>
+              <Select value={selectedLocation} disabled>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Selecciona una localidad" />
                 </SelectTrigger>
