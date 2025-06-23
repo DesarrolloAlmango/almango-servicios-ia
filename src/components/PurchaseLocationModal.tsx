@@ -591,8 +591,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                 </Select>
               </div>
 
-              {/* Debug section to show ZonaCostoAdicional */}
-              {selectedMunicipality && <div className="mt-4 p-3 rounded-md bg-gray-50 border border-gray-200">
+              {/* Debug section to show ZonaCostoAdicional - only show if value > 0 */}
+              {selectedMunicipality && parseFloat(selectedMunicipality.zonaCostoAdicional) > 0 && <div className="mt-4 p-3 rounded-md bg-gray-50 border border-gray-200">
                   <h4 className="font-medium text-gray-700 mb-1 mx-0">Costo adicional por zona:</h4>
                   <p className="text-gray-600 text-sm">
                     Localidad: <span className="font-semibold">{selectedMunicipality.name}</span>
