@@ -76,7 +76,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     purchaseLocations.forEach(location => {
       if (location.zonaCostoAdicional && location.zonaCostoAdicional > 0) {
         const zoneCostItem: CartItem = {
-          id: `zone-cost-${location.serviceId}`,
+          id: `zone-cost-${location.serviceId || 'general'}`,
           name: "Adicional por zona",
           price: location.zonaCostoAdicional,
           quantity: 1,
@@ -85,7 +85,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           productId: "",
           serviceCategory: location.serviceName || "Costo adicional",
           textosId: null,
-          image: "" // Add missing image property
+          image: ""
         };
         filteredItems.push(zoneCostItem);
       }

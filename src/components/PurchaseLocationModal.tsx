@@ -295,7 +295,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         .map((item: any) => ({
           id: item.DepartamentoMunicipioId?.toString() || "",
           name: item.DepartamentoMunicipioNombre?.toString() || "",
-          zonaCostoAdicional: Number(item.ZonaCostoAdicional) || 0
+          zonaCostoAdicional: parseFloat(item.ZonaCostoAdicional) || 0
         }))
         .filter(mun => mun.id && mun.name && mun.name !== "-")
         .sort((a, b) => a.name.localeCompare(b.name));
@@ -564,7 +564,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       }
     }}>
       <DialogContent className="sm:max-w-md">
-        {/* Add DialogTitle to fix accessibility warning */}
         <DialogTitle className="sr-only">Selección de lugar de compra</DialogTitle>
         
         {!validCommerceId && (
@@ -591,7 +590,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             buttonText={isConfirming ? "Procesando..." : "Confirmar"}
             showStoreSection={true}
             storeName={isLoadingCommerceName ? "Cargando..." : (fetchedCommerceName || commerceName || "Comercio seleccionado")}
-            categoryId={undefined} // Remove automatic category opening
+            categoryId={undefined}
             onLocationSelected={handleLocationSelected}
           />
         ) : (
@@ -701,7 +700,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   onValueChange={(value) => {
                     setSelectedDepartment(value);
                     setSelectedLocation("");
-                    // Close keyboard when selecting from dropdown
+                    setSelectedZonaCostoAdicional(0);
                     closeKeyboard();
                   }}
                   disabled={loadingLocation.departments}
@@ -729,7 +728,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   value={selectedLocation} 
                   onValueChange={(value) => {
                     setSelectedLocation(value);
-                    // Close keyboard when selecting from dropdown
+                    // Find the selected municipality and set zone cost
+                    const selectedMunicipality = currentMunicipalities.find(m => m.id === value);
+                    setSelectedZonaCostoAdicional(selectedMunicipality?.zonaCostoAdicional || 0);
                     closeKeyboard();
                   }}
                   disabled={!selectedDepartment || loadingLocation.municipalities}
@@ -746,6 +747,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                       {currentMunicipalities.map(municipality => (
                         <SelectItem key={municipality.id} value={municipality.id}>
                           {municipality.name}
+                          {municipality.zonaCostoAdicional && municipality.zonaCostoAdicional > 0 && (
+                            <span className="text-orange-600 text-xs ml-2">
+                              (+${municipality.zonaCostoAdicional})
+                            </span>
+                          )}
                         </SelectItem>
                       ))}
                     </ScrollArea>
