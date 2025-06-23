@@ -84,7 +84,8 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           categoryId: "",
           productId: "",
           serviceCategory: location.serviceName || "Costo adicional",
-          textosId: null
+          textosId: null,
+          image: "" // Add missing image property
         };
         filteredItems.push(zoneCostItem);
       }
