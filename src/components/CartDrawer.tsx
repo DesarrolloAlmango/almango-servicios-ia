@@ -109,6 +109,30 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
       maximumFractionDigits: 0 
     });
   };
+
+  // Calculate additional zone costs
+  const getAdditionalZoneCosts = () => {
+    const serviceIds = [...new Set(cartItems.map(item => item.serviceId))];
+    let totalAdditionalCost = 0;
+    
+    serviceIds.forEach(serviceId => {
+      if (serviceId) {
+        const location = purchaseLocations.find(loc => loc.serviceId === serviceId);
+        if (location && location.zonaCostoAdicional) {
+          const additionalCost = parseFloat(location.zonaCostoAdicional);
+          if (additionalCost > 0) {
+            totalAdditionalCost += additionalCost;
+          }
+        }
+      }
+    });
+    
+    return totalAdditionalCost;
+  };
+
+  const totalAdditionalCost = getAdditionalZoneCosts();
+  const finalTotal = total + totalAdditionalCost;
+
   const handleSubmit = (data: any) => {
     const serviceGroups = cartItems.reduce((acc: Record<string, any[]>, item) => {
       const location = purchaseLocations.find(loc => loc.serviceId === item.serviceId);
@@ -126,7 +150,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
 
     const checkoutDataArray: CheckoutData[] = Object.entries(serviceGroups).map(([serviceId, items]) => {
       const location = items[0].location;
-      const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const itemsTotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      
+      // Add additional zone cost for this service
+      const additionalZoneCost = location.zonaCostoAdicional ? parseFloat(location.zonaCostoAdicional) : 0;
+      const serviceTotal = itemsTotal + (additionalZoneCost > 0 ? additionalZoneCost : 0);
 
       const formattedData: CheckoutData = {
         Nombre: data.name,
@@ -139,7 +167,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         Direccion: `${data.street} ${data.number}${data.apartment ? ` Apto ${data.apartment}` : ''}${data.corner ? ` esq. ${data.corner}` : ''}`,
         MetodoPagosID: data.paymentMethodId || 0, // Use the paymentMethodId from PersonalInfoStep
         SolicitudPagada: "",
-        SolicitaCotizacion: total.toString(),
+        SolicitaCotizacion: serviceTotal.toString(),
         SolicitaOtroServicio: "",
         OtroServicioDetalle: "",
         FechaInstalacion: format(selectedDate!, "yyyy-MM-dd'T'HH:mm:ss"),
@@ -167,6 +195,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
     setCheckoutData(checkoutDataArray);
     setShowSummary(true);
   };
+
   const resetCheckoutForm = () => {
     setCurrentStep(0);
     setSelectedDate(undefined);
@@ -202,11 +231,18 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                 <StepIndicator currentStep={currentStep} totalSteps={3} />
                 
                 <div className="flex-grow">
-                  {currentStep === 0 && <CartItemsStep cartItems={cartItems} updateCartItem={updateCartItem} total={total} onNext={handleNextStep} onPrevious={handlePreviousStep} />}
+                  {currentStep === 0 && <CartItemsStep 
+                    cartItems={cartItems} 
+                    updateCartItem={updateCartItem} 
+                    total={total} 
+                    onNext={handleNextStep} 
+                    onPrevious={handlePreviousStep}
+                    purchaseLocations={purchaseLocations}
+                  />}
                   
                   {currentStep === 1 && <DateTimeStep selectedDate={selectedDate} setSelectedDate={setSelectedDate} selectedTimeSlot={selectedTimeSlot} setSelectedTimeSlot={setSelectedTimeSlot} onPrevious={handlePreviousStep} onNext={handleNextStep} />}
                   
-                  {currentStep === 2 && <PersonalInfoStep onPrevious={handlePreviousStep} onSubmit={handleSubmit} cartItems={cartItems} total={total} selectedDate={selectedDate} selectedTimeSlot={selectedTimeSlot} selectedDepartment="" selectedLocation="" departments={departments || []} municipalities={municipalities || {}} />}
+                  {currentStep === 2 && <PersonalInfoStep onPrevious={handlePreviousStep} onSubmit={handleSubmit} cartItems={cartItems} total={finalTotal} selectedDate={selectedDate} selectedTimeSlot={selectedTimeSlot} selectedDepartment="" selectedLocation="" departments={departments || []} municipalities={municipalities || {}} />}
                 </div>
               </>}
           </div>

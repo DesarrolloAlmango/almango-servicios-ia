@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "@/pages/Servicios";
@@ -11,6 +12,18 @@ export interface CartItemsStepProps {
   total: number;
   onNext: () => void;
   onPrevious: () => void;
+  purchaseLocations?: {
+    storeId: string;
+    storeName: string;
+    otherLocation?: string;
+    serviceId?: string;
+    serviceName?: string;
+    departmentId?: string;
+    locationId?: string;
+    departmentName?: string;
+    locationName?: string;
+    zonaCostoAdicional?: string;
+  }[];
 }
 
 interface SelectedTerms {
@@ -23,7 +36,8 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
   updateCartItem,
   total,
   onNext,
-  onPrevious
+  onPrevious,
+  purchaseLocations = []
 }) => {
   const [selectedTerms, setSelectedTerms] = useState<SelectedTerms | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -69,6 +83,34 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
     });
   };
 
+  // Get additional zone costs for services that have items in cart
+  const getAdditionalZoneCosts = () => {
+    const serviceIds = [...new Set(cartItems.map(item => item.serviceId))];
+    const additionalCosts: Array<{serviceId: string, serviceName: string, zonaCostoAdicional: number}> = [];
+    
+    serviceIds.forEach(serviceId => {
+      if (serviceId) {
+        const location = purchaseLocations.find(loc => loc.serviceId === serviceId);
+        if (location && location.zonaCostoAdicional) {
+          const additionalCost = parseFloat(location.zonaCostoAdicional);
+          if (additionalCost > 0) {
+            additionalCosts.push({
+              serviceId,
+              serviceName: location.serviceName || `Servicio ${serviceId}`,
+              zonaCostoAdicional: additionalCost
+            });
+          }
+        }
+      }
+    });
+    
+    return additionalCosts;
+  };
+
+  const additionalZoneCosts = getAdditionalZoneCosts();
+  const totalAdditionalCost = additionalZoneCosts.reduce((sum, cost) => sum + cost.zonaCostoAdicional, 0);
+  const finalTotal = total + totalAdditionalCost;
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -111,9 +153,27 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
             </div>
           ))}
 
+          {/* Display additional zone costs */}
+          {additionalZoneCosts.map(cost => (
+            <div key={cost.serviceId} className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+              <div className="flex-1">
+                <h4 className="font-medium">Adicional por zona</h4>
+                <p className="text-sm text-muted-foreground">{cost.serviceName}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground">Costo fijo</span>
+                <span className="font-medium min-w-[70px] text-right">
+                  ${cost.zonaCostoAdicional.toLocaleString('es-UY', {
+                    maximumFractionDigits: 0
+                  })}
+                </span>
+              </div>
+            </div>
+          ))}
+
           <div className="flex justify-between p-4 bg-orange-50 rounded-lg text-orange-800 font-medium">
             <span>Total</span>
-            <span>${total.toLocaleString('es-UY', {
+            <span>${finalTotal.toLocaleString('es-UY', {
               maximumFractionDigits: 0
             })}</span>
           </div>
