@@ -26,8 +26,7 @@ interface PurchaseLocationModalProps {
     departmentName: string,
     locationId: string,
     locationName: string,
-    otherLocation?: string,
-    zonaCostoAdicional?: number
+    otherLocation?: string
   ) => void;
   stores?: Store[];
   serviceName?: string;
@@ -47,7 +46,6 @@ interface Department {
 interface Municipality {
   id: string;
   name: string;
-  zonaCostoAdicional?: number;
 }
 
 // Global variable to store the last selected category for automatic opening
@@ -82,7 +80,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const [municipalities, setMunicipalities] = useState<Record<string, Municipality[]>>({});
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
-  const [selectedZonaCostoAdicional, setSelectedZonaCostoAdicional] = useState<number>(0);
   const [loadingLocation, setLoadingLocation] = useState({
     departments: false,
     municipalities: false
@@ -174,7 +171,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       setShowOtherInput(false);
       setSelectedDepartment("");
       setSelectedLocation("");
-      setSelectedZonaCostoAdicional(0);
       setSearchQuery(validCommerceId ? (commerceName || "") : "");
       
       // Set local category state from props or global variable
@@ -279,7 +275,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const fetchMunicipalities = async (departmentId: string) => {
     setLoadingLocation(prev => ({...prev, municipalities: true}));
     setSelectedLocation("");
-    setSelectedZonaCostoAdicional(0);
     try {
       const response = await fetch(
         `https://app.almango.com.uy/WebAPI/ObtenerMunicipio?DepartamentoId=${departmentId}`
@@ -294,8 +289,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       const formattedMunicipalities = data
         .map((item: any) => ({
           id: item.DepartamentoMunicipioId?.toString() || "",
-          name: item.DepartamentoMunicipioNombre?.toString() || "",
-          zonaCostoAdicional: parseFloat(item.ZonaCostoAdicional) || 0
+          name: item.DepartamentoMunicipioNombre?.toString() || ""
         }))
         .filter(mun => mun.id && mun.name && mun.name !== "-")
         .sort((a, b) => a.name.localeCompare(b.name));
@@ -411,12 +405,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     e.preventDefault();
   };
 
-  // Handle location selection with zone cost
-  const handleLocationSelected = (locationId: string, zonaCostoAdicional: number) => {
-    setSelectedLocation(locationId);
-    setSelectedZonaCostoAdicional(zonaCostoAdicional);
-  };
-
   // Add state for tracking if we're in the process of confirming
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -474,8 +462,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         categoryId: finalCategoryId,
         categoryName: finalCategoryName,
         commerceId,
-        validCommerceId,
-        zonaCostoAdicional: selectedZonaCostoAdicional
+        validCommerceId
       });
       
       // Close the modal and call onSelectLocation right away
@@ -487,8 +474,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         selectedDepartmentObj?.name || "",
         selectedLocation,
         selectedLocationObj?.name || "",
-        selectedStore === "other" ? otherStore || searchQuery : undefined,
-        selectedZonaCostoAdicional
+        selectedStore === "other" ? otherStore || searchQuery : undefined
       );
       
       // RESTORED: When validCommerceId is present, dispatch event to open products AFTER location is confirmed
@@ -564,6 +550,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       }
     }}>
       <DialogContent className="sm:max-w-md">
+        {/* Add DialogTitle to fix accessibility warning */}
         <DialogTitle className="sr-only">Selección de lugar de compra</DialogTitle>
         
         {!validCommerceId && (
@@ -590,8 +577,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             buttonText={isConfirming ? "Procesando..." : "Confirmar"}
             showStoreSection={true}
             storeName={isLoadingCommerceName ? "Cargando..." : (fetchedCommerceName || commerceName || "Comercio seleccionado")}
-            categoryId={undefined}
-            onLocationSelected={handleLocationSelected}
+            categoryId={undefined} // Remove automatic category opening
           />
         ) : (
           <div className="space-y-4">
@@ -700,7 +686,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   onValueChange={(value) => {
                     setSelectedDepartment(value);
                     setSelectedLocation("");
-                    setSelectedZonaCostoAdicional(0);
+                    // Close keyboard when selecting from dropdown
                     closeKeyboard();
                   }}
                   disabled={loadingLocation.departments}
@@ -728,9 +714,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                   value={selectedLocation} 
                   onValueChange={(value) => {
                     setSelectedLocation(value);
-                    // Find the selected municipality and set zone cost
-                    const selectedMunicipality = currentMunicipalities.find(m => m.id === value);
-                    setSelectedZonaCostoAdicional(selectedMunicipality?.zonaCostoAdicional || 0);
+                    // Close keyboard when selecting from dropdown
                     closeKeyboard();
                   }}
                   disabled={!selectedDepartment || loadingLocation.municipalities}
@@ -747,11 +731,6 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                       {currentMunicipalities.map(municipality => (
                         <SelectItem key={municipality.id} value={municipality.id}>
                           {municipality.name}
-                          {municipality.zonaCostoAdicional && municipality.zonaCostoAdicional > 0 && (
-                            <span className="text-orange-600 text-xs ml-2">
-                              (+${municipality.zonaCostoAdicional})
-                            </span>
-                          )}
                         </SelectItem>
                       ))}
                     </ScrollArea>

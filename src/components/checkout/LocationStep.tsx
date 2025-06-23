@@ -18,7 +18,6 @@ interface LocationStepProps {
   municipalities: Record<string, Array<{
     id: string;
     name: string;
-    zonaCostoAdicional?: number;
   }>>;
   loading: {
     departments: boolean;
@@ -30,7 +29,6 @@ interface LocationStepProps {
   showStoreSection?: boolean;
   storeName?: string;
   categoryId?: string;
-  onLocationSelected?: (locationId: string, zonaCostoAdicional: number) => void;
 }
 
 const LocationStep: React.FC<LocationStepProps> = ({
@@ -47,26 +45,11 @@ const LocationStep: React.FC<LocationStepProps> = ({
   buttonText = "Siguiente",
   showStoreSection = false,
   storeName,
-  categoryId,
-  onLocationSelected
+  categoryId
 }) => {
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartment(value);
     setSelectedLocation("");
-  };
-
-  const handleLocationChange = (value: string) => {
-    setSelectedLocation(value);
-    
-    // Find the selected municipality and get its zonaCostoAdicional
-    const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
-    const selectedMunicipality = currentMunicipalities.find(m => m.id === value);
-    const zonaCostoAdicional = selectedMunicipality?.zonaCostoAdicional || 0;
-    
-    // Call the callback if provided
-    if (onLocationSelected) {
-      onLocationSelected(value, zonaCostoAdicional);
-    }
   };
 
   const handleNextWithDelay = () => {
@@ -157,7 +140,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
           </label>
           <Select 
             value={selectedLocation} 
-            onValueChange={handleLocationChange} 
+            onValueChange={setSelectedLocation} 
             disabled={!selectedDepartment || loading.municipalities}
           >
             <SelectTrigger className="w-full">
