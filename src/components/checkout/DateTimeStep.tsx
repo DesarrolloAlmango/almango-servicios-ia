@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -111,20 +110,27 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
           <div ref={timeSlotsRef}>
             <h4 className="font-medium mb-2">Elige un horario</h4>
             {availableTimeSlots.length > 0 ? (
-              <RadioGroup 
-                value={selectedTimeSlot} 
-                onValueChange={setSelectedTimeSlot}
-                className="grid grid-cols-1 md:grid-cols-3 gap-2"
-              >
-                {availableTimeSlots.map((slot) => (
-                  <div key={slot} className="flex items-center space-x-2">
-                    <RadioGroupItem value={slot} id={`slot-${slot}`} />
-                    <Label htmlFor={`slot-${slot}`} className="cursor-pointer">
-                      {slot}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
+              <>
+                <RadioGroup 
+                  value={selectedTimeSlot} 
+                  onValueChange={setSelectedTimeSlot}
+                  className="grid grid-cols-1 md:grid-cols-3 gap-2"
+                >
+                  {availableTimeSlots.map((slot) => (
+                    <div key={slot} className="flex items-center space-x-2">
+                      <RadioGroupItem value={slot} id={`slot-${slot}`} />
+                      <Label htmlFor={`slot-${slot}`} className="cursor-pointer">
+                        {slot}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                  <p className="text-sm text-blue-700 text-center">
+                    En caso de coordinación web, confirme disponibilidad telefónicamente.
+                  </p>
+                </div>
+              </>
             ) : (
               <div className="text-center py-4 text-red-500">
                 No hay horarios disponibles para la fecha seleccionada. Por favor, elige otro día.
