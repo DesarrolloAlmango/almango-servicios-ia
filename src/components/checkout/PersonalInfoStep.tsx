@@ -35,6 +35,7 @@ import {
 import { toast } from "sonner";
 import { GeneralTermsModal } from "@/components/ui/general-terms-modal";
 import { useParams } from "react-router-dom";
+import { getGlobalZoneCost } from "@/utils/globalZoneCost";
 
 // Create base schema without paymentMethod
 const baseFormSchema = z.object({
@@ -292,6 +293,9 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     });
   };
 
+  const zoneCost = getGlobalZoneCost();
+  const totalWithZoneCost = total + zoneCost;
+
   return (
     <div className="space-y-6">
       <div className="text-center mb-6">
@@ -300,7 +304,6 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
         <p className="text-muted-foreground">Completa tus datos para finalizar</p>
       </div>
 
-      {/* ... keep existing code (Accordion with order summary) */}
       <Accordion type="single" collapsible className="mb-6 border rounded-md">
         <AccordionItem value="order-summary">
           <AccordionTrigger className="px-4 py-2">
@@ -355,9 +358,15 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                   </li>
                 ))}
               </ul>
+              {zoneCost > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span>Adicional por zona</span>
+                  <span className="font-medium">${formatPrice(zoneCost)}</span>
+                </div>
+              )}
               <div className="flex justify-between font-medium pt-2 border-t mt-2">
                 <span>Total</span>
-                <span>${formatPrice(total)}</span>
+                <span>${formatPrice(totalWithZoneCost)}</span>
               </div>
             </div>
           </AccordionContent>
@@ -366,7 +375,6 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-          {/* ... keep existing code (form fields for name, phone, email, address, comments) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
