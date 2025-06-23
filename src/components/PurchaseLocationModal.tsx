@@ -18,7 +18,7 @@ interface Store {
 interface PurchaseLocationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectLocation: (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string) => void;
+  onSelectLocation: (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string, zonaCostoAdicional?: string) => void;
   stores?: Store[];
   serviceName?: string;
   commerceId?: string;
@@ -415,9 +415,18 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         validCommerceId
       });
 
-      // Close the modal and call onSelectLocation right away
+      // Close the modal and call onSelectLocation with zonaCostoAdicional
       onClose();
-      onSelectLocation(storeId, storeName, selectedDepartment, selectedDepartmentObj?.name || "", selectedLocation, selectedLocationObj?.name || "", selectedStore === "other" ? otherStore || searchQuery : undefined);
+      onSelectLocation(
+        storeId, 
+        storeName, 
+        selectedDepartment, 
+        selectedDepartmentObj?.name || "", 
+        selectedLocation, 
+        selectedLocationObj?.name || "", 
+        selectedStore === "other" ? otherStore || searchQuery : undefined,
+        selectedLocationObj?.zonaCostoAdicional || "0"
+      );
 
       // RESTORED: When validCommerceId is present, dispatch event to open products AFTER location is confirmed
       // For manual flow (no valid commerceId), the normal flow continues as before
