@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import LocationStep from "@/components/checkout/LocationStep";
 import { Textarea } from "@/components/ui/textarea";
 import { lastSelectedCategoryId, lastSelectedCategoryName } from "@/components/CategoryCarousel";
+
 interface Store {
   id: string;
   name: string;
@@ -597,7 +598,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
                     Localidad: <span className="font-semibold">{selectedMunicipality.name}</span>
                   </p>
                   <p className="text-gray-600 text-sm">
-                    ZonaCostoAdicional: <span className="font-semibold">${selectedMunicipality.zonaCostoAdicional}</span>
+                    Adicional: <span className="font-semibold">${selectedMunicipality.zonaCostoAdicional}</span>
                   </p>
                 </div>}
             </div>
