@@ -1,6 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
 import CategoryCarousel from '@/components/CategoryCarousel';
-import ProductCarousel from '@/components/ProductCarousel';
 import PurchaseLocationModal from '@/components/PurchaseLocationModal';
 import CartDrawer from '@/components/CartDrawer';
 import { Button } from "@/components/ui/button"
@@ -18,6 +18,8 @@ export interface CartItem {
   serviceCategory: string;
   textosId: string | null;
   image: string;
+  departmentId?: string;
+  locationId?: string;
 }
 
 const ServiciosPage: React.FC = () => {
@@ -113,6 +115,37 @@ const ServiciosPage: React.FC = () => {
       } else {
         setPurchaseLocations([...purchaseLocations, newLocation]);
       }
+
+      // Add zone cost item to cart if applicable
+      if (zonaCostoAdicional && zonaCostoAdicional > 0) {
+        const zoneCostItem: CartItem = {
+          id: `zone-cost-${lastSelectedServiceId}`,
+          name: "Adicional por zona",
+          price: zonaCostoAdicional,
+          quantity: 1,
+          serviceId: lastSelectedServiceId,
+          categoryId: lastSelectedCategoryId,
+          productId: "",
+          serviceCategory: "Adicional",
+          textosId: null,
+          image: "",
+          departmentId,
+          locationId
+        };
+
+        // Remove existing zone cost item for this service if any
+        const filteredCartItems = cartItems.filter(item => 
+          !(item.name === "Adicional por zona" && item.serviceId === lastSelectedServiceId)
+        );
+
+        setCartItems([...filteredCartItems, zoneCostItem]);
+      } else {
+        // Remove zone cost item if zone cost is 0
+        const filteredCartItems = cartItems.filter(item => 
+          !(item.name === "Adicional por zona" && item.serviceId === lastSelectedServiceId)
+        );
+        setCartItems(filteredCartItems);
+      }
       
       setLocationModalOpen(false);
       toast.success("Ubicación confirmada");
@@ -125,14 +158,18 @@ const ServiciosPage: React.FC = () => {
     <div className="container mx-auto py-8">
       <h1 className="text-2xl font-bold mb-4">Nuestros Servicios</h1>
       
-      <CategoryCarousel onCategorySelect={handleCategorySelect} />
+      <CategoryCarousel />
       
       {lastSelectedCategoryId && (
         <>
           <h2 className="text-xl font-semibold mt-6 mb-2">
-            Productos Destacados
+            Productos Destacados para {lastSelectedCategoryName}
           </h2>
-          <ProductCarousel categoryId={lastSelectedCategoryId} onAddToCart={addToCart} />
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">
+              Funcionalidad de productos en desarrollo
+            </p>
+          </div>
         </>
       )}
 
@@ -169,4 +206,3 @@ const ServiciosPage: React.FC = () => {
 };
 
 export default ServiciosPage;
-export { lastSelectedCategoryId, lastSelectedCategoryName };
