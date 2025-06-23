@@ -1,4 +1,5 @@
 
+
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { CartItem } from "@/pages/Servicios";
@@ -12,6 +13,7 @@ export interface CartItemsStepProps {
   total: number;
   onNext: () => void;
   onPrevious: () => void;
+  zonaCostoAdicional?: number;
 }
 
 interface SelectedTerms {
@@ -24,7 +26,8 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
   updateCartItem,
   total,
   onNext,
-  onPrevious
+  onPrevious,
+  zonaCostoAdicional = 0
 }) => {
   const [selectedTerms, setSelectedTerms] = useState<SelectedTerms | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -120,14 +123,16 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
             </div>
             <div className="flex items-center gap-3">
               <span className="font-medium min-w-[70px] text-right">
-                $0
+                ${zonaCostoAdicional.toLocaleString('es-UY', {
+                  maximumFractionDigits: 0
+                })}
               </span>
             </div>
           </div>
 
           <div className="flex justify-between p-4 bg-orange-50 rounded-lg text-orange-800 font-medium">
             <span>Total</span>
-            <span>${total.toLocaleString('es-UY', {
+            <span>${(total + zonaCostoAdicional).toLocaleString('es-UY', {
               maximumFractionDigits: 0
             })}</span>
           </div>

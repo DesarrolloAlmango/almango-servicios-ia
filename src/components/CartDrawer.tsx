@@ -29,6 +29,7 @@ interface CartDrawerProps {
     locationId?: string;
     departmentName?: string;
     locationName?: string;
+    zonaCostoAdicional?: string;
   }[];
   setPurchaseLocations?: (locations: any[]) => void;
 }
@@ -184,6 +185,17 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
       resetCheckoutForm();
     }
   };
+
+  // Calculate zone additional cost from purchase locations
+  const zonaCostoAdicional = React.useMemo(() => {
+    if (purchaseLocations.length === 0) return 0;
+    
+    // Get the zone cost from the first purchase location
+    // (assuming all locations have the same zone cost for simplicity)
+    const firstLocation = purchaseLocations[0];
+    return firstLocation.zonaCostoAdicional ? parseFloat(firstLocation.zonaCostoAdicional) : 0;
+  }, [purchaseLocations]);
+
   return <>
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent className="w-full sm:max-w-md overflow-y-auto">
@@ -202,7 +214,14 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
                 <StepIndicator currentStep={currentStep} totalSteps={3} />
                 
                 <div className="flex-grow">
-                  {currentStep === 0 && <CartItemsStep cartItems={cartItems} updateCartItem={updateCartItem} total={total} onNext={handleNextStep} onPrevious={handlePreviousStep} />}
+                  {currentStep === 0 && <CartItemsStep 
+                    cartItems={cartItems} 
+                    updateCartItem={updateCartItem} 
+                    total={total} 
+                    onNext={handleNextStep} 
+                    onPrevious={handlePreviousStep}
+                    zonaCostoAdicional={zonaCostoAdicional}
+                  />}
                   
                   {currentStep === 1 && <DateTimeStep selectedDate={selectedDate} setSelectedDate={setSelectedDate} selectedTimeSlot={selectedTimeSlot} setSelectedTimeSlot={setSelectedTimeSlot} onPrevious={handlePreviousStep} onNext={handleNextStep} />}
                   
