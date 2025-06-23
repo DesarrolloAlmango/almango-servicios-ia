@@ -29,9 +29,11 @@ interface CartDrawerProps {
     locationId?: string;
     departmentName?: string;
     locationName?: string;
+    zonaCostoAdicional?: string;
   }[];
   setPurchaseLocations?: (locations: any[]) => void;
 }
+
 interface Department {
   id: string;
   name: string;
