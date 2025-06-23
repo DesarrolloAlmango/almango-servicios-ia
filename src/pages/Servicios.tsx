@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import CategoryCarousel from '@/components/CategoryCarousel';
 import PurchaseLocationModal from '@/components/PurchaseLocationModal';
@@ -69,12 +68,11 @@ const ServiciosPage: React.FC = () => {
     setCartItems([]);
   };
 
-  const handleCategorySelect = (serviceId: string, categoryId: string, categoryName: string, commerceId?: string, commerceName?: string) => {
-    setLastSelectedServiceId(serviceId);
+  const handleCategorySelect = (categoryId: string, categoryName: string) => {
     setLastSelectedCategoryId(categoryId);
     setLastSelectedCategoryName(categoryName);
-    setCommerceId(commerceId);
-    setCommerceName(commerceName);
+    // For now, we'll use a default service ID since CategoryCarousel expects this format
+    setLastSelectedServiceId('1'); // You may need to adjust this based on your actual service logic
     setLocationModalOpen(true);
   };
 
@@ -137,7 +135,7 @@ const ServiciosPage: React.FC = () => {
         const filteredCartItems = cartItems.filter(item => 
           !(item.name === "Adicional por zona" && item.serviceId === lastSelectedServiceId)
         );
-
+        
         setCartItems([...filteredCartItems, zoneCostItem]);
       } else {
         // Remove zone cost item if zone cost is 0
@@ -158,7 +156,12 @@ const ServiciosPage: React.FC = () => {
     <div className="container mx-auto py-8">
       <h1 className="text-2xl font-bold mb-4">Nuestros Servicios</h1>
       
-      <CategoryCarousel />
+      <CategoryCarousel 
+        categories={[]} 
+        onSelectCategory={handleCategorySelect}
+        selectedService={{ id: lastSelectedServiceId, name: "Servicio Seleccionado" }}
+        isLoading={false}
+      />
       
       {lastSelectedCategoryId && (
         <>
