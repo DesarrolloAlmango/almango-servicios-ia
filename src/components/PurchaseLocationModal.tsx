@@ -26,7 +26,8 @@ interface PurchaseLocationModalProps {
     departmentName: string,
     locationId: string,
     locationName: string,
-    otherLocation?: string
+    otherLocation?: string,
+    zonaCostoAdicional?: number
   ) => void;
   stores?: Store[];
   serviceName?: string;
@@ -46,6 +47,7 @@ interface Department {
 interface Municipality {
   id: string;
   name: string;
+  zonaCostoAdicional?: number;
 }
 
 // Global variable to store the last selected category for automatic opening
@@ -80,6 +82,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const [municipalities, setMunicipalities] = useState<Record<string, Municipality[]>>({});
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("");
+  const [selectedZonaCostoAdicional, setSelectedZonaCostoAdicional] = useState<number>(0);
   const [loadingLocation, setLoadingLocation] = useState({
     departments: false,
     municipalities: false
@@ -171,6 +174,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       setShowOtherInput(false);
       setSelectedDepartment("");
       setSelectedLocation("");
+      setSelectedZonaCostoAdicional(0);
       setSearchQuery(validCommerceId ? (commerceName || "") : "");
       
       // Set local category state from props or global variable
@@ -275,6 +279,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const fetchMunicipalities = async (departmentId: string) => {
     setLoadingLocation(prev => ({...prev, municipalities: true}));
     setSelectedLocation("");
+    setSelectedZonaCostoAdicional(0);
     try {
       const response = await fetch(
         `https://app.almango.com.uy/WebAPI/ObtenerMunicipio?DepartamentoId=${departmentId}`
@@ -289,7 +294,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       const formattedMunicipalities = data
         .map((item: any) => ({
           id: item.DepartamentoMunicipioId?.toString() || "",
-          name: item.DepartamentoMunicipioNombre?.toString() || ""
+          name: item.DepartamentoMunicipioNombre?.toString() || "",
+          zonaCostoAdicional: Number(item.ZonaCostoAdicional) || 0
         }))
         .filter(mun => mun.id && mun.name && mun.name !== "-")
         .sort((a, b) => a.name.localeCompare(b.name));
@@ -405,6 +411,12 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     e.preventDefault();
   };
 
+  // Handle location selection with zone cost
+  const handleLocationSelected = (locationId: string, zonaCostoAdicional: number) => {
+    setSelectedLocation(locationId);
+    setSelectedZonaCostoAdicional(zonaCostoAdicional);
+  };
+
   // Add state for tracking if we're in the process of confirming
   const [isConfirming, setIsConfirming] = useState(false);
 
@@ -462,7 +474,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         categoryId: finalCategoryId,
         categoryName: finalCategoryName,
         commerceId,
-        validCommerceId
+        validCommerceId,
+        zonaCostoAdicional: selectedZonaCostoAdicional
       });
       
       // Close the modal and call onSelectLocation right away
@@ -474,7 +487,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         selectedDepartmentObj?.name || "",
         selectedLocation,
         selectedLocationObj?.name || "",
-        selectedStore === "other" ? otherStore || searchQuery : undefined
+        selectedStore === "other" ? otherStore || searchQuery : undefined,
+        selectedZonaCostoAdicional
       );
       
       // RESTORED: When validCommerceId is present, dispatch event to open products AFTER location is confirmed
@@ -578,6 +592,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
             showStoreSection={true}
             storeName={isLoadingCommerceName ? "Cargando..." : (fetchedCommerceName || commerceName || "Comercio seleccionado")}
             categoryId={undefined} // Remove automatic category opening
+            onLocationSelected={handleLocationSelected}
           />
         ) : (
           <div className="space-y-4">
