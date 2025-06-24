@@ -4,6 +4,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { MapPin, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface Municipality {
+  id: string;
+  name: string;
+  zonaCostoAdicional?: string;
+}
 
 interface LocationStepProps {
   selectedDepartment: string;
@@ -15,10 +22,7 @@ interface LocationStepProps {
     id: string;
     name: string;
   }>;
-  municipalities: Record<string, Array<{
-    id: string;
-    name: string;
-  }>>;
+  municipalities: Record<string, Municipality[]>;
   loading: {
     departments: boolean;
     municipalities: boolean;
@@ -89,6 +93,9 @@ const LocationStep: React.FC<LocationStepProps> = ({
   };
 
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
+  
+  // Get the selected municipality to show its zone cost
+  const selectedMunicipality = currentMunicipalities.find(mun => mun.id === selectedLocation);
 
   return (
     <div className="space-y-6">
@@ -152,14 +159,29 @@ const LocationStep: React.FC<LocationStepProps> = ({
               } />
             </SelectTrigger>
             <SelectContent>
-              {currentMunicipalities.map(municipality => (
-                <SelectItem key={municipality.id} value={municipality.id}>
-                  {municipality.name}
-                </SelectItem>
-              ))}
+              <ScrollArea className="h-[200px]">
+                {currentMunicipalities.map(municipality => (
+                  <SelectItem key={municipality.id} value={municipality.id}>
+                    {municipality.name}
+                  </SelectItem>
+                ))}
+              </ScrollArea>
             </SelectContent>
           </Select>
         </div>
+
+        {/* Show zone cost information when a location is selected and has additional cost */}
+        {selectedMunicipality && parseFloat(selectedMunicipality.zonaCostoAdicional || '0') > 0 && (
+          <div className="mt-4 p-3 rounded-md bg-gray-50 border border-gray-200">
+            <h4 className="font-medium text-gray-700 mb-1 mx-0">Costo adicional por zona:</h4>
+            <p className="text-gray-600 text-sm">
+              Localidad: <span className="font-semibold">{selectedMunicipality.name}</span>
+            </p>
+            <p className="text-gray-600 text-sm">
+              Adicional: <span className="font-semibold">${selectedMunicipality.zonaCostoAdicional}</span>
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="flex justify-end pt-4 pb-6 mt-4">
