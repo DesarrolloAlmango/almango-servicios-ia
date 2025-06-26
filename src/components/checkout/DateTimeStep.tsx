@@ -101,7 +101,7 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
                     </div>)}
                 </RadioGroup>
                 <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                  <p className="text-sm text-blue-700 text-center">En caso de coordinación web, confirme disponibilidad mediante whatsapp.</p>
+                  <p className="text-sm text-blue-700 text-center">En caso de coordinación web, confirme disponibilidad por whatsapp.</p>
                 </div>
               </> : <div className="text-center py-4 text-red-500">
                 No hay horarios disponibles para la fecha seleccionada. Por favor, elige otro día.
