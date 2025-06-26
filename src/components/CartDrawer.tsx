@@ -149,6 +149,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         Comentario: data.comments || "",
         ConfirmarCondicionesUso: "S",
         ProveedorAuxiliar: getProviderAuxiliary(location.storeId, location.otherLocation),
+        CostoXZona: getGlobalZoneCost(),
         Level1: items.map(item => ({
           RubrosId: Number(item.serviceId),
           ProductoID: Number(item.categoryId),

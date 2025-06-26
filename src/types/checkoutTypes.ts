@@ -1,4 +1,5 @@
 
+
 export interface CheckoutItem {
   RubrosId: number;
   ProductoID: number | null;
@@ -31,6 +32,7 @@ export interface CheckoutData {
   Comentario: string;
   ConfirmarCondicionesUso: string;
   ProveedorAuxiliar: string | null;
+  CostoXZona: number;
   Level1: CheckoutItem[];
   serviceName?: string; // Service category name
 }
