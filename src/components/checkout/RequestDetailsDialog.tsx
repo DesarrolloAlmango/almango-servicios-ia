@@ -50,8 +50,9 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
     }
   };
 
-  const calcularTotal = (items: any[]): number => {
-    return items.reduce((total, item) => total + item.PrecioFinal, 0);
+  const calcularTotal = (items: any[], costoZona: number = 0): number => {
+    const itemsTotal = items.reduce((total, item) => total + item.PrecioFinal, 0);
+    return itemsTotal + costoZona;
   };
 
   return (
@@ -155,12 +156,25 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
                         <TableCell className="text-right">${formatPrice(item.PrecioFinal)}</TableCell>
                       </TableRow>
                     ))}
+                    {requestData.CostoXZona > 0 && (
+                      <TableRow>
+                        <TableCell className="font-medium">
+                          Adicional por zona
+                          <div className="text-sm text-muted-foreground">
+                            Costo adicional según ubicación
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">1</TableCell>
+                        <TableCell className="text-right">${formatPrice(requestData.CostoXZona)}</TableCell>
+                        <TableCell className="text-right">${formatPrice(requestData.CostoXZona)}</TableCell>
+                      </TableRow>
+                    )}
                   </TableBody>
                   <TableFooter>
                     <TableRow>
                       <TableCell colSpan={3} className="text-right font-semibold">Total</TableCell>
                       <TableCell className="text-right font-bold">
-                        ${formatPrice(calcularTotal(requestData.Level1))}
+                        ${formatPrice(calcularTotal(requestData.Level1, requestData.CostoXZona))}
                       </TableCell>
                     </TableRow>
                   </TableFooter>
