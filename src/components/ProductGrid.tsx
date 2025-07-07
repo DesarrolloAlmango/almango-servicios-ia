@@ -5,6 +5,7 @@ import { Skeleton, PriceSkeleton, TextSkeleton } from "./ui/skeleton";
 import { toast } from "sonner";
 import { ArrowLeft, ShoppingCart, RefreshCw } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import ProductTermsModal from "./checkout/ProductTermsModal";
 
 interface CartItem {
   id: string;
@@ -20,12 +21,14 @@ interface CartItem {
   locationId?: string;
   textosId?: string | null;
 }
+
 interface Category {
   id: string;
   name: string;
   image: string;
   products: Product[];
 }
+
 interface Product {
   id: string;
   name: string;
@@ -35,6 +38,7 @@ interface Product {
   defaultPrice?: number;
   textosId?: string;
 }
+
 interface ProductCardProps {
   product: Product;
   quantity: number;
@@ -47,7 +51,9 @@ interface ProductCardProps {
   isPriceLoading?: boolean;
   hasPurchaseLocation: boolean;
   onBackToCategories: () => void;
+  onShowTerms?: (product: Product) => void;
 }
+
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
   quantity,
@@ -59,7 +65,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   categoryId,
   isPriceLoading = false,
   hasPurchaseLocation,
-  onBackToCategories
+  onBackToCategories,
+  onShowTerms
 }) => {
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -89,6 +96,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
       onBackToCategories();
     } else if (isPriceLoading || product.price === 0) {
       toast.info("Esperando carga de precios...");
+    }
+  };
+
+  const handleServiceInfoClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onShowTerms) {
+      onShowTerms(product);
     }
   };
 
@@ -174,7 +188,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           
           <span 
             className="text-xs text-blue-600 hover:text-blue-800 cursor-pointer underline select-text text-center"
-            onClick={(e) => e.stopPropagation()}
+            onClick={handleServiceInfoClick}
           >
             ¿Qué incluye el servicio?
           </span>
@@ -195,6 +209,7 @@ interface ProductGridProps {
   currentCartItems: CartItem[];
   onOpenLocationModal?: () => void;
 }
+
 const ProductGrid: React.FC<ProductGridProps> = ({
   category,
   addToCart,
@@ -215,6 +230,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const [isUpdatingPrices, setIsUpdatingPrices] = useState(false);
   const [flashBackButton, setFlashBackButton] = useState(false);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+  
+  // Modal state for terms and conditions
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Refs to track component state
   const initialLoadComplete = useRef(false);
@@ -699,7 +718,20 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       toast.error("Seleccione al menos un producto");
     }
   };
-  const hasSelectedProducts = Object.values(productQuantities).some(qty => qty > 0);
+  const handleShowTerms = (product: Product) => {
+    console.log('=== DEBUG handleShowTerms ===');
+    console.log('Product selected for terms:', product.name);
+    console.log('Product textosId:', product.textosId);
+    console.log('=== END handleShowTerms DEBUG ===');
+    
+    setSelectedProduct(product);
+    setIsTermsModalOpen(true);
+  };
+
+  const handleCloseTermsModal = () => {
+    setIsTermsModalOpen(false);
+    setSelectedProduct(null);
+  };
 
   // Determine if we need to show loading message
   const showLoadingMessage = isLoadingProducts;
@@ -710,7 +742,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       onBack();
     }
   };
-  return <div className="space-y-6">
+  const hasSelectedProducts = Object.values(productQuantities).some(qty => qty > 0);
+  return (
+    <div className="space-y-6">
       <div className="sticky top-0 z-10 bg-white pb-4 border-b border-gray-100">
         <div className="flex items-center mb-4">
           <button onClick={onBack} className={`flex items-center gap-2 text-primary hover:underline ${!purchaseLocationId ? 'relative' : ''}`} aria-label="back-to-categories">
@@ -748,7 +782,21 @@ const ProductGrid: React.FC<ProductGridProps> = ({
           <p className="text-gray-500">No hay productos disponibles</p>
         </div> : <>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {products.map(product => <ProductCard key={product.id} product={product} quantity={productQuantities[product.id] || 0} onIncrease={() => increaseQuantity(product.id)} onDecrease={() => decreaseQuantity(product.id)} animating={!!cartAnimating[product.id]} purchaseLocationId={purchaseLocationId} serviceId={serviceId} categoryId={category.id} isPriceLoading={loadingProductIds.has(product.id)} hasPurchaseLocation={!!purchaseLocationId} onBackToCategories={onBack} />)}
+            {products.map(product => <ProductCard 
+              key={product.id} 
+              product={product} 
+              quantity={productQuantities[product.id] || 0} 
+              onIncrease={() => increaseQuantity(product.id)} 
+              onDecrease={() => decreaseQuantity(product.id)} 
+              animating={!!cartAnimating[product.id]} 
+              purchaseLocationId={purchaseLocationId} 
+              serviceId={serviceId} 
+              categoryId={category.id} 
+              isPriceLoading={loadingProductIds.has(product.id)} 
+              hasPurchaseLocation={!!purchaseLocationId} 
+              onBackToCategories={onBack} 
+              onShowTerms={handleShowTerms}
+            />)}
           </div>
           
           {hasSelectedProducts && <div className="flex justify-center gap-2 sm:gap-4 mt-8 sticky bottom-4 bg-white p-4 rounded-lg shadow-md">
@@ -760,6 +808,16 @@ const ProductGrid: React.FC<ProductGridProps> = ({
               </Button>
             </div>}
         </>}
-    </div>;
+
+      {/* Terms and Conditions Modal */}
+      <ProductTermsModal
+        isOpen={isTermsModalOpen}
+        onClose={handleCloseTermsModal}
+        textosId={selectedProduct?.textosId || null}
+        productName={selectedProduct?.name || ""}
+      />
+    </div>
+  );
 };
+
 export default ProductGrid;
