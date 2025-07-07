@@ -159,16 +159,25 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <CardContent className="p-4 flex-grow">
         <h4 className="font-medium mb-1 line-clamp-2">{product.name}</h4>
         
-        <div className="flex justify-between items-center mt-2">
-          {isPriceLoading ? (
-            <PriceSkeleton />
-          ) : product.price !== undefined && product.price > 0 ? (
-            <span className="font-bold">
-              ${product.price.toLocaleString('es-UY', { maximumFractionDigits: 0 })}
-            </span>
-          ) : (
-            <PriceSkeleton />
-          )}
+        <div className="flex flex-col items-center mt-2">
+          <div className="mb-2">
+            {isPriceLoading ? (
+              <PriceSkeleton />
+            ) : product.price !== undefined && product.price > 0 ? (
+              <span className="font-bold">
+                ${product.price.toLocaleString('es-UY', { maximumFractionDigits: 0 })}
+              </span>
+            ) : (
+              <PriceSkeleton />
+            )}
+          </div>
+          
+          <span 
+            className="text-xs text-blue-600 hover:text-blue-800 cursor-pointer underline select-text text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            ¿Qué incluye el servicio?
+          </span>
         </div>
       </CardContent>
     </Card>
