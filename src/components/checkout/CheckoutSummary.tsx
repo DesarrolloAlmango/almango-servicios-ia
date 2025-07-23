@@ -88,54 +88,21 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const processServiceRequest = async (serviceData: CheckoutData): Promise<number> => {
     try {
       // Get the provider ID from the ProveedorAuxiliar field
+      // If storeId exists, use it as the provider ID, otherwise use 0
       const providerId = serviceData.ProveedorAuxiliar && serviceData.ProveedorAuxiliar.trim() !== "" ? 
                         (serviceData.ProveedorAuxiliar === "No lo sé" ? "0" : serviceData.ProveedorAuxiliar) : 
                         "0";
       
-      // Optimize JSON by removing unnecessary fields and shortening values
-      const optimizedData = {
-        Nombre: serviceData.Nombre,
-        Telefono: serviceData.Telefono,
-        Mail: serviceData.Mail,
-        PaisISO: serviceData.PaisISO,
-        DepartamentoId: serviceData.DepartamentoId,
-        MunicipioId: serviceData.MunicipioId,
-        ZonasID: serviceData.ZonasID,
-        Direccion: serviceData.Direccion,
-        MetodoPagosID: serviceData.MetodoPagosID,
-        SolicitudPagada: "",
-        SolicitaCotizacion: serviceData.SolicitaCotizacion,
-        SolicitaOtroServicio: "",
-        OtroServicioDetalle: "",
-        FechaInstalacion: serviceData.FechaInstalacion,
-        TurnoInstalacion: serviceData.TurnoInstalacion,
-        Comentario: serviceData.Comentario || "",
-        ConfirmarCondicionesUso: "S",
-        ProveedorAuxiliar: serviceData.ProveedorAuxiliar,
-        CostoXZona: serviceData.CostoXZona,
-        Level1: serviceData.Level1.map(item => ({
-          RubrosId: item.RubrosId,
-          ProductoID: item.ProductoID,
-          DetalleID: item.DetalleID,
-          Cantidad: item.Cantidad,
-          Precio: item.Precio,
-          SR: "N",
-          Comision: 0,
-          ComisionTipo: "P",
-          PrecioFinal: item.PrecioFinal
-        }))
-      };
-
-      const jsonSolicitud = JSON.stringify(optimizedData);
+      const jsonSolicitud = JSON.stringify(serviceData);
       const url = new URL("https://app.almango.com.uy/WebAPI/AltaSolicitud", window.location.origin);
       url.searchParams.append("Userconect", "NoEmpty");
       url.searchParams.append("Key", "d3d3LmF6bWl0YS5jb20=");
-      url.searchParams.append("Proveedorid", providerId);
+      url.searchParams.append("Proveedorid", providerId); // Using the correct provider ID
       url.searchParams.append("Usuarioid", "0");
       url.searchParams.append("Jsonsolicitud", jsonSolicitud);
 
-      console.log("Optimized JSON length:", jsonSolicitud.length);
-      console.log("Total URL length:", url.toString().length);
+      console.log("Sending request with provider ID:", providerId);
+      console.log("Service data:", serviceData);
 
       const response = await fetch(url.toString());
       
