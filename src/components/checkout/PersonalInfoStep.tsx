@@ -38,12 +38,12 @@ import { useParams } from "react-router-dom";
 import { getGlobalZoneCost } from "@/utils/globalZoneCost";
 
 // Create base schema without paymentMethod
-const baseFormSchema = z.object({
+const createBaseFormSchema = (noNumber: boolean) => z.object({
   name: z.string().min(2, { message: "El nombre es obligatorio" }),
   phone: z.string().min(8, { message: "El teléfono debe tener al menos 8 dígitos" }),
   email: z.string().optional(),
   street: z.string().min(2, { message: "La calle es obligatoria" }),
-  number: z.string().min(1, { message: "El número es obligatorio" }),
+  number: noNumber ? z.string().optional() : z.string().min(1, { message: "El número es obligatorio" }),
   corner: z.string().optional(),
   apartment: z.string().optional(),
   comments: z.string().optional(),
@@ -52,16 +52,17 @@ const baseFormSchema = z.object({
   }),
 });
 
-// Function to create schema based on payment availability
-const createFormSchema = (paymentEnabled: boolean) => {
+// Function to create schema based on payment availability and noNumber state
+const createFormSchema = (paymentEnabled: boolean, noNumber: boolean) => {
+  const baseSchema = createBaseFormSchema(noNumber);
   if (paymentEnabled) {
-    return baseFormSchema.extend({
+    return baseSchema.extend({
       paymentMethod: z.enum(["later", "now"], {
         required_error: "Selecciona un método de pago",
       }),
     });
   } else {
-    return baseFormSchema.extend({
+    return baseSchema.extend({
       paymentMethod: z.enum(["later", "now"]).optional(),
     });
   }
@@ -98,10 +99,11 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const [paymentEnabled, setPaymentEnabled] = useState(true);
   const [isLoadingPaymentStatus, setIsLoadingPaymentStatus] = useState(false);
+  const [noNumber, setNoNumber] = useState(false);
   const { commerceId } = useParams();
   
   const form = useForm<FormValues>({
-    resolver: zodResolver(createFormSchema(paymentEnabled)),
+    resolver: zodResolver(createFormSchema(paymentEnabled, noNumber)),
     defaultValues: {
       name: "",
       phone: "",
@@ -116,10 +118,10 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
     },
   });
 
-  // Update form resolver when payment availability changes
+  // Update form resolver when payment availability or noNumber changes
   useEffect(() => {
     const currentValues = form.getValues();
-    const newSchema = createFormSchema(paymentEnabled);
+    const newSchema = createFormSchema(paymentEnabled, noNumber);
     
     // Reset the form with new resolver
     form.reset(currentValues);
@@ -132,7 +134,14 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       // Clear payment method selection if payment is disabled
       form.setValue("paymentMethod", undefined as any);
     }
-  }, [paymentEnabled, form]);
+    
+    // Handle noNumber checkbox logic
+    if (noNumber) {
+      form.setValue("number", "S/N");
+    } else if (form.getValues("number") === "S/N") {
+      form.setValue("number", "");
+    }
+  }, [paymentEnabled, noNumber, form]);
 
   useEffect(() => {
     const checkPaymentAvailability = async () => {
@@ -440,9 +449,25 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Número</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Número de puerta" {...field} />
-                  </FormControl>
+                  <div className="space-y-2">
+                    <FormControl>
+                      <Input 
+                        placeholder="Número de puerta" 
+                        disabled={noNumber}
+                        {...field} 
+                      />
+                    </FormControl>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="no-number"
+                        checked={noNumber}
+                        onCheckedChange={(checked) => setNoNumber(checked as boolean)}
+                      />
+                      <Label htmlFor="no-number" className="text-sm font-normal cursor-pointer">
+                        S/N (sin número)
+                      </Label>
+                    </div>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
