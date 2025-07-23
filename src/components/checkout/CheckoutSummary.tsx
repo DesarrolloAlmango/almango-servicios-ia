@@ -94,17 +94,22 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
                         "0";
       
       const jsonSolicitud = JSON.stringify(serviceData);
-      const url = new URL("https://app.almango.com.uy/WebAPI/AltaSolicitud", window.location.origin);
-      url.searchParams.append("Userconect", "NoEmpty");
-      url.searchParams.append("Key", "d3d3LmF6bWl0YS5jb20=");
-      url.searchParams.append("Proveedorid", providerId); // Using the correct provider ID
-      url.searchParams.append("Usuarioid", "0");
-      url.searchParams.append("Jsonsolicitud", jsonSolicitud);
+      
+      // Create form data for POST request
+      const formData = new FormData();
+      formData.append("Userconect", "NoEmpty");
+      formData.append("Key", "d3d3LmF6bWl0YS5jb20=");
+      formData.append("Proveedorid", providerId);
+      formData.append("Usuarioid", "0");
+      formData.append("Jsonsolicitud", jsonSolicitud);
 
-      console.log("Sending request with provider ID:", providerId);
+      console.log("Sending POST request with provider ID:", providerId);
       console.log("Service data:", serviceData);
 
-      const response = await fetch(url.toString());
+      const response = await fetch("https://app.almango.com.uy/WebAPI/AltaSolicitud", {
+        method: "POST",
+        body: formData
+      });
       
       if (!response.ok) {
         throw new Error(`Error en la respuesta: ${response.status} ${response.statusText}`);
