@@ -561,7 +561,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                             htmlFor="payment-now" 
                             className="flex items-center gap-2 cursor-pointer"
                           >
-                            Pagar ahora (Mercado Pago)
+                            Pagar ahora (crédito/débito)
                             <CreditCard size={18} className="text-sky-500" />
                           </Label>
                         </div>
