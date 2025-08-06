@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
@@ -13,34 +7,37 @@ import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatTimeSlot, formatLocationInfo } from "@/utils/timeUtils";
 import { CheckoutData } from "@/types/checkoutTypes";
-
 interface RequestDetailsDialogProps {
   isOpen: boolean;
   onClose: () => void;
   requestData: CheckoutData | null;
   serviceId: number | null;
-  departments: Array<{id: string, name: string}>;
-  municipalities: Record<string, Array<{id: string, name: string}>>;
+  departments: Array<{
+    id: string;
+    name: string;
+  }>;
+  municipalities: Record<string, Array<{
+    id: string;
+    name: string;
+  }>>;
 }
-
 const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
   isOpen,
   onClose,
   requestData,
   serviceId,
   departments,
-  municipalities,
+  municipalities
 }) => {
   // Format price with thousands separator (dot) and no decimals
   const formatPrice = (price: number): string => {
-    return price.toLocaleString('es-UY', { 
-      minimumFractionDigits: 0, 
-      maximumFractionDigits: 0 
+    return price.toLocaleString('es-UY', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
     });
   };
-
   const getFormaDePago = (metodoPagoId: number): string => {
-    switch(metodoPagoId) {
+    switch (metodoPagoId) {
       case 1:
         return "Pago al profesional";
       case 4:
@@ -49,21 +46,17 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
         return `Método de pago ${metodoPagoId}`;
     }
   };
-
   const calcularTotal = (items: any[], costoZona: number = 0): number => {
     const itemsTotal = items.reduce((total, item) => total + item.PrecioFinal, 0);
     return itemsTotal + costoZona;
   };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+  return <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Detalle de la Solicitud</DialogTitle>
         </DialogHeader>
         
-        {requestData && (
-          <div className="space-y-6">
+        {requestData && <div className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Información Personal</CardTitle>
@@ -121,12 +114,10 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
                     <p className="text-lg">{formatTimeSlot(requestData.TurnoInstalacion)}</p>
                   </div>
                 </div>
-                {requestData.Comentario && (
-                  <div>
+                {requestData.Comentario && <div>
                     <p className="text-sm font-medium text-muted-foreground">Comentarios</p>
                     <p className="text-lg">{requestData.Comentario}</p>
-                  </div>
-                )}
+                  </div>}
               </CardContent>
             </Card>
 
@@ -145,33 +136,16 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {requestData.Level1.map((item, index) => (
-                      <TableRow key={index}>
+                    {requestData.Level1.map((item, index) => <TableRow key={index}>
                         <TableCell className="font-medium">
                           {item.ProductName}
-                          {formatLocationInfo(
-                            requestData.DepartamentoId?.toString(),
-                            requestData.MunicipioId?.toString(),
-                            departments,
-                            municipalities
-                          ) && (
-                            <div className="text-sm text-muted-foreground">
-                              Ubicación: {formatLocationInfo(
-                                requestData.DepartamentoId?.toString(),
-                                requestData.MunicipioId?.toString(),
-                                departments,
-                                municipalities
-                              )}
-                            </div>
-                          )}
+                          {formatLocationInfo(requestData.DepartamentoId?.toString(), requestData.MunicipioId?.toString(), departments, municipalities)}
                         </TableCell>
                         <TableCell className="text-center">{item.Cantidad}</TableCell>
                         <TableCell className="text-right">${formatPrice(item.Precio)}</TableCell>
                         <TableCell className="text-right">${formatPrice(item.PrecioFinal)}</TableCell>
-                      </TableRow>
-                    ))}
-                    {requestData.CostoXZona > 0 && (
-                      <TableRow>
+                      </TableRow>)}
+                    {requestData.CostoXZona > 0 && <TableRow>
                         <TableCell className="font-medium">
                           Adicional por zona
                           <div className="text-sm text-muted-foreground">
@@ -181,8 +155,7 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
                         <TableCell className="text-center">1</TableCell>
                         <TableCell className="text-right">${formatPrice(requestData.CostoXZona)}</TableCell>
                         <TableCell className="text-right">${formatPrice(requestData.CostoXZona)}</TableCell>
-                      </TableRow>
-                    )}
+                      </TableRow>}
                   </TableBody>
                   <TableFooter>
                     <TableRow>
@@ -210,15 +183,8 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Estado</p>
-                    <p className={`text-lg font-medium ${
-                      requestData.MetodoPagosID === 1 ? 
-                        "text-blue-600" : 
-                        (requestData.SolicitudPagada === "S" ? "text-green-600" : "text-yellow-600")
-                    }`}>
-                      {requestData.MetodoPagosID === 1 ? 
-                        "Pago en el domicilio" : 
-                        (requestData.SolicitudPagada === "S" ? "PAGADO" : "PENDIENTE")
-                      }
+                    <p className={`text-lg font-medium ${requestData.MetodoPagosID === 1 ? "text-blue-600" : requestData.SolicitudPagada === "S" ? "text-green-600" : "text-yellow-600"}`}>
+                      {requestData.MetodoPagosID === 1 ? "Pago en el domicilio" : requestData.SolicitudPagada === "S" ? "PAGADO" : "PENDIENTE"}
                     </p>
                   </div>
                 </div>
@@ -230,11 +196,8 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
                 Cerrar
               </Button>
             </DialogFooter>
-          </div>
-        )}
+          </div>}
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
-
 export default RequestDetailsDialog;
