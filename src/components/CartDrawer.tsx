@@ -227,7 +227,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
         </SheetContent>
       </Sheet>
       
-      <CheckoutSummary isOpen={showSummary} onClose={handleCheckoutClose} data={checkoutData} />
+      <CheckoutSummary isOpen={showSummary} onClose={handleCheckoutClose} data={checkoutData} departments={departments} municipalities={municipalities} />
     </>;
 };
 export default CartDrawer;

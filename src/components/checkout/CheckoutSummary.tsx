@@ -22,6 +22,8 @@ interface CheckoutSummaryProps {
   isOpen: boolean;
   onClose: (success: boolean) => void;
   data: CheckoutData[];
+  departments: Array<{id: string, name: string}>;
+  municipalities: Record<string, Array<{id: string, name: string}>>;
 }
 
 // Helper function to safely parse JSON
@@ -38,6 +40,8 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   isOpen,
   onClose,
   data,
+  departments,
+  municipalities,
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -51,8 +55,6 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   const [selectedRequestData, setSelectedRequestData] = useState<CheckoutData | null>(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
   const paymentLinkRef = useRef<HTMLAnchorElement>(null);
-  const [departments, setDepartments] = useState<Array<{id: string, name: string}>>([]);
-  const [municipalities, setMunicipalities] = useState<Record<string, Array<{id: string, name: string}>>>({});
   const [showBlockingOverlay, setShowBlockingOverlay] = useState(false); // State for blocking overlay
 
   // Use the custom hook for MercadoPago payment handling
