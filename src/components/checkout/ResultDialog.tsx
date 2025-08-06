@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { formatTimeSlot, formatLocationInfo } from "@/utils/timeUtils";
+import { format } from "date-fns";
 
 interface ResultDialogProps {
   isOpen: boolean;
@@ -164,7 +165,18 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
       // Detalles de la Instalación
       message += `%0A*Detalles+de+la+Instalación%3A*%0A`;
       message += `Dirección%3A+${encodeURIComponent(data.Direccion || 'No especificada')}%0A`;
-      message += `Fecha%3A+${encodeURIComponent(data.FechaInstalacion || 'No especificada')}%0A`;
+      
+      // Formatear la fecha de DD/MM/YYYY
+      let formattedDate = 'No especificada';
+      if (data.FechaInstalacion) {
+        try {
+          const date = new Date(data.FechaInstalacion);
+          formattedDate = format(date, 'dd/MM/yyyy');
+        } catch (error) {
+          console.error('Error formatting date:', error);
+        }
+      }
+      message += `Fecha%3A+${encodeURIComponent(formattedDate)}%0A`;
       
       // Formatear el horario usando formatTimeSlot
       const formattedTimeSlot = formatTimeSlot(data.TurnoInstalacion || "");
@@ -183,8 +195,8 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
           const price = item.Precio || 0;
           const finalPrice = item.PrecioFinal || 0;
           
-          // Use ProductoID as description since we don't have product name mapping available
-          const productDescription = `Producto ${item.ProductoID}`;
+          // Use the service name as product description (same as shown in request details)
+          const productDescription = request.serviceName || `Producto ${item.ProductoID}`;
           message += `${encodeURIComponent(productDescription)}+-+Cantidad%3A+${quantity}+-+Precio%3A+%24${price.toLocaleString()}+-+Precio+Final%3A+%24${finalPrice.toLocaleString()}%0A`;
         });
         
