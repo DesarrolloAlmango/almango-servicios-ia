@@ -14,6 +14,8 @@ import MercadoPagoPayment from "./MercadoPagoPayment";
 import { useNavigate } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { formatTimeSlot, formatLocationInfo } from "@/utils/timeUtils";
+import { format } from "date-fns";
 
 interface ResultDialogProps {
   isOpen: boolean;
@@ -23,6 +25,8 @@ interface ResultDialogProps {
   checkingPayment: boolean;
   onPaymentClick: (solicitudId: number) => void;
   onViewServiceDetails: (request: ServiceRequest) => void;
+  departments: Array<{id: string, name: string}>;
+  municipalities: Record<string, Array<{id: string, name: string}>>;
 }
 
 const ResultDialog: React.FC<ResultDialogProps> = ({
@@ -33,6 +37,8 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
   checkingPayment,
   onPaymentClick,
   onViewServiceDetails,
+  departments,
+  municipalities,
 }) => {
   const navigate = useNavigate();
   const [feedback, setFeedback] = useState("");
@@ -140,15 +146,41 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
       message += `Teléfono%3A+${encodeURIComponent(data.Telefono || 'No especificado')}%0A`;
       message += `Email%3A+${encodeURIComponent(data.Mail || 'No especificado')}%0A`;
       
-      // Departamento y Localidad - estos valores vienen como números, necesitamos convertirlos
-      message += `Departamento+ID%3A+${data.DepartamentoId || 'No especificado'}%0A`;
-      message += `Municipio+ID%3A+${data.MunicipioId || 'No especificado'}%0A`;
+      // Departamento y Localidad - usar nombres en lugar de IDs
+      const locationInfo = formatLocationInfo(
+        data.DepartamentoId?.toString(), 
+        data.MunicipioId?.toString(), 
+        departments, 
+        municipalities
+      );
+      if (locationInfo) {
+        const [departmentName, municipalityName] = locationInfo.split(', ');
+        message += `Departamento%3A+${encodeURIComponent(departmentName || 'No especificado')}%0A`;
+        message += `Localidad%3A+${encodeURIComponent(municipalityName || 'No especificada')}%0A`;
+      } else {
+        message += `Departamento%3A+No+especificado%0A`;
+        message += `Localidad%3A+No+especificada%0A`;
+      }
       
       // Detalles de la Instalación
       message += `%0A*Detalles+de+la+Instalación%3A*%0A`;
       message += `Dirección%3A+${encodeURIComponent(data.Direccion || 'No especificada')}%0A`;
-      message += `Fecha%3A+${encodeURIComponent(data.FechaInstalacion || 'No especificada')}%0A`;
-      message += `Horario%3A+${encodeURIComponent(data.TurnoInstalacion || 'No especificado')}%0A`;
+      
+      // Formatear la fecha de DD/MM/YYYY
+      let formattedDate = 'No especificada';
+      if (data.FechaInstalacion) {
+        try {
+          const date = new Date(data.FechaInstalacion);
+          formattedDate = format(date, 'dd/MM/yyyy');
+        } catch (error) {
+          console.error('Error formatting date:', error);
+        }
+      }
+      message += `Fecha%3A+${encodeURIComponent(formattedDate)}%0A`;
+      
+      // Formatear el horario usando formatTimeSlot
+      const formattedTimeSlot = formatTimeSlot(data.TurnoInstalacion || "");
+      message += `Horario%3A+${encodeURIComponent(formattedTimeSlot)}%0A`;
       
       // Comentarios
       if (data.Comentario && data.Comentario.trim()) {
@@ -163,7 +195,9 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
           const price = item.Precio || 0;
           const finalPrice = item.PrecioFinal || 0;
           
-          message += `Producto+ID%3A+${item.ProductoID}+-+Cantidad%3A+${quantity}+-+Precio%3A+%24${price.toLocaleString()}+-+Precio+Final%3A+%24${finalPrice.toLocaleString()}%0A`;
+          // Use exactly the same text as shown in the "Descripción" column of request details
+          const productDescription = item.ProductName || data.serviceName || `Producto ${item.ProductoID}`;
+          message += `${encodeURIComponent(productDescription)}+-+Cantidad%3A+${quantity}+-+Precio%3A+%24${price.toLocaleString()}+-+Precio+Final%3A+%24${finalPrice.toLocaleString()}%0A`;
         });
         
         // Costo adicional por zona si existe
