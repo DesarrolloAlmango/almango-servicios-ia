@@ -159,8 +159,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           SR: "N",
           Comision: 0,
           ComisionTipo: "P",
-          PrecioFinal: Number((item.price * item.quantity)),
-          ProductName: item.name // Adding product name for display purposes
+          PrecioFinal: Number((item.price * item.quantity))
         })),
         serviceName: location.serviceName || `Servicio ${serviceId}`
       };

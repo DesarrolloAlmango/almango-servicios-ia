@@ -195,8 +195,8 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
           const price = item.Precio || 0;
           const finalPrice = item.PrecioFinal || 0;
           
-          // Use exactly the same text as shown in the "Descripción" column of request details
-          const productDescription = item.ProductName || data.serviceName || `Producto ${item.ProductoID}`;
+          // Use the service name as product description (same as shown in request details)
+          const productDescription = request.serviceName || `Producto ${item.ProductoID}`;
           message += `${encodeURIComponent(productDescription)}+-+Cantidad%3A+${quantity}+-+Precio%3A+%24${price.toLocaleString()}+-+Precio+Final%3A+%24${finalPrice.toLocaleString()}%0A`;
         });
         

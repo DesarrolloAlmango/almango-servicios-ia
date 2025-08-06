@@ -10,7 +10,6 @@ export interface CheckoutItem {
   Comision: number;
   ComisionTipo: string;
   PrecioFinal: number;
-  ProductName?: string; // Optional product name for display
 }
 
 export interface CheckoutData {
