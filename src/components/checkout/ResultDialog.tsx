@@ -123,8 +123,92 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
     }
   };
 
+  const formatServiceRequestsForWhatsApp = () => {
+    if (serviceRequests.length === 0) return "Hola%2C+Me+interesa+contratar+un+servicio.";
+    
+    let message = "Hola%2C+aquí+están+los+detalles+de+mis+solicitudes%3A%0A%0A";
+    
+    serviceRequests.forEach((request, index) => {
+      const data = request.requestData;
+      
+      message += `*SOLICITUD+%23${request.solicitudId}*%0A`;
+      message += `Servicio%3A+${encodeURIComponent(request.serviceName)}%0A`;
+      
+      // Información Personal
+      message += `%0A*Información+Personal%3A*%0A`;
+      message += `Nombre%3A+${encodeURIComponent(data.Nombre || 'No especificado')}%0A`;
+      message += `Teléfono%3A+${encodeURIComponent(data.Telefono || 'No especificado')}%0A`;
+      message += `Email%3A+${encodeURIComponent(data.Mail || 'No especificado')}%0A`;
+      
+      // Departamento y Localidad - estos valores vienen como números, necesitamos convertirlos
+      message += `Departamento+ID%3A+${data.DepartamentoId || 'No especificado'}%0A`;
+      message += `Municipio+ID%3A+${data.MunicipioId || 'No especificado'}%0A`;
+      
+      // Detalles de la Instalación
+      message += `%0A*Detalles+de+la+Instalación%3A*%0A`;
+      message += `Dirección%3A+${encodeURIComponent(data.Direccion || 'No especificada')}%0A`;
+      message += `Fecha%3A+${encodeURIComponent(data.FechaInstalacion || 'No especificada')}%0A`;
+      message += `Horario%3A+${encodeURIComponent(data.TurnoInstalacion || 'No especificado')}%0A`;
+      
+      // Comentarios
+      if (data.Comentario && data.Comentario.trim()) {
+        message += `Comentarios%3A+${encodeURIComponent(data.Comentario)}%0A`;
+      }
+      
+      // Servicios Solicitados
+      message += `%0A*Servicios+Solicitados%3A*%0A`;
+      if (data.Level1 && Array.isArray(data.Level1)) {
+        data.Level1.forEach((item: any) => {
+          const quantity = item.Cantidad || 1;
+          const price = item.Precio || 0;
+          const finalPrice = item.PrecioFinal || 0;
+          
+          message += `Producto+ID%3A+${item.ProductoID}+-+Cantidad%3A+${quantity}+-+Precio%3A+%24${price.toLocaleString()}+-+Precio+Final%3A+%24${finalPrice.toLocaleString()}%0A`;
+        });
+        
+        // Costo adicional por zona si existe
+        const zoneCost = data.CostoXZona || 0;
+        if (zoneCost > 0) {
+          message += `Adicional+por+zona%3A+%24${zoneCost.toLocaleString()}%0A`;
+        }
+        
+        // Total
+        const itemsTotal = data.Level1.reduce((sum: number, item: any) => {
+          return sum + (item.PrecioFinal || 0);
+        }, 0);
+        const total = itemsTotal + zoneCost;
+        message += `*Total%3A+%24${total.toLocaleString()}*%0A`;
+      }
+      
+      // Información de Pago
+      message += `%0A*Información+de+Pago%3A*%0A`;
+      let paymentMethod = 'No especificado';
+      if (data.MetodoPagosID === 1) paymentMethod = 'Efectivo';
+      else if (data.MetodoPagosID === 2) paymentMethod = 'Transferencia bancaria';
+      else if (data.MetodoPagosID === 3) paymentMethod = 'Débito/Crédito en el lugar';
+      else if (data.MetodoPagosID === 4) paymentMethod = 'MercadoPago';
+      
+      message += `Método+de+pago%3A+${encodeURIComponent(paymentMethod)}%0A`;
+      
+      if (request.paymentConfirmed) {
+        message += `Estado+del+pago%3A+Confirmado%0A`;
+      } else if (data.MetodoPagosID === 4) {
+        message += `Estado+del+pago%3A+Pendiente%0A`;
+      }
+      
+      if (index < serviceRequests.length - 1) {
+        message += "%0A" + "─".repeat(30) + "%0A%0A";
+      }
+    });
+    
+    message += "%0A%0A¿Podrían+ayudarme+con+estas+solicitudes%3F";
+    
+    return message;
+  };
+
   const handleWhatsAppClick = () => {
-    window.open("https://api.whatsapp.com/send?phone=+59892612655&text=Hola%2C+Me+interesa+contratar+un+servicio.", "_blank");
+    const formattedMessage = formatServiceRequestsForWhatsApp();
+    window.open(`https://api.whatsapp.com/send?phone=+59892612655&text=${formattedMessage}`, "_blank");
   };
 
   return (
