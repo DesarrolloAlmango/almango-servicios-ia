@@ -249,6 +249,8 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         checkingPayment={checkingPayment}
         onPaymentClick={handlePaymentLink}
         onViewServiceDetails={handleViewServiceDetails}
+        departments={departments}
+        municipalities={municipalities}
       />
 
       <RequestDetailsDialog
