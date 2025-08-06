@@ -447,7 +447,7 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
                 <path d="M14 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1Z" />
                 <path d="M9.5 13.5c.5 1 1.5 1 2.5 1s2 0 2.5-1" />
               </svg>
-              Contactar por WhatsApp
+              Ir a WhatsApp
             </Button>
           </div>
         )}
