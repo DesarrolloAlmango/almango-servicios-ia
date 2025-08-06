@@ -148,7 +148,7 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
                     {requestData.Level1.map((item, index) => (
                       <TableRow key={index}>
                         <TableCell className="font-medium">
-                          {requestData.serviceName}
+                          {item.ProductName || requestData.serviceName}
                           {formatLocationInfo(
                             requestData.DepartamentoId?.toString(),
                             requestData.MunicipioId?.toString(),
