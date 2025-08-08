@@ -54,7 +54,7 @@ const mockMudanzaServices: ServiceCard[] = [
     id: "1111",
     name: "Mudanza",
     icon: "https://tn.com.ar/resizer/v2/en-febrero-hacer-una-mudanza-en-el-amba-puede-costar-hasta-500000-foto-blogdeseguroscom-R76YF6LYRVFEHIWDAB5QT4S2EM.png?auth=0e45d37cfd3288d80391fb141181b48361378c8617a55a19aed4d0348d10ac9a&width=1440",
-    url: "https://app.almango.com.uy/mudanza.aspx?Mode=INS&MudanzaId=0&ProveedorId=0&SecUserId=0"
+    url: "https://mudanza.almango.com.uy"
   }
 ];
 
