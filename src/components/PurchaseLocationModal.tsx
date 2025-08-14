@@ -10,7 +10,6 @@ import LocationStep from "@/components/checkout/LocationStep";
 import { Textarea } from "@/components/ui/textarea";
 import { lastSelectedCategoryId, lastSelectedCategoryName } from "@/components/CategoryCarousel";
 import { setGlobalZoneCost } from "@/utils/globalZoneCost";
-
 interface Store {
   id: string;
   name: string;
@@ -423,16 +422,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
       // Close the modal and call onSelectLocation with zonaCostoAdicional
       onClose();
-      onSelectLocation(
-        storeId, 
-        storeName, 
-        selectedDepartment, 
-        selectedDepartmentObj?.name || "", 
-        selectedLocation, 
-        selectedLocationObj?.name || "", 
-        selectedStore === "other" ? otherStore || searchQuery : undefined,
-        selectedLocationObj?.zonaCostoAdicional || "0"
-      );
+      onSelectLocation(storeId, storeName, selectedDepartment, selectedDepartmentObj?.name || "", selectedLocation, selectedLocationObj?.name || "", selectedStore === "other" ? otherStore || searchQuery : undefined, selectedLocationObj?.zonaCostoAdicional || "0");
 
       // RESTORED: When validCommerceId is present, dispatch event to open products AFTER location is confirmed
       // For manual flow (no valid commerceId), the normal flow continues as before
@@ -509,9 +499,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         {validCommerceId ? <LocationStep selectedDepartment={selectedDepartment} setSelectedDepartment={setSelectedDepartment} selectedLocation={selectedLocation} setSelectedLocation={setSelectedLocation} onNext={handleConfirm} departments={departments} municipalities={municipalities} loading={loadingLocation} title="¿Dónde vamos a realizar el servicio?" description="Selecciona la ubicación donde necesitas el servicio" buttonText={isConfirming ? "Procesando..." : "Confirmar"} showStoreSection={true} storeName={isLoadingCommerceName ? "Cargando..." : fetchedCommerceName || commerceName || "Comercio seleccionado"} categoryId={undefined} // Remove automatic category opening
       /> : <div className="space-y-4">
             <div className="space-y-2">
-              <h3 className="text-lg font-semibold">
-                ¿Dónde realizaste la compra?
-              </h3>
+              <h3 className="text-lg font-semibold">¿Qué empresa te recomendó Almango?</h3>
               {serviceName && <p className="text-muted-foreground text-sm">
                   Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
                 </p>}
