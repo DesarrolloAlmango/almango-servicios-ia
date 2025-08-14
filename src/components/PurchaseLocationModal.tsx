@@ -503,9 +503,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
               {serviceName && <p className="text-muted-foreground text-sm">
                   Para el servicio: <span className="font-semibold text-orange-500">{serviceName}</span>
                 </p>}
-               <label className="block text-sm font-medium">
-                ¿Qué empresa te recomendó Almango? *
-               </label>
+               
               
               <div className="relative">
                 <div className="flex items-center relative">
