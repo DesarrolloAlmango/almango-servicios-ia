@@ -48,6 +48,6 @@ export const getProviderAuxiliary = (storeId: string, otherLocation?: string): s
   if (storeId === "unknown") return "No lo sé";
   if (storeId === "other" && otherLocation) return otherLocation;
   
-  // Return the storeId as the provider ID
+  // Return the storeId as the provider ID for regular stores
   return storeId;
 };

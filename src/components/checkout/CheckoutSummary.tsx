@@ -89,11 +89,25 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
 
   const processServiceRequest = async (serviceData: CheckoutData): Promise<number> => {
     try {
-      // Get the provider ID from the ProveedorAuxiliar field
-      // If storeId exists, use it as the provider ID, otherwise use 0
-      const providerId = serviceData.ProveedorAuxiliar && serviceData.ProveedorAuxiliar.trim() !== "" ? 
-                        (serviceData.ProveedorAuxiliar === "No lo sé" ? "0" : serviceData.ProveedorAuxiliar) : 
-                        "0";
+      // Handle special cases for provider ID logic
+      let providerId = "0";
+      
+      if (serviceData.ProveedorAuxiliar) {
+        const aux = serviceData.ProveedorAuxiliar.trim();
+        
+        // If it's "No lo sé", provider ID should be 0 
+        if (aux === "No lo sé") {
+          providerId = "0";
+        }
+        // If it's a pure number (regular store selection), use it as provider ID
+        else if (/^\d+$/.test(aux)) {
+          providerId = aux;
+        }
+        // If it contains non-numeric characters, it means "Otro" was selected, so provider ID is "0"
+        else {
+          providerId = "0";
+        }
+      }
       
       const jsonSolicitud = JSON.stringify(serviceData);
       const url = new URL("https://app.almango.com.uy/WebAPI/AltaSolicitud", window.location.origin);
