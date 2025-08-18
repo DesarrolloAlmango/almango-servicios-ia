@@ -1,17 +1,14 @@
-
 import React, { useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { MapPin, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
 interface Municipality {
   id: string;
   name: string;
   zonaCostoAdicional?: string;
 }
-
 interface LocationStepProps {
   selectedDepartment: string;
   setSelectedDepartment: (department: string) => void;
@@ -34,7 +31,6 @@ interface LocationStepProps {
   storeName?: string;
   categoryId?: string;
 }
-
 const LocationStep: React.FC<LocationStepProps> = ({
   selectedDepartment,
   setSelectedDepartment,
@@ -55,16 +51,14 @@ const LocationStep: React.FC<LocationStepProps> = ({
     setSelectedDepartment(value);
     setSelectedLocation("");
   };
-
   const handleNextWithDelay = () => {
     // First, call the original onNext function immediately to close the modal
     onNext();
-    
+
     // If we have a categoryId, dispatch the event after a delay
     // but don't attempt any direct DOM manipulation which could cause freezing
     if (categoryId) {
       console.log("LocationStep: Scheduling openCategory event for:", categoryId);
-      
       setTimeout(() => {
         console.log("LocationStep: Dispatching openCategory event for:", categoryId);
         // Dispatch the event with the category ID
@@ -72,71 +66,55 @@ const LocationStep: React.FC<LocationStepProps> = ({
           // Get category name from window if available
           const categoryName = window.lastSelectedCategoryName || undefined;
           console.log("LocationStep: Category name for event:", categoryName);
-          
-          const openCategoryEvent = new CustomEvent('openCategory', { 
-            detail: { 
+          const openCategoryEvent = new CustomEvent('openCategory', {
+            detail: {
               categoryId,
               // Use global variable if available
               serviceId: window.lastSelectedServiceId || undefined,
               categoryName
-            } 
+            }
           });
           document.dispatchEvent(openCategoryEvent);
-          
+
           // Add console log to track successful event dispatch
           console.log("LocationStep: Successfully dispatched openCategory event");
         } catch (error) {
           console.error("Error dispatching openCategory event:", error);
         }
-      }, 300);  // Reduced delay to improve responsiveness
+      }, 300); // Reduced delay to improve responsiveness
     }
   };
-
   const currentMunicipalities = selectedDepartment ? municipalities[selectedDepartment] || [] : [];
-  
+
   // Get the selected municipality to show its zone cost
   const selectedMunicipality = currentMunicipalities.find(mun => mun.id === selectedLocation);
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="text-center mb-6">
         <MapPin className="h-12 w-12 mx-auto text-primary mb-2" />
         <h3 className="text-xl font-semibold">{title}</h3>
         <p className="text-muted-foreground">{description}</p>
       </div>
 
-      {showStoreSection && storeName && (
-        <div className="mb-4 p-3 rounded-md bg-blue-50 border border-blue-200">
-          <h4 className="font-medium text-blue-700 mb-1">Lugar de compra:</h4>
+      {showStoreSection && storeName && <div className="mb-4 p-3 rounded-md bg-blue-50 border border-blue-200">
+          <h4 className="font-medium text-blue-700 mb-1">Recomendado por:</h4>
           <p className="text-blue-600">{storeName}</p>
-        </div>
-      )}
+        </div>}
 
       <div className="space-y-4">
         <div className="space-y-2">
           <label htmlFor="department" className="block text-sm font-medium">
             Departamento
           </label>
-          <Select 
-            value={selectedDepartment} 
-            onValueChange={handleDepartmentChange}
-            disabled={loading.departments}
-          >
+          <Select value={selectedDepartment} onValueChange={handleDepartmentChange} disabled={loading.departments}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder={loading.departments ? "Cargando..." : "Selecciona un departamento"} />
             </SelectTrigger>
             <SelectContent>
-              {loading.departments ? (
-                <div className="flex items-center justify-center p-4">
+              {loading.departments ? <div className="flex items-center justify-center p-4">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                </div>
-              ) : (
-                departments.map(dept => (
-                  <SelectItem key={dept.id} value={dept.id}>
+                </div> : departments.map(dept => <SelectItem key={dept.id} value={dept.id}>
                     {dept.name}
-                  </SelectItem>
-                ))
-              )}
+                  </SelectItem>)}
             </SelectContent>
           </Select>
         </div>
@@ -145,34 +123,22 @@ const LocationStep: React.FC<LocationStepProps> = ({
           <label htmlFor="location" className="block text-sm font-medium">
             Localidad
           </label>
-          <Select 
-            value={selectedLocation} 
-            onValueChange={setSelectedLocation} 
-            disabled={!selectedDepartment || loading.municipalities}
-          >
+          <Select value={selectedLocation} onValueChange={setSelectedLocation} disabled={!selectedDepartment || loading.municipalities}>
             <SelectTrigger className="w-full">
-              <SelectValue placeholder={
-                loading.municipalities ? "Cargando..." : 
-                !selectedDepartment ? "Selecciona un departamento primero" : 
-                currentMunicipalities.length === 0 ? "No hay localidades disponibles" :
-                "Selecciona una localidad"
-              } />
+              <SelectValue placeholder={loading.municipalities ? "Cargando..." : !selectedDepartment ? "Selecciona un departamento primero" : currentMunicipalities.length === 0 ? "No hay localidades disponibles" : "Selecciona una localidad"} />
             </SelectTrigger>
             <SelectContent>
               <ScrollArea className="h-[200px]">
-                {currentMunicipalities.map(municipality => (
-                  <SelectItem key={municipality.id} value={municipality.id}>
+                {currentMunicipalities.map(municipality => <SelectItem key={municipality.id} value={municipality.id}>
                     {municipality.name}
-                  </SelectItem>
-                ))}
+                  </SelectItem>)}
               </ScrollArea>
             </SelectContent>
           </Select>
         </div>
 
         {/* Show zone cost information when a location is selected and has additional cost */}
-        {selectedMunicipality && parseFloat(selectedMunicipality.zonaCostoAdicional || '0') > 0 && (
-          <div className="mt-4 p-3 rounded-md bg-gray-50 border border-gray-200">
+        {selectedMunicipality && parseFloat(selectedMunicipality.zonaCostoAdicional || '0') > 0 && <div className="mt-4 p-3 rounded-md bg-gray-50 border border-gray-200">
             <h4 className="font-medium text-gray-700 mb-1 mx-0">Costo adicional por zona:</h4>
             <p className="text-gray-600 text-sm">
               Localidad: <span className="font-semibold">{selectedMunicipality.name}</span>
@@ -180,21 +146,15 @@ const LocationStep: React.FC<LocationStepProps> = ({
             <p className="text-gray-600 text-sm">
               Adicional: <span className="font-semibold">${selectedMunicipality.zonaCostoAdicional}</span>
             </p>
-          </div>
-        )}
+          </div>}
       </div>
 
       <div className="flex justify-end pt-4 pb-6 mt-4">
-        <Button 
-          onClick={handleNextWithDelay} 
-          disabled={!selectedDepartment || !selectedLocation || loading.municipalities || loading.departments}
-          className="bg-primary hover:bg-primary-dark"
-        >
+        <Button onClick={handleNextWithDelay} disabled={!selectedDepartment || !selectedLocation || loading.municipalities || loading.departments} className="bg-primary hover:bg-primary-dark">
           {buttonText}
         </Button>
       </div>
-    </div>
-  );
+    </div>;
 };
 
 // Add this for TypeScript global variable declaration
@@ -205,5 +165,4 @@ declare global {
     toast?: any; // For accessing toast from window object
   }
 }
-
 export default LocationStep;
