@@ -422,7 +422,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
       // Close the modal and call onSelectLocation with zonaCostoAdicional
       onClose();
-      onSelectLocation(storeId, storeName, selectedDepartment, selectedDepartmentObj?.name || "", selectedLocation, selectedLocationObj?.name || "", selectedStore === "other" ? otherStore || searchQuery : undefined, selectedLocationObj?.zonaCostoAdicional || "0");
+      onSelectLocation(storeId, storeName, selectedDepartment, selectedDepartmentObj?.name || "", selectedLocation, selectedLocationObj?.name || "", (selectedStore === "other" || selectedStore === "unknown") ? otherStore || searchQuery : undefined, selectedLocationObj?.zonaCostoAdicional || "0");
 
       // RESTORED: When validCommerceId is present, dispatch event to open products AFTER location is confirmed
       // For manual flow (no valid commerceId), the normal flow continues as before
