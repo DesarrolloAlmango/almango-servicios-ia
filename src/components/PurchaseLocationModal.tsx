@@ -452,10 +452,16 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     if (validCommerceId) {
       return selectedDepartment && selectedLocation;
     }
-    if (!selectedStore && !searchQuery) return false;
+    
+    // For manual selection, selectedStore must have a value (meaning something was selected from dropdown)
+    if (!selectedStore) return false;
+    
+    // If "Otro" was selected, the additional field must be completed
     if (selectedStore === "other" && !otherStore.trim()) return false;
+    
+    // All location fields must be complete
     return selectedDepartment && selectedLocation;
-  }, [commerceId, selectedStore, searchQuery, otherStore, selectedDepartment, selectedLocation]);
+  }, [commerceId, selectedStore, otherStore, selectedDepartment, selectedLocation]);
   const displayedStores = useMemo(() => {
     return [...fixedStores, ...localStores];
   }, [localStores]);
