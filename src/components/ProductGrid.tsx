@@ -767,9 +767,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
           <div className="flex">
             <div className="ml-3">
               <p className="text-sm text-yellow-700">
-                Los precios se mostrarán después de seleccionar un{' '}
+                Los precios se mostrarán después de seleccionar una{' '}
                 <button onClick={handleLocationLinkClick} className="text-blue-600 underline hover:text-blue-800 cursor-pointer">
-                  lugar de compra
+                  empresa
                 </button>.
               </p>
             </div>
