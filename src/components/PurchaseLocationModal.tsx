@@ -422,7 +422,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
 
       // Close the modal and call onSelectLocation with zonaCostoAdicional
       onClose();
-      onSelectLocation(storeId, storeName, selectedDepartment, selectedDepartmentObj?.name || "", selectedLocation, selectedLocationObj?.name || "", (selectedStore === "other" || selectedStore === "unknown") ? otherStore || searchQuery : undefined, selectedLocationObj?.zonaCostoAdicional || "0");
+      onSelectLocation(storeId, storeName, selectedDepartment, selectedDepartmentObj?.name || "", selectedLocation, selectedLocationObj?.name || "", selectedStore === "other" ? otherStore || searchQuery : undefined, selectedLocationObj?.zonaCostoAdicional || "0");
 
       // RESTORED: When validCommerceId is present, dispatch event to open products AFTER location is confirmed
       // For manual flow (no valid commerceId), the normal flow continues as before
@@ -452,15 +452,10 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
     if (validCommerceId) {
       return selectedDepartment && selectedLocation;
     }
-    
-    // Para el flujo manual, debe haber una selección válida de tienda
-    if (!selectedStore) return false;
-    
-    // Si se selecciona "other" o "unknown", debe completar el campo adicional
-    if ((selectedStore === "other" || selectedStore === "unknown") && !otherStore.trim()) return false;
-    
+    if (!selectedStore && !searchQuery) return false;
+    if (selectedStore === "other" && !otherStore.trim()) return false;
     return selectedDepartment && selectedLocation;
-  }, [commerceId, selectedStore, otherStore, selectedDepartment, selectedLocation]);
+  }, [commerceId, selectedStore, searchQuery, otherStore, selectedDepartment, selectedLocation]);
   const displayedStores = useMemo(() => {
     return [...fixedStores, ...localStores];
   }, [localStores]);

@@ -45,7 +45,6 @@ export interface ServiceRequest {
 }
 
 export const getProviderAuxiliary = (storeId: string, otherLocation?: string): string | null => {
-  if (storeId === "unknown" && otherLocation) return otherLocation;
   if (storeId === "unknown") return "No lo sé";
   if (storeId === "other" && otherLocation) return otherLocation;
   
