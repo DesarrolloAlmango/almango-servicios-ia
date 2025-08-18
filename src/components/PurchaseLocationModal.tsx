@@ -507,7 +507,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
               
               <div className="relative">
                 <div className="flex items-center relative">
-                  <Input ref={inputRef} placeholder={loading ? "Cargando..." : "Buscar o seleccionar empresa"} value={searchQuery} onChange={handleInputChange} onClick={handleInputClick} onBlur={handleInputBlur} className="pr-8 text-xs" />
+                  <Input ref={inputRef} placeholder={loading ? "Cargando..." : "Selecciona o escribe el nombre de la empresa"} value={searchQuery} onChange={handleInputChange} onClick={handleInputClick} onBlur={handleInputBlur} className="pr-8 text-xs" />
                   {selectedStore && <X className="h-4 w-4 absolute right-7 text-muted-foreground cursor-pointer" onClick={e => {
                 e.stopPropagation();
                 setSelectedStore("");
