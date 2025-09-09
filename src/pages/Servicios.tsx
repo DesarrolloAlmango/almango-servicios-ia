@@ -110,7 +110,23 @@ const fallbackMudanzaServices: TarjetaServicio[] = [{
   icon: "Package"
 }];
 
-const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
+const checkServicePermission = async (commerceId: string, serviceId: string): Promise<boolean> => {
+  try {
+    const response = await fetch(`https://app.almango.com.uy/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${serviceId}`);
+    if (!response.ok) {
+      console.warn(`Permission check failed for service ${serviceId}:`, response.status);
+      return false;
+    }
+    const data = await response.json();
+    console.log(`Permission check for service ${serviceId}:`, data);
+    return data.Permiso === true;
+  } catch (error) {
+    console.error(`Error checking permission for service ${serviceId}:`, error);
+    return false;
+  }
+};
+
+const fetchTarjetasServicios = async (commerceId?: string): Promise<TarjetaServicio[]> => {
   try {
     const response = await fetch("https://app.almango.com.uy/WebAPI/GetTarjetasServicios");
     if (!response.ok) {
@@ -120,6 +136,19 @@ const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
     console.log("Datos de la API sin procesar:", data);
     const parsedData = JSON.parse(data.SDTTarjetasServiciosJson);
     console.log("Datos de servicios parseados:", parsedData);
+    
+    // Filter services by permissions if commerceId is provided
+    if (commerceId) {
+      console.log("Checking permissions for services with commerceId:", commerceId);
+      const permissionChecks = parsedData.map((service: TarjetaServicio) => 
+        checkServicePermission(commerceId, service.id || "")
+      );
+      const permissions = await Promise.all(permissionChecks);
+      const filteredServices = parsedData.filter((_: any, index: number) => permissions[index]);
+      console.log(`Filtered ${filteredServices.length} of ${parsedData.length} services based on permissions`);
+      return filteredServices;
+    }
+    
     return parsedData;
   } catch (error) {
     console.error("Error fetching services:", error);
@@ -127,7 +156,7 @@ const fetchTarjetasServicios = async (): Promise<TarjetaServicio[]> => {
   }
 };
 
-const fetchTarjetasMudanza = async (): Promise<TarjetaServicio[]> => {
+const fetchTarjetasMudanza = async (commerceId?: string): Promise<TarjetaServicio[]> => {
   try {
     const response = await fetch("https://app.almango.com.uy/WebAPI/GetTarjetasServicios2");
     if (!response.ok) {
@@ -137,6 +166,19 @@ const fetchTarjetasMudanza = async (): Promise<TarjetaServicio[]> => {
     console.log("Datos de mudanza sin procesar:", data);
     const parsedData = JSON.parse(data.SDTTarjetasServiciosJson);
     console.log("Datos de servicios de mudanza parseados:", parsedData);
+    
+    // Filter services by permissions if commerceId is provided
+    if (commerceId) {
+      console.log("Checking permissions for mudanza services with commerceId:", commerceId);
+      const permissionChecks = parsedData.map((service: TarjetaServicio) => 
+        checkServicePermission(commerceId, service.id || "")
+      );
+      const permissions = await Promise.all(permissionChecks);
+      const filteredServices = parsedData.filter((_: any, index: number) => permissions[index]);
+      console.log(`Filtered ${filteredServices.length} of ${parsedData.length} mudanza services based on permissions`);
+      return filteredServices;
+    }
+    
     return parsedData;
   } catch (error) {
     console.error("Error fetching mudanza services:", error);
@@ -179,8 +221,8 @@ const Servicios = () => {
     isLoading: isServicesLoading,
     isError: isServicesError
   } = useQuery({
-    queryKey: ["tarjetasServicios"],
-    queryFn: fetchTarjetasServicios,
+    queryKey: ["tarjetasServicios", commerceId],
+    queryFn: () => fetchTarjetasServicios(commerceId),
     meta: {
       onError: (error: Error) => {
         console.error("Error en la consulta:", error);
@@ -194,8 +236,8 @@ const Servicios = () => {
     isLoading: isLoadingMudanza,
     isError: isErrorMudanza
   } = useQuery({
-    queryKey: ["tarjetasMudanza"],
-    queryFn: fetchTarjetasMudanza,
+    queryKey: ["tarjetasMudanza", commerceId],
+    queryFn: () => fetchTarjetasMudanza(commerceId),
     meta: {
       onError: (error: Error) => {
         console.error("Error en la consulta de mudanzas:", error);
