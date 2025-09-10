@@ -16,6 +16,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { lastSelectedCategoryId, lastSelectedCategoryName } from "@/components/CategoryCarousel";
 import { checkPermission } from "@/utils/apiUtils";
+import FloatingCart from "@/components/FloatingCart";
 
 export interface CartItem {
   id: string;
@@ -205,6 +206,7 @@ const Servicios = () => {
   const [serviceToAutoClick, setServiceToAutoClick] = useState<string | null>(null);
   const serviceCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const pendingCategoryAutoClickRef = useRef<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
     data: services,
@@ -387,6 +389,36 @@ const Servicios = () => {
       return () => clearTimeout(timer);
     }
   }, [purchaseLocations, selectedServiceId, selectedCategoryId, selectedCategoryName]);
+
+  // Effect to manage header z-index when modal is open
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isModalOpen && cartItems.length > 0) {
+      root.style.setProperty('--header-z-index', '9999');
+    } else {
+      root.style.setProperty('--header-z-index', '50');
+    }
+    
+    return () => {
+      root.style.setProperty('--header-z-index', '50');
+    };
+  }, [isModalOpen, cartItems.length]);
+
+  // Effect to listen for modal open/close events
+  useEffect(() => {
+    const handleModalOpen = () => setIsModalOpen(true);
+    const handleModalClose = () => setIsModalOpen(false);
+    
+    document.addEventListener('purchaseModalOpen', handleModalOpen);
+    document.addEventListener('purchaseModalClose', handleModalClose);
+    document.addEventListener('closeProductModal', handleModalClose);
+    
+    return () => {
+      document.removeEventListener('purchaseModalOpen', handleModalOpen);
+      document.removeEventListener('purchaseModalClose', handleModalClose);
+      document.removeEventListener('closeProductModal', handleModalClose);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchStoreName = async () => {
@@ -900,6 +932,13 @@ const Servicios = () => {
 
       {/* WhatsApp Button */}
       <WhatsAppButton />
+
+      {/* Floating Cart - only visible when modal is open and has items */}
+      <FloatingCart
+        cartItems={cartItems}
+        onCartClick={() => setIsCartOpen(true)}
+        isVisible={isModalOpen}
+      />
 
       <style>{`
         /* Add custom styling for section titles */

@@ -140,6 +140,11 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       console.log("Modal opened with category:", effectiveCategoryId, effectiveCategoryName);
+      
+      // Dispatch event when modal opens
+      const openEvent = new CustomEvent('purchaseModalOpen');
+      document.dispatchEvent(openEvent);
+      
       const validCommerceId = isValidCommerceId(commerceId);
       if (!validCommerceId) {
         fetchProviders();
@@ -168,6 +173,10 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         setLocalCategoryName(globalLastSelectedCategory.categoryName || undefined);
         setLocalServiceId(globalLastSelectedCategory.serviceId || undefined);
       }
+    } else {
+      // Dispatch event when modal closes
+      const closeEvent = new CustomEvent('purchaseModalClose');
+      document.dispatchEvent(closeEvent);
     }
   }, [isOpen, commerceId, commerceName, categoryId, categoryName, effectiveCategoryId, effectiveCategoryName, serviceId]);
   useEffect(() => {
