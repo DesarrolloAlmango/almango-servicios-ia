@@ -64,6 +64,7 @@ interface ServiceCardProps {
   pendingCategoryId?: string;
   pendingCategoryName?: string;
   commerceId?: string;
+  onProductsModalChange?: (isOpen: boolean) => void;
 }
 const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   id = '',
@@ -80,7 +81,8 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   className = "",
   pendingCategoryId,
   pendingCategoryName,
-  commerceId
+  commerceId,
+  onProductsModalChange
 }, ref) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -146,6 +148,11 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       return () => clearTimeout(timer);
     }
   }, [forceOpen, id, purchaseLocation, isDialogOpen, pendingCategoryId, pendingCategoryName]);
+
+  // Notify parent when products modal opens/closes
+  useEffect(() => {
+    onProductsModalChange?.(isDialogOpen);
+  }, [isDialogOpen, onProductsModalChange]);
   // Function to check category permission using the utility
   const checkCategoryPermission = async (commerceId: string, serviceId: string, categoryId: string): Promise<boolean> => {
     return await checkPermission(commerceId, serviceId, categoryId);
