@@ -425,6 +425,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     return true; // Default return value
   };
   const purchaseLocationId = purchaseLocation ? purchaseLocation.storeId : undefined;
+  const purchaseLocationCommerceId = purchaseLocation ? purchaseLocation.commerceId : undefined;
   const getCardBackground = () => {
     if (icon) {
       if (icon.startsWith('data:image')) {
@@ -517,7 +518,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
           }} serviceName={name} closeDialog={() => {
             console.log("Close dialog requested from ProductGrid");
             setIsDialogOpen(false);
-          }} serviceId={id} purchaseLocationId={purchaseLocationId} currentCartItems={currentCartItems} />}
+          }} serviceId={id} purchaseLocationId={purchaseLocationId} currentCartItems={currentCartItems} commerceId={purchaseLocationCommerceId || commerceId} />}
           </div>
         </DialogContent>
       </Dialog>

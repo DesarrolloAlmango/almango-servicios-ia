@@ -208,6 +208,7 @@ interface ProductGridProps {
   purchaseLocationId?: string;
   currentCartItems: CartItem[];
   onOpenLocationModal?: () => void;
+  commerceId?: string;
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({
@@ -219,7 +220,8 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   serviceId,
   purchaseLocationId,
   currentCartItems,
-  onOpenLocationModal
+  onOpenLocationModal,
+  commerceId
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -240,6 +242,33 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const productsInitialized = useRef(false);
   const categorySelected = useRef(false);
   const componentMounted = useRef(false);
+
+  // Function to check product permission
+  const checkProductPermission = async (commerceId: string, serviceId: string, categoryId: string, productId: string): Promise<boolean> => {
+    try {
+      const url = `/api/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${serviceId}&Nivel1=${categoryId}&Nivel2=${productId}&Nivel3=0`;
+      console.log(`Checking product permission with URL: ${url}`);
+      console.log(`Parameters - commerceId: ${commerceId}, serviceId: ${serviceId}, categoryId: ${categoryId}, productId: ${productId}`);
+      
+      const response = await fetch(url, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
+      if (!response.ok) {
+        console.warn(`Product permission check failed for product ${productId}:`, response.status);
+        return false;
+      }
+      const data = await response.json();
+      console.log(`Product permission check for ${productId}:`, data);
+      return data.Permiso === true;
+    } catch (error) {
+      console.error(`Error checking product permission for ${productId}:`, error);
+      return false;
+    }
+  };
 
   // Function to fetch products via ObtenerNivel2 endpoint
   const fetchProducts = async () => {
@@ -279,13 +308,29 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       });
       console.log('ProductGrid: Transformed products with textosId:', initialProducts);
 
-      // Set the products with initial data
-      setProducts(initialProducts);
+      // Filter products by permissions if commerceId is available
+      let filteredProducts = initialProducts;
+      const urlParams = new URLSearchParams(location.search);
+      const urlCommerceId = urlParams.get('commerceId');
+      const effectiveCommerceId = commerceId || urlCommerceId;
+      
+      if (effectiveCommerceId && serviceId) {
+        console.log("Checking product permissions with commerceId:", effectiveCommerceId, "serviceId:", serviceId, "categoryId:", category.id);
+        const permissionChecks = initialProducts.map((product: Product) => 
+          checkProductPermission(effectiveCommerceId, serviceId, category.id, product.id)
+        );
+        const permissions = await Promise.all(permissionChecks);
+        filteredProducts = initialProducts.filter((_: any, index: number) => permissions[index]);
+        console.log(`Filtered ${filteredProducts.length} of ${initialProducts.length} products based on permissions`);
+      }
+
+      // Set the products with filtered data
+      setProducts(filteredProducts);
       productsInitialized.current = true;
 
       // Setup initial quantities based on cart items
       const initialQuantities: Record<string, number> = {};
-      initialProducts.forEach((product: Product) => {
+      filteredProducts.forEach((product: Product) => {
         const cartItem = currentCartItems.find(item => item.productId === product.id && item.categoryId === category.id && item.serviceId === serviceId);
         initialQuantities[product.id] = cartItem ? cartItem.quantity : 0;
       });
@@ -298,10 +343,10 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       if (purchaseLocationId) {
         console.log(`Products loaded, immediately fetching prices with proveedorId=${purchaseLocationId}`);
         // Mark all products as loading prices before fetching
-        setLoadingProductIds(new Set(initialProducts.map((p: Product) => p.id)));
+        setLoadingProductIds(new Set(filteredProducts.map((p: Product) => p.id)));
         await updateAllPrices();
       }
-      return initialProducts;
+      return filteredProducts;
     } catch (error) {
       console.error("Error loading products:", error);
       toast.error("Hubo un error al cargar los productos");
