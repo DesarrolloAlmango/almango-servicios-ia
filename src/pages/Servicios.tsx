@@ -850,12 +850,20 @@ const Servicios = () => {
         
         <CartDrawer isOpen={isCartOpen} setIsOpen={setIsCartOpen} cartItems={cartItems} updateCartItem={updateCartItem} total={getCartTotal()} purchaseLocations={getAllPurchaseLocations()} setPurchaseLocations={setPurchaseLocations} />
         
-        <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => {
-        setIsLocationModalOpen(false);
-        if (pendingServiceCardAction) {
-          setPendingServiceCardAction(false);
-        }
-      }} onSelectLocation={handleLocationSelect} serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`} commerceId={commerceId} commerceName={storeName} />
+        <PurchaseLocationModal 
+          isOpen={isLocationModalOpen} 
+          onClose={() => {
+            setIsLocationModalOpen(false);
+            if (pendingServiceCardAction) {
+              setPendingServiceCardAction(false);
+            }
+          }} 
+          onSelectLocation={handleLocationSelect} 
+          serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`} 
+          commerceId={commerceId} 
+          commerceName={storeName}
+          cartItemCount={getCartItemsCount()}
+        />
       </main>
 
       <AlertDialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>
