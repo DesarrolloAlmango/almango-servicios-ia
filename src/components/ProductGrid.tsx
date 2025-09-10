@@ -252,7 +252,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         return false;
       }
       
-      const url = `https://app.almango.com.uy/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${serviceId}&Nivel1=${categoryId}&Nivel2=${productId}&Nivel3=0`;
+      // Use proxy URL in development and direct URL in production
+      const baseUrl = import.meta.env.DEV ? '/api' : 'https://app.almango.com.uy';
+      const url = `${baseUrl}/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${serviceId}&Nivel1=${categoryId}&Nivel2=${productId}&Nivel3=0`;
       console.log(`Checking product permission with URL: ${url}`);
       console.log(`Parameters - commerceId: ${commerceId}, serviceId: ${serviceId}, categoryId: ${categoryId}, productId: ${productId}`);
       
