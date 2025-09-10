@@ -64,6 +64,7 @@ interface ServiceCardProps {
   pendingCategoryId?: string;
   pendingCategoryName?: string;
   commerceId?: string;
+  onProductsModalChange?: (isOpen: boolean) => void;
 }
 const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   id = '',
@@ -80,7 +81,8 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   className = "",
   pendingCategoryId,
   pendingCategoryName,
-  commerceId
+  commerceId,
+  onProductsModalChange
 }, ref) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -99,6 +101,9 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     name
   };
   useEffect(() => {
+    // Notify parent about products modal state change
+    onProductsModalChange?.(isDialogOpen);
+    
     // Track if dialog was just opened to prevent auto-reopen
     if (isDialogOpen) {
       dialogOpenRef.current = true;

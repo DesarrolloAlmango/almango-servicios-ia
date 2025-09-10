@@ -203,6 +203,7 @@ const Servicios = () => {
   const [titleVisible, setTitleVisible] = useState(false);
   const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(null);
   const [serviceToAutoClick, setServiceToAutoClick] = useState<string | null>(null);
+  const [isProductsModalOpen, setIsProductsModalOpen] = useState(false);
   const serviceCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const pendingCategoryAutoClickRef = useRef<boolean>(false);
 
@@ -722,16 +723,16 @@ const Servicios = () => {
       </div>
       
       {/* Fixed header with Back button and Shopping Cart */}
-      <div className={`fixed top-0 left-0 right-0 bg-[#F8F4F0] shadow-md ${isLocationModalOpen ? 'z-[200]' : 'z-50'}`}>
+      <div className={`fixed top-0 left-0 right-0 bg-[#F8F4F0] shadow-md ${isProductsModalOpen ? 'z-[200]' : 'z-50'}`}>
         <div className="container mx-auto">
           <div className="flex justify-between items-center py-2 px-4">
-            {(!isLocationModalOpen || getCartItemsCount() === 0) && (
+            {(!isProductsModalOpen || getCartItemsCount() === 0) && (
               <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 text-gray-800">
                 <ArrowLeft size={18} />
                 <span>Volver</span>
               </Button>
             )}
-            {isLocationModalOpen && getCartItemsCount() > 0 && <div></div>}
+            {isProductsModalOpen && getCartItemsCount() > 0 && <div></div>}
             
             <div className={`relative cursor-pointer hover:opacity-80 transition-all duration-300 ${getCartItemsCount() > 0 ? 'animate-pulse' : ''}`} onClick={() => setIsCartOpen(true)}>
               <ShoppingCart size={28} className="text-gray-800" />
@@ -820,7 +821,7 @@ const Servicios = () => {
                   </div>) : displayedServices?.map((service, index) => {
               const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
               const isHighlighted = service.id === highlightedServiceId;
-              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Home} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#F8F4F0]" : ""} commerceId={commerceId} ref={element => {
+              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Home} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#F8F4F0]" : ""} commerceId={commerceId} onProductsModalChange={setIsProductsModalOpen} ref={element => {
                 if (service.id) {
                   serviceCardRefs.current[service.id] = element;
                 }
@@ -841,7 +842,7 @@ const Servicios = () => {
                   </div>) : displayedMudanzaServices?.map((service, index) => {
               const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
               const isHighlighted = service.id === highlightedServiceId;
-              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Truck} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#f06900]" : ""} commerceId={commerceId} ref={element => {
+              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Truck} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#f06900]" : ""} commerceId={commerceId} onProductsModalChange={setIsProductsModalOpen} ref={element => {
                 if (service.id) {
                   serviceCardRefs.current[service.id] = element;
                 }
