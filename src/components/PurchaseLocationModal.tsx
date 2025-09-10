@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { MapPin, Loader2, ChevronDown, X } from "lucide-react";
+import { MapPin, Loader2, ChevronDown, X, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import LocationStep from "@/components/checkout/LocationStep";
@@ -27,6 +27,9 @@ interface PurchaseLocationModalProps {
   serviceId?: string;
   categoryId?: string;
   categoryName?: string;
+  // Cart props
+  cartItems?: any[];
+  onCartClick?: () => void;
 }
 interface Department {
   id: string;
@@ -58,7 +61,9 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   commerceName,
   serviceId,
   categoryId,
-  categoryName
+  categoryName,
+  cartItems = [],
+  onCartClick
 }) => {
   const [selectedStore, setSelectedStore] = useState<string>("");
   const [otherStore, setOtherStore] = useState<string>("");
@@ -503,6 +508,23 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       <DialogContent className="sm:max-w-md">
         {/* Add DialogTitle to fix accessibility warning */}
         <DialogTitle className="sr-only">Selección de lugar de compra</DialogTitle>
+        
+        {/* Cart button - positioned in top right corner, only visible when there are items */}
+        {cartItems && cartItems.length > 0 && onCartClick && (
+          <Button
+            onClick={onCartClick}
+            className="absolute top-4 right-12 w-10 h-10 rounded-full bg-primary/90 text-white hover:bg-primary border border-white/20 shadow-lg transition-all duration-300 hover:scale-110 z-10"
+            size="icon"
+            aria-label={`Ver carrito con ${cartItems.reduce((total: number, item: any) => total + (item.quantity || 0), 0)} productos`}
+          >
+            <div className="relative">
+              <ShoppingCart size={16} />
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-semibold text-[10px]">
+                {cartItems.reduce((total: number, item: any) => total + (item.quantity || 0), 0)}
+              </span>
+            </div>
+          </Button>
+        )}
         
         {!validCommerceId && <div className="text-center mb-6">
             <MapPin className="h-12 w-12 mx-auto text-orange-500 mb-2" />

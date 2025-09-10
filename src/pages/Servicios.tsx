@@ -16,7 +16,6 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { lastSelectedCategoryId, lastSelectedCategoryName } from "@/components/CategoryCarousel";
 import { checkPermission } from "@/utils/apiUtils";
-import FloatingCart from "@/components/FloatingCart";
 
 export interface CartItem {
   id: string;
@@ -390,33 +389,17 @@ const Servicios = () => {
     }
   }, [purchaseLocations, selectedServiceId, selectedCategoryId, selectedCategoryName]);
 
-  // Effect to manage header z-index when modal is open
+  // Effect to hide header completely on servicios page
   useEffect(() => {
-    const root = document.documentElement;
-    if (isModalOpen && cartItems.length > 0) {
-      root.style.setProperty('--header-z-index', '9999');
-    } else {
-      root.style.setProperty('--header-z-index', '50');
+    const header = document.querySelector('header');
+    if (header) {
+      header.style.display = 'none';
     }
     
     return () => {
-      root.style.setProperty('--header-z-index', '50');
-    };
-  }, [isModalOpen, cartItems.length]);
-
-  // Effect to listen for modal open/close events
-  useEffect(() => {
-    const handleModalOpen = () => setIsModalOpen(true);
-    const handleModalClose = () => setIsModalOpen(false);
-    
-    document.addEventListener('purchaseModalOpen', handleModalOpen);
-    document.addEventListener('purchaseModalClose', handleModalClose);
-    document.addEventListener('closeProductModal', handleModalClose);
-    
-    return () => {
-      document.removeEventListener('purchaseModalOpen', handleModalOpen);
-      document.removeEventListener('purchaseModalClose', handleModalClose);
-      document.removeEventListener('closeProductModal', handleModalClose);
+      if (header) {
+        header.style.display = '';
+      }
     };
   }, []);
 
@@ -896,12 +879,21 @@ const Servicios = () => {
         
         <CartDrawer isOpen={isCartOpen} setIsOpen={setIsCartOpen} cartItems={cartItems} updateCartItem={updateCartItem} total={getCartTotal()} purchaseLocations={getAllPurchaseLocations()} setPurchaseLocations={setPurchaseLocations} />
         
-        <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => {
-        setIsLocationModalOpen(false);
-        if (pendingServiceCardAction) {
-          setPendingServiceCardAction(false);
-        }
-      }} onSelectLocation={handleLocationSelect} serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`} commerceId={commerceId} commerceName={storeName} />
+        <PurchaseLocationModal 
+          isOpen={isLocationModalOpen} 
+          onClose={() => {
+            setIsLocationModalOpen(false);
+            if (pendingServiceCardAction) {
+              setPendingServiceCardAction(false);
+            }
+          }} 
+          onSelectLocation={handleLocationSelect} 
+          serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`} 
+          commerceId={commerceId} 
+          commerceName={storeName}
+          cartItems={cartItems}
+          onCartClick={() => setIsCartOpen(true)}
+        />
       </main>
 
       <AlertDialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>
@@ -932,13 +924,6 @@ const Servicios = () => {
 
       {/* WhatsApp Button */}
       <WhatsAppButton />
-
-      {/* Floating Cart - only visible when modal is open and has items */}
-      <FloatingCart
-        cartItems={cartItems}
-        onCartClick={() => setIsCartOpen(true)}
-        isVisible={isModalOpen}
-      />
 
       <style>{`
         /* Add custom styling for section titles */
