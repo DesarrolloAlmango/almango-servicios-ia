@@ -152,27 +152,13 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       console.log(`Checking category permission with URL: ${url}`);
       console.log(`Parameters - commerceId: ${commerceId}, serviceId: ${serviceId}, categoryId: ${categoryId}`);
       
-      // Force fresh request with explicit headers to avoid cache issues
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        },
-        cache: 'no-store'
-      });
-      
+      const response = await fetch(url);
       if (!response.ok) {
         console.warn(`Category permission check failed for category ${categoryId}:`, response.status);
         return false;
       }
-      
-      const responseText = await response.text();
-      console.log(`Raw response text for category ${categoryId}:`, responseText);
-      
-      const data = JSON.parse(responseText);
-      console.log(`Parsed permission data for category ${categoryId}:`, data);
+      const data = await response.json();
+      console.log(`Category permission check for ${categoryId}:`, data);
       return data.Permiso === true;
     } catch (error) {
       console.error(`Error checking category permission for ${categoryId}:`, error);
