@@ -148,7 +148,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   // Function to check category permission
   const checkCategoryPermission = async (commerceId: string, serviceId: string, categoryId: string): Promise<boolean> => {
     try {
-      const url = `https://app.almango.com.uy/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${serviceId}&Nivel1=${categoryId}`;
+      const url = `https://app.almango.com.uy/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${serviceId}&Nivel1=${categoryId}&Nivel2=cero&Nivel3=cero`;
       console.log(`Checking category permission with URL: ${url}`);
       console.log(`Parameters - commerceId: ${commerceId}, serviceId: ${serviceId}, categoryId: ${categoryId}`);
       
