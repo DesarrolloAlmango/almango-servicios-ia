@@ -723,7 +723,7 @@ const Servicios = () => {
       </div>
       
       {/* Fixed header with Back button and Shopping Cart */}
-      <div className={`fixed top-0 left-0 right-0 bg-[#F8F4F0] shadow-md ${isProductsModalOpen ? 'z-[200]' : 'z-50'}`}>
+      <div className={`fixed top-0 left-0 right-0 bg-[#F8F4F0] shadow-md transition-all duration-300 ${isProductsModalOpen ? 'z-[9999]' : 'z-50'}`}>
         <div className="container mx-auto">
           <div className="flex justify-between items-center py-2 px-4">
             {(!isProductsModalOpen || getCartItemsCount() === 0) && (
@@ -735,12 +735,21 @@ const Servicios = () => {
             {isProductsModalOpen && getCartItemsCount() > 0 && <div></div>}
             
             <div 
-              className={`relative cursor-pointer hover:opacity-80 transition-all duration-300 select-none ${getCartItemsCount() > 0 ? 'animate-pulse' : ''} ${isProductsModalOpen ? 'z-[300]' : ''}`}
-              onClick={() => setIsCartOpen(true)}
-              style={isProductsModalOpen ? { position: 'relative', zIndex: 300 } : {}}
+              className={`relative cursor-pointer hover:opacity-80 transition-all duration-300 select-none ${getCartItemsCount() > 0 ? 'animate-pulse' : ''}`}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Cart clicked');
+                setIsCartOpen(true);
+              }}
+              style={isProductsModalOpen ? { 
+                position: 'relative', 
+                zIndex: 99999,
+                pointerEvents: 'auto'
+              } : {}}
             >
-              <ShoppingCart size={28} className="text-gray-800 pointer-events-none" />
-              {getCartItemsCount() > 0 && <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center border-2 border-[#FDE1D3] animate-bounce pointer-events-none">
+              <ShoppingCart size={28} className="text-gray-800" />
+              {getCartItemsCount() > 0 && <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center border-2 border-[#FDE1D3] animate-bounce">
                   {getCartItemsCount()}
                 </span>}
             </div>
