@@ -112,7 +112,13 @@ const fallbackMudanzaServices: TarjetaServicio[] = [{
 
 const checkServicePermission = async (commerceId: string, serviceId: string): Promise<boolean> => {
   try {
-    const response = await fetch(`https://app.almango.com.uy/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${serviceId}&Nivel1=0&Nivel2=0&Nivel3=0`);
+    const response = await fetch(`https://app.almango.com.uy/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${serviceId}&Nivel1=0&Nivel2=0&Nivel3=0`, {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
     if (!response.ok) {
       console.warn(`Permission check failed for service ${serviceId}:`, response.status);
       return false;
