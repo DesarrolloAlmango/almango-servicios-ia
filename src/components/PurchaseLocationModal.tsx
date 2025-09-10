@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { MapPin, Loader2, ChevronDown, X, ShoppingCart } from "lucide-react";
+import { MapPin, Loader2, ChevronDown, X } from "lucide-react";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import LocationStep from "@/components/checkout/LocationStep";
@@ -27,9 +27,6 @@ interface PurchaseLocationModalProps {
   serviceId?: string;
   categoryId?: string;
   categoryName?: string;
-  // New prop for cart data
-  cartItems?: any[];
-  onCartClick?: () => void;
 }
 interface Department {
   id: string;
@@ -61,9 +58,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   commerceName,
   serviceId,
   categoryId,
-  categoryName,
-  cartItems = [],
-  onCartClick
+  categoryName
 }) => {
   const [selectedStore, setSelectedStore] = useState<string>("");
   const [otherStore, setOtherStore] = useState<string>("");
@@ -496,22 +491,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       handleModalClose();
     }
   }}>
-      <DialogContent className="sm:max-w-md relative">
-        {/* Carrito flotante cuando hay productos */}
-        {cartItems.length > 0 && onCartClick && (
-          <div 
-            className="absolute top-4 right-16 z-[60] cursor-pointer bg-white/95 backdrop-blur-sm rounded-full p-3 shadow-2xl animate-pulse ring-4 ring-primary/30 hover:bg-white transition-all duration-200"
-            onClick={onCartClick}
-          >
-            <div className="relative">
-              <ShoppingCart className="h-6 w-6 text-primary" />
-              <span className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                {cartItems.length}
-              </span>
-            </div>
-          </div>
-        )}
-        
+      <DialogContent className="sm:max-w-md">
         {/* Add DialogTitle to fix accessibility warning */}
         <DialogTitle className="sr-only">Selección de lugar de compra</DialogTitle>
         
