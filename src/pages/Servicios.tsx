@@ -730,9 +730,9 @@ const Servicios = () => {
               <span>Volver</span>
             </Button>
             
-            <div className={`relative cursor-pointer hover:opacity-80 transition-all duration-300 ${getCartItemsCount() > 0 ? 'animate-pulse z-[200]' : 'z-10'}`} onClick={() => setIsCartOpen(true)}>
+            <div className={`relative cursor-pointer hover:opacity-80 transition-all duration-300 ${getCartItemsCount() > 0 ? 'animate-pulse z-[60]' : 'z-10'}`} onClick={() => setIsCartOpen(true)}>
               <ShoppingCart size={40} className="text-gray-800" />
-              {getCartItemsCount() > 0 && <span className="absolute -top-2 -right-2 bg-primary text-white text-sm rounded-full h-6 w-6 flex items-center justify-center border-2 border-[#FDE1D3] animate-bounce">
+              {getCartItemsCount() > 0 && <span className="absolute -top-2 -right-2 bg-primary text-white text-sm rounded-full h-6 w-6 flex items-center justify-center border-2 border-[#FDE1D3] animate-bounce z-[60]">
                   {getCartItemsCount()}
                 </span>}
             </div>
