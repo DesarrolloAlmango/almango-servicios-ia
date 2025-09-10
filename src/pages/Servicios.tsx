@@ -722,7 +722,7 @@ const Servicios = () => {
       </div>
       
       {/* Fixed header with Back button and Shopping Cart */}
-      <div className={`fixed top-0 left-0 right-0 bg-[#F8F4F0] shadow-md ${getCartItemsCount() > 0 ? 'z-[200]' : 'z-50'}`}>
+      <div className={`fixed top-0 left-0 right-0 bg-[#F8F4F0] shadow-md ${isLocationModalOpen && getCartItemsCount() > 0 ? 'z-[200]' : 'z-50'}`}>
         <div className="container mx-auto">
           <div className="flex justify-between items-center py-2 px-4">
             {getCartItemsCount() === 0 && (
@@ -731,6 +731,7 @@ const Servicios = () => {
                 <span>Volver</span>
               </Button>
             )}
+            {getCartItemsCount() > 0 && <div></div>}
             
             <div className={`relative cursor-pointer hover:opacity-80 transition-all duration-300 ${getCartItemsCount() > 0 ? 'animate-pulse' : ''}`} onClick={() => setIsCartOpen(true)}>
               <ShoppingCart size={28} className="text-gray-800" />
