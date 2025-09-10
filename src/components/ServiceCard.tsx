@@ -154,7 +154,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
         return false;
       }
       
-      const url = `/api/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${serviceId}&Nivel1=${categoryId}&Nivel2=0&Nivel3=0`;
+      const url = `https://app.almango.com.uy/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${serviceId}&Nivel1=${categoryId}&Nivel2=0&Nivel3=0`;
       console.log(`Checking category permission with URL: ${url}`);
       console.log(`Parameters - commerceId: ${commerceId}, serviceId: ${serviceId}, categoryId: ${categoryId}`);
       
