@@ -493,7 +493,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       handleModalClose();
     }
   }}>
-      <DialogContent className={`sm:max-w-md ${cartItemCount > 0 ? 'mt-[10px]' : ''}`}>
+      <DialogContent className={`sm:max-w-md z-[9999] ${cartItemCount > 0 ? 'mt-[10px]' : ''}`}>
         {/* Add DialogTitle to fix accessibility warning */}
         <DialogTitle className="sr-only">Selección de lugar de compra</DialogTitle>
         
