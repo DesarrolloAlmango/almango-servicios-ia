@@ -112,6 +112,12 @@ const fallbackMudanzaServices: TarjetaServicio[] = [{
 
 const checkServicePermission = async (commerceId: string, serviceId: string): Promise<boolean> => {
   try {
+    // Ensure commerceId is valid and not a placeholder
+    if (!commerceId || commerceId === ':commerceId') {
+      console.warn(`Invalid commerceId provided: ${commerceId}`);
+      return false;
+    }
+    
     const response = await fetch(`/api/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${serviceId}&Nivel1=0&Nivel2=0&Nivel3=0`, {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',

@@ -246,6 +246,12 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   // Function to check product permission
   const checkProductPermission = async (commerceId: string, serviceId: string, categoryId: string, productId: string): Promise<boolean> => {
     try {
+      // Ensure commerceId is valid and not a placeholder
+      if (!commerceId || commerceId === ':commerceId') {
+        console.warn(`Invalid commerceId provided: ${commerceId}`);
+        return false;
+      }
+      
       const url = `/api/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${serviceId}&Nivel1=${categoryId}&Nivel2=${productId}&Nivel3=0`;
       console.log(`Checking product permission with URL: ${url}`);
       console.log(`Parameters - commerceId: ${commerceId}, serviceId: ${serviceId}, categoryId: ${categoryId}, productId: ${productId}`);
