@@ -686,12 +686,9 @@ const Servicios = () => {
               
               <div 
                 className={`relative cursor-pointer ${
-                  isLocationModalOpen && cartItems.length > 0 
-                    ? "z-[100] bg-white/30 backdrop-blur-sm rounded-full p-3 shadow-2xl animate-pulse ring-4 ring-white/50" 
-                    : ""
+                  isLocationModalOpen && cartItems.length > 0 ? "cart-above-modal" : ""
                 }`} 
                 onClick={() => setIsCartOpen(true)}
-                style={isLocationModalOpen && cartItems.length > 0 ? { position: 'relative', zIndex: 100 } : {}}
               >
                 <ShoppingCart size={24} className="text-white" />
                 {getCartItemsCount() > 0 && <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -730,9 +727,11 @@ const Servicios = () => {
       </div>
       
       {/* Fixed header with Back button and Shopping Cart */}
-      <div className={`fixed top-0 left-0 right-0 bg-[#F8F4F0] shadow-md ${
-        isLocationModalOpen && cartItems.length > 0 ? "z-[100]" : "z-50"
-      }`}>
+      <div 
+        className={`fixed top-0 left-0 right-0 bg-[#F8F4F0] shadow-md ${
+          isLocationModalOpen && cartItems.length > 0 ? "header-above-modal" : "z-50"
+        }`}
+      >
         <div className="container mx-auto">
           <div className="flex justify-between items-center py-4 px-4">
             <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 text-gray-800">
@@ -742,12 +741,9 @@ const Servicios = () => {
             
             <div 
               className={`relative cursor-pointer hover:opacity-80 transition-opacity ${
-                isLocationModalOpen && cartItems.length > 0 
-                  ? "bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-2xl animate-pulse ring-4 ring-primary/50" 
-                  : ""
+                isLocationModalOpen && cartItems.length > 0 ? "cart-above-modal-mobile" : ""
               }`} 
               onClick={() => setIsCartOpen(true)}
-              style={isLocationModalOpen && cartItems.length > 0 ? { position: 'relative', zIndex: 100 } : {}}
             >
               <ShoppingCart size={40} className="text-gray-800" />
               {getCartItemsCount() > 0 && <span className="absolute -top-2 -right-2 bg-primary text-white text-sm rounded-full h-6 w-6 flex items-center justify-center border-2 border-[#FDE1D3]">
@@ -923,6 +919,35 @@ const Servicios = () => {
         #armado-instalacion + div + div h2 {
           color: white;
           font-weight: 600;
+        }
+
+        /* Estilos imperativos para que el carrito aparezca sobre el modal */
+        .cart-above-modal {
+          position: relative !important;
+          z-index: 9999 !important;
+          background-color: rgba(255, 255, 255, 0.3) !important;
+          backdrop-filter: blur(4px) !important;
+          border-radius: 50% !important;
+          padding: 12px !important;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
+          border: 4px solid rgba(255, 255, 255, 0.5) !important;
+        }
+        
+        .cart-above-modal-mobile {
+          position: relative !important;
+          z-index: 9999 !important;
+          background-color: rgba(255, 255, 255, 0.95) !important;
+          backdrop-filter: blur(8px) !important;
+          border-radius: 50% !important;
+          padding: 12px !important;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
+          border: 4px solid rgba(59, 130, 246, 0.5) !important;
+        }
+        
+        .header-above-modal {
+          z-index: 9999 !important;
         }
 
         @media (min-width: 640px) and (max-width: 1023px) {
