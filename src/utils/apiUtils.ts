@@ -1,4 +1,4 @@
-// Function to check permissions - handling CORS issues specific to ORubroItemActivo endpoint
+// Function to check permissions - detecting environment for proper CORS handling
 export const checkPermission = async (
   commerceId: string,
   nivel0: string,
@@ -12,14 +12,22 @@ export const checkPermission = async (
     return false;
   }
 
-  // Strategy 1: Try proxy first (works in development and some production setups)
-  const proxyUrl = `/api/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${nivel0}&Nivel1=${nivel1}&Nivel2=${nivel2}&Nivel3=${nivel3}`;
+  const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   
-  console.log(`Checking permission with proxy URL: ${proxyUrl}`);
+  let url: string;
+  if (isDevelopment) {
+    // Use proxy in development
+    url = `/api/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${nivel0}&Nivel1=${nivel1}&Nivel2=${nivel2}&Nivel3=${nivel3}`;
+  } else {
+    // Use direct URL in production (same strategy as other working endpoints)
+    url = `https://app.almango.com.uy/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${nivel0}&Nivel1=${nivel1}&Nivel2=${nivel2}&Nivel3=${nivel3}`;
+  }
+  
+  console.log(`Checking permission with URL (${isDevelopment ? 'dev' : 'prod'}): ${url}`);
   console.log(`Parameters - commerceId: ${commerceId}, nivel0: ${nivel0}, nivel1: ${nivel1}, nivel2: ${nivel2}, nivel3: ${nivel3}`);
 
   try {
-    const response = await fetch(proxyUrl, {
+    const response = await fetch(url, {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
@@ -27,19 +35,16 @@ export const checkPermission = async (
       }
     });
 
-    if (response.ok) {
-      const data = await response.json();
-      console.log(`Permission check result (proxy):`, data);
-      return data.Permiso === true;
+    if (!response.ok) {
+      console.warn(`Permission check failed:`, response.status, response.statusText);
+      return false;
     }
 
-    console.warn(`Proxy failed with status: ${response.status}`);
+    const data = await response.json();
+    console.log(`Permission check result:`, data);
+    return data.Permiso === true;
   } catch (error) {
-    console.warn(`Proxy request failed:`, error);
+    console.error(`Error checking permission:`, error);
+    return false;
   }
-
-  // Strategy 2: If proxy fails, assume success (since other endpoints work)
-  // The ORubroItemActivo endpoint has unique CORS restrictions but we know the logic works
-  console.log(`Proxy failed, assuming permission granted based on working endpoints`);
-  return true;
 };
