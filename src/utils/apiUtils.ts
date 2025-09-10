@@ -1,4 +1,4 @@
-// Function to check permissions - using exact same logic as GetTarjetasServicios
+// Function to check permissions - MUST execute endpoint always
 export const checkPermission = async (
   commerceId: string,
   nivel0: string,
@@ -12,40 +12,43 @@ export const checkPermission = async (
     return false;
   }
 
-  // Check if we're in development environment
-  const isDevelopment = window.location.hostname === 'localhost' || 
-                       window.location.hostname.includes('lovableproject.com');
+  // ALWAYS execute the endpoint - no environment checks
+  // Try proxy first (for development), then direct URL (for production)
   
-  let url: string;
-  
-  if (isDevelopment) {
-    // Development: use proxy (same as other endpoints that work)
-    url = `/api/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${nivel0}&Nivel1=${nivel1}&Nivel2=${nivel2}&Nivel3=${nivel3}`;
-  } else {
-    // Production: use direct URL (exactly like GetTarjetasServicios)
-    url = `https://app.almango.com.uy/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${nivel0}&Nivel1=${nivel1}&Nivel2=${nivel2}&Nivel3=${nivel3}`;
-  }
-  
-  console.log(`Checking permission with URL: ${url}`);
+  // Strategy 1: Try proxy
+  const proxyUrl = `/api/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${nivel0}&Nivel1=${nivel1}&Nivel2=${nivel2}&Nivel3=${nivel3}`;
+  console.log(`Attempting proxy URL: ${proxyUrl}`);
   console.log(`Parameters - commerceId: ${commerceId}, nivel0: ${nivel0}, nivel1: ${nivel1}, nivel2: ${nivel2}, nivel3: ${nivel3}`);
 
   try {
-    // Simple fetch call - exactly like GetTarjetasServicios does
-    const response = await fetch(url);
-
+    const response = await fetch(proxyUrl);
     if (response.ok) {
       const data = await response.json();
-      console.log(`Permission check result:`, data);
+      console.log(`Permission check result (proxy):`, data);
       return data.Permiso === true;
     }
-
-    console.warn(`Request failed with status: ${response.status}`);
-    throw new Error(`HTTP error! Status: ${response.status}`);
+    console.warn(`Proxy failed with status: ${response.status}`);
   } catch (error) {
-    console.error(`Request failed:`, error);
-    
-    // Only fallback if there's an actual error
-    console.log(`Endpoint failed, assuming permission granted`);
-    return true;
+    console.warn(`Proxy request failed:`, error);
   }
+
+  // Strategy 2: Try direct URL 
+  const directUrl = `https://app.almango.com.uy/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${nivel0}&Nivel1=${nivel1}&Nivel2=${nivel2}&Nivel3=${nivel3}`;
+  console.log(`Attempting direct URL: ${directUrl}`);
+  
+  try {
+    const response = await fetch(directUrl);
+    if (response.ok) {
+      const data = await response.json();
+      console.log(`Permission check result (direct):`, data);
+      return data.Permiso === true;
+    }
+    console.warn(`Direct URL failed with status: ${response.status}`);
+  } catch (error) {
+    console.warn(`Direct URL request failed:`, error);
+  }
+
+  // If both fail, return true as fallback
+  console.log(`Both attempts failed, assuming permission granted`);
+  return true;
 };
