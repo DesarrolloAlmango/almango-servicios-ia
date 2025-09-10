@@ -65,7 +65,6 @@ interface ServiceCardProps {
   pendingCategoryName?: string;
   commerceId?: string;
   onProductsModalChange?: (isOpen: boolean) => void;
-  isHeaderVisible?: boolean;
 }
 const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   id = '',
@@ -83,8 +82,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   pendingCategoryId,
   pendingCategoryName,
   commerceId,
-  onProductsModalChange,
-  isHeaderVisible = false
+  onProductsModalChange
 }, ref) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -464,8 +462,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       }
     }}>
         <DialogContent className={`max-w-[850px] w-full max-h-[90vh] overflow-y-auto p-0
-            ${!selectedCategory && !isLoading && !error ? "sm:max-w-[850px] w-[100%] sm:w-auto rounded-none sm:rounded-lg" : "max-w-4xl"}
-            ${isHeaderVisible ? "mt-16" : ""}`}
+            ${!selectedCategory && !isLoading && !error ? "sm:max-w-[850px] w-[100%] sm:w-auto rounded-none sm:rounded-lg" : "max-w-4xl"}`}
       // Disable auto-close during category selection
       hideCloseButton={categorySelectionInProgressRef.current}>
           {/* Add DialogTitle for accessibility */}
