@@ -205,7 +205,6 @@ const Servicios = () => {
   const [serviceToAutoClick, setServiceToAutoClick] = useState<string | null>(null);
   const serviceCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const pendingCategoryAutoClickRef = useRef<boolean>(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
     data: services,
@@ -388,20 +387,6 @@ const Servicios = () => {
       return () => clearTimeout(timer);
     }
   }, [purchaseLocations, selectedServiceId, selectedCategoryId, selectedCategoryName]);
-
-  // Effect to hide header completely on servicios page
-  useEffect(() => {
-    const header = document.querySelector('header');
-    if (header) {
-      header.style.display = 'none';
-    }
-    
-    return () => {
-      if (header) {
-        header.style.display = '';
-      }
-    };
-  }, []);
 
   useEffect(() => {
     const fetchStoreName = async () => {
@@ -699,12 +684,7 @@ const Servicios = () => {
                 <span>Volver</span>
               </Button>
               
-              <div 
-                className={`relative cursor-pointer ${
-                  isLocationModalOpen && cartItems.length > 0 ? "cart-above-modal" : ""
-                }`} 
-                onClick={() => setIsCartOpen(true)}
-              >
+              <div className="relative cursor-pointer" onClick={() => setIsCartOpen(true)}>
                 <ShoppingCart size={24} className="text-white" />
                 {getCartItemsCount() > 0 && <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                     {getCartItemsCount()}
@@ -742,11 +722,7 @@ const Servicios = () => {
       </div>
       
       {/* Fixed header with Back button and Shopping Cart */}
-      <div 
-        className={`fixed top-0 left-0 right-0 bg-[#F8F4F0] shadow-md ${
-          isLocationModalOpen && cartItems.length > 0 ? "header-above-modal" : "z-50"
-        }`}
-      >
+      <div className="fixed top-0 left-0 right-0 z-50 bg-[#F8F4F0] shadow-md">
         <div className="container mx-auto">
           <div className="flex justify-between items-center py-4 px-4">
             <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 text-gray-800">
@@ -754,14 +730,9 @@ const Servicios = () => {
               <span>Volver</span>
             </Button>
             
-            <div 
-              className={`relative cursor-pointer hover:opacity-80 transition-opacity ${
-                isLocationModalOpen && cartItems.length > 0 ? "cart-above-modal-mobile" : ""
-              }`} 
-              onClick={() => setIsCartOpen(true)}
-            >
+            <div className={`relative cursor-pointer hover:opacity-80 transition-all duration-300 ${getCartItemsCount() > 0 ? 'animate-pulse z-[60]' : 'z-10'}`} onClick={() => setIsCartOpen(true)}>
               <ShoppingCart size={40} className="text-gray-800" />
-              {getCartItemsCount() > 0 && <span className="absolute -top-2 -right-2 bg-primary text-white text-sm rounded-full h-6 w-6 flex items-center justify-center border-2 border-[#FDE1D3]">
+              {getCartItemsCount() > 0 && <span className="absolute -top-2 -right-2 bg-primary text-white text-sm rounded-full h-6 w-6 flex items-center justify-center border-2 border-[#FDE1D3] animate-bounce z-[60]">
                   {getCartItemsCount()}
                 </span>}
             </div>
@@ -879,21 +850,12 @@ const Servicios = () => {
         
         <CartDrawer isOpen={isCartOpen} setIsOpen={setIsCartOpen} cartItems={cartItems} updateCartItem={updateCartItem} total={getCartTotal()} purchaseLocations={getAllPurchaseLocations()} setPurchaseLocations={setPurchaseLocations} />
         
-        <PurchaseLocationModal 
-          isOpen={isLocationModalOpen} 
-          onClose={() => {
-            setIsLocationModalOpen(false);
-            if (pendingServiceCardAction) {
-              setPendingServiceCardAction(false);
-            }
-          }} 
-          onSelectLocation={handleLocationSelect} 
-          serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`} 
-          commerceId={commerceId} 
-          commerceName={storeName}
-          cartItems={cartItems}
-          onCartClick={() => setIsCartOpen(true)}
-        />
+        <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => {
+        setIsLocationModalOpen(false);
+        if (pendingServiceCardAction) {
+          setPendingServiceCardAction(false);
+        }
+      }} onSelectLocation={handleLocationSelect} serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`} commerceId={commerceId} commerceName={storeName} />
       </main>
 
       <AlertDialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>
@@ -943,35 +905,6 @@ const Servicios = () => {
         #armado-instalacion + div + div h2 {
           color: white;
           font-weight: 600;
-        }
-
-        /* Estilos imperativos para que el carrito aparezca sobre el modal */
-        .cart-above-modal {
-          position: relative !important;
-          z-index: 9999 !important;
-          background-color: rgba(255, 255, 255, 0.3) !important;
-          backdrop-filter: blur(4px) !important;
-          border-radius: 50% !important;
-          padding: 12px !important;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
-          border: 4px solid rgba(255, 255, 255, 0.5) !important;
-        }
-        
-        .cart-above-modal-mobile {
-          position: relative !important;
-          z-index: 9999 !important;
-          background-color: rgba(255, 255, 255, 0.95) !important;
-          backdrop-filter: blur(8px) !important;
-          border-radius: 50% !important;
-          padding: 12px !important;
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
-          border: 4px solid rgba(59, 130, 246, 0.5) !important;
-        }
-        
-        .header-above-modal {
-          z-index: 9999 !important;
         }
 
         @media (min-width: 640px) and (max-width: 1023px) {

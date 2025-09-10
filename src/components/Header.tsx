@@ -107,7 +107,7 @@ const Header = () => {
   };
 
   return (
-    <header className={cn('fixed top-0 right-0 transition-all duration-300', isVisible ? 'translate-y-0' : '-translate-y-full')} style={{ zIndex: 'var(--header-z-index, 50)' }}>
+    <header className={cn('fixed top-0 right-0 z-50 transition-all duration-300', isVisible ? 'translate-y-0' : '-translate-y-full')}>
       <div className="relative px-4 py-4">
         {/* Hamburger menu with transparent dark background */}
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
