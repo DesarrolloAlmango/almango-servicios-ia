@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
-const Header = ({ cartItemCount = 0, isModalOpen = false }: { cartItemCount?: number; isModalOpen?: boolean }) => {
+const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -106,11 +106,8 @@ const Header = ({ cartItemCount = 0, isModalOpen = false }: { cartItemCount?: nu
     setIsSheetOpen(false);
   };
 
-  // Determine z-index based on modal state and cart contents
-  const headerZIndex = isModalOpen && cartItemCount > 0 ? 'z-[9999]' : 'z-50';
-
   return (
-    <header className={cn('fixed top-0 right-0 transition-all duration-300', headerZIndex, isVisible ? 'translate-y-0' : '-translate-y-full')}>
+    <header className={cn('fixed top-0 right-0 z-50 transition-all duration-300', isVisible ? 'translate-y-0' : '-translate-y-full')}>
       <div className="relative px-4 py-4">
         {/* Hamburger menu with transparent dark background */}
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>

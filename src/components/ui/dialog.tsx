@@ -15,13 +15,12 @@ const DialogClose = DialogPrimitive.Close
 
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay> & { zIndex?: string }
->(({ className, zIndex, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
+>(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-      zIndex || "z-50",
+      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
     {...props}
@@ -31,15 +30,14 @@ DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 interface DialogContentProps extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> {
   hideCloseButton?: boolean;
-  overlayZIndex?: string;
 }
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
->(({ className, children, hideCloseButton = false, overlayZIndex, ...props }, ref) => (
+>(({ className, children, hideCloseButton = false, ...props }, ref) => (
   <DialogPortal>
-    <DialogOverlay zIndex={overlayZIndex} />
+    <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
