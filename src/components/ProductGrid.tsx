@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { ArrowLeft, ShoppingCart, RefreshCw } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import ProductTermsModal from "./checkout/ProductTermsModal";
+import { checkPermission } from "@/utils/apiUtils";
 
 interface CartItem {
   id: string;
@@ -243,38 +244,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   const categorySelected = useRef(false);
   const componentMounted = useRef(false);
 
-  // Function to check product permission
+  // Function to check product permission using the utility
   const checkProductPermission = async (commerceId: string, serviceId: string, categoryId: string, productId: string): Promise<boolean> => {
-    try {
-      // Ensure commerceId is valid and not a placeholder
-      if (!commerceId || commerceId === ':commerceId') {
-        console.warn(`Invalid commerceId provided: ${commerceId}`);
-        return false;
-      }
-      
-      // Always use proxy URL - works in both development and production
-      const url = `/api/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${serviceId}&Nivel1=${categoryId}&Nivel2=${productId}&Nivel3=0`;
-      console.log(`Checking product permission with URL: ${url}`);
-      console.log(`Parameters - commerceId: ${commerceId}, serviceId: ${serviceId}, categoryId: ${categoryId}, productId: ${productId}`);
-      
-      const response = await fetch(url, {
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      });
-      if (!response.ok) {
-        console.warn(`Product permission check failed for product ${productId}:`, response.status);
-        return false;
-      }
-      const data = await response.json();
-      console.log(`Product permission check for ${productId}:`, data);
-      return data.Permiso === true;
-    } catch (error) {
-      console.error(`Error checking product permission for ${productId}:`, error);
-      return false;
-    }
+    return await checkPermission(commerceId, serviceId, categoryId, productId);
   };
 
   // Function to fetch products via ObtenerNivel2 endpoint

@@ -15,6 +15,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { lastSelectedCategoryId, lastSelectedCategoryName } from "@/components/CategoryCarousel";
+import { checkPermission } from "@/utils/apiUtils";
 
 export interface CartItem {
   id: string;
@@ -111,32 +112,7 @@ const fallbackMudanzaServices: TarjetaServicio[] = [{
 }];
 
 const checkServicePermission = async (commerceId: string, serviceId: string): Promise<boolean> => {
-  try {
-    // Ensure commerceId is valid and not a placeholder
-    if (!commerceId || commerceId === ':commerceId') {
-      console.warn(`Invalid commerceId provided: ${commerceId}`);
-      return false;
-    }
-    
-    // Always use proxy URL - works in both development and production
-    const response = await fetch(`/api/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${serviceId}&Nivel1=0&Nivel2=0&Nivel3=0`, {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
-    });
-    if (!response.ok) {
-      console.warn(`Permission check failed for service ${serviceId}:`, response.status);
-      return false;
-    }
-    const data = await response.json();
-    console.log(`Permission check for service ${serviceId}:`, data);
-    return data.Permiso === true;
-  } catch (error) {
-    console.error(`Error checking permission for service ${serviceId}:`, error);
-    return false;
-  }
+  return await checkPermission(commerceId, serviceId);
 };
 
 const fetchTarjetasServicios = async (commerceId?: string): Promise<TarjetaServicio[]> => {

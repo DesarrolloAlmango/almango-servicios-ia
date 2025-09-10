@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
 import ProductGrid from "./ProductGrid";
+import { checkPermission } from "@/utils/apiUtils";
 interface CartItem {
   id: string;
   name: string;
@@ -145,38 +146,9 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       return () => clearTimeout(timer);
     }
   }, [forceOpen, id, purchaseLocation, isDialogOpen, pendingCategoryId, pendingCategoryName]);
-  // Function to check category permission
+  // Function to check category permission using the utility
   const checkCategoryPermission = async (commerceId: string, serviceId: string, categoryId: string): Promise<boolean> => {
-    try {
-      // Ensure commerceId is valid and not a placeholder
-      if (!commerceId || commerceId === ':commerceId') {
-        console.warn(`Invalid commerceId provided: ${commerceId}`);
-        return false;
-      }
-      
-      // Always use proxy URL - works in both development and production
-      const url = `/api/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${serviceId}&Nivel1=${categoryId}&Nivel2=0&Nivel3=0`;
-      console.log(`Checking category permission with URL: ${url}`);
-      console.log(`Parameters - commerceId: ${commerceId}, serviceId: ${serviceId}, categoryId: ${categoryId}`);
-      
-      const response = await fetch(url, {
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      });
-      if (!response.ok) {
-        console.warn(`Category permission check failed for category ${categoryId}:`, response.status);
-        return false;
-      }
-      const data = await response.json();
-      console.log(`Category permission check for ${categoryId}:`, data);
-      return data.Permiso === true;
-    } catch (error) {
-      console.error(`Error checking category permission for ${categoryId}:`, error);
-      return false;
-    }
+    return await checkPermission(commerceId, serviceId, categoryId);
   };
 
   const fetchCategories = async (serviceId: string, commerceId?: string) => {
