@@ -493,8 +493,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       handleModalClose();
     }
   }}>
-      <div className="fixed inset-0 z-[999998] bg-black/80" style={{ zIndex: 999998 }} />
-      <DialogContent className={`sm:max-w-md ${cartItemCount > 0 ? 'mt-[10px]' : ''} z-[999999]`} style={{ zIndex: 999999 }}>
+      <DialogContent className={`sm:max-w-md ${cartItemCount > 0 ? 'mt-[10px]' : ''}`}>
         {/* Add DialogTitle to fix accessibility warning */}
         <DialogTitle className="sr-only">Selección de lugar de compra</DialogTitle>
         
