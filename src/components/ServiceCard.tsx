@@ -150,7 +150,6 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   const checkCategoryPermission = async (commerceId: string, serviceId: string, categoryId: string): Promise<boolean> => {
     return await checkPermission(commerceId, serviceId, categoryId);
   };
-
   const fetchCategories = async (serviceId: string, commerceId?: string) => {
     console.log("Fetching categories for service:", serviceId, "commerceId:", commerceId);
     setIsLoading(true);
@@ -162,7 +161,6 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       }
       const data = await response.json();
       console.log("Categories data received:", data);
-      
       let transformedCategories = data.map((category: any) => ({
         id: category.id || category.Nivel1Id,
         name: category.name || category.Nivel1Descripcion,
@@ -173,15 +171,12 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       // Filter categories by permissions if commerceId is provided
       if (commerceId && serviceId) {
         console.log("Checking category permissions with commerceId:", commerceId, "serviceId:", serviceId);
-        const permissionChecks = transformedCategories.map((category: Category) => 
-          checkCategoryPermission(commerceId, serviceId, category.id)
-        );
+        const permissionChecks = transformedCategories.map((category: Category) => checkCategoryPermission(commerceId, serviceId, category.id));
         const permissions = await Promise.all(permissionChecks);
         const filteredCategories = transformedCategories.filter((_: any, index: number) => permissions[index]);
         console.log(`Filtered ${filteredCategories.length} of ${transformedCategories.length} categories based on permissions`);
         transformedCategories = filteredCategories;
       }
-      
       setCategories(transformedCategories);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
@@ -472,7 +467,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
             <h2 className="text-xl font-bold mb-2 sm:mb-4 text-center px-3 mx-auto text-orange-500 uppercase \ntruncate sm:truncate-0 sm:whitespace-normal sm:break-words\nmax-w-[300px] sm:max-w-none">{name}</h2>
             
             {purchaseLocation && selectedCategory && <div className="mb-4 bg-blue-50 p-3 rounded-lg border border-blue-200 text-sm">
-                <span className="font-medium text-blue-700">Lugar de compra: </span>
+                <span className="font-medium text-blue-700">Recomendado por: </span>
                 <span className="text-blue-600">
                   {purchaseLocation.storeId === "other" ? purchaseLocation.otherLocation : purchaseLocation.storeName}
                 </span>
