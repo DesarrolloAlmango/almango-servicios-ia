@@ -734,9 +734,13 @@ const Servicios = () => {
             )}
             {isProductsModalOpen && getCartItemsCount() > 0 && <div></div>}
             
-            <div className={`relative cursor-pointer hover:opacity-80 transition-all duration-300 ${getCartItemsCount() > 0 ? 'animate-pulse' : ''}`} onClick={() => setIsCartOpen(true)}>
-              <ShoppingCart size={28} className="text-gray-800" />
-              {getCartItemsCount() > 0 && <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center border-2 border-[#FDE1D3] animate-bounce">
+            <div 
+              className={`relative cursor-pointer hover:opacity-80 transition-all duration-300 select-none ${getCartItemsCount() > 0 ? 'animate-pulse' : ''} ${isProductsModalOpen ? 'z-[300]' : ''}`}
+              onClick={() => setIsCartOpen(true)}
+              style={isProductsModalOpen ? { position: 'relative', zIndex: 300 } : {}}
+            >
+              <ShoppingCart size={28} className="text-gray-800 pointer-events-none" />
+              {getCartItemsCount() > 0 && <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center border-2 border-[#FDE1D3] animate-bounce pointer-events-none">
                   {getCartItemsCount()}
                 </span>}
             </div>
