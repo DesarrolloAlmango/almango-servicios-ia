@@ -727,11 +727,7 @@ const Servicios = () => {
       </div>
       
       {/* Fixed header with Back button and Shopping Cart */}
-      <div 
-        className={`fixed top-0 left-0 right-0 bg-[#F8F4F0] shadow-md ${
-          isLocationModalOpen && cartItems.length > 0 ? "header-above-modal" : "z-50"
-        }`}
-      >
+      <div className="fixed top-0 left-0 right-0 z-50 bg-[#F8F4F0] shadow-md">
         <div className="container mx-auto">
           <div className="flex justify-between items-center py-4 px-4">
             <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 text-gray-800">
@@ -944,10 +940,6 @@ const Servicios = () => {
           box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
           animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite !important;
           border: 4px solid rgba(59, 130, 246, 0.5) !important;
-        }
-        
-        .header-above-modal {
-          z-index: 9999 !important;
         }
 
         @media (min-width: 640px) and (max-width: 1023px) {
