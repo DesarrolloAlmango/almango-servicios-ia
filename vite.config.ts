@@ -59,6 +59,11 @@ export default defineConfig(({ mode }) => ({
     },
   },
 
+  // Configuración para manejar proxies en producción también
+  define: {
+    __API_PROXY_TARGET__: JSON.stringify('https://app.almango.com.uy')
+  },
+
   // Precarga de recursos (mejora rendimiento en producción)
   preview: {
     port: 8080,  // Puerto para `vite preview` (simula producción local)
