@@ -153,7 +153,6 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       console.log(`Parameters - commerceId: ${commerceId}, serviceId: ${serviceId}, categoryId: ${categoryId}`);
       
       const response = await fetch(url, {
-        mode: 'cors',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           'Pragma': 'no-cache',
