@@ -687,10 +687,11 @@ const Servicios = () => {
               <div 
                 className={`relative cursor-pointer ${
                   isLocationModalOpen && cartItems.length > 0 
-                    ? "z-[60] bg-white/20 backdrop-blur-sm rounded-full p-3 shadow-2xl animate-pulse" 
+                    ? "z-[100] bg-white/30 backdrop-blur-sm rounded-full p-3 shadow-2xl animate-pulse ring-4 ring-white/50" 
                     : ""
                 }`} 
                 onClick={() => setIsCartOpen(true)}
+                style={isLocationModalOpen && cartItems.length > 0 ? { position: 'relative', zIndex: 100 } : {}}
               >
                 <ShoppingCart size={24} className="text-white" />
                 {getCartItemsCount() > 0 && <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -730,7 +731,7 @@ const Servicios = () => {
       
       {/* Fixed header with Back button and Shopping Cart */}
       <div className={`fixed top-0 left-0 right-0 bg-[#F8F4F0] shadow-md ${
-        isLocationModalOpen && cartItems.length > 0 ? "z-[60]" : "z-50"
+        isLocationModalOpen && cartItems.length > 0 ? "z-[100]" : "z-50"
       }`}>
         <div className="container mx-auto">
           <div className="flex justify-between items-center py-4 px-4">
@@ -742,10 +743,11 @@ const Servicios = () => {
             <div 
               className={`relative cursor-pointer hover:opacity-80 transition-opacity ${
                 isLocationModalOpen && cartItems.length > 0 
-                  ? "bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-2xl animate-pulse ring-2 ring-primary/30" 
+                  ? "bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-2xl animate-pulse ring-4 ring-primary/50" 
                   : ""
               }`} 
               onClick={() => setIsCartOpen(true)}
+              style={isLocationModalOpen && cartItems.length > 0 ? { position: 'relative', zIndex: 100 } : {}}
             >
               <ShoppingCart size={40} className="text-gray-800" />
               {getCartItemsCount() > 0 && <span className="absolute -top-2 -right-2 bg-primary text-white text-sm rounded-full h-6 w-6 flex items-center justify-center border-2 border-[#FDE1D3]">
