@@ -62,6 +62,7 @@ interface ServiceCardProps {
   className?: string;
   pendingCategoryId?: string;
   pendingCategoryName?: string;
+  commerceId?: string;
 }
 const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   id = '',
@@ -77,7 +78,8 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
   currentCartItems = [],
   className = "",
   pendingCategoryId,
-  pendingCategoryName
+  pendingCategoryName,
+  commerceId
 }, ref) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -124,12 +126,12 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       } else {
         // Solo si no hay categoryId, cargamos primero las categorías
         console.log("No category ID, loading categories first");
-        fetchCategories(id);
+        fetchCategories(id, commerceId);
       }
     } else if (forceOpen && id && !dialogOpenRef.current) {
       console.log("Force open dialog without purchase location");
       setIsDialogOpen(true);
-      fetchCategories(id);
+      fetchCategories(id, commerceId);
     }
 
     // Reset the tracking ref when dialog closes
@@ -143,8 +145,25 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       return () => clearTimeout(timer);
     }
   }, [forceOpen, id, purchaseLocation, isDialogOpen, pendingCategoryId, pendingCategoryName]);
-  const fetchCategories = async (serviceId: string) => {
-    console.log("Fetching categories for service:", serviceId);
+  // Function to check category permission
+  const checkCategoryPermission = async (commerceId: string, serviceId: string, categoryId: string): Promise<boolean> => {
+    try {
+      const response = await fetch(`https://app.almango.com.uy/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${serviceId}&Nivel1=${categoryId}`);
+      if (!response.ok) {
+        console.warn(`Category permission check failed for category ${categoryId}:`, response.status);
+        return false;
+      }
+      const data = await response.json();
+      console.log(`Category permission check for ${categoryId}:`, data);
+      return data.Permiso === true;
+    } catch (error) {
+      console.error(`Error checking category permission for ${categoryId}:`, error);
+      return false;
+    }
+  };
+
+  const fetchCategories = async (serviceId: string, commerceId?: string) => {
+    console.log("Fetching categories for service:", serviceId, "commerceId:", commerceId);
     setIsLoading(true);
     setError(null);
     try {
@@ -154,12 +173,26 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
       }
       const data = await response.json();
       console.log("Categories data received:", data);
-      const transformedCategories = data.map((category: any) => ({
+      
+      let transformedCategories = data.map((category: any) => ({
         id: category.id || category.Nivel1Id,
         name: category.name || category.Nivel1Descripcion,
         image: category.image || category.Imagen || "",
         products: []
       }));
+
+      // Filter categories by permissions if commerceId is provided
+      if (commerceId && serviceId) {
+        console.log("Checking category permissions with commerceId:", commerceId, "serviceId:", serviceId);
+        const permissionChecks = transformedCategories.map((category: Category) => 
+          checkCategoryPermission(commerceId, serviceId, category.id)
+        );
+        const permissions = await Promise.all(permissionChecks);
+        const filteredCategories = transformedCategories.filter((_: any, index: number) => permissions[index]);
+        console.log(`Filtered ${filteredCategories.length} of ${transformedCategories.length} categories based on permissions`);
+        transformedCategories = filteredCategories;
+      }
+      
       setCategories(transformedCategories);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
@@ -354,7 +387,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
     }
     if (id && !dialogOpenRef.current) {
       setIsDialogOpen(true);
-      fetchCategories(id);
+      fetchCategories(id, commerceId);
     }
   };
   const handleCategorySelect = (category: Category) => {
@@ -459,7 +492,7 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
                 <TextSkeleton text="Cargando..." />
               </div> : error ? <div className="bg-red-50 p-4 rounded-md border border-red-200 text-red-700">
                 <p className="font-medium">Error: {error}</p>
-                <Button variant="outline" className="mt-2" onClick={() => id && fetchCategories(id)}>
+                <Button variant="outline" className="mt-2" onClick={() => id && fetchCategories(id, commerceId)}>
                   Reintentar
                 </Button>
               </div> : !selectedCategory ? <CategoryCarousel categories={categories} onSelectCategory={(categoryId, categoryName) => {

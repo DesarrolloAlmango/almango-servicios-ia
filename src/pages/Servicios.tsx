@@ -190,6 +190,7 @@ const Servicios = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const {
+    userId,
     commerceId,
     serviceId: urlServiceId,
     categoryId: urlCategoryId
@@ -827,7 +828,7 @@ const Servicios = () => {
                   </div>) : displayedServices?.map((service, index) => {
               const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
               const isHighlighted = service.id === highlightedServiceId;
-              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Home} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#F8F4F0]" : ""} ref={element => {
+              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Home} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#F8F4F0]" : ""} commerceId={commerceId} ref={element => {
                 if (service.id) {
                   serviceCardRefs.current[service.id] = element;
                 }
@@ -848,7 +849,7 @@ const Servicios = () => {
                   </div>) : displayedMudanzaServices?.map((service, index) => {
               const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
               const isHighlighted = service.id === highlightedServiceId;
-              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Truck} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#f06900]" : ""} ref={element => {
+              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Truck} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#f06900]" : ""} commerceId={commerceId} ref={element => {
                 if (service.id) {
                   serviceCardRefs.current[service.id] = element;
                 }
