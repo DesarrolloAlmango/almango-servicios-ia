@@ -725,10 +725,12 @@ const Servicios = () => {
       <div className={`fixed top-0 left-0 right-0 bg-[#F8F4F0] shadow-md ${getCartItemsCount() > 0 ? 'z-[200]' : 'z-50'}`}>
         <div className="container mx-auto">
           <div className="flex justify-between items-center py-2 px-4">
-            <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 text-gray-800">
-              <ArrowLeft size={18} />
-              <span>Volver</span>
-            </Button>
+            {getCartItemsCount() === 0 && (
+              <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 text-gray-800">
+                <ArrowLeft size={18} />
+                <span>Volver</span>
+              </Button>
+            )}
             
             <div className={`relative cursor-pointer hover:opacity-80 transition-all duration-300 ${getCartItemsCount() > 0 ? 'animate-pulse' : ''}`} onClick={() => setIsCartOpen(true)}>
               <ShoppingCart size={28} className="text-gray-800" />
@@ -850,12 +852,20 @@ const Servicios = () => {
         
         <CartDrawer isOpen={isCartOpen} setIsOpen={setIsCartOpen} cartItems={cartItems} updateCartItem={updateCartItem} total={getCartTotal()} purchaseLocations={getAllPurchaseLocations()} setPurchaseLocations={setPurchaseLocations} />
         
-        <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => {
-        setIsLocationModalOpen(false);
-        if (pendingServiceCardAction) {
-          setPendingServiceCardAction(false);
-        }
-      }} onSelectLocation={handleLocationSelect} serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`} commerceId={commerceId} commerceName={storeName} />
+        <PurchaseLocationModal 
+          isOpen={isLocationModalOpen} 
+          onClose={() => {
+            setIsLocationModalOpen(false);
+            if (pendingServiceCardAction) {
+              setPendingServiceCardAction(false);
+            }
+          }} 
+          onSelectLocation={handleLocationSelect} 
+          serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`} 
+          commerceId={commerceId} 
+          commerceName={storeName}
+          cartItemCount={getCartItemsCount()}
+        />
       </main>
 
       <AlertDialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>

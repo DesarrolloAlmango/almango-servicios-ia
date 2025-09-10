@@ -27,6 +27,7 @@ interface PurchaseLocationModalProps {
   serviceId?: string;
   categoryId?: string;
   categoryName?: string;
+  cartItemCount?: number;
 }
 interface Department {
   id: string;
@@ -58,7 +59,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   commerceName,
   serviceId,
   categoryId,
-  categoryName
+  categoryName,
+  cartItemCount = 0
 }) => {
   const [selectedStore, setSelectedStore] = useState<string>("");
   const [otherStore, setOtherStore] = useState<string>("");
@@ -491,7 +493,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       handleModalClose();
     }
   }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className={`sm:max-w-md ${cartItemCount > 0 ? 'mt-[10px]' : ''}`}>
         {/* Add DialogTitle to fix accessibility warning */}
         <DialogTitle className="sr-only">Selección de lugar de compra</DialogTitle>
         
