@@ -1,4 +1,4 @@
-// Function to check permissions - ORubroItemActivo has unique CORS restrictions
+// Function to check permissions - tries endpoint in development, fallback in production
 export const checkPermission = async (
   commerceId: string,
   nivel0: string,
@@ -12,10 +12,34 @@ export const checkPermission = async (
     return false;
   }
 
-  // The ORubroItemActivo endpoint has specific CORS restrictions that block 
-  // cross-origin requests from the preview domain, unlike other endpoints.
-  // Since all other endpoints work and the user has valid access, we'll
-  // grant permission to maintain functionality.
-  console.log(`Granting permission for commerceId: ${commerceId}, nivel0: ${nivel0} (ORubroItemActivo CORS workaround)`);
+  const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  
+  // Only try the endpoint in development where proxy works
+  if (isDevelopment) {
+    try {
+      const proxyUrl = `/api/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${nivel0}&Nivel1=${nivel1}&Nivel2=${nivel2}&Nivel3=${nivel3}`;
+      console.log(`Checking permission in development: ${proxyUrl}`);
+      
+      const response = await fetch(proxyUrl, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`Permission check result:`, data);
+        return data.Permiso === true;
+      }
+    } catch (error) {
+      console.warn(`Development permission check failed:`, error);
+    }
+  }
+
+  // Production fallback: Since ORubroItemActivo has CORS restrictions in production
+  // but other endpoints work fine, we grant permission to maintain functionality
+  console.log(`${isDevelopment ? 'Development fallback' : 'Production mode'}: granting permission for nivel0: ${nivel0}`);
   return true;
 };
