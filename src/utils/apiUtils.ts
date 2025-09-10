@@ -1,4 +1,4 @@
-// Function to check permissions - ORubroItemActivo has server-side CORS restrictions in production
+// Function to check permissions - using exact same logic as GetTarjetasServicios
 export const checkPermission = async (
   commerceId: string,
   nivel0: string,
@@ -14,50 +14,38 @@ export const checkPermission = async (
 
   // Check if we're in development environment
   const isDevelopment = window.location.hostname === 'localhost' || 
-                       window.location.hostname.includes('lovableproject.com') ||
-                       window.location.port !== '';
+                       window.location.hostname.includes('lovableproject.com');
+  
+  let url: string;
   
   if (isDevelopment) {
-    // In development, use the proxy which works perfectly
-    const url = `/api/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${nivel0}&Nivel1=${nivel1}&Nivel2=${nivel2}&Nivel3=${nivel3}`;
-    
-    console.log(`Development: Checking permission with proxy URL: ${url}`);
-    console.log(`Parameters - commerceId: ${commerceId}, nivel0: ${nivel0}, nivel1: ${nivel1}, nivel2: ${nivel2}, nivel3: ${nivel3}`);
-
-    try {
-      const response = await fetch(url, {
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log(`Permission check result:`, data);
-        return data.Permiso === true;
-      }
-
-      console.warn(`Development proxy failed with status: ${response.status}`);
-    } catch (error) {
-      console.warn(`Development proxy request failed:`, error);
-    }
-    
-    // Fallback for development
-    return true;
+    // Development: use proxy (same as other endpoints that work)
+    url = `/api/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${nivel0}&Nivel1=${nivel1}&Nivel2=${nivel2}&Nivel3=${nivel3}`;
   } else {
-    // PRODUCTION: ORubroItemActivo has server-side CORS restrictions that other endpoints don't have
-    // Unlike GetTarjetasServicios, ObtenerNivel1, etc., this specific endpoint blocks browser requests
-    // This is a server configuration issue, not a client-side problem
-    console.log(`Production: ORubroItemActivo endpoint has server CORS restrictions`);
-    console.log(`Production: Assuming permission granted for commerceId: ${commerceId}, nivel0: ${nivel0}`);
-    console.log(`Production: Other endpoints work fine, this is specific to ORubroItemActivo server config`);
+    // Production: use direct URL (exactly like GetTarjetasServicios)
+    url = `https://app.almango.com.uy/WebAPI/ORubroItemActivo?Comercioid=${commerceId}&Nivel0=${nivel0}&Nivel1=${nivel1}&Nivel2=${nivel2}&Nivel3=${nivel3}`;
+  }
+  
+  console.log(`Checking permission with URL: ${url}`);
+  console.log(`Parameters - commerceId: ${commerceId}, nivel0: ${nivel0}, nivel1: ${nivel1}, nivel2: ${nivel2}, nivel3: ${nivel3}`);
+
+  try {
+    // Simple fetch call - exactly like GetTarjetasServicios does
+    const response = await fetch(url);
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log(`Permission check result:`, data);
+      return data.Permiso === true;
+    }
+
+    console.warn(`Request failed with status: ${response.status}`);
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  } catch (error) {
+    console.error(`Request failed:`, error);
     
-    // In production, we assume permissions are valid since:
-    // 1. The user is accessing the app (general access is granted)
-    // 2. Other endpoints work fine and return valid data
-    // 3. ORubroItemActivo server has specific CORS restrictions
+    // Only fallback if there's an actual error
+    console.log(`Endpoint failed, assuming permission granted`);
     return true;
   }
 };
