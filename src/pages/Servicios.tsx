@@ -848,10 +848,10 @@ const Servicios = () => {
             </ServiceCarousel>
           </div>
           
-          {/* Mostrar incentivo de descuentos cuando hay productos en el carrito */}
+          {/* Mostrar incentivo de descuentos compacto cuando hay productos en el carrito */}
           {cartItems.length > 0 && (
-            <div className="container mx-auto px-4 mb-6">
-              <DiscountIncentive cartItems={cartItems} />
+            <div className="container mx-auto px-4">
+              <DiscountIncentive cartItems={cartItems} compact={true} />
             </div>
           )}
         </div>
