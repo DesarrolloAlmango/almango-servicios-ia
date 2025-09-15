@@ -203,9 +203,9 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           {purchaseLocations.length > 0}
           
           
-          {/* Mostrar incentivo de descuentos compacto */}
+          {/* Mostrar incentivo de descuentos */}
           {cartItems.length > 0 && (
-            <DiscountIncentive cartItems={cartItems} className="mb-3" compact={true} />
+            <DiscountIncentive cartItems={cartItems} className="mb-4" />
           )}
           
           <div ref={contentRef} className="flex flex-col h-[calc(100vh-12rem)] mt-6">

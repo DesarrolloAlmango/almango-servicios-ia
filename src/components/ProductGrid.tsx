@@ -806,9 +806,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         </div> : products.length === 0 ? <div className="flex items-center justify-center h-40">
           <p className="text-gray-500">No hay productos disponibles</p>
         </div> : <>
-          {/* Incentivo de descuentos compacto y sticky */}
+          {/* Incentivo de descuentos */}
           {currentCartItems.length > 0 && (
-            <DiscountIncentive cartItems={currentCartItems} compact={true} />
+            <div className="mb-6">
+              <DiscountIncentive cartItems={currentCartItems} />
+            </div>
           )}
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
