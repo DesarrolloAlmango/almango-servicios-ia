@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatTimeSlot, formatLocationInfo } from "@/utils/timeUtils";
 import { CheckoutData } from "@/types/checkoutTypes";
+import { calculateTotalWithDiscounts } from "@/utils/discountUtils";
 interface RequestDetailsDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -49,6 +50,21 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
   const calcularTotal = (items: any[], costoZona: number = 0): number => {
     const itemsTotal = items.reduce((total, item) => total + item.PrecioFinal, 0);
     return itemsTotal + costoZona;
+  };
+
+  // Convert checkout data to cart items for discount calculation
+  const getCartItemsFromRequestData = (requestData: CheckoutData) => {
+    return requestData.Level1.map(item => ({
+      id: `${item.RubrosId}-${item.ProductoID}-${item.DetalleID}`,
+      name: item.ProductName || `Producto ${item.ProductoID}`,
+      price: item.Precio,
+      quantity: item.Cantidad,
+      image: "",
+      serviceCategory: requestData.serviceName || `Servicio ${item.RubrosId}`,
+      serviceId: item.RubrosId.toString(),
+      categoryId: item.ProductoID?.toString(),
+      productId: item.DetalleID?.toString()
+    }));
   };
   return <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
@@ -145,25 +161,55 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
                         <TableCell className="text-right">${formatPrice(item.Precio)}</TableCell>
                         <TableCell className="text-right">${formatPrice(item.PrecioFinal)}</TableCell>
                       </TableRow>)}
-                    {requestData.CostoXZona > 0 && <TableRow>
-                        <TableCell className="font-medium">
-                          Adicional por zona
-                          <div className="text-sm text-muted-foreground">
-                            Costo adicional según ubicación
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">1</TableCell>
-                        <TableCell className="text-right">${formatPrice(requestData.CostoXZona)}</TableCell>
-                        <TableCell className="text-right">${formatPrice(requestData.CostoXZona)}</TableCell>
-                      </TableRow>}
                   </TableBody>
                   <TableFooter>
-                    <TableRow>
-                      <TableCell colSpan={3} className="text-right font-semibold">Total</TableCell>
-                      <TableCell className="text-right font-bold">
-                        ${formatPrice(calcularTotal(requestData.Level1, requestData.CostoXZona))}
-                      </TableCell>
-                    </TableRow>
+                    {(() => {
+                      const cartItems = getCartItemsFromRequestData(requestData);
+                      const subtotal = requestData.Level1.reduce((sum, item) => sum + item.PrecioFinal, 0);
+                      const totalsWithDiscounts = calculateTotalWithDiscounts(cartItems, subtotal, requestData.CostoXZona);
+                      
+                      return (
+                        <>
+                          <TableRow>
+                            <TableCell colSpan={3} className="text-right font-medium">Subtotal</TableCell>
+                            <TableCell className="text-right font-medium">
+                              ${formatPrice(totalsWithDiscounts.subtotal)}
+                            </TableCell>
+                          </TableRow>
+                          
+                          {/* Mostrar descuentos */}
+                          {totalsWithDiscounts.discounts.map((discount, index) => (
+                            <TableRow key={`discount-${index}`}>
+                              <TableCell colSpan={3} className="text-right text-green-600">
+                                {discount.description}
+                              </TableCell>
+                              <TableCell className="text-right text-green-600">
+                                -${formatPrice(discount.amount)}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                          
+                          {/* Costo zona */}
+                          {requestData.CostoXZona > 0 && (
+                            <TableRow>
+                              <TableCell colSpan={3} className="text-right text-blue-600">
+                                Adicional por zona
+                              </TableCell>
+                              <TableCell className="text-right text-blue-600">
+                                +${formatPrice(requestData.CostoXZona)}
+                              </TableCell>
+                            </TableRow>
+                          )}
+                          
+                          <TableRow>
+                            <TableCell colSpan={3} className="text-right font-bold text-lg">Total</TableCell>
+                            <TableCell className="text-right font-bold text-lg">
+                              ${formatPrice(totalsWithDiscounts.total)}
+                            </TableCell>
+                          </TableRow>
+                        </>
+                      );
+                    })()}
                   </TableFooter>
                 </Table>
               </CardContent>
