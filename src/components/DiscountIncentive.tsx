@@ -19,9 +19,18 @@ export const DiscountIncentive: React.FC<DiscountIncentiveProps> = ({
   // Filtrar productos del rubro 1
   const rubro1Items = cartItems.filter(item => item.serviceId === "1");
   const totalQuantity = rubro1Items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalAmount = rubro1Items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
   // Calcular descuento actual
   const currentDiscount = calculateRubro1Discount(cartItems);
+  
+  // Formatear precio en pesos uruguayos
+  const formatPrice = (amount: number) => {
+    return amount.toLocaleString('es-UY', { 
+      minimumFractionDigits: 0, 
+      maximumFractionDigits: 0 
+    });
+  };
   
   // Definir niveles de descuento
   const discountLevels = [
@@ -46,6 +55,14 @@ export const DiscountIncentive: React.FC<DiscountIncentiveProps> = ({
 
   const progress = getProgress();
   const itemsNeeded = nextLevel ? nextLevel.minItems - totalQuantity : 0;
+  
+  // Calcular ahorro potencial para el siguiente nivel
+  const calculatePotentialSavings = () => {
+    if (!nextLevel) return 0;
+    return Math.round(totalAmount * (nextLevel.percentage / 100));
+  };
+  
+  const potentialSavings = calculatePotentialSavings();
 
   if (compact) {
     return (
@@ -55,7 +72,7 @@ export const DiscountIncentive: React.FC<DiscountIncentiveProps> = ({
             <Gift className="h-4 w-4" />
             {currentDiscount ? (
               <span className="font-medium">
-                🎉 Descuento {currentDiscount.percentage}% activo
+                🎉 Ahorrando ${formatPrice(currentDiscount.amount)}
               </span>
             ) : (
               <span>Descuentos disponibles</span>
@@ -65,7 +82,7 @@ export const DiscountIncentive: React.FC<DiscountIncentiveProps> = ({
           {nextLevel && (
             <div className="flex items-center gap-2">
               <span className="text-xs">
-                +{itemsNeeded} = {nextLevel.percentage}%
+                +{itemsNeeded} = ${formatPrice(potentialSavings)}
               </span>
               <div className="w-16 h-1 bg-white/30 rounded-full overflow-hidden">
                 <div 
@@ -77,7 +94,7 @@ export const DiscountIncentive: React.FC<DiscountIncentiveProps> = ({
           )}
           
           {!nextLevel && currentDiscount && (
-            <span className="text-xs">🏆 Máximo descuento</span>
+            <span className="text-xs">🏆 Ahorro máximo: ${formatPrice(currentDiscount.amount)}</span>
           )}
         </div>
       </div>
@@ -93,27 +110,32 @@ export const DiscountIncentive: React.FC<DiscountIncentiveProps> = ({
         </div>
         
         {currentDiscount && (
-          <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
-            -{currentDiscount.percentage}%
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
+              -{currentDiscount.percentage}%
+            </Badge>
+            <span className="text-xs font-medium text-green-700">
+              Ahorrás ${formatPrice(currentDiscount.amount)}
+            </span>
+          </div>
         )}
       </div>
       
       {nextLevel ? (
         <div className="space-y-1">
           <div className="flex items-center justify-between text-xs text-gray-700">
-            <span>Hacia {nextLevel.percentage}% descuento:</span>
+            <span>Hacia ${formatPrice(potentialSavings)} de ahorro:</span>
             <span className="font-medium">{totalQuantity}/{nextLevel.minItems}</span>
           </div>
           <Progress value={progress} className="h-1.5" />
           <div className="flex items-center gap-1 text-xs text-blue-600">
             <TrendingUp className="h-3 w-3" />
-            <span>¡Solo {itemsNeeded} más para {nextLevel.percentage}%!</span>
+            <span>¡Solo {itemsNeeded} más para ahorrar ${formatPrice(potentialSavings)}!</span>
           </div>
         </div>
       ) : (
         <div className="text-xs text-green-600 font-medium">
-          🏆 Máximo descuento del 20% alcanzado
+          🏆 Máximo ahorro: ${formatPrice(currentDiscount?.amount || 0)}
         </div>
       )}
       
