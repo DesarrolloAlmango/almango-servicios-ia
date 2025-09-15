@@ -14,16 +14,31 @@ export interface DiscountInfo {
  * - 10+ productos: 20% de descuento
  */
 export const calculateRubro1Discount = (cartItems: CartItem[]): DiscountInfo | null => {
-  // Filtrar productos del rubro 1
-  const rubro1Items = cartItems.filter(item => item.serviceId === "1");
+  // Filtrar productos del rubro 1 (nivel0 = serviceId = "1")
+  const rubro1Items = cartItems.filter(item => {
+    console.log(`Checking item ${item.name}: serviceId=${item.serviceId}`);
+    return item.serviceId === "1";
+  });
   
-  if (rubro1Items.length < 3) {
+  console.log(`Found ${rubro1Items.length} items from rubro 1:`, rubro1Items);
+  
+  if (rubro1Items.length === 0) {
+    console.log("No items from rubro 1 found");
+    return null;
+  }
+
+  // Calcular la cantidad total de productos del rubro 1
+  const totalQuantity = rubro1Items.reduce((sum, item) => sum + item.quantity, 0);
+  
+  console.log(`Total quantity of rubro 1 items: ${totalQuantity}`);
+  
+  if (totalQuantity < 3) {
+    console.log("Less than 3 items, no discount");
     return null; // No hay descuento si hay menos de 3 productos
   }
 
   // Calcular la suma total de productos del rubro 1
   const totalAmount = rubro1Items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const totalQuantity = rubro1Items.reduce((sum, item) => sum + item.quantity, 0);
   
   let percentage = 0;
   let description = "";

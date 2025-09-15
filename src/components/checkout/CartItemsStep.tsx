@@ -46,6 +46,15 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
   // Debug para verificar los datos
   console.log("=== DEBUG DESCUENTOS ===");
   console.log("Cart items:", cartItems);
+  console.log("Cart items structure:", cartItems.map(item => ({
+    id: item.id,
+    name: item.name,
+    serviceId: item.serviceId,
+    categoryId: item.categoryId,
+    productId: item.productId,
+    quantity: item.quantity,
+    price: item.price
+  })));
   console.log("Items del rubro 1:", cartItems.filter(item => item.serviceId === "1"));
   console.log("Totals with discounts:", totalsWithDiscounts);
   console.log("=== END DEBUG ===");
