@@ -110,7 +110,31 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         }
       }
       
-      const jsonSolicitud = JSON.stringify(serviceData);
+      // Calculate total discount for the service
+      const cartItems = serviceData.Level1.map(item => ({
+        id: `${item.RubrosId}-${item.ProductoID || 0}-${item.DetalleID || 0}`,
+        productId: item.ProductoID?.toString() || '0',
+        serviceId: item.RubrosId.toString(),
+        name: item.ProductName || '',
+        price: item.Precio,
+        basePrice: item.Precio,
+        finalPrice: item.PrecioFinal,
+        quantity: item.Cantidad,
+        SR: item.SR,
+        image: '',
+        serviceCategory: ''
+      }));
+      
+      const { discounts } = calculateTotalWithDiscounts(cartItems, 0, 0);
+      const totalDiscountAmount = discounts.reduce((sum, discount) => sum + discount.amount, 0);
+      
+      // Add the discount value to the service data
+      const serviceDataWithDiscount = {
+        ...serviceData,
+        Descuento: totalDiscountAmount
+      };
+      
+      const jsonSolicitud = JSON.stringify(serviceDataWithDiscount);
       const url = new URL("https://app.almango.com.uy/WebAPI/AltaSolicitud", window.location.origin);
       url.searchParams.append("Userconect", "NoEmpty");
       url.searchParams.append("Key", "d3d3LmF6bWl0YS5jb20=");
