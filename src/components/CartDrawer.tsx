@@ -13,6 +13,7 @@ import CheckoutSummary from "./checkout/CheckoutSummary";
 import { CheckoutData, getProviderAuxiliary } from "@/types/checkoutTypes";
 import { getTimeSlotNumber } from "@/utils/timeUtils";
 import { getGlobalZoneCost, resetGlobalZoneCost } from "@/utils/globalZoneCost";
+import DiscountIncentive from "@/components/DiscountIncentive";
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -200,6 +201,12 @@ const CartDrawer: React.FC<CartDrawerProps> = ({
           </SheetHeader>
           
           {purchaseLocations.length > 0}
+          
+          
+          {/* Mostrar incentivo de descuentos */}
+          {cartItems.length > 0 && (
+            <DiscountIncentive cartItems={cartItems} className="mb-4" />
+          )}
           
           <div ref={contentRef} className="flex flex-col h-[calc(100vh-12rem)] mt-6">
             {cartItems.length === 0 && currentStep === 0 ? <div className="flex-grow flex items-center justify-center">

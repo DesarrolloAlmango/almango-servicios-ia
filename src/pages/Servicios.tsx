@@ -16,6 +16,7 @@ import WhatsAppButton from "@/components/WhatsAppButton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { lastSelectedCategoryId, lastSelectedCategoryName } from "@/components/CategoryCarousel";
 import { checkPermission } from "@/utils/apiUtils";
+import DiscountIncentive from "@/components/DiscountIncentive";
 
 export interface CartItem {
   id: string;
@@ -846,6 +847,13 @@ const Servicios = () => {
             })}
             </ServiceCarousel>
           </div>
+          
+          {/* Mostrar incentivo de descuentos cuando hay productos en el carrito */}
+          {cartItems.length > 0 && (
+            <div className="container mx-auto px-4 mb-6">
+              <DiscountIncentive cartItems={cartItems} />
+            </div>
+          )}
         </div>
         
         <CartDrawer isOpen={isCartOpen} setIsOpen={setIsCartOpen} cartItems={cartItems} updateCartItem={updateCartItem} total={getCartTotal()} purchaseLocations={getAllPurchaseLocations()} setPurchaseLocations={setPurchaseLocations} />
