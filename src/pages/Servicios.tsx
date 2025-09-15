@@ -203,7 +203,6 @@ const Servicios = () => {
   const [titleVisible, setTitleVisible] = useState(false);
   const [highlightedServiceId, setHighlightedServiceId] = useState<string | null>(null);
   const [serviceToAutoClick, setServiceToAutoClick] = useState<string | null>(null);
-  const [isProductsModalOpen, setIsProductsModalOpen] = useState(false);
   const serviceCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const pendingCategoryAutoClickRef = useRef<boolean>(false);
 
@@ -723,33 +722,17 @@ const Servicios = () => {
       </div>
       
       {/* Fixed header with Back button and Shopping Cart */}
-      <div className={`fixed top-0 left-0 right-0 bg-[#F8F4F0] shadow-md transition-all duration-300 ${isProductsModalOpen ? 'z-[9999]' : 'z-50'}`}>
+      <div className="fixed top-0 left-0 right-0 z-50 bg-[#F8F4F0] shadow-md">
         <div className="container mx-auto">
-          <div className="flex justify-between items-center py-2 px-4">
-            {(!isProductsModalOpen || getCartItemsCount() === 0) && (
-              <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 text-gray-800">
-                <ArrowLeft size={18} />
-                <span>Volver</span>
-              </Button>
-            )}
-            {isProductsModalOpen && getCartItemsCount() > 0 && <div></div>}
+          <div className="flex justify-between items-center py-4 px-4">
+            <Button variant="ghost" onClick={handleBackToHome} className="flex items-center gap-2 text-gray-800">
+              <ArrowLeft size={20} />
+              <span>Volver</span>
+            </Button>
             
-            <div 
-              className={`relative cursor-pointer hover:opacity-80 transition-all duration-300 select-none ${getCartItemsCount() > 0 ? 'animate-pulse' : ''}`}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Cart clicked');
-                setIsCartOpen(true);
-              }}
-              style={isProductsModalOpen ? { 
-                position: 'relative', 
-                zIndex: 99999,
-                pointerEvents: 'auto'
-              } : {}}
-            >
-              <ShoppingCart size={28} className="text-gray-800" />
-              {getCartItemsCount() > 0 && <span className="absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center border-2 border-[#FDE1D3] animate-bounce">
+            <div className="relative cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setIsCartOpen(true)}>
+              <ShoppingCart size={40} className="text-gray-800" />
+              {getCartItemsCount() > 0 && <span className="absolute -top-2 -right-2 bg-primary text-white text-sm rounded-full h-6 w-6 flex items-center justify-center border-2 border-[#FDE1D3]">
                   {getCartItemsCount()}
                 </span>}
             </div>
@@ -757,7 +740,7 @@ const Servicios = () => {
         </div>
       </div>
       
-      <main className="flex-grow py-8 px-4 relative z-10 servicios-page mt-12">
+      <main className="flex-grow py-8 px-4 relative z-10 servicios-page mt-16">
         <div className="container mx-auto">
           {/* ¿CÓMO CONTRATAR? Section - Added from Home page */}
           <div className="py-10 px-4 bg-[#F8F4F0] rounded-lg mb-12">
@@ -834,7 +817,7 @@ const Servicios = () => {
                   </div>) : displayedServices?.map((service, index) => {
               const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
               const isHighlighted = service.id === highlightedServiceId;
-              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Home} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#F8F4F0]" : ""} commerceId={commerceId} onProductsModalChange={setIsProductsModalOpen} ref={element => {
+              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Home} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#F8F4F0]" : ""} commerceId={commerceId} ref={element => {
                 if (service.id) {
                   serviceCardRefs.current[service.id] = element;
                 }
@@ -855,7 +838,7 @@ const Servicios = () => {
                   </div>) : displayedMudanzaServices?.map((service, index) => {
               const isIconKey = Object.keys(iconComponents).includes(service.icon as string);
               const isHighlighted = service.id === highlightedServiceId;
-              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Truck} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#f06900]" : ""} commerceId={commerceId} onProductsModalChange={setIsProductsModalOpen} ref={element => {
+              return <ServiceCard key={index} id={service.id} name={service.name} iconComponent={isIconKey ? iconComponents[service.icon as keyof typeof iconComponents] : Truck} icon={!isIconKey ? service.icon : undefined} addToCart={addToCart} externalUrl={service.url} onCategorySelect={handleCategorySelect} purchaseLocation={getPurchaseLocationForService(service.id || "")} forceOpen={pendingServiceCardAction && selectedServiceId === service.id} circular={true} currentCartItems={cartItems} className={isHighlighted ? "ring-4 ring-primary ring-offset-4 ring-offset-[#f06900]" : ""} commerceId={commerceId} ref={element => {
                 if (service.id) {
                   serviceCardRefs.current[service.id] = element;
                 }
@@ -867,20 +850,12 @@ const Servicios = () => {
         
         <CartDrawer isOpen={isCartOpen} setIsOpen={setIsCartOpen} cartItems={cartItems} updateCartItem={updateCartItem} total={getCartTotal()} purchaseLocations={getAllPurchaseLocations()} setPurchaseLocations={setPurchaseLocations} />
         
-        <PurchaseLocationModal 
-          isOpen={isLocationModalOpen} 
-          onClose={() => {
-            setIsLocationModalOpen(false);
-            if (pendingServiceCardAction) {
-              setPendingServiceCardAction(false);
-            }
-          }} 
-          onSelectLocation={handleLocationSelect} 
-          serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`} 
-          commerceId={commerceId} 
-          commerceName={storeName}
-          cartItemCount={getCartItemsCount()}
-        />
+        <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => {
+        setIsLocationModalOpen(false);
+        if (pendingServiceCardAction) {
+          setPendingServiceCardAction(false);
+        }
+      }} onSelectLocation={handleLocationSelect} serviceName={`${selectedServiceName || ""} - ${selectedCategoryName || ""}`} commerceId={commerceId} commerceName={storeName} />
       </main>
 
       <AlertDialog open={showDeleteConfirmation} onOpenChange={setShowDeleteConfirmation}>
