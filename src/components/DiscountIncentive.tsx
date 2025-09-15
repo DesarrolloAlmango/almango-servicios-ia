@@ -21,6 +21,12 @@ export const DiscountIncentive: React.FC<DiscountIncentiveProps> = ({
   // Calcular descuento actual
   const currentDiscount = calculateRubro1Discount(cartItems);
   
+  // Calcular el subtotal de productos del rubro 1
+  const rubro1Subtotal = rubro1Items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+  // Calcular ahorros actuales en pesos
+  const currentSavings = currentDiscount ? rubro1Subtotal * (currentDiscount.percentage / 100) : 0;
+  
   // Definir niveles de descuento
   const discountLevels = [
     { minItems: 3, percentage: 10, label: "3-4 productos" },
@@ -55,18 +61,19 @@ export const DiscountIncentive: React.FC<DiscountIncentiveProps> = ({
       
       {/* Estado actual */}
       <div className="space-y-2">
-        {currentDiscount ? (
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-green-700">
-              🎉 ¡Descuento activo del {currentDiscount.percentage}%!
-            </span>
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
-              -{currentDiscount.percentage}%
-            </Badge>
-          </div>
-        ) : (
-          <div className="text-sm text-gray-600">
-            Tienes {totalQuantity} producto{totalQuantity !== 1 ? 's' : ''} del rubro
+        {currentDiscount && (
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-green-700">
+                🎉 ¡Descuento activo del {currentDiscount.percentage}%!
+              </span>
+              <Badge variant="secondary" className="bg-green-100 text-green-800">
+                -{currentDiscount.percentage}%
+              </Badge>
+            </div>
+            <div className="text-sm text-green-600 font-medium">
+              Ahorras ${currentSavings.toFixed(0)} pesos
+            </div>
           </div>
         )}
         
@@ -101,7 +108,6 @@ export const DiscountIncentive: React.FC<DiscountIncentiveProps> = ({
       
       {/* Información de todos los niveles */}
       <div className="pt-2 border-t border-green-200">
-        <div className="text-xs text-gray-600 mb-2">Niveles de descuento disponibles:</div>
         <div className="flex flex-wrap gap-2">
           {discountLevels.reverse().map((level, index) => (
             <Badge 
