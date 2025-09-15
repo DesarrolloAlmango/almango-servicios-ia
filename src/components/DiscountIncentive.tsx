@@ -56,7 +56,7 @@ export const DiscountIncentive: React.FC<DiscountIncentiveProps> = ({
     <div className={`bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4 space-y-3 ${className}`}>
       <div className="flex items-center gap-2">
         <Gift className="h-5 w-5 text-green-600" />
-        <h4 className="font-semibold text-green-800">¡Descuentos Especiales!</h4>
+        <h4 className="font-semibold text-green-800">¡Descuentos por Cantidad!</h4>
       </div>
       
       {/* Estado actual */}
@@ -71,7 +71,7 @@ export const DiscountIncentive: React.FC<DiscountIncentiveProps> = ({
                 -{currentDiscount.percentage}%
               </Badge>
             </div>
-            <div className="text-sm text-green-600 font-medium">
+            <div className="text-base text-green-600 font-semibold">
               Ahorras ${currentSavings.toFixed(0)} pesos
             </div>
           </div>
