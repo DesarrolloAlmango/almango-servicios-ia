@@ -39,6 +39,16 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
   
   // Calcular totales con descuentos
   const totalsWithDiscounts = calculateTotalWithDiscounts(cartItems, total, effectiveZoneCost);
+  
+  // Debug para verificar los datos
+  console.log("=== DEBUG DESCUENTOS ===");
+  
+  // Debug para verificar los datos
+  console.log("=== DEBUG DESCUENTOS ===");
+  console.log("Cart items:", cartItems);
+  console.log("Items del rubro 1:", cartItems.filter(item => item.serviceId === "1"));
+  console.log("Totals with discounts:", totalsWithDiscounts);
+  console.log("=== END DEBUG ===");
 
   const handleIncreaseQuantity = (id: string, currentQuantity: number) => {
     updateCartItem(id, currentQuantity + 1);

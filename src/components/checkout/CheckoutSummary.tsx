@@ -17,6 +17,7 @@ import { CheckoutData, ServiceRequest } from "@/types/checkoutTypes";
 import ResultDialog from "./ResultDialog";
 import RequestDetailsDialog from "./RequestDetailsDialog";
 import { useMercadoPagoPayment } from "./useMercadoPagoPayment";
+import { calculateTotalWithDiscounts, DiscountInfo } from "@/utils/discountUtils";
 
 interface CheckoutSummaryProps {
   isOpen: boolean;
@@ -232,13 +233,77 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
           onClose(false);
         }
       }}>
-        <AlertDialogContent className="max-w-md">
+        <AlertDialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmar Servicios</AlertDialogTitle>
             <AlertDialogDescription>
-              ¿Estás seguro que deseas contratar estos servicios?
+              Revisa el resumen de tu pedido antes de confirmar
             </AlertDialogDescription>
           </AlertDialogHeader>
+          
+          {/* Resumen detallado */}
+          <div className="space-y-4 py-4 max-h-[50vh] overflow-y-auto">
+            {data.map((serviceData, index) => {
+              // Recrear CartItems para calcular descuentos
+              const cartItems = serviceData.Level1.map(item => ({
+                id: `${item.RubrosId}-${item.ProductoID}-${item.DetalleID}`,
+                name: item.ProductName || `Producto ${item.ProductoID}`,
+                price: item.Precio,
+                quantity: item.Cantidad,
+                image: "",
+                serviceCategory: serviceData.serviceName || `Servicio ${item.RubrosId}`,
+                serviceId: item.RubrosId.toString(),
+                categoryId: item.ProductoID?.toString(),
+                productId: item.DetalleID?.toString()
+              }));
+
+              const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+              const totalsWithDiscounts = calculateTotalWithDiscounts(cartItems, subtotal);
+
+              return (
+                <div key={index} className="border rounded-lg p-4 space-y-3">
+                  <h4 className="font-semibold text-lg">{serviceData.serviceName}</h4>
+                  
+                  {/* Items */}
+                  {cartItems.map(item => (
+                    <div key={item.id} className="flex justify-between items-center py-2 border-b last:border-b-0">
+                      <div>
+                        <span className="font-medium">{item.name}</span>
+                        <span className="text-sm text-muted-foreground ml-2">x{item.quantity}</span>
+                      </div>
+                      <span>${(item.price * item.quantity).toLocaleString('es-UY', { maximumFractionDigits: 0 })}</span>
+                    </div>
+                  ))}
+
+                  {/* Subtotal */}
+                  <div className="flex justify-between font-medium pt-2">
+                    <span>Subtotal</span>
+                    <span>${totalsWithDiscounts.subtotal.toLocaleString('es-UY', { maximumFractionDigits: 0 })}</span>
+                  </div>
+
+                  {/* Descuentos */}
+                  {totalsWithDiscounts.discounts.map((discount, discountIndex) => (
+                    <div key={discountIndex} className="flex justify-between text-green-600">
+                      <span>{discount.description}</span>
+                      <span>-${discount.amount.toLocaleString('es-UY', { maximumFractionDigits: 0 })}</span>
+                    </div>
+                  ))}
+
+                  {/* Costo zona */}
+                  <div className="flex justify-between text-blue-600">
+                    <span>Costo adicional por zona</span>
+                    <span>${serviceData.CostoXZona.toLocaleString('es-UY', { maximumFractionDigits: 0 })}</span>
+                  </div>
+
+                  {/* Total */}
+                  <div className="flex justify-between font-bold text-lg pt-2 border-t">
+                    <span>Total</span>
+                    <span>${(totalsWithDiscounts.total).toLocaleString('es-UY', { maximumFractionDigits: 0 })}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => onClose(false)} disabled={submitting}>
               Cancelar

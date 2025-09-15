@@ -36,6 +36,7 @@ import { toast } from "sonner";
 import { GeneralTermsModal } from "@/components/ui/general-terms-modal";
 import { useParams } from "react-router-dom";
 import { getGlobalZoneCost } from "@/utils/globalZoneCost";
+import { calculateTotalWithDiscounts } from "@/utils/discountUtils";
 
 // Create base schema without paymentMethod
 const createBaseFormSchema = (noNumber: boolean) => z.object({
@@ -303,7 +304,7 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   };
 
   const zoneCost = getGlobalZoneCost();
-  const totalWithZoneCost = total + zoneCost;
+  const totalsWithDiscounts = calculateTotalWithDiscounts(cartItems, total, zoneCost);
 
   return (
     <div className="space-y-6">
@@ -367,15 +368,33 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
                   </li>
                 ))}
               </ul>
+              
+              {/* Subtotal */}
+              <div className="flex justify-between text-sm pt-2 border-t">
+                <span>Subtotal</span>
+                <span className="font-medium">${formatPrice(totalsWithDiscounts.subtotal)}</span>
+              </div>
+              
+              {/* Descuentos */}
+              {totalsWithDiscounts.discounts.map((discount, index) => (
+                <div key={index} className="flex justify-between text-sm text-green-600">
+                  <span>{discount.description}</span>
+                  <span className="font-medium">-${formatPrice(discount.amount)}</span>
+                </div>
+              ))}
+              
+              {/* Zona */}
               {zoneCost > 0 && (
                 <div className="flex justify-between text-sm">
                   <span>Adicional por zona</span>
                   <span className="font-medium">${formatPrice(zoneCost)}</span>
                 </div>
               )}
+              
+              {/* Total */}
               <div className="flex justify-between font-medium pt-2 border-t mt-2">
                 <span>Total</span>
-                <span>${formatPrice(totalWithZoneCost)}</span>
+                <span>${formatPrice(totalsWithDiscounts.total)}</span>
               </div>
             </div>
           </AccordionContent>
