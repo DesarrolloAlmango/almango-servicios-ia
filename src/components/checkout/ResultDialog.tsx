@@ -16,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { formatTimeSlot, formatLocationInfo } from "@/utils/timeUtils";
 import { format } from "date-fns";
+import { calculateTotalWithDiscounts } from "@/utils/discountUtils";
 
 interface ResultDialogProps {
   isOpen: boolean;
@@ -200,17 +201,44 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
           message += `${encodeURIComponent(productDescription)}+-+Cantidad%3A+${quantity}+-+Precio%3A+%24${price.toLocaleString()}+-+Precio+Final%3A+%24${finalPrice.toLocaleString()}%0A`;
         });
         
-        // Costo adicional por zona si existe
+        // Calculate discounts
+        const cartItems = data.Level1.map((item: any) => ({
+          id: `${item.RubrosId}-${item.ProductoID || 0}-${item.DetalleID || 0}`,
+          productId: item.ProductoID?.toString() || '0',
+          serviceId: item.RubrosId?.toString() || '0',
+          name: item.ProductName || '',
+          price: item.Precio || 0,
+          basePrice: item.Precio || 0,
+          finalPrice: item.PrecioFinal || 0,
+          quantity: item.Cantidad || 1,
+          SR: item.SR || '',
+          image: '',
+          serviceCategory: ''
+        }));
+        
+        const itemsTotal = data.Level1.reduce((sum: number, item: any) => {
+          return sum + (item.PrecioFinal || 0);
+        }, 0);
+        
         const zoneCost = data.CostoXZona || 0;
+        const { discounts } = calculateTotalWithDiscounts(cartItems, itemsTotal, zoneCost);
+        
+        // Show discounts if any
+        if (discounts.length > 0) {
+          message += `%0A*Descuentos%3A*%0A`;
+          discounts.forEach(discount => {
+            message += `${encodeURIComponent(discount.description)}%3A+-+%24${discount.amount.toLocaleString()}%0A`;
+          });
+        }
+        
+        // Costo adicional por zona si existe
         if (zoneCost > 0) {
           message += `Adicional+por+zona%3A+%24${zoneCost.toLocaleString()}%0A`;
         }
         
-        // Total
-        const itemsTotal = data.Level1.reduce((sum: number, item: any) => {
-          return sum + (item.PrecioFinal || 0);
-        }, 0);
-        const total = itemsTotal + zoneCost;
+        // Total with discounts
+        const totalDiscountAmount = discounts.reduce((sum, discount) => sum + discount.amount, 0);
+        const total = itemsTotal - totalDiscountAmount + zoneCost;
         message += `*Total%3A+%24${total.toLocaleString()}*%0A`;
       }
       
