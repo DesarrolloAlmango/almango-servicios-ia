@@ -223,6 +223,9 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
         const zoneCost = data.CostoXZona || 0;
         const { discounts } = calculateTotalWithDiscounts(cartItems, itemsTotal, zoneCost);
         
+        // Subtotal (before discounts)
+        message += `%0A*Subtotal%3A+%24${itemsTotal.toLocaleString()}*%0A`;
+        
         // Show discounts if any
         if (discounts.length > 0) {
           message += `%0A*Descuentos%3A*%0A`;
@@ -239,7 +242,7 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
         // Total with discounts
         const totalDiscountAmount = discounts.reduce((sum, discount) => sum + discount.amount, 0);
         const total = itemsTotal - totalDiscountAmount + zoneCost;
-        message += `*Total%3A+%24${total.toLocaleString()}*%0A`;
+        message += `%0A*TOTAL+FINAL%3A+%24${total.toLocaleString()}*%0A`;
       }
       
       // Información de Pago
