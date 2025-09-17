@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { CheckoutData, ServiceRequest } from "@/types/checkoutTypes";
 import ResultDialog from "./ResultDialog";
@@ -45,6 +45,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   municipalities,
 }) => {
   const navigate = useNavigate();
+  const { userId } = useParams();
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
   const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
@@ -139,7 +140,7 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
       url.searchParams.append("Userconect", "NoEmpty");
       url.searchParams.append("Key", "d3d3LmF6bWl0YS5jb20=");
       url.searchParams.append("Proveedorid", providerId); // Using the correct provider ID
-      url.searchParams.append("Usuarioid", "0");
+      url.searchParams.append("Usuarioid", userId || "0"); // Use userId from URL params or default to "0"
       url.searchParams.append("Jsonsolicitud", jsonSolicitud);
 
       console.log("Sending request with provider ID:", providerId);
