@@ -452,6 +452,24 @@ const Servicios = () => {
     navigate('/');
   };
 
+  const handleBackToCategories = () => {
+    // When going back to categories, don't navigate away from the current URL
+    // Just reset the selected states to show categories again
+    setSelectedCategoryId(null);
+    setSelectedCategoryName(null);
+    
+    // If we have URL parameters, keep them for the service context
+    if (urlServiceId) {
+      setSelectedServiceId(urlServiceId);
+      // Find the service name from the services data
+      const allServices = [...(services || []), ...(mudanzaServices || [])];
+      const service = allServices.find(s => s.id === urlServiceId);
+      if (service) {
+        setSelectedServiceName(service.name);
+      }
+    }
+  };
+
   const addToCart = (item: CartItem) => {
     const serviceLocation = purchaseLocations.find(loc => loc.serviceId === item.serviceId);
     const itemWithLocation = serviceLocation ? {

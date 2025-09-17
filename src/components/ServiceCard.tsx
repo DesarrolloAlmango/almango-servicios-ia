@@ -488,7 +488,19 @@ const ServiceCard = forwardRef<HTMLDivElement, ServiceCardProps>(({
             }
           }} selectedService={currentService} isLoading={isLoading} cartItems={currentCartItems} purchaseLocation={purchaseLocation} /> : <ProductGrid category={selectedCategory} addToCart={addToCart} onBack={() => {
             console.log("Back to categories clicked");
-            setSelectedCategory(null);
+            
+            // Check if we're in a URL-driven context (from direct URL access)
+            const currentPath = window.location.pathname;
+            const isFromURL = currentPath.includes('/servicios/') && currentPath.split('/').length > 3;
+            
+            if (isFromURL) {
+              // If accessed via direct URL, stay in the dialog and just show categories
+              setSelectedCategory(null);
+            } else {
+              // Normal flow - close the entire dialog
+              setSelectedCategory(null);
+              setIsDialogOpen(false);
+            }
           }} serviceName={name} closeDialog={() => {
             console.log("Close dialog requested from ProductGrid");
             setIsDialogOpen(false);
