@@ -5,6 +5,13 @@ import { CircleEllipsis } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+
+// Extend Window interface to include our custom property
+declare global {
+  interface Window {
+    skipAutoSelection?: boolean;
+  }
+}
 interface Category {
   id: string;
   name: string;
@@ -61,6 +68,12 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
 
   // Extract categoryId from URL when categories load - REMOVED DEBUG MESSAGES
   useEffect(() => {
+    // Check if auto-selection should be skipped
+    if (window.skipAutoSelection) {
+      console.log("Skipping auto-selection due to user request");
+      return;
+    }
+    
     if (categories.length > 0) {
       const urlParams = new URLSearchParams(window.location.search);
       const urlCategoryId = window.location.pathname.split('/').pop();
@@ -82,6 +95,12 @@ const CategoryCarousel: React.FC<CategoryCarouselProps> = ({
 
   // Simplified auto-select effect
   useEffect(() => {
+    // Check if auto-selection should be skipped
+    if (window.skipAutoSelection) {
+      console.log("Skipping auto-selection due to user request");
+      return;
+    }
+    
     if (autoSelectTimeoutRef.current) {
       clearTimeout(autoSelectTimeoutRef.current);
     }
