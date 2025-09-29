@@ -490,17 +490,13 @@ const ServicioOnePage = () => {
             )}
 
             {selectedCategory && !purchaseLocation && (
-              <div className="mt-4 flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <div 
+                className="mt-4 flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => setIsLocationModalOpen(true)}
+              >
                 <MapPin className="h-4 w-4 text-gray-500" />
                 <span className="text-sm text-gray-700 flex-1">Configurar ubicación del servicio</span>
-                <Button 
-                  onClick={() => setIsLocationModalOpen(true)}
-                  variant="outline"
-                  size="sm"
-                  className="text-xs"
-                >
-                  Configurar
-                </Button>
+                <span className="text-xs text-gray-500">Click para configurar</span>
               </div>
             )}
 
@@ -578,23 +574,6 @@ const ServicioOnePage = () => {
 
             {/* Service Selection Section */}
             <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Plus className="h-5 w-5 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">
-                    {allSelectedServices.length > 0 ? "Agregar Otro Servicio" : "Seleccionar Servicio"}
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    {allSelectedServices.length > 0 
-                      ? "Puedes seleccionar servicios adicionales para tu solicitud" 
-                      : "Comienza seleccionando el tipo de servicio que necesitas"
-                    }
-                  </p>
-                </div>
-              </div>
-
               {selectedCategory && purchaseLocation && (
                 <div className="mt-6">
                   <div className="flex items-center gap-2 mb-4">
