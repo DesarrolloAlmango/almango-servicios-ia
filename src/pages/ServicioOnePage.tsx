@@ -571,116 +571,77 @@ const ServicioOnePage = () => {
             </div>
           </div>;
       case 2:
-        return <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="nombre">Nombre Completo *</Label>
-                <Input id="nombre" value={personalInfo.nombre} onChange={e => setPersonalInfo(prev => ({
-                ...prev,
-                nombre: e.target.value
-              }))} placeholder="Ingrese su nombre completo" />
-              </div>
-              <div>
-                <Label htmlFor="telefono">Teléfono *</Label>
-                <Input id="telefono" value={personalInfo.telefono} onChange={e => setPersonalInfo(prev => ({
-                ...prev,
-                telefono: e.target.value
-              }))} placeholder="Ingrese su teléfono" />
-              </div>
+        return <div className="space-y-6">
+            <div className="text-center mb-6">
+              <CalendarClock className="h-12 w-12 mx-auto text-primary mb-2" />
+              <h3 className="text-xl font-semibold">Fecha y Hora</h3>
+              <p className="text-muted-foreground">Selecciona cuándo necesitas el servicio</p>
             </div>
 
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={personalInfo.email} onChange={e => setPersonalInfo(prev => ({
-              ...prev,
-              email: e.target.value
-            }))} placeholder="Ingrese su email (opcional)" />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-6">
               <div>
-                <Label htmlFor="pais">País *</Label>
-                <Select value={personalInfo.pais} onValueChange={value => setPersonalInfo(prev => ({
-                ...prev,
-                pais: value,
-                departamento: "",
-                municipio: "",
-                zona: ""
-              }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccione país" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {isLocationLoading ? <SelectItem value="loading" disabled>Cargando...</SelectItem> : locationData?.countries.map(country => <SelectItem key={country.id} value={country.id.toString()}>
-                          {country.name}
-                        </SelectItem>)}
-                  </SelectContent>
-                </Select>
+                <h4 className="font-medium mb-2">Elige una fecha</h4>
+                <div className="flex justify-center">
+                  <Calendar 
+                    mode="single" 
+                    selected={selectedDate} 
+                    onSelect={setSelectedDate} 
+                    disabled={(date) => {
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      return date.getDay() === 0 || date < today || date.getTime() === today.getTime();
+                    }}
+                    locale={es} 
+                    className="rounded-md border pointer-events-auto" 
+                    fromDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)} 
+                    toDate={new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000)} 
+                  />
+                </div>
               </div>
 
-              <div>
-                <Label htmlFor="departamento">Departamento *</Label>
-                <Select value={personalInfo.departamento} onValueChange={value => setPersonalInfo(prev => ({
-                ...prev,
-                departamento: value,
-                municipio: "",
-                zona: ""
-              }))} disabled={!personalInfo.pais}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccione departamento" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getFilteredDepartments().map(dept => <SelectItem key={dept.id} value={dept.id.toString()}>
-                        {dept.name}
-                      </SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+              {selectedDate && <div>
+                  <h4 className="font-medium mb-2">Elige un horario</h4>
+                  {(() => {
+                    const day = selectedDate.getDay();
+                    let timeSlots: string[] = [];
+                    
+                    if (day === 6) {
+                      // Sábado
+                      timeSlots = ["08:00 - 14:00", "14:00 - 20:00"];
+                    } else if (day !== 0) {
+                      // Cualquier día menos domingo
+                      timeSlots = ["08:00 - 12:00", "12:00 - 16:00", "16:00 - 20:00"];
+                    }
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="municipio">Municipio *</Label>
-                <Select value={personalInfo.municipio} onValueChange={value => setPersonalInfo(prev => ({
-                ...prev,
-                municipio: value,
-                zona: ""
-              }))} disabled={!personalInfo.departamento}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccione municipio" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getFilteredMunicipalities().map(mun => <SelectItem key={mun.id} value={mun.id.toString()}>
-                        {mun.name}
-                      </SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="zona">Zona *</Label>
-                <Select value={personalInfo.zona} onValueChange={value => setPersonalInfo(prev => ({
-                ...prev,
-                zona: value
-              }))} disabled={!personalInfo.municipio}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccione zona" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getFilteredZones().map(zone => <SelectItem key={zone.id} value={zone.id.toString()}>
-                        {zone.name} (${zone.costo})
-                      </SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="direccion">Dirección *</Label>
-              <Textarea id="direccion" value={personalInfo.direccion} onChange={e => setPersonalInfo(prev => ({
-              ...prev,
-              direccion: e.target.value
-            }))} placeholder="Ingrese su dirección completa" />
+                    return timeSlots.length > 0 ? (
+                      <>
+                        <RadioGroup 
+                          value={selectedTimeSlot} 
+                          onValueChange={setSelectedTimeSlot} 
+                          className="grid grid-cols-1 md:grid-cols-3 gap-2"
+                        >
+                          {timeSlots.map(slot => (
+                            <div key={slot} className="flex items-center space-x-2">
+                              <RadioGroupItem value={slot} id={`slot-${slot}`} />
+                              <Label htmlFor={`slot-${slot}`} className="cursor-pointer">
+                                {slot}
+                              </Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                          <p className="text-sm text-blue-700 text-center">
+                            En caso de coordinación web, confirme disponibilidad por whatsapp.
+                          </p>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-center py-4 text-red-500">
+                        No hay horarios disponibles para la fecha seleccionada. Por favor, elige otro día.
+                      </div>
+                    );
+                  })()}
+                </div>}
             </div>
           </div>;
       case 3:
