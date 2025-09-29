@@ -120,10 +120,11 @@ const ServicioOnePage = () => {
       const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
       console.log("Parsed categories data:", parsedData);
       
+      // Map the categories based on the actual structure
       const mappedCategories = parsedData.map((cat: any) => ({
-        id: cat.Nivel1ID.toString(),
-        name: cat.NombreNivel1,
-        icon: cat.IconoNivel1
+        id: cat.Nivel1ID ? cat.Nivel1ID.toString() : cat.id?.toString() || cat.ID?.toString(),
+        name: cat.NombreNivel1 || cat.name || cat.Name,
+        icon: cat.IconoNivel1 || cat.icon
       }));
       console.log("Mapped categories:", mappedCategories);
       return mappedCategories;
