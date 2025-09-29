@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Servicios from "./pages/Servicios";
+import ServicioOnePage from "./pages/ServicioOnePage";
 import { ThemeProvider } from "./hooks/useTheme";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,10 @@ const App = () => (
             <Route path="/servicios/:userId/:commerceId" element={<Servicios />} />
             <Route path="/servicios/:userId/:commerceId/:serviceId" element={<Servicios />} />
             <Route path="/servicios/:userId/:commerceId/:serviceId/:categoryId" element={<Servicios />} />
+            <Route path="/servicioonepage" element={<ServicioOnePage />} />
+            <Route path="/servicioonepage/:userId/:commerceId" element={<ServicioOnePage />} />
+            <Route path="/servicioonepage/:userId/:commerceId/:serviceId" element={<ServicioOnePage />} />
+            <Route path="/servicioonepage/:userId/:commerceId/:serviceId/:categoryId" element={<ServicioOnePage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
