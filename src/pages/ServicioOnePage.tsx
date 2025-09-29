@@ -260,7 +260,7 @@ const ServicioOnePage = () => {
       case 1:
         return allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0;
       case 2:
-        return !!(selectedDate && selectedTimeSlot);
+        return true; // Always allow proceeding from step 2 (date is optional)
       case 3:
         return !!(personalInfo.nombre && personalInfo.telefono && personalInfo.direccion && personalInfo.pais);
       case 4:
@@ -596,6 +596,19 @@ const ServicioOnePage = () => {
                     fromDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)} 
                     toDate={new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000)} 
                   />
+                </div>
+                
+                <div className="mt-4 text-center">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setSelectedDate(undefined);
+                      setSelectedTimeSlot("");
+                    }}
+                    className="text-sm"
+                  >
+                    No sé cuándo necesito el servicio
+                  </Button>
                 </div>
               </div>
 
