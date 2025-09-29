@@ -260,8 +260,6 @@ const ServicioOnePage = () => {
       case 1:
         return allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0;
       case 2:
-        return true; // Always allow proceeding from step 2 (date is optional)
-      case 3:
         return !!(personalInfo.nombre && personalInfo.telefono && personalInfo.direccion && personalInfo.pais);
       default:
         return false;
@@ -566,6 +564,83 @@ const ServicioOnePage = () => {
                       </Button>
                     </div>}
                 </div>
+                
+                {/* Date and Time Selection */}
+                <div className="mt-6 p-4 bg-gray-50 rounded-lg border">
+                  <h4 className="font-medium mb-4 flex items-center gap-2">
+                    <CalendarClock className="h-4 w-4" />
+                    Fecha y Hora del Servicio
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="date">Fecha</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !selectedDate && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarClock className="mr-2 h-4 w-4" />
+                            {selectedDate ? format(selectedDate, "PPP", { locale: es }) : "Seleccionar fecha"}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={setSelectedDate}
+                            disabled={(date) => {
+                              const today = new Date();
+                              today.setHours(0, 0, 0, 0);
+                              return date.getDay() === 0 || date < today || date.getTime() === today.getTime();
+                            }}
+                            locale={es}
+                            className="pointer-events-auto"
+                            fromDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}
+                            toDate={new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000)}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    
+                    {selectedDate && (
+                      <div>
+                        <Label htmlFor="timeSlot">Horario</Label>
+                        <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccionar horario" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(() => {
+                              const day = selectedDate.getDay();
+                              let timeSlots: string[] = [];
+                              
+                              if (day === 6) {
+                                timeSlots = ["08:00 - 14:00", "14:00 - 20:00"];
+                              } else if (day !== 0) {
+                                timeSlots = ["08:00 - 12:00", "12:00 - 16:00", "16:00 - 20:00"];
+                              }
+                              
+                              return timeSlots.map(slot => (
+                                <SelectItem key={slot} value={slot}>
+                                  {slot}
+                                </SelectItem>
+                              ));
+                            })()}
+                          </SelectContent>
+                        </Select>
+                        
+                        <p className="text-xs text-blue-600 mt-2">
+                          En caso de coordinación web, confirme disponibilidad por WhatsApp.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
             </div>}
           </div>;
       case 2:
@@ -782,11 +857,10 @@ const ServicioOnePage = () => {
         return null;
     }
   };
-  const stepTitles = ["Servicios", "Fecha y Hora", "Datos Personales"];
-  const stepIcons = [ShoppingCart, CalendarClock, UserCheck];
+  const stepTitles = ["Servicios", "Datos Personales"];
+  const stepIcons = [ShoppingCart, UserCheck];
   const stepDescriptions = [
     "Selecciona los servicios que necesitas",
-    "Elige cuándo quieres que se realice el servicio", 
     "Completa tus datos de contacto"
   ];
   if (showCheckoutSummary && checkoutData) {
@@ -895,7 +969,7 @@ const ServicioOnePage = () => {
                     Limpiar selección actual
                   </Button>
                 )}
-                {currentStep === 2 && (
+                {currentStep === 1 && (
                   <Button 
                     onClick={() => setCurrentStep(prev => prev + 1)} 
                     disabled={!validateStep(currentStep)}
@@ -904,10 +978,10 @@ const ServicioOnePage = () => {
                     Siguiente
                   </Button>
                 )}
-                {currentStep === 3 && (
+                {currentStep === 2 && (
                   <Button 
                     onClick={handleSubmit} 
-                    disabled={isSubmitting || !validateStep(3)}
+                    disabled={isSubmitting || !validateStep(2)}
                     className="min-w-32"
                   >
                     {isSubmitting ? "Enviando..." : "Enviar Solicitud"}
