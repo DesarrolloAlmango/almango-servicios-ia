@@ -110,14 +110,23 @@ const ServicioOnePage = () => {
     queryKey: ["categories", selectedService],
     queryFn: async () => {
       if (!selectedService) return [];
+      console.log("Fetching categories for service:", selectedService);
       const response = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerNivel1?Nivel0=${selectedService}`);
       if (!response.ok) throw new Error("Error al obtener categorías");
       const data = await response.json();
-      return data.map((cat: any) => ({
+      console.log("Raw categories data:", data);
+      
+      // Parse the JSON if it comes as a string
+      const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+      console.log("Parsed categories data:", parsedData);
+      
+      const mappedCategories = parsedData.map((cat: any) => ({
         id: cat.Nivel1ID.toString(),
         name: cat.NombreNivel1,
         icon: cat.IconoNivel1
       }));
+      console.log("Mapped categories:", mappedCategories);
+      return mappedCategories;
     },
     enabled: !!selectedService
   });
@@ -308,16 +317,25 @@ const ServicioOnePage = () => {
                   </SelectTrigger>
                   <SelectContent>
                     {isCategoriesLoading ? (
-                      <SelectItem value="loading" disabled>Cargando...</SelectItem>
-                    ) : (
-                      categories?.map((category: Category) => (
+                      <SelectItem value="loading" disabled>Cargando categorías...</SelectItem>
+                    ) : categories && categories.length > 0 ? (
+                      categories.map((category: Category) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}
                         </SelectItem>
                       ))
+                    ) : (
+                      <SelectItem value="no-categories" disabled>
+                        No hay categorías disponibles
+                      </SelectItem>
                     )}
                   </SelectContent>
                 </Select>
+                {categories && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Categorías encontradas: {categories.length}
+                  </p>
+                )}
               </div>
             )}
 
