@@ -109,7 +109,7 @@ const ServicioOnePage = () => {
   });
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("1"); // Default to cash (efectivo)
   const [comments, setComments] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [soliciteQuote, setSoliciteQuote] = useState(false);
@@ -263,8 +263,6 @@ const ServicioOnePage = () => {
         return true; // Always allow proceeding from step 2 (date is optional)
       case 3:
         return !!(personalInfo.nombre && personalInfo.telefono && personalInfo.direccion && personalInfo.pais);
-      case 4:
-        return acceptTerms;
       default:
         return false;
     }
@@ -784,34 +782,7 @@ const ServicioOnePage = () => {
                 }))} 
               />
             </div>
-          </div>;
-      case 4:
-        return <div className="space-y-6">
-            <div className="text-center mb-6">
-              <CreditCard className="h-12 w-12 mx-auto text-primary mb-2" />
-              <h3 className="text-xl font-semibold">Resumen y Confirmación</h3>
-              <p className="text-muted-foreground">Revisa los detalles y confirma tu solicitud</p>
-            </div>
-
-            {/* Método de Pago */}
-            <div className="space-y-4">
-              <h4 className="font-medium">Método de Pago</h4>
-              <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="1" id="payment1" />
-                  <Label htmlFor="payment1">Efectivo</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="2" id="payment2" />
-                  <Label htmlFor="payment2">Tarjeta de Crédito</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="3" id="payment3" />
-                  <Label htmlFor="payment3">Transferencia Bancaria</Label>
-                </div>
-              </RadioGroup>
-            </div>
-
+            
             {/* Comentarios Adicionales */}
             <div>
               <Label htmlFor="comments">Comentarios Adicionales</Label>
@@ -873,9 +844,13 @@ const ServicioOnePage = () => {
         return null;
     }
   };
-  const stepTitles = ["Servicios", "Fecha y Hora", "Datos Personales", "Confirmación"];
-  const stepIcons = [ShoppingCart, CalendarClock, UserCheck, CreditCard];
-  const stepDescriptions = ["Selecciona los servicios que necesitas", "Elige fecha y horario del servicio", "Completa tu información de contacto", "Revisa y confirma tu solicitud"];
+  const stepTitles = ["Servicios", "Fecha y Hora", "Datos Personales"];
+  const stepIcons = [ShoppingCart, CalendarClock, UserCheck];
+  const stepDescriptions = [
+    "Selecciona los servicios que necesitas",
+    "Elige cuándo quieres que se realice el servicio", 
+    "Completa tus datos de contacto"
+  ];
   if (showCheckoutSummary && checkoutData) {
     const departmentsData = locationData?.departments.map(dept => ({
       id: dept.id.toString(),
@@ -982,13 +957,22 @@ const ServicioOnePage = () => {
                     Limpiar selección actual
                   </Button>
                 )}
-                {(currentStep === 2 || currentStep === 3) && (
+                {currentStep === 2 && (
                   <Button 
                     onClick={() => setCurrentStep(prev => prev + 1)} 
                     disabled={!validateStep(currentStep)}
                     className="min-w-32"
                   >
                     Siguiente
+                  </Button>
+                )}
+                {currentStep === 3 && (
+                  <Button 
+                    onClick={handleSubmit} 
+                    disabled={isSubmitting || !acceptTerms}
+                    className="min-w-32"
+                  >
+                    {isSubmitting ? "Enviando..." : "Enviar Solicitud"}
                   </Button>
                 )}
               </div>
