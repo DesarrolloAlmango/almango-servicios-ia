@@ -262,7 +262,7 @@ const ServicioOnePage = () => {
       case 2:
         return !!(selectedDate && selectedTimeSlot);
       case 3:
-        return !!(personalInfo.nombre && personalInfo.telefono && personalInfo.direccion && personalInfo.pais && personalInfo.departamento && personalInfo.municipio && personalInfo.zona);
+        return !!(personalInfo.nombre && personalInfo.telefono && personalInfo.direccion && personalInfo.pais);
       case 4:
         return acceptTerms;
       default:
@@ -655,10 +655,10 @@ const ServicioOnePage = () => {
             {/* Información Personal */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="nombre">Nombre *</Label>
+                <Label htmlFor="nombre">Nombre completo *</Label>
                 <Input 
                   id="nombre" 
-                  placeholder="Tu nombre completo" 
+                  placeholder="Nombre y apellido" 
                   value={personalInfo.nombre} 
                   onChange={e => setPersonalInfo(prev => ({
                     ...prev,
@@ -671,7 +671,7 @@ const ServicioOnePage = () => {
                 <Label htmlFor="telefono">Teléfono *</Label>
                 <Input 
                   id="telefono" 
-                  placeholder="Tu número de teléfono" 
+                  placeholder="Teléfono de contacto" 
                   value={personalInfo.telefono} 
                   onChange={e => setPersonalInfo(prev => ({
                     ...prev,
@@ -680,137 +680,96 @@ const ServicioOnePage = () => {
                   required 
                 />
               </div>
-              <div className="md:col-span-2">
-                <Label htmlFor="email">Email</Label>
-                <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="tu@email.com (opcional)" 
-                  value={personalInfo.email} 
-                  onChange={e => setPersonalInfo(prev => ({
-                    ...prev,
-                    email: e.target.value
-                  }))} 
-                />
+            </div>
+
+            <div>
+              <Label htmlFor="email">Correo electrónico (opcional)</Label>
+              <Input 
+                id="email" 
+                type="email" 
+                placeholder="tu@email.com" 
+                value={personalInfo.email} 
+                onChange={e => setPersonalInfo(prev => ({
+                  ...prev,
+                  email: e.target.value
+                }))} 
+              />
+            </div>
+
+            {/* Dirección */}
+            <div className="space-y-4">
+              <h4 className="font-medium">Dirección</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="calle">Calle *</Label>
+                  <Input 
+                    id="calle" 
+                    placeholder="Nombre de la calle" 
+                    value={personalInfo.direccion} 
+                    onChange={e => setPersonalInfo(prev => ({
+                      ...prev,
+                      direccion: e.target.value
+                    }))} 
+                    required 
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="numero">Número *</Label>
+                  <Input 
+                    id="numero" 
+                    placeholder="Número de puerta" 
+                    value={personalInfo.pais} 
+                    onChange={e => setPersonalInfo(prev => ({
+                      ...prev,
+                      pais: e.target.value
+                    }))} 
+                    required 
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="esquina">Esquina</Label>
+                  <Input 
+                    id="esquina" 
+                    placeholder="Intersección más cercana" 
+                    value={personalInfo.departamento} 
+                    onChange={e => setPersonalInfo(prev => ({
+                      ...prev,
+                      departamento: e.target.value
+                    }))} 
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="apartamento">Apartamento</Label>
+                  <Input 
+                    id="apartamento" 
+                    placeholder="Apto (opcional)" 
+                    value={personalInfo.municipio} 
+                    onChange={e => setPersonalInfo(prev => ({
+                      ...prev,
+                      municipio: e.target.value
+                    }))} 
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Ubicación */}
-            <div className="space-y-4">
-              <h4 className="font-medium">Ubicación del Servicio</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="pais">País *</Label>
-                  <Select 
-                    value={personalInfo.pais} 
-                    onValueChange={value => setPersonalInfo(prev => ({
-                      ...prev,
-                      pais: value,
-                      departamento: "",
-                      municipio: "",
-                      zona: ""
-                    }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona un país" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {isLocationLoading ? (
-                        <SelectItem value="loading" disabled>Cargando...</SelectItem>
-                      ) : (
-                        locationData?.countries.map(country => (
-                          <SelectItem key={country.id} value={country.id.toString()}>
-                            {country.name}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="departamento">Departamento *</Label>
-                  <Select 
-                    value={personalInfo.departamento} 
-                    onValueChange={value => setPersonalInfo(prev => ({
-                      ...prev,
-                      departamento: value,
-                      municipio: "",
-                      zona: ""
-                    }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona un departamento" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {getFilteredDepartments().map(department => (
-                        <SelectItem key={department.id} value={department.id.toString()}>
-                          {department.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="municipio">Municipio *</Label>
-                  <Select 
-                    value={personalInfo.municipio} 
-                    onValueChange={value => setPersonalInfo(prev => ({
-                      ...prev,
-                      municipio: value,
-                      zona: ""
-                    }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona un municipio" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {getFilteredMunicipalities().map(municipality => (
-                        <SelectItem key={municipality.id} value={municipality.id.toString()}>
-                          {municipality.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="zona">Zona *</Label>
-                  <Select 
-                    value={personalInfo.zona} 
-                    onValueChange={value => setPersonalInfo(prev => ({
-                      ...prev,
-                      zona: value
-                    }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona una zona" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {getFilteredZones().map(zone => (
-                        <SelectItem key={zone.id} value={zone.id.toString()}>
-                          {zone.name} {zone.costo > 0 && `(+$${zone.costo})`}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="direccion">Dirección *</Label>
-                <Input 
-                  id="direccion" 
-                  placeholder="Calle y número, referencias adicionales" 
-                  value={personalInfo.direccion} 
-                  onChange={e => setPersonalInfo(prev => ({
-                    ...prev,
-                    direccion: e.target.value
-                  }))} 
-                  required 
-                />
-              </div>
+            {/* Comentarios */}
+            <div>
+              <Label htmlFor="comentarios">Comentarios</Label>
+              <Textarea 
+                id="comentarios" 
+                placeholder="¿Hay algo más que debamos saber?" 
+                value={personalInfo.zona} 
+                onChange={e => setPersonalInfo(prev => ({
+                  ...prev,
+                  zona: e.target.value
+                }))} 
+              />
             </div>
           </div>;
       case 4:
