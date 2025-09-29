@@ -517,9 +517,14 @@ const ServicioOnePage = () => {
                     <div key={index} className="flex justify-between items-start bg-white p-3 rounded border">
                       <div className="flex-1">
                         <p className="font-medium text-sm">{service.serviceName}</p>
-                        <p className="text-xs text-muted-foreground">{service.categoryName}</p>
+                        <p className="text-xs text-muted-foreground">Categoría: {service.categoryName}</p>
                         <p className="text-xs text-green-600">{service.products.length} productos seleccionados</p>
-                        <p className="text-xs font-medium">Total: ${service.products.reduce((sum, p) => sum + p.Precio, 0)}</p>
+                        <div className="text-xs mt-1">
+                          {service.products.map((product, idx) => (
+                            <p key={idx} className="text-gray-600">• {product.NombreProducto} - ${product.Precio}</p>
+                          ))}
+                        </div>
+                        <p className="text-xs font-medium mt-2">Subtotal: ${service.products.reduce((sum, p) => sum + p.Precio, 0)}</p>
                       </div>
                       <Button
                         variant="ghost"
@@ -532,46 +537,74 @@ const ServicioOnePage = () => {
                     </div>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {selectedCategory && purchaseLocation && (
-              <div>
-                <Label>Seleccione Productos/Servicios</Label>
-                <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {isProductsLoading ? (
-                    <div className="space-y-2">
-                      {[1, 2, 3].map(i => (
-                        <Skeleton key={i} className="h-12 w-full" />
-                      ))}
-                    </div>
-                  ) : products && products.length > 0 ? (
-                    products.map((product: Product) => (
-                      <div key={product.ProductoID} className="flex items-center space-x-2 p-3 border rounded-lg">
-                        <Checkbox
-                          id={`product-${product.ProductoID}`}
-                          checked={selectedProducts.some(p => p.ProductoID === product.ProductoID)}
-                          onCheckedChange={(checked) => handleProductToggle(product, checked as boolean)}
-                        />
-                        <Label
-                          htmlFor={`product-${product.ProductoID}`}
-                          className="flex-1 cursor-pointer"
-                        >
-                          <div className="flex justify-between">
-                            <span>{product.NombreProducto}</span>
-                            <span className="font-semibold">${product.Precio}</span>
-                          </div>
-                        </Label>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-4 text-muted-foreground">
-                      No hay productos disponibles para esta categoría
-                    </div>
-                  )}
+                <div className="mt-3 pt-3 border-t border-green-200">
+                  <p className="text-sm font-medium text-green-800">
+                    Total de servicios agregados: ${allSelectedServices.reduce((total, service) => 
+                      total + service.products.reduce((sum, p) => sum + p.Precio, 0), 0
+                    )}
+                  </p>
                 </div>
               </div>
             )}
+
+            <div className="space-y-4">
+              <h3 className="font-medium text-gray-800">
+                {allSelectedServices.length > 0 ? "Agregar otro servicio" : "Seleccionar servicio"}
+              </h3>
+
+              {selectedCategory && purchaseLocation && (
+                <div>
+                  <Label>Seleccione Productos/Servicios para: {services?.find(s => s.id === selectedService)?.name}</Label>
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {isProductsLoading ? (
+                      <div className="space-y-2">
+                        {[1, 2, 3].map(i => (
+                          <Skeleton key={i} className="h-12 w-full" />
+                        ))}
+                      </div>
+                    ) : products && products.length > 0 ? (
+                      products.map((product: Product) => (
+                        <div key={product.ProductoID} className="flex items-center space-x-2 p-3 border rounded-lg">
+                          <Checkbox
+                            id={`product-${product.ProductoID}`}
+                            checked={selectedProducts.some(p => p.ProductoID === product.ProductoID)}
+                            onCheckedChange={(checked) => handleProductToggle(product, checked as boolean)}
+                          />
+                          <Label
+                            htmlFor={`product-${product.ProductoID}`}
+                            className="flex-1 cursor-pointer"
+                          >
+                            <div className="flex justify-between">
+                              <span>{product.NombreProducto}</span>
+                              <span className="font-semibold">${product.Precio}</span>
+                            </div>
+                          </Label>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-4 text-muted-foreground">
+                        No hay productos disponibles para esta categoría
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Action buttons for current service */}
+                  {selectedProducts.length > 0 && (
+                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-sm text-blue-700 mb-2">
+                        Has seleccionado {selectedProducts.length} productos de "{services?.find(s => s.id === selectedService)?.name}"
+                      </p>
+                      <Button
+                        onClick={addCurrentServiceToList}
+                        className="w-full"
+                      >
+                        ✓ Agregar "{services?.find(s => s.id === selectedService)?.name}" a mi solicitud
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         );
 
@@ -965,21 +998,27 @@ const ServicioOnePage = () => {
               <div className="flex gap-2">
                 {currentStep === 1 && allSelectedServices.length > 0 && (
                   <Button
-                    variant="outline"
                     onClick={() => setCurrentStep(2)}
                     className="flex-1"
                   >
-                    Continuar con {allSelectedServices.length} servicio{allSelectedServices.length > 1 ? 's' : ''}
+                    Continuar con {allSelectedServices.length} servicio{allSelectedServices.length > 1 ? 's' : ''} seleccionado{allSelectedServices.length > 1 ? 's' : ''}
                   </Button>
                 )}
-                <Button
-                  onClick={handleNextStep}
-                  disabled={currentStep === 1 ? (allSelectedServices.length === 0 && !validateStep(currentStep)) : !validateStep(currentStep)}
-                  className={currentStep === 1 && allSelectedServices.length > 0 ? "flex-1" : ""}
-                >
-                  {currentStep === 1 && selectedService && selectedCategory && !purchaseLocation ? "Configurar Ubicación" : 
-                   currentStep === 1 && allSelectedServices.length > 0 ? "Agregar más servicios" : "Siguiente"}
-                </Button>
+                {currentStep === 1 && (selectedService || selectedCategory || selectedProducts.length > 0) && (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedService("");
+                      setSelectedCategory("");
+                      setSelectedProducts([]);
+                      setPurchaseLocation(null);
+                      toast.success("Selección actual limpiada");
+                    }}
+                    className={allSelectedServices.length > 0 ? "flex-1" : ""}
+                  >
+                    Limpiar selección actual
+                  </Button>
+                )}
               </div>
             ) : (
               <Button
