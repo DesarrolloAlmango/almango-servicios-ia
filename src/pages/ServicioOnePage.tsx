@@ -20,6 +20,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckoutData, CheckoutItem } from "@/types/checkoutTypes";
 import CheckoutSummary from "@/components/checkout/CheckoutSummary";
+import PurchaseLocationModal from "@/components/PurchaseLocationModal";
+import { setGlobalZoneCost } from "@/utils/globalZoneCost";
 
 interface TarjetaServicio {
   id?: string;
@@ -50,6 +52,16 @@ interface LocationData {
   departments: Array<{ id: number; name: string; paisId: number }>;
   municipalities: Array<{ id: number; name: string; departamentoId: number }>;
   zones: Array<{ id: number; name: string; municipioId: number; costo: number }>;
+}
+
+interface PurchaseLocation {
+  storeId: string;
+  storeName: string;
+  departmentId: string;
+  departmentName: string;
+  locationId: string;
+  locationName: string;
+  zonaCostoAdicional?: string;
 }
 
 const iconComponents = {
@@ -94,6 +106,8 @@ const ServicioOnePage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCheckoutSummary, setShowCheckoutSummary] = useState(false);
   const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null);
+  const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [purchaseLocation, setPurchaseLocation] = useState<PurchaseLocation | null>(null);
 
   // Data fetching
   const { data: services, isLoading: isServicesLoading } = useQuery({
@@ -235,11 +249,44 @@ const ServicioOnePage = () => {
   };
 
   const handleNextStep = () => {
+    if (currentStep === 1 && !purchaseLocation) {
+      setIsLocationModalOpen(true);
+      return;
+    }
     if (validateStep(currentStep)) {
       setCurrentStep(prev => prev + 1);
     } else {
       toast.error("Por favor complete todos los campos requeridos");
     }
+  };
+
+  const handleLocationSelect = (
+    storeId: string,
+    storeName: string,
+    departmentId: string,
+    departmentName: string,
+    locationId: string,
+    locationName: string,
+    otherLocation?: string,
+    zonaCostoAdicional?: string
+  ) => {
+    const location: PurchaseLocation = {
+      storeId,
+      storeName,
+      departmentId,
+      departmentName,
+      locationId,
+      locationName,
+      zonaCostoAdicional
+    };
+    setPurchaseLocation(location);
+    
+    // Set global zone cost for price calculations
+    const zoneCost = zonaCostoAdicional ? parseFloat(zonaCostoAdicional) : 0;
+    setGlobalZoneCost(zoneCost);
+    
+    // Continue to next step
+    setCurrentStep(prev => prev + 1);
   };
 
   const handleSubmit = async () => {
@@ -351,6 +398,23 @@ const ServicioOnePage = () => {
                 {categories && (
                   <p className="text-xs text-muted-foreground mt-1">
                     Categorías encontradas: {categories.length}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {purchaseLocation && (
+              <div className="mt-4 p-3 bg-muted rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin className="h-4 w-4 text-orange-500" />
+                  <span className="font-medium text-sm">Ubicación del servicio</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {purchaseLocation.storeName} - {purchaseLocation.departmentName}, {purchaseLocation.locationName}
+                </p>
+                {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && (
+                  <p className="text-xs text-orange-600 mt-1">
+                    Costo adicional por zona: ${purchaseLocation.zonaCostoAdicional}
                   </p>
                 )}
               </div>
@@ -764,7 +828,7 @@ const ServicioOnePage = () => {
                 onClick={handleNextStep}
                 disabled={!validateStep(currentStep)}
               >
-                Siguiente
+                {currentStep === 1 && !purchaseLocation && validateStep(1) ? "Configurar Ubicación" : "Siguiente"}
               </Button>
             ) : (
               <Button
@@ -776,6 +840,17 @@ const ServicioOnePage = () => {
             )}
           </div>
         </Card>
+
+        <PurchaseLocationModal
+          isOpen={isLocationModalOpen}
+          onClose={() => setIsLocationModalOpen(false)}
+          onSelectLocation={handleLocationSelect}
+          stores={[]}
+          serviceId={selectedService}
+          serviceName={services?.find(s => s.id === selectedService)?.name}
+          categoryId={selectedCategory}
+          categoryName={categories?.find(c => c.id === selectedCategory)?.name}
+        />
       </div>
     </div>
   );
