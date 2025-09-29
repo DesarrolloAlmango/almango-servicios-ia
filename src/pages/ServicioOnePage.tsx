@@ -107,8 +107,8 @@ const ServicioOnePage = () => {
     zona: "",
     direccion: ""
   });
-  const [installationDate, setInstallationDate] = useState<Date>();
-  const [installationTime, setInstallationTime] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [comments, setComments] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -260,9 +260,9 @@ const ServicioOnePage = () => {
       case 1:
         return allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0;
       case 2:
-        return !!(personalInfo.nombre && personalInfo.telefono && personalInfo.direccion && personalInfo.pais && personalInfo.departamento && personalInfo.municipio && personalInfo.zona);
+        return !!(selectedDate && selectedTimeSlot);
       case 3:
-        return !!(installationDate && installationTime && paymentMethod);
+        return !!(personalInfo.nombre && personalInfo.telefono && personalInfo.direccion && personalInfo.pais && personalInfo.departamento && personalInfo.municipio && personalInfo.zona);
       case 4:
         return acceptTerms;
       default:
@@ -375,8 +375,8 @@ const ServicioOnePage = () => {
         SolicitaCotizacion: soliciteQuote ? "S" : "N",
         SolicitaOtroServicio: soliciteOtherService ? "S" : "N",
         OtroServicioDetalle: otherServiceDetail,
-        FechaInstalacion: format(installationDate!, "yyyy-MM-dd"),
-        TurnoInstalacion: installationTime,
+        FechaInstalacion: format(selectedDate!, "yyyy-MM-dd"),
+        TurnoInstalacion: selectedTimeSlot,
         Comentario: comments,
         ConfirmarCondicionesUso: acceptTerms ? "S" : "N",
         ProveedorAuxiliar: commerceId || null,
@@ -689,22 +689,22 @@ const ServicioOnePage = () => {
               <Label>Fecha de Instalación *</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !installationDate && "text-muted-foreground")}>
+                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !selectedDate && "text-muted-foreground")}>
                     <CalendarClock className="mr-2 h-4 w-4" />
-                    {installationDate ? format(installationDate, "PPP", {
+                    {selectedDate ? format(selectedDate, "PPP", {
                     locale: es
                   }) : "Seleccione fecha"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={installationDate} onSelect={setInstallationDate} initialFocus disabled={date => date < new Date()} />
+                  <Calendar mode="single" selected={selectedDate} onSelect={setSelectedDate} initialFocus disabled={date => date < new Date()} />
                 </PopoverContent>
               </Popover>
             </div>
 
             <div>
               <Label htmlFor="installationTime">Horario de Instalación *</Label>
-              <Select value={installationTime} onValueChange={setInstallationTime}>
+              <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccione horario" />
                 </SelectTrigger>
@@ -783,7 +783,7 @@ const ServicioOnePage = () => {
                     <p>{services?.find(s => s.id === selectedService)?.name} - {categories?.find(c => c.id === selectedCategory)?.name}</p>
                     <p>{selectedProducts.length} productos - ${selectedProducts.reduce((sum, p) => sum + p.Precio, 0)}</p>
                   </div>}
-                <p><strong>Fecha:</strong> {installationDate ? format(installationDate, "PPP", {
+                <p><strong>Fecha:</strong> {selectedDate ? format(selectedDate, "PPP", {
                   locale: es
                 }) : "No seleccionada"}</p>
                 <p><strong>Total estimado:</strong> ${allSelectedServices.reduce((sum, service) => sum + service.products.reduce((serviceSum, p) => serviceSum + p.Precio, 0), 0) + selectedProducts.reduce((sum, p) => sum + p.Precio, 0) + (locationData?.zones.find(z => z.id === parseInt(personalInfo.zona))?.costo || 0)}</p>
