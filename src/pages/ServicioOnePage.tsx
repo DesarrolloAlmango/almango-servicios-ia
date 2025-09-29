@@ -147,11 +147,21 @@ const ServicioOnePage = () => {
   });
 
   const { data: products, isLoading: isProductsLoading } = useQuery({
-    queryKey: ["products", selectedService, selectedCategory],
+    queryKey: ["products", selectedService, selectedCategory, purchaseLocation?.storeId, purchaseLocation?.departmentId, purchaseLocation?.locationId],
     queryFn: async () => {
-      if (!selectedService || !selectedCategory) return [];
-      console.log("Fetching products for service:", selectedService, "category:", selectedCategory);
-      const response = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerNivel2?Nivel0=${selectedService}&Nivel1=${selectedCategory}`);
+      if (!selectedService || !selectedCategory || !purchaseLocation) return [];
+      console.log("Fetching products for service:", selectedService, "category:", selectedCategory, "location:", purchaseLocation);
+      
+      // Include location parameters in the API call
+      const params = new URLSearchParams({
+        Nivel0: selectedService,
+        Nivel1: selectedCategory,
+        ComercioId: purchaseLocation.storeId,
+        DepartamentoId: purchaseLocation.departmentId,
+        LocalidadId: purchaseLocation.locationId
+      });
+      
+      const response = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerNivel2?${params.toString()}`);
       if (!response.ok) throw new Error("Error al obtener productos");
       const data = await response.json();
       console.log("Raw products data:", data);
@@ -170,7 +180,7 @@ const ServicioOnePage = () => {
       console.log("Mapped products:", mappedProducts);
       return mappedProducts;
     },
-    enabled: !!(selectedService && selectedCategory)
+    enabled: !!(selectedService && selectedCategory && purchaseLocation)
   });
 
   const { data: locationData, isLoading: isLocationLoading } = useQuery({
@@ -249,10 +259,18 @@ const ServicioOnePage = () => {
   };
 
   const handleNextStep = () => {
-    if (currentStep === 1 && !purchaseLocation) {
-      setIsLocationModalOpen(true);
-      return;
+    // For step 1, check if we need location first
+    if (currentStep === 1) {
+      if (!selectedService || !selectedCategory) {
+        toast.error("Por favor seleccione un servicio y categoría");
+        return;
+      }
+      if (!purchaseLocation) {
+        setIsLocationModalOpen(true);
+        return;
+      }
     }
+    
     if (validateStep(currentStep)) {
       setCurrentStep(prev => prev + 1);
     } else {
@@ -285,8 +303,8 @@ const ServicioOnePage = () => {
     const zoneCost = zonaCostoAdicional ? parseFloat(zonaCostoAdicional) : 0;
     setGlobalZoneCost(zoneCost);
     
-    // Continue to next step
-    setCurrentStep(prev => prev + 1);
+    // Don't automatically continue to next step, stay in step 1 to show products
+    toast.success("Ubicación configurada correctamente");
   };
 
   const handleSubmit = async () => {
@@ -420,7 +438,26 @@ const ServicioOnePage = () => {
               </div>
             )}
 
-            {selectedCategory && (
+            {selectedCategory && !purchaseLocation && (
+              <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin className="h-4 w-4 text-orange-500" />
+                  <span className="font-medium text-sm text-orange-700">Configurar ubicación requerida</span>
+                </div>
+                <p className="text-sm text-orange-600">
+                  Para mostrar los productos y precios correctos, necesitamos conocer la ubicación del servicio.
+                </p>
+                <Button 
+                  onClick={() => setIsLocationModalOpen(true)}
+                  className="mt-2"
+                  size="sm"
+                >
+                  Configurar Ubicación
+                </Button>
+              </div>
+            )}
+
+            {selectedCategory && purchaseLocation && (
               <div>
                 <Label>Seleccione Productos/Servicios</Label>
                 <div className="space-y-2 max-h-60 overflow-y-auto">
@@ -430,8 +467,8 @@ const ServicioOnePage = () => {
                         <Skeleton key={i} className="h-12 w-full" />
                       ))}
                     </div>
-                  ) : (
-                    products?.map((product: Product) => (
+                  ) : products && products.length > 0 ? (
+                    products.map((product: Product) => (
                       <div key={product.ProductoID} className="flex items-center space-x-2 p-3 border rounded-lg">
                         <Checkbox
                           id={`product-${product.ProductoID}`}
@@ -449,6 +486,10 @@ const ServicioOnePage = () => {
                         </Label>
                       </div>
                     ))
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      No hay productos disponibles para esta categoría
+                    </div>
                   )}
                 </div>
               </div>
@@ -828,7 +869,7 @@ const ServicioOnePage = () => {
                 onClick={handleNextStep}
                 disabled={!validateStep(currentStep)}
               >
-                {currentStep === 1 && !purchaseLocation && validateStep(1) ? "Configurar Ubicación" : "Siguiente"}
+                {currentStep === 1 && selectedService && selectedCategory && !purchaseLocation ? "Configurar Ubicación" : "Siguiente"}
               </Button>
             ) : (
               <Button
