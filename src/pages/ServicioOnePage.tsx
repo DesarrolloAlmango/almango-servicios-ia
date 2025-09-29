@@ -644,11 +644,6 @@ const ServicioOnePage = () => {
           </div>;
       case 3:
         return <div className="space-y-6">
-            <div className="text-center mb-6">
-              <UserCheck className="h-12 w-12 mx-auto text-primary mb-2" />
-              <h3 className="text-xl font-semibold">Información Personal</h3>
-              <p className="text-muted-foreground">Completa tus datos para continuar</p>
-            </div>
 
             {/* Información Personal */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -781,50 +776,6 @@ const ServicioOnePage = () => {
               />
             </div>
 
-            {/* Opciones adicionales */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="soliciteQuote" 
-                  checked={soliciteQuote} 
-                  onCheckedChange={checked => setSoliciteQuote(checked === true)} 
-                />
-                <Label htmlFor="soliciteQuote">Solicitar cotización</Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="soliciteOtherService" 
-                  checked={soliciteOtherService} 
-                  onCheckedChange={checked => setSoliciteOtherService(checked === true)} 
-                />
-                <Label htmlFor="soliciteOtherService">Solicitar otro servicio</Label>
-              </div>
-
-              {soliciteOtherService && (
-                <div>
-                  <Label htmlFor="otherServiceDetail">Detalle del otro servicio</Label>
-                  <Textarea 
-                    id="otherServiceDetail" 
-                    value={otherServiceDetail} 
-                    onChange={e => setOtherServiceDetail(e.target.value)} 
-                    placeholder="Describa el otro servicio que necesita" 
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Términos y Condiciones */}
-            <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="terms" 
-                checked={acceptTerms} 
-                onCheckedChange={checked => setAcceptTerms(checked === true)} 
-              />
-              <Label htmlFor="terms" className="text-sm">
-                Acepto los términos y condiciones del servicio
-              </Label>
-            </div>
           </div>;
 
       default:
@@ -956,7 +907,7 @@ const ServicioOnePage = () => {
                 {currentStep === 3 && (
                   <Button 
                     onClick={handleSubmit} 
-                    disabled={isSubmitting || !acceptTerms}
+                    disabled={isSubmitting || !validateStep(3)}
                     className="min-w-32"
                   >
                     {isSubmitting ? "Enviando..." : "Enviar Solicitud"}
