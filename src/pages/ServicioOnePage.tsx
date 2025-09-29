@@ -490,20 +490,16 @@ const ServicioOnePage = () => {
             )}
 
             {selectedCategory && !purchaseLocation && (
-              <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <MapPin className="h-4 w-4 text-orange-500" />
-                  <span className="font-medium text-sm text-orange-700">Configurar ubicación requerida</span>
-                </div>
-                <p className="text-sm text-orange-600">
-                  Para mostrar los productos y precios correctos, necesitamos conocer la ubicación del servicio.
-                </p>
+              <div className="mt-4 flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <MapPin className="h-4 w-4 text-gray-500" />
+                <span className="text-sm text-gray-700 flex-1">Configurar ubicación del servicio</span>
                 <Button 
                   onClick={() => setIsLocationModalOpen(true)}
-                  className="mt-2"
+                  variant="outline"
                   size="sm"
+                  className="text-xs"
                 >
-                  Configurar Ubicación
+                  Configurar
                 </Button>
               </div>
             )}
