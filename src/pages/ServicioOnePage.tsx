@@ -506,9 +506,9 @@ const ServicioOnePage = () => {
                 </div>
               </div>}
 
-            {/* Service Selection Section */}
-            <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-              {selectedCategory && purchaseLocation && <div className="mt-6">
+            {/* Service Selection Section - Only show when category and location are selected */}
+            {selectedCategory && purchaseLocation && <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+              <div className="mt-6">
                   <div className="flex items-center gap-2 mb-4">
                     <Package className="h-5 w-5 text-blue-600" />
                     <Label className="text-base font-medium">
@@ -565,8 +565,8 @@ const ServicioOnePage = () => {
                         Agregar "{services?.find(s => s.id === selectedService)?.name}" a mi solicitud
                       </Button>
                     </div>}
-                </div>}
-            </div>
+                </div>
+            </div>}
           </div>;
       case 2:
         return <div className="space-y-6">
