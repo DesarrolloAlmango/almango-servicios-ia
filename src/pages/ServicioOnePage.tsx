@@ -288,11 +288,11 @@ const ServicioOnePage = () => {
     setSelectedCategory("");
     setSelectedProducts([]);
     setPurchaseLocation(null);
-    toast.success(`Servicio "${serviceName}" agregado correctamente`);
+    // toast.success(`Servicio "${serviceName}" agregado correctamente`);
   };
   const removeServiceFromList = (index: number) => {
     setAllSelectedServices(prev => prev.filter((_, i) => i !== index));
-    toast.success("Servicio eliminado");
+    // toast.success("Servicio eliminado");
   };
   const handleNextStep = () => {
     // For step 1, check if we need location first
@@ -334,7 +334,7 @@ const ServicioOnePage = () => {
     setGlobalZoneCost(zoneCost);
 
     // Don't automatically continue to next step, stay in step 1 to show products
-    toast.success("Ubicación configurada correctamente");
+    // toast.success("Ubicación configurada correctamente");
   };
   const handleSubmit = async () => {
     if (!validateStep(4)) {
@@ -594,19 +594,6 @@ const ServicioOnePage = () => {
                     fromDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)} 
                     toDate={new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000)} 
                   />
-                </div>
-                
-                <div className="mt-4 text-center">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setSelectedDate(undefined);
-                      setSelectedTimeSlot("");
-                    }}
-                    className="text-sm"
-                  >
-                    No sé cuándo necesito el servicio
-                  </Button>
                 </div>
               </div>
 
@@ -952,7 +939,7 @@ const ServicioOnePage = () => {
                     setSelectedCategory("");
                     setSelectedProducts([]);
                     setPurchaseLocation(null);
-                    toast.success("Selección actual limpiada");
+                    // toast.success("Selección actual limpiada");
                   }} className={allSelectedServices.length > 0 ? "flex-1" : ""}>
                     Limpiar selección actual
                   </Button>
