@@ -646,39 +646,184 @@ const ServicioOnePage = () => {
           </div>;
       case 3:
         return <div className="space-y-6">
-            <div>
-              <Label>Fecha de Instalación *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !selectedDate && "text-muted-foreground")}>
-                    <CalendarClock className="mr-2 h-4 w-4" />
-                    {selectedDate ? format(selectedDate, "PPP", {
-                    locale: es
-                  }) : "Seleccione fecha"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar mode="single" selected={selectedDate} onSelect={setSelectedDate} initialFocus disabled={date => date < new Date()} />
-                </PopoverContent>
-              </Popover>
+            <div className="text-center mb-6">
+              <UserCheck className="h-12 w-12 mx-auto text-primary mb-2" />
+              <h3 className="text-xl font-semibold">Información Personal</h3>
+              <p className="text-muted-foreground">Completa tus datos para continuar</p>
             </div>
 
-            <div>
-              <Label htmlFor="installationTime">Horario de Instalación *</Label>
-              <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccione horario" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="morning">Mañana (8:00 - 12:00)</SelectItem>
-                  <SelectItem value="afternoon">Tarde (13:00 - 17:00)</SelectItem>
-                  <SelectItem value="evening">Noche (18:00 - 20:00)</SelectItem>
-                </SelectContent>
-              </Select>
+            {/* Información Personal */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="nombre">Nombre *</Label>
+                <Input 
+                  id="nombre" 
+                  placeholder="Tu nombre completo" 
+                  value={personalInfo.nombre} 
+                  onChange={e => setPersonalInfo(prev => ({
+                    ...prev,
+                    nombre: e.target.value
+                  }))} 
+                  required 
+                />
+              </div>
+              <div>
+                <Label htmlFor="telefono">Teléfono *</Label>
+                <Input 
+                  id="telefono" 
+                  placeholder="Tu número de teléfono" 
+                  value={personalInfo.telefono} 
+                  onChange={e => setPersonalInfo(prev => ({
+                    ...prev,
+                    telefono: e.target.value
+                  }))} 
+                  required 
+                />
+              </div>
+              <div className="md:col-span-2">
+                <Label htmlFor="email">Email</Label>
+                <Input 
+                  id="email" 
+                  type="email" 
+                  placeholder="tu@email.com (opcional)" 
+                  value={personalInfo.email} 
+                  onChange={e => setPersonalInfo(prev => ({
+                    ...prev,
+                    email: e.target.value
+                  }))} 
+                />
+              </div>
             </div>
 
-            <div>
-              <Label>Método de Pago *</Label>
+            {/* Ubicación */}
+            <div className="space-y-4">
+              <h4 className="font-medium">Ubicación del Servicio</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="pais">País *</Label>
+                  <Select 
+                    value={personalInfo.pais} 
+                    onValueChange={value => setPersonalInfo(prev => ({
+                      ...prev,
+                      pais: value,
+                      departamento: "",
+                      municipio: "",
+                      zona: ""
+                    }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona un país" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {isLocationLoading ? (
+                        <SelectItem value="loading" disabled>Cargando...</SelectItem>
+                      ) : (
+                        locationData?.countries.map(country => (
+                          <SelectItem key={country.id} value={country.id.toString()}>
+                            {country.name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="departamento">Departamento *</Label>
+                  <Select 
+                    value={personalInfo.departamento} 
+                    onValueChange={value => setPersonalInfo(prev => ({
+                      ...prev,
+                      departamento: value,
+                      municipio: "",
+                      zona: ""
+                    }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona un departamento" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getFilteredDepartments().map(department => (
+                        <SelectItem key={department.id} value={department.id.toString()}>
+                          {department.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="municipio">Municipio *</Label>
+                  <Select 
+                    value={personalInfo.municipio} 
+                    onValueChange={value => setPersonalInfo(prev => ({
+                      ...prev,
+                      municipio: value,
+                      zona: ""
+                    }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona un municipio" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getFilteredMunicipalities().map(municipality => (
+                        <SelectItem key={municipality.id} value={municipality.id.toString()}>
+                          {municipality.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="zona">Zona *</Label>
+                  <Select 
+                    value={personalInfo.zona} 
+                    onValueChange={value => setPersonalInfo(prev => ({
+                      ...prev,
+                      zona: value
+                    }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona una zona" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getFilteredZones().map(zone => (
+                        <SelectItem key={zone.id} value={zone.id.toString()}>
+                          {zone.name} {zone.costo > 0 && `(+$${zone.costo})`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="direccion">Dirección *</Label>
+                <Input 
+                  id="direccion" 
+                  placeholder="Calle y número, referencias adicionales" 
+                  value={personalInfo.direccion} 
+                  onChange={e => setPersonalInfo(prev => ({
+                    ...prev,
+                    direccion: e.target.value
+                  }))} 
+                  required 
+                />
+              </div>
+            </div>
+          </div>;
+      case 4:
+        return <div className="space-y-6">
+            <div className="text-center mb-6">
+              <CreditCard className="h-12 w-12 mx-auto text-primary mb-2" />
+              <h3 className="text-xl font-semibold">Resumen y Confirmación</h3>
+              <p className="text-muted-foreground">Revisa los detalles y confirma tu solicitud</p>
+            </div>
+
+            {/* Método de Pago */}
+            <div className="space-y-4">
+              <h4 className="font-medium">Método de Pago</h4>
               <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="1" id="payment1" />
@@ -695,69 +840,70 @@ const ServicioOnePage = () => {
               </RadioGroup>
             </div>
 
+            {/* Comentarios Adicionales */}
             <div>
               <Label htmlFor="comments">Comentarios Adicionales</Label>
-              <Textarea id="comments" value={comments} onChange={e => setComments(e.target.value)} placeholder="Agregue cualquier comentario o solicitud especial" />
+              <Textarea 
+                id="comments" 
+                value={comments} 
+                onChange={e => setComments(e.target.value)} 
+                placeholder="Agregue cualquier comentario o solicitud especial" 
+              />
             </div>
-          </div>;
-      case 4:
-        return <div className="space-y-6">
+
+            {/* Opciones adicionales */}
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
-                <Checkbox id="soliciteQuote" checked={soliciteQuote} onCheckedChange={checked => setSoliciteQuote(checked === true)} />
+                <Checkbox 
+                  id="soliciteQuote" 
+                  checked={soliciteQuote} 
+                  onCheckedChange={checked => setSoliciteQuote(checked === true)} 
+                />
                 <Label htmlFor="soliciteQuote">Solicitar cotización</Label>
               </div>
 
               <div className="flex items-center space-x-2">
-                <Checkbox id="soliciteOtherService" checked={soliciteOtherService} onCheckedChange={checked => setSoliciteOtherService(checked === true)} />
+                <Checkbox 
+                  id="soliciteOtherService" 
+                  checked={soliciteOtherService} 
+                  onCheckedChange={checked => setSoliciteOtherService(checked === true)} 
+                />
                 <Label htmlFor="soliciteOtherService">Solicitar otro servicio</Label>
               </div>
 
-              {soliciteOtherService && <div>
+              {soliciteOtherService && (
+                <div>
                   <Label htmlFor="otherServiceDetail">Detalle del otro servicio</Label>
-                  <Textarea id="otherServiceDetail" value={otherServiceDetail} onChange={e => setOtherServiceDetail(e.target.value)} placeholder="Describa el otro servicio que necesita" />
-                </div>}
+                  <Textarea 
+                    id="otherServiceDetail" 
+                    value={otherServiceDetail} 
+                    onChange={e => setOtherServiceDetail(e.target.value)} 
+                    placeholder="Describa el otro servicio que necesita" 
+                  />
+                </div>
+              )}
             </div>
 
-            <Separator />
-
+            {/* Términos y Condiciones */}
             <div className="flex items-center space-x-2">
-              <Checkbox id="acceptTerms" checked={acceptTerms} onCheckedChange={checked => setAcceptTerms(checked === true)} />
-              <Label htmlFor="acceptTerms">
-                Acepto los términos y condiciones *
+              <Checkbox 
+                id="terms" 
+                checked={acceptTerms} 
+                onCheckedChange={checked => setAcceptTerms(checked === true)} 
+              />
+              <Label htmlFor="terms" className="text-sm">
+                Acepto los términos y condiciones del servicio
               </Label>
             </div>
-
-            {/* Summary */}
-            <div className="bg-muted p-4 rounded-lg">
-              <h3 className="font-semibold mb-2">Resumen de su solicitud:</h3>
-              <div className="space-y-1 text-sm">
-                {allSelectedServices.length > 0 && <>
-                    <p><strong>Servicios seleccionados:</strong> {allSelectedServices.length}</p>
-                    {allSelectedServices.map((service, index) => <div key={index} className="ml-4 text-xs border-l-2 border-primary pl-2 my-1">
-                        <p>{service.serviceName} - {service.categoryName}</p>
-                        <p>{service.products.length} productos - ${service.products.reduce((sum, p) => sum + p.Precio, 0)}</p>
-                      </div>)}
-                  </>}
-                {selectedService && selectedCategory && selectedProducts.length > 0 && <div className="ml-4 text-xs border-l-2 border-orange-400 pl-2 my-1 bg-orange-50">
-                    <p><strong>Servicio actual (sin agregar):</strong></p>
-                    <p>{services?.find(s => s.id === selectedService)?.name} - {categories?.find(c => c.id === selectedCategory)?.name}</p>
-                    <p>{selectedProducts.length} productos - ${selectedProducts.reduce((sum, p) => sum + p.Precio, 0)}</p>
-                  </div>}
-                <p><strong>Fecha:</strong> {selectedDate ? format(selectedDate, "PPP", {
-                  locale: es
-                }) : "No seleccionada"}</p>
-                <p><strong>Total estimado:</strong> ${allSelectedServices.reduce((sum, service) => sum + service.products.reduce((serviceSum, p) => serviceSum + p.Precio, 0), 0) + selectedProducts.reduce((sum, p) => sum + p.Precio, 0) + (locationData?.zones.find(z => z.id === parseInt(personalInfo.zona))?.costo || 0)}</p>
-              </div>
-            </div>
           </div>;
+
       default:
         return null;
     }
   };
-  const stepTitles = ["Servicios", "Datos Personales", "Programación", "Confirmación"];
-  const stepIcons = [ShoppingCart, UserCheck, CalendarClock, CreditCard];
-  const stepDescriptions = ["Selecciona los servicios que necesitas", "Completa tu información de contacto", "Elige fecha, horario y método de pago", "Revisa y confirma tu solicitud"];
+  const stepTitles = ["Servicios", "Fecha y Hora", "Datos Personales", "Confirmación"];
+  const stepIcons = [ShoppingCart, CalendarClock, UserCheck, CreditCard];
+  const stepDescriptions = ["Selecciona los servicios que necesitas", "Elige fecha y horario del servicio", "Completa tu información de contacto", "Revisa y confirma tu solicitud"];
   if (showCheckoutSummary && checkoutData) {
     const departmentsData = locationData?.departments.map(dept => ({
       id: dept.id.toString(),
