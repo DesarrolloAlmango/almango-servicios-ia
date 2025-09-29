@@ -571,77 +571,106 @@ const ServicioOnePage = () => {
             </div>
           </div>;
       case 2:
-        return <div className="space-y-6">
-            <div className="text-center mb-6">
-              <CalendarClock className="h-12 w-12 mx-auto text-primary mb-2" />
+        return <div className="space-y-8">
+            <div className="text-center mb-8">
+              <CalendarClock className="h-12 w-12 mx-auto text-primary mb-4" />
               <h3 className="text-xl font-semibold">Fecha y Hora</h3>
               <p className="text-muted-foreground">Selecciona cuándo necesitas el servicio</p>
             </div>
 
-            <div className="space-y-6">
-              <div>
-                <h4 className="font-medium mb-2">Elige una fecha</h4>
-                <div className="flex justify-center">
-                  <Calendar 
-                    mode="single" 
-                    selected={selectedDate} 
-                    onSelect={setSelectedDate} 
-                    disabled={(date) => {
-                      const today = new Date();
-                      today.setHours(0, 0, 0, 0);
-                      return date.getDay() === 0 || date < today || date.getTime() === today.getTime();
-                    }}
-                    locale={es} 
-                    className="rounded-md border pointer-events-auto" 
-                    fromDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)} 
-                    toDate={new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000)} 
-                  />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Sección de Fecha */}
+              <div className="space-y-4">
+                <div className="text-center lg:text-left">
+                  <h4 className="font-medium mb-4 text-lg">Elige una fecha</h4>
+                  <div className="flex justify-center lg:justify-start">
+                    <Calendar 
+                      mode="single" 
+                      selected={selectedDate} 
+                      onSelect={setSelectedDate} 
+                      disabled={(date) => {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        return date.getDay() === 0 || date < today || date.getTime() === today.getTime();
+                      }}
+                      locale={es} 
+                      className="rounded-md border pointer-events-auto shadow-sm" 
+                      fromDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)} 
+                      toDate={new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000)} 
+                    />
+                  </div>
+                  {selectedDate && (
+                    <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+                      <p className="text-sm text-green-700 text-center font-medium">
+                        📅 Fecha seleccionada: {format(selectedDate, "PPP", { locale: es })}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
-              {selectedDate && <div>
-                  <h4 className="font-medium mb-2">Elige un horario</h4>
-                  {(() => {
-                    const day = selectedDate.getDay();
-                    let timeSlots: string[] = [];
-                    
-                    if (day === 6) {
-                      // Sábado
-                      timeSlots = ["08:00 - 14:00", "14:00 - 20:00"];
-                    } else if (day !== 0) {
-                      // Cualquier día menos domingo
-                      timeSlots = ["08:00 - 12:00", "12:00 - 16:00", "16:00 - 20:00"];
-                    }
+              {/* Sección de Horario */}
+              <div className="space-y-4">
+                <div>
+                  <h4 className="font-medium mb-4 text-lg">Elige un horario</h4>
+                  {selectedDate ? (
+                    (() => {
+                      const day = selectedDate.getDay();
+                      let timeSlots: string[] = [];
+                      
+                      if (day === 6) {
+                        // Sábado
+                        timeSlots = ["08:00 - 14:00", "14:00 - 20:00"];
+                      } else if (day !== 0) {
+                        // Cualquier día menos domingo
+                        timeSlots = ["08:00 - 12:00", "12:00 - 16:00", "16:00 - 20:00"];
+                      }
 
-                    return timeSlots.length > 0 ? (
-                      <>
-                        <RadioGroup 
-                          value={selectedTimeSlot} 
-                          onValueChange={setSelectedTimeSlot} 
-                          className="grid grid-cols-1 md:grid-cols-3 gap-2"
-                        >
-                          {timeSlots.map(slot => (
-                            <div key={slot} className="flex items-center space-x-2">
-                              <RadioGroupItem value={slot} id={`slot-${slot}`} />
-                              <Label htmlFor={`slot-${slot}`} className="cursor-pointer">
-                                {slot}
-                              </Label>
+                      return timeSlots.length > 0 ? (
+                        <div className="space-y-4">
+                          <RadioGroup 
+                            value={selectedTimeSlot} 
+                            onValueChange={setSelectedTimeSlot} 
+                            className="space-y-3"
+                          >
+                            {timeSlots.map(slot => (
+                              <div key={slot} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                                <RadioGroupItem value={slot} id={`slot-${slot}`} />
+                                <Label htmlFor={`slot-${slot}`} className="cursor-pointer flex-1 font-medium">
+                                  🕐 {slot}
+                                </Label>
+                              </div>
+                            ))}
+                          </RadioGroup>
+                          
+                          {selectedTimeSlot && (
+                            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+                              <p className="text-sm text-green-700 text-center font-medium">
+                                ⏰ Horario seleccionado: {selectedTimeSlot}
+                              </p>
                             </div>
-                          ))}
-                        </RadioGroup>
-                        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                          <p className="text-sm text-blue-700 text-center">
-                            En caso de coordinación web, confirme disponibilidad por whatsapp.
-                          </p>
+                          )}
+                          
+                          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                            <p className="text-xs text-blue-700 text-center">
+                              💬 En caso de coordinación web, confirme disponibilidad por WhatsApp.
+                            </p>
+                          </div>
                         </div>
-                      </>
-                    ) : (
-                      <div className="text-center py-4 text-red-500">
-                        No hay horarios disponibles para la fecha seleccionada. Por favor, elige otro día.
-                      </div>
-                    );
-                  })()}
-                </div>}
+                      ) : (
+                        <div className="text-center py-8 px-4 bg-red-50 border border-red-200 rounded-md">
+                          <p className="text-red-600 font-medium">❌ No hay horarios disponibles</p>
+                          <p className="text-sm text-red-500 mt-1">Los domingos no hay servicio. Por favor, elige otro día.</p>
+                        </div>
+                      );
+                    })()
+                  ) : (
+                    <div className="text-center py-8 px-4 bg-gray-50 border border-gray-200 rounded-md">
+                      <p className="text-gray-500">👈 Primero selecciona una fecha</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>;
       case 3:
