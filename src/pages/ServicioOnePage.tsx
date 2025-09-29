@@ -108,6 +108,13 @@ const ServicioOnePage = () => {
   const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [purchaseLocation, setPurchaseLocation] = useState<PurchaseLocation | null>(null);
+  const [allSelectedServices, setAllSelectedServices] = useState<{
+    serviceId: string;
+    serviceName: string;
+    categoryId: string;
+    categoryName: string;
+    products: Product[];
+  }[]>([]);
 
   // Data fetching
   const { data: services, isLoading: isServicesLoading } = useQuery({
@@ -245,7 +252,7 @@ const ServicioOnePage = () => {
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
-        return !!(selectedService && selectedCategory && selectedProducts.length > 0);
+        return allSelectedServices.length > 0 || (selectedService && selectedCategory && selectedProducts.length > 0);
       case 2:
         return !!(personalInfo.nombre && personalInfo.telefono && personalInfo.direccion && 
                  personalInfo.pais && personalInfo.departamento && personalInfo.municipio && personalInfo.zona);
@@ -258,6 +265,39 @@ const ServicioOnePage = () => {
     }
   };
 
+  const addCurrentServiceToList = () => {
+    if (!selectedService || !selectedCategory || selectedProducts.length === 0) {
+      toast.error("Por favor complete la selección de servicio");
+      return;
+    }
+
+    const serviceName = services?.find(s => s.id === selectedService)?.name || "";
+    const categoryName = categories?.find(c => c.id === selectedCategory)?.name || "";
+
+    const newService = {
+      serviceId: selectedService,
+      serviceName,
+      categoryId: selectedCategory,
+      categoryName,
+      products: [...selectedProducts]
+    };
+
+    setAllSelectedServices(prev => [...prev, newService]);
+    
+    // Reset current selection
+    setSelectedService("");
+    setSelectedCategory("");
+    setSelectedProducts([]);
+    setPurchaseLocation(null);
+    
+    toast.success(`Servicio "${serviceName}" agregado correctamente`);
+  };
+
+  const removeServiceFromList = (index: number) => {
+    setAllSelectedServices(prev => prev.filter((_, i) => i !== index));
+    toast.success("Servicio eliminado");
+  };
+
   const handleNextStep = () => {
     // For step 1, check if we need location first
     if (currentStep === 1) {
@@ -267,6 +307,11 @@ const ServicioOnePage = () => {
       }
       if (!purchaseLocation) {
         setIsLocationModalOpen(true);
+        return;
+      }
+      // Check if we have services selected or if we need to add current service
+      if (allSelectedServices.length === 0 && selectedProducts.length === 0) {
+        toast.error("Por favor seleccione al menos un producto");
         return;
       }
     }
@@ -318,7 +363,13 @@ const ServicioOnePage = () => {
     try {
       const zoneCost = locationData?.zones.find(z => z.id === parseInt(personalInfo.zona))?.costo || 0;
       
-      const checkoutItems: CheckoutItem[] = selectedProducts.map(product => ({
+      // Combine all selected services and current selection
+      const allProducts = [
+        ...allSelectedServices.flatMap(service => service.products),
+        ...selectedProducts
+      ];
+      
+      const checkoutItems: CheckoutItem[] = allProducts.map(product => ({
         RubrosId: product.RubrosId,
         ProductoID: product.ProductoID,
         DetalleID: null,
@@ -454,6 +505,33 @@ const ServicioOnePage = () => {
                 >
                   Configurar Ubicación
                 </Button>
+              </div>
+            )}
+
+            {/* All Selected Services Summary */}
+            {allSelectedServices.length > 0 && (
+              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <h3 className="font-medium text-green-800 mb-3">Servicios agregados ({allSelectedServices.length})</h3>
+                <div className="space-y-3">
+                  {allSelectedServices.map((service, index) => (
+                    <div key={index} className="flex justify-between items-start bg-white p-3 rounded border">
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{service.serviceName}</p>
+                        <p className="text-xs text-muted-foreground">{service.categoryName}</p>
+                        <p className="text-xs text-green-600">{service.products.length} productos seleccionados</p>
+                        <p className="text-xs font-medium">Total: ${service.products.reduce((sum, p) => sum + p.Precio, 0)}</p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeServiceFromList(index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        Eliminar
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
@@ -754,11 +832,30 @@ const ServicioOnePage = () => {
             <div className="bg-muted p-4 rounded-lg">
               <h3 className="font-semibold mb-2">Resumen de su solicitud:</h3>
               <div className="space-y-1 text-sm">
-                <p><strong>Servicio:</strong> {services?.find(s => s.id === selectedService)?.name}</p>
-                <p><strong>Categoría:</strong> {categories?.find(c => c.id === selectedCategory)?.name}</p>
-                <p><strong>Productos:</strong> {selectedProducts.length} productos seleccionados</p>
+                {allSelectedServices.length > 0 && (
+                  <>
+                    <p><strong>Servicios seleccionados:</strong> {allSelectedServices.length}</p>
+                    {allSelectedServices.map((service, index) => (
+                      <div key={index} className="ml-4 text-xs border-l-2 border-primary pl-2 my-1">
+                        <p>{service.serviceName} - {service.categoryName}</p>
+                        <p>{service.products.length} productos - ${service.products.reduce((sum, p) => sum + p.Precio, 0)}</p>
+                      </div>
+                    ))}
+                  </>
+                )}
+                {selectedService && selectedCategory && selectedProducts.length > 0 && (
+                  <div className="ml-4 text-xs border-l-2 border-orange-400 pl-2 my-1 bg-orange-50">
+                    <p><strong>Servicio actual (sin agregar):</strong></p>
+                    <p>{services?.find(s => s.id === selectedService)?.name} - {categories?.find(c => c.id === selectedCategory)?.name}</p>
+                    <p>{selectedProducts.length} productos - ${selectedProducts.reduce((sum, p) => sum + p.Precio, 0)}</p>
+                  </div>
+                )}
                 <p><strong>Fecha:</strong> {installationDate ? format(installationDate, "PPP", { locale: es }) : "No seleccionada"}</p>
-                <p><strong>Total estimado:</strong> ${selectedProducts.reduce((sum, p) => sum + p.Precio, 0) + (locationData?.zones.find(z => z.id === parseInt(personalInfo.zona))?.costo || 0)}</p>
+                <p><strong>Total estimado:</strong> ${
+                  allSelectedServices.reduce((sum, service) => sum + service.products.reduce((serviceSum, p) => serviceSum + p.Precio, 0), 0) +
+                  selectedProducts.reduce((sum, p) => sum + p.Precio, 0) +
+                  (locationData?.zones.find(z => z.id === parseInt(personalInfo.zona))?.costo || 0)
+                }</p>
               </div>
             </div>
           </div>
@@ -865,12 +962,25 @@ const ServicioOnePage = () => {
             </Button>
             
             {currentStep < stepTitles.length ? (
-              <Button
-                onClick={handleNextStep}
-                disabled={!validateStep(currentStep)}
-              >
-                {currentStep === 1 && selectedService && selectedCategory && !purchaseLocation ? "Configurar Ubicación" : "Siguiente"}
-              </Button>
+              <div className="flex gap-2">
+                {currentStep === 1 && allSelectedServices.length > 0 && (
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentStep(2)}
+                    className="flex-1"
+                  >
+                    Continuar con {allSelectedServices.length} servicio{allSelectedServices.length > 1 ? 's' : ''}
+                  </Button>
+                )}
+                <Button
+                  onClick={handleNextStep}
+                  disabled={currentStep === 1 ? (allSelectedServices.length === 0 && !validateStep(currentStep)) : !validateStep(currentStep)}
+                  className={currentStep === 1 && allSelectedServices.length > 0 ? "flex-1" : ""}
+                >
+                  {currentStep === 1 && selectedService && selectedCategory && !purchaseLocation ? "Configurar Ubicación" : 
+                   currentStep === 1 && allSelectedServices.length > 0 ? "Agregar más servicios" : "Siguiente"}
+                </Button>
+              </div>
             ) : (
               <Button
                 onClick={handleSubmit}
