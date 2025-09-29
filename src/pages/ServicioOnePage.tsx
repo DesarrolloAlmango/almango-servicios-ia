@@ -1046,15 +1046,6 @@ const ServicioOnePage = () => {
                     Limpiar selección actual
                   </Button>
                 )}
-                {currentStep === 1 && (
-                  <Button 
-                    onClick={() => setCurrentStep(prev => prev + 1)} 
-                    disabled={!validateStep(currentStep)}
-                    className="min-w-32"
-                  >
-                    Siguiente
-                  </Button>
-                )}
                 {currentStep === 2 && (
                   <Button 
                     onClick={handleSubmit} 
