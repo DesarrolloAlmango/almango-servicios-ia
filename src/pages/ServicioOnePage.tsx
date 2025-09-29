@@ -722,76 +722,121 @@ const ServicioOnePage = () => {
           </div>;
       case 2:
         return <div className="space-y-6">
-            <div className="text-center mb-6">
-              <CalendarClock className="h-12 w-12 mx-auto text-primary mb-2" />
-              <h3 className="text-xl font-semibold">Fecha y Hora</h3>
-              <p className="text-muted-foreground">Selecciona cuándo necesitas el servicio</p>
+            {/* Información Personal */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="nombre">Nombre completo *</Label>
+                <Input 
+                  id="nombre" 
+                  placeholder="Nombre y apellido" 
+                  value={personalInfo.nombre} 
+                  onChange={e => setPersonalInfo(prev => ({
+                    ...prev,
+                    nombre: e.target.value
+                  }))} 
+                  required 
+                />
+              </div>
+              <div>
+                <Label htmlFor="telefono">Teléfono *</Label>
+                <Input 
+                  id="telefono" 
+                  placeholder="Teléfono de contacto" 
+                  value={personalInfo.telefono} 
+                  onChange={e => setPersonalInfo(prev => ({
+                    ...prev,
+                    telefono: e.target.value
+                  }))} 
+                  required 
+                />
+              </div>
             </div>
 
-            <div className="space-y-6">
-              <div>
-                <h4 className="font-medium mb-3">Elige una fecha</h4>
-                <div className="flex justify-center">
-                  <Calendar 
-                    mode="single" 
-                    selected={selectedDate} 
-                    onSelect={setSelectedDate} 
-                    disabled={(date) => {
-                      const today = new Date();
-                      today.setHours(0, 0, 0, 0);
-                      return date.getDay() === 0 || date < today || date.getTime() === today.getTime();
-                    }}
-                    locale={es} 
-                    className="rounded-md border pointer-events-auto" 
-                    fromDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)} 
-                    toDate={new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000)} 
+            <div>
+              <Label htmlFor="email">Correo electrónico (opcional)</Label>
+              <Input 
+                id="email" 
+                type="email" 
+                placeholder="tu@email.com" 
+                value={personalInfo.email} 
+                onChange={e => setPersonalInfo(prev => ({
+                  ...prev,
+                  email: e.target.value
+                }))} 
+              />
+            </div>
+
+            {/* Dirección */}
+            <div className="space-y-4">
+              <h4 className="font-medium">Dirección</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="calle">Calle *</Label>
+                  <Input 
+                    id="calle" 
+                    placeholder="Nombre de la calle" 
+                    value={personalInfo.direccion} 
+                    onChange={e => setPersonalInfo(prev => ({
+                      ...prev,
+                      direccion: e.target.value
+                    }))} 
+                    required 
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="numero">Número *</Label>
+                  <Input 
+                    id="numero" 
+                    placeholder="Número de puerta" 
+                    value={personalInfo.pais} 
+                    onChange={e => setPersonalInfo(prev => ({
+                      ...prev,
+                      pais: e.target.value
+                    }))} 
+                    required 
                   />
                 </div>
               </div>
-
-              {selectedDate && (
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <h4 className="font-medium mb-3">Elige un horario</h4>
-                  {(() => {
-                    const day = selectedDate.getDay();
-                    let timeSlots: string[] = [];
-                    
-                    if (day === 6) {
-                      timeSlots = ["08:00 - 14:00", "14:00 - 20:00"];
-                    } else if (day !== 0) {
-                      timeSlots = ["08:00 - 12:00", "12:00 - 16:00", "16:00 - 20:00"];
-                    }
-
-                    return timeSlots.length > 0 ? (
-                      <>
-                        <RadioGroup 
-                          value={selectedTimeSlot} 
-                          onValueChange={setSelectedTimeSlot} 
-                          className="grid grid-cols-1 md:grid-cols-3 gap-3"
-                        >
-                          {timeSlots.map(slot => (
-                            <div key={slot} className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-gray-50">
-                              <RadioGroupItem value={slot} id={`slot-${slot}`} />
-                              <Label htmlFor={`slot-${slot}`} className="cursor-pointer">
-                                {slot}
-                              </Label>
-                            </div>
-                          ))}
-                        </RadioGroup>
-                        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                          <p className="text-sm text-blue-700 text-center">
-                            En caso de coordinación web, confirme disponibilidad por WhatsApp.
-                          </p>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="text-center py-4 text-red-500">
-                        No hay horarios disponibles para domingos. Por favor, elige otro día.
-                      </div>
-                    );
-                  })()}
+                  <Label htmlFor="esquina">Esquina</Label>
+                  <Input 
+                    id="esquina" 
+                    placeholder="Esquina o referencia" 
+                    value={personalInfo.departamento} 
+                    onChange={e => setPersonalInfo(prev => ({
+                      ...prev,
+                      departamento: e.target.value
+                    }))} 
+                  />
                 </div>
-              )}
+                
+                <div>
+                  <Label htmlFor="apartamento">Apartamento</Label>
+                  <Input 
+                    id="apartamento" 
+                    placeholder="Número de apartamento" 
+                    value={personalInfo.municipio} 
+                    onChange={e => setPersonalInfo(prev => ({
+                      ...prev,
+                      municipio: e.target.value
+                    }))} 
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Comentarios Adicionales */}
+            <div>
+              <Label htmlFor="comments">Comentarios Adicionales</Label>
+              <Textarea 
+                id="comments" 
+                value={comments} 
+                onChange={e => setComments(e.target.value)} 
+                placeholder="Agregue cualquier comentario o solicitud especial" 
+              />
             </div>
           </div>;
       case 3:
