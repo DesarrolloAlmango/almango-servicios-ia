@@ -136,9 +136,25 @@ const ServicioOnePage = () => {
     queryKey: ["products", selectedService, selectedCategory],
     queryFn: async () => {
       if (!selectedService || !selectedCategory) return [];
+      console.log("Fetching products for service:", selectedService, "category:", selectedCategory);
       const response = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerNivel2?Nivel0=${selectedService}&Nivel1=${selectedCategory}`);
       if (!response.ok) throw new Error("Error al obtener productos");
-      return await response.json();
+      const data = await response.json();
+      console.log("Raw products data:", data);
+      
+      // Map the products to the expected format
+      const mappedProducts = data.map((product: any) => ({
+        ProductoID: parseInt(product.id) || product.ProductoID,
+        NombreProducto: product.name || product.NombreProducto,
+        Precio: parseFloat(product.price) || product.Precio,
+        TextosId: product.TextosId || product.textosId,
+        RubrosId: parseInt(selectedCategory),
+        SR: product.SR || "S",
+        Comision: product.Comision || 0,
+        ComisionTipo: product.ComisionTipo || "P"
+      }));
+      console.log("Mapped products:", mappedProducts);
+      return mappedProducts;
     },
     enabled: !!(selectedService && selectedCategory)
   });
