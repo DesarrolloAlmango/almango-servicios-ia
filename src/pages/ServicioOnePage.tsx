@@ -509,7 +509,66 @@ const ServicioOnePage = () => {
               </div>}
 
             {/* Service Selection Section */}
-            
+            <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+              {selectedCategory && purchaseLocation && <div className="mt-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Package className="h-5 w-5 text-blue-600" />
+                    <Label className="text-base font-medium">
+                      Productos disponibles para: {services?.find(s => s.id === selectedService)?.name}
+                    </Label>
+                  </div>
+                  
+                  <div className="grid gap-3 max-h-96 overflow-y-auto pr-2">
+                    {isProductsLoading ? <div className="space-y-3">
+                        {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full rounded-lg" />)}
+                      </div> : products && products.length > 0 ? products.map((product: Product) => <div key={product.ProductoID} className={cn("flex items-center space-x-3 p-4 border-2 rounded-lg transition-all duration-200 cursor-pointer hover:shadow-md", selectedProducts.some(p => p.ProductoID === product.ProductoID) ? "border-primary bg-primary/5 shadow-sm" : "border-gray-200 hover:border-gray-300")} onClick={() => handleProductToggle(product, !selectedProducts.some(p => p.ProductoID === product.ProductoID))}>
+                          <Checkbox id={`product-${product.ProductoID}`} checked={selectedProducts.some(p => p.ProductoID === product.ProductoID)} onCheckedChange={checked => handleProductToggle(product, checked as boolean)} className="w-5 h-5" />
+                          <div className="flex-1">
+                            <Label htmlFor={`product-${product.ProductoID}`} className="cursor-pointer block">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <span className="font-medium text-gray-900 block">{product.NombreProducto}</span>
+                                  <span className="text-sm text-gray-500">Código: {product.ProductoID}</span>
+                                </div>
+                                <div className="text-right">
+                                  <span className="text-lg font-bold text-primary">${product.Precio}</span>
+                                  <span className="block text-xs text-gray-500">por servicio</span>
+                                </div>
+                              </div>
+                            </Label>
+                          </div>
+                        </div>) : <div className="text-center py-8 text-muted-foreground bg-gray-50 rounded-lg">
+                        <Package className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+                        <p className="font-medium">No hay productos disponibles</p>
+                        <p className="text-sm">para esta categoría en tu ubicación</p>
+                      </div>}
+                  </div>
+
+                  {/* Add Service Action */}
+                  {selectedProducts.length > 0 && <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <p className="font-medium text-blue-900">
+                            ✓ {selectedProducts.length} productos seleccionados
+                          </p>
+                          <p className="text-sm text-blue-700">
+                            de "{services?.find(s => s.id === selectedService)?.name}"
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-blue-900">
+                            ${selectedProducts.reduce((sum, p) => sum + p.Precio, 0)}
+                          </p>
+                          <p className="text-xs text-blue-600">subtotal</p>
+                        </div>
+                      </div>
+                      <Button onClick={addCurrentServiceToList} className="w-full bg-blue-600 hover:bg-blue-700">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Agregar "{services?.find(s => s.id === selectedService)?.name}" a mi solicitud
+                      </Button>
+                    </div>}
+                </div>}
+            </div>
           </div>;
       case 2:
         return <div className="space-y-4">
