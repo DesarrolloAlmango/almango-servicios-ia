@@ -1072,7 +1072,13 @@ const ServicioOnePage = () => {
             {currentStep < stepTitles.length ? (
               <div className="flex gap-2">
                 {currentStep === 1 && allSelectedServices.length > 0 && (
-                  <Button onClick={() => setCurrentStep(2)} className="flex-1">
+                  <Button onClick={() => {
+                    if (!selectedDate || !selectedTimeSlot) {
+                      toast.error("Por favor seleccione fecha y horario");
+                      return;
+                    }
+                    setCurrentStep(2);
+                  }} className="flex-1">
                     Continuar con {allSelectedServices.length} servicio{allSelectedServices.length > 1 ? 's' : ''} seleccionado{allSelectedServices.length > 1 ? 's' : ''}
                   </Button>
                 )}
