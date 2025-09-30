@@ -140,32 +140,64 @@ const ServicioOnePage = () => {
 
   const {
     data: categories,
-    isLoading: isCategoriesLoading
+    isLoading: isCategoriesLoading,
+    error: categoriesError
   } = useQuery({
     queryKey: ["categories", selectedService],
     queryFn: async () => {
-      if (!selectedService) return [];
+      if (!selectedService) {
+        console.log("No service selected, returning empty categories");
+        return [];
+      }
+      
       console.log("Fetching categories for service:", selectedService);
-      const response = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerNivel1?Nivel0=${selectedService}`);
-      if (!response.ok) throw new Error("Error al obtener categorías");
-      const data = await response.json();
-      console.log("Raw categories data:", data);
+      
+      try {
+        const response = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerNivel1?Nivel0=${selectedService}`);
+        console.log("Response status:", response.status, response.statusText);
+        
+        if (!response.ok) {
+          console.error("Response not OK:", response.status);
+          throw new Error("Error al obtener categorías");
+        }
+        
+        const data = await response.json();
+        console.log("Raw categories data:", data);
 
-      // Parse the JSON if it comes as a string
-      const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
-      console.log("Parsed categories data:", parsedData);
+        // Parse the JSON if it comes as a string
+        const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+        console.log("Parsed categories data:", parsedData);
 
-      // Map the categories based on the actual structure
-      const mappedCategories = parsedData.map((cat: any) => ({
-        id: cat.Nivel1ID ? cat.Nivel1ID.toString() : cat.id?.toString() || cat.ID?.toString(),
-        name: cat.NombreNivel1 || cat.name || cat.Name,
-        icon: cat.IconoNivel1 || cat.icon
-      }));
-      console.log("Mapped categories:", mappedCategories);
-      return mappedCategories;
+        // Check if parsedData is an array
+        if (!Array.isArray(parsedData)) {
+          console.error("Categories data is not an array:", parsedData);
+          return [];
+        }
+
+        // Map the categories based on the actual structure
+        const mappedCategories = parsedData.map((cat: any) => ({
+          id: cat.Nivel1ID ? cat.Nivel1ID.toString() : cat.id?.toString() || cat.ID?.toString(),
+          name: cat.NombreNivel1 || cat.name || cat.Name,
+          icon: cat.IconoNivel1 || cat.icon
+        }));
+        console.log("Mapped categories:", mappedCategories);
+        return mappedCategories;
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        toast.error("Error al cargar las categorías");
+        throw error;
+      }
     },
-    enabled: !!selectedService
+    enabled: !!selectedService,
+    retry: 1
   });
+
+  // Log category errors
+  useEffect(() => {
+    if (categoriesError) {
+      console.error("Categories query error:", categoriesError);
+    }
+  }, [categoriesError]);
 
   const {
     data: products,
