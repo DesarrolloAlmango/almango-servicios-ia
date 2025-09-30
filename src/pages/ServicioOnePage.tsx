@@ -371,15 +371,17 @@ const ServicioOnePage = () => {
         Level1: checkoutItems
       };
 
-    console.log("=== VERIFICACIÓN DE ESTRUCTURA ===");
-    console.log("Data object keys:", Object.keys(data));
-    console.log("CheckoutData esperado vs actual:");
-    console.log("- Nombre:", data.Nombre);
-    console.log("- DepartamentoId:", data.DepartamentoId);
-    console.log("- MunicipioId:", data.MunicipioId);
-    console.log("- ProveedorAuxiliar:", data.ProveedorAuxiliar);
-    console.log("- Level1 length:", data.Level1.length);
-    console.log("- Level1 structure:", data.Level1[0]);
+
+      console.log("=== VERIFICACIÓN DE ESTRUCTURA ===");
+      console.log("Data object keys:", Object.keys(data));
+      console.log("CheckoutData esperado vs actual:");
+      console.log("- Nombre:", data.Nombre);
+      console.log("- DepartamentoId:", data.DepartamentoId, "(" + (purchaseLocation?.departmentName || "sin nombre") + ")");
+      console.log("- MunicipioId:", data.MunicipioId, "(" + (purchaseLocation?.locationName || "sin nombre") + ")");
+      console.log("- ProveedorAuxiliar:", data.ProveedorAuxiliar);
+      console.log("- PurchaseLocation completo:", purchaseLocation);
+      console.log("- Level1 length:", data.Level1.length);
+      console.log("- Level1 structure:", data.Level1[0]);
 
     // Validate required fields
     const missingFields = [];
