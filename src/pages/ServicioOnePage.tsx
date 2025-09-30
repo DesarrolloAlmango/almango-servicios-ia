@@ -344,31 +344,32 @@ const ServicioOnePage = () => {
       ProductName: product.NombreProducto
     }));
 
-    // Calculate total discount
-    const totalDiscountAmount = 0; // You can implement discount calculation here if needed
+    // Calculate total
+    const productsTotal = checkoutItems.reduce((sum, item) => sum + item.Precio, 0);
+    const total = productsTotal + zoneCost;
 
-    const data: CheckoutData = {
-      Nombre: personalInfo.name,
-      Telefono: personalInfo.phone,
-      Mail: personalInfo.email || null,
-      PaisISO: 858, // Uruguay por defecto
-      DepartamentoId: parseInt(purchaseLocation?.departmentId || "0"),
-      MunicipioId: parseInt(purchaseLocation?.locationId || "0"),
-      ZonasID: 0, // Se manejará con el costo adicional de zona
-      Direccion: `${personalInfo.street} ${personalInfo.number}${personalInfo.apartment ? ` Apto ${personalInfo.apartment}` : ''}${personalInfo.corner ? ` esq. ${personalInfo.corner}` : ''}`,
-      MetodoPagosID: parseInt(paymentMethod) || 1,
-      SolicitudPagada: null,
-      SolicitaCotizacion: "N",
-      SolicitaOtroServicio: "N",
-      OtroServicioDetalle: "",
-      FechaInstalacion: format(selectedDate!, "yyyy-MM-dd"),
-      TurnoInstalacion: selectedTimeSlot,
-      Comentario: personalInfo.comments || "",
-      ConfirmarCondicionesUso: personalInfo.termsAccepted ? "S" : "N",
-      ProveedorAuxiliar: commerceId || purchaseLocation?.storeId || null,
-      CostoXZona: zoneCost,
-      Level1: checkoutItems
-    };
+      const data: CheckoutData = {
+        Nombre: personalInfo.name,
+        Telefono: personalInfo.phone,
+        Mail: personalInfo.email || null,
+        PaisISO: 0,
+        DepartamentoId: parseInt(purchaseLocation?.departmentId || "0"),
+        MunicipioId: parseInt(purchaseLocation?.locationId || "0"),
+        ZonasID: 0,
+        Direccion: `${personalInfo.street} ${personalInfo.number}${personalInfo.apartment ? ` Apto ${personalInfo.apartment}` : ''}${personalInfo.corner ? ` esq. ${personalInfo.corner}` : ''}`,
+        MetodoPagosID: parseInt(paymentMethod) || 1,
+        SolicitudPagada: null,
+        SolicitaCotizacion: total.toString(),
+        SolicitaOtroServicio: "N",
+        OtroServicioDetalle: "",
+        FechaInstalacion: format(selectedDate!, "yyyy-MM-dd"),
+        TurnoInstalacion: selectedTimeSlot,
+        Comentario: personalInfo.comments || "",
+        ConfirmarCondicionesUso: personalInfo.termsAccepted ? "S" : "N",
+        ProveedorAuxiliar: commerceId || purchaseLocation?.storeId || null,
+        CostoXZona: zoneCost,
+        Level1: checkoutItems
+      };
 
     console.log("=== VERIFICACIÓN DE ESTRUCTURA ===");
     console.log("Data object keys:", Object.keys(data));
