@@ -1073,10 +1073,14 @@ const ServicioOnePage = () => {
               <div className="flex gap-2">
                 {currentStep === 1 && allSelectedServices.length > 0 && (
                   <Button onClick={() => {
+                    console.log("Button clicked - selectedDate:", selectedDate);
+                    console.log("Button clicked - selectedTimeSlot:", selectedTimeSlot);
                     if (!selectedDate || !selectedTimeSlot) {
+                      console.log("Validation failed - showing toast");
                       toast.error("Por favor seleccione fecha y horario");
                       return;
                     }
+                    console.log("Validation passed - proceeding to step 2");
                     setCurrentStep(2);
                   }} className="flex-1">
                     Continuar con {allSelectedServices.length} servicio{allSelectedServices.length > 1 ? 's' : ''} seleccionado{allSelectedServices.length > 1 ? 's' : ''}
