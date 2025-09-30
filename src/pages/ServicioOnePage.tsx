@@ -339,10 +339,6 @@ const ServicioOnePage = () => {
       toast.error("Por favor complete todos los campos requeridos");
       return;
     }
-    if (!acceptTerms) {
-      toast.error("Por favor acepte los términos y condiciones");
-      return;
-    }
     
     setIsSubmitting(true);
     try {
