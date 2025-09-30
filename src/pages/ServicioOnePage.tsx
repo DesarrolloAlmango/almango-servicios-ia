@@ -313,11 +313,14 @@ const ServicioOnePage = () => {
   const handleShowConfirmation = () => {
     console.log("handleShowConfirmation called, purchaseLocation:", purchaseLocation);
     
-    // Check if location is selected first
-    if (!selectedService || !selectedCategory) {
-      toast.error("Por favor seleccione un servicio y categoría");
+    // Check if we have services (either in the list or currently selected)
+    const hasServices = allSelectedServices.length > 0 || (selectedService && selectedCategory && selectedProducts.length > 0);
+    
+    if (!hasServices) {
+      toast.error("Por favor seleccione al menos un servicio");
       return;
     }
+    
     if (!purchaseLocation) {
       setIsLocationModalOpen(true);
       return;
