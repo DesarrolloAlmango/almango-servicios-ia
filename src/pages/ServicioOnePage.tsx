@@ -342,7 +342,36 @@ const ServicioOnePage = () => {
     
     setIsSubmitting(true);
     try {
-      const zoneCost = locationData?.zones.find(z => z.id === parseInt(personalInfo.zona))?.costo || 0;
+      // Get location data from purchaseLocation (this is what was selected in step 1)
+      let departamentoId = 0;
+      let municipioId = 0;
+      let zonasId = 0;
+      let paisId = 1; // Default to Uruguay
+
+      if (purchaseLocation) {
+        departamentoId = parseInt(purchaseLocation.departmentId || "0");
+        municipioId = parseInt(purchaseLocation.locationId || "0");
+        
+        // Find the zone for this location
+        const zone = locationData?.zones.find(z => z.municipioId === municipioId);
+        if (zone) {
+          zonasId = zone.id;
+        }
+        
+        console.log("=== UBICACIÓN DESDE purchaseLocation ===");
+        console.log("purchaseLocation:", purchaseLocation);
+        console.log("departamentoId:", departamentoId);
+        console.log("municipioId:", municipioId);
+        console.log("zonasId:", zonasId);
+      }
+
+      // If personal info has values, use those instead (user manually filled them)
+      if (personalInfo.pais) paisId = parseInt(personalInfo.pais);
+      if (personalInfo.departamento) departamentoId = parseInt(personalInfo.departamento);
+      if (personalInfo.municipio) municipioId = parseInt(personalInfo.municipio);
+      if (personalInfo.zona) zonasId = parseInt(personalInfo.zona);
+
+      const zoneCost = locationData?.zones.find(z => z.id === zonasId)?.costo || 0;
 
       // Combine all selected services and current selection
       const allProducts = [...allSelectedServices.flatMap(service => service.products), ...selectedProducts];
@@ -366,16 +395,16 @@ const ServicioOnePage = () => {
       }));
 
       // Calculate total discount
-      const totalDiscountAmount = 0; // You can implement discount calculation here if needed
+      const totalDiscountAmount = 0;
 
       const data = {
         Nombre: personalInfo.nombre,
         Telefono: personalInfo.telefono,
         Mail: personalInfo.email || "",
-        PaisISO: parseInt(personalInfo.pais) || 0,
-        DepartamentoId: parseInt(personalInfo.departamento) || 0,
-        MunicipioId: parseInt(personalInfo.municipio) || 0,
-        ZonasID: parseInt(personalInfo.zona) || 0,
+        PaisISO: paisId,
+        DepartamentoId: departamentoId,
+        MunicipioId: municipioId,
+        ZonasID: zonasId,
         Direccion: personalInfo.direccion,
         MetodoPagosID: parseInt(paymentMethod) || 1,
         SolicitudPagada: null,
@@ -385,7 +414,7 @@ const ServicioOnePage = () => {
         FechaInstalacion: format(selectedDate!, "yyyy-MM-dd"),
         TurnoInstalacion: selectedTimeSlot,
         Comentario: comments || "",
-        ConfirmarCondicionesUso: "S", // Always send "S" since we removed validation
+        ConfirmarCondicionesUso: "S",
         ProveedorAuxiliar: commerceId || null,
         CostoXZona: zoneCost,
         Descuento: totalDiscountAmount,
@@ -423,12 +452,10 @@ const ServicioOnePage = () => {
 
       console.log("=== DATOS DE LA SOLICITUD ===");
       console.log("Provider ID:", providerId);
-      console.log("User ID:", userId || "0");
-      console.log("Datos completos:", data);
-      console.log("JSON que se envía:", jsonSolicitud);
-      console.log("Personal Info completo:", personalInfo);
+      console.log("User ID:", userId || "0");  
       console.log("Purchase Location:", purchaseLocation);
-      console.log("Selected Products:", allProducts);
+      console.log("Datos que se envían:", data);
+      console.log("JSON que se envía:", jsonSolicitud);
 
       const url = new URL("https://app.almango.com.uy/WebAPI/AltaSolicitud");
       url.searchParams.append("Userconect", "NoEmpty");
@@ -845,7 +872,66 @@ const ServicioOnePage = () => {
                 </div>
             </div>}
           </div>;
-      case 2:
+        case 2:
+          // Debug info - show what will be sent
+          const debugData = (() => {
+            try {
+              let departamentoId = 0;
+              let municipioId = 0;
+              let zonasId = 0;
+              let paisId = 1;
+
+              if (purchaseLocation) {
+                departamentoId = parseInt(purchaseLocation.departmentId || "0");
+                municipioId = parseInt(purchaseLocation.locationId || "0");
+                const zone = locationData?.zones.find(z => z.municipioId === municipioId);
+                if (zone) zonasId = zone.id;
+              }
+
+              if (personalInfo.pais) paisId = parseInt(personalInfo.pais);
+              if (personalInfo.departamento) departamentoId = parseInt(personalInfo.departamento);
+              if (personalInfo.municipio) municipioId = parseInt(personalInfo.municipio);
+              if (personalInfo.zona) zonasId = parseInt(personalInfo.zona);
+
+              const allProducts = [...allSelectedServices.flatMap(service => service.products), ...selectedProducts];
+              const zoneCost = locationData?.zones.find(z => z.id === zonasId)?.costo || 0;
+
+              return {
+                Nombre: personalInfo.nombre,
+                Telefono: personalInfo.telefono,
+                Mail: personalInfo.email || "",
+                PaisISO: paisId,
+                DepartamentoId: departamentoId,
+                MunicipioId: municipioId,
+                ZonasID: zonasId,
+                Direccion: personalInfo.direccion,
+                MetodoPagosID: parseInt(paymentMethod) || 1,
+                FechaInstalacion: selectedDate ? format(selectedDate, "yyyy-MM-dd") : "",
+                TurnoInstalacion: selectedTimeSlot,
+                Level1Count: allProducts.length,
+                CostoXZona: zoneCost,
+                ProveedorAuxiliar: commerceId || null,
+                PurchaseLocation: purchaseLocation
+              };
+            } catch (error) {
+              return { error: "Error generando debug data" };
+            }
+          })();
+
+          return <div className="space-y-6">
+            {/* Debug Section */}
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <h4 className="font-medium text-yellow-800 mb-2">🔍 Debug - Datos que se enviarán:</h4>
+              <pre className="text-xs text-yellow-700 whitespace-pre-wrap bg-yellow-100 p-2 rounded max-h-40 overflow-y-auto">
+                {JSON.stringify(debugData, null, 2)}
+              </pre>
+            </div>
+
+            <div className="text-center mb-6">
+              <UserCheck className="h-12 w-12 mx-auto text-primary mb-2" />
+              <h3 className="text-xl font-semibold">Datos Personales</h3>
+              <p className="text-muted-foreground">Complete su información personal</p>
+            </div>
         return <div className="space-y-6">
             {/* Información Personal */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
