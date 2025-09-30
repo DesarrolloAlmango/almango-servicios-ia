@@ -115,11 +115,7 @@ const ServicioOnePage = () => {
     corner: "",
     apartment: "",
     comments: "",
-    termsAccepted: false,
-    pais: "",
-    departamento: "",
-    municipio: "",
-    zona: ""
+    termsAccepted: false
   });
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
@@ -131,6 +127,12 @@ const ServicioOnePage = () => {
   const [otherServiceDetail, setOtherServiceDetail] = useState("");
   const [noNumber, setNoNumber] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [locationInfo, setLocationInfo] = useState({
+    pais: "",
+    departamento: "",
+    municipio: "",
+    zona: ""
+  });
 
   // UI states
   const [currentStep, setCurrentStep] = useState(1);
@@ -277,18 +279,18 @@ const ServicioOnePage = () => {
   };
 
   const getFilteredDepartments = () => {
-    if (!locationData || !personalInfo.pais) return [];
-    return locationData.departments.filter(dept => dept.paisId === parseInt(personalInfo.pais));
+    if (!locationData || !locationInfo.pais) return [];
+    return locationData.departments.filter(dept => dept.paisId === parseInt(locationInfo.pais));
   };
 
   const getFilteredMunicipalities = () => {
-    if (!locationData || !personalInfo.departamento) return [];
-    return locationData.municipalities.filter(mun => mun.departamentoId === parseInt(personalInfo.departamento));
+    if (!locationData || !locationInfo.departamento) return [];
+    return locationData.municipalities.filter(mun => mun.departamentoId === parseInt(locationInfo.departamento));
   };
 
   const getFilteredZones = () => {
-    if (!locationData || !personalInfo.municipio) return [];
-    return locationData.zones.filter(zone => zone.municipioId === parseInt(personalInfo.municipio));
+    if (!locationData || !locationInfo.municipio) return [];
+    return locationData.zones.filter(zone => zone.municipioId === parseInt(locationInfo.municipio));
   };
 
   const validateStep = (step: number): boolean => {
@@ -296,7 +298,7 @@ const ServicioOnePage = () => {
       case 1:
         return (allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0) && !!selectedDate && !!selectedTimeSlot;
       case 2:
-        return !!(personalInfo.name && personalInfo.phone && personalInfo.street && personalInfo.number && personalInfo.termsAccepted && personalInfo.pais);
+        return !!(personalInfo.name && personalInfo.phone && personalInfo.street && personalInfo.number && personalInfo.termsAccepted);
       default:
         return false;
     }
@@ -376,7 +378,7 @@ const ServicioOnePage = () => {
       return;
     }
 
-    const zoneCost = locationData?.zones.find(z => z.id === parseInt(personalInfo.zona))?.costo || 0;
+    const zoneCost = locationData?.zones.find(z => z.id === parseInt(locationInfo.zona))?.costo || 0;
 
     // Combine all selected services and current selection
     const allProducts = [...allSelectedServices.flatMap(service => service.products), ...selectedProducts];
@@ -406,10 +408,10 @@ const ServicioOnePage = () => {
       Nombre: personalInfo.name,
       Telefono: personalInfo.phone,
       Mail: personalInfo.email || "",
-      PaisISO: parseInt(personalInfo.pais) || 0,
-      DepartamentoId: parseInt(personalInfo.departamento) || 0,
-      MunicipioId: parseInt(personalInfo.municipio) || 0,
-      ZonasID: parseInt(personalInfo.zona) || 0,
+      PaisISO: parseInt(locationInfo.pais) || 0,
+      DepartamentoId: parseInt(locationInfo.departamento) || 0,
+      MunicipioId: parseInt(locationInfo.municipio) || 0,
+      ZonasID: parseInt(locationInfo.zona) || 0,
       Direccion: `${personalInfo.street} ${personalInfo.number}${personalInfo.apartment ? ` Apto ${personalInfo.apartment}` : ''}${personalInfo.corner ? ` esq. ${personalInfo.corner}` : ''}`,
       MetodoPagosID: parseInt(paymentMethod) || 1,
       SolicitudPagada: null,
@@ -530,7 +532,9 @@ const ServicioOnePage = () => {
           corner: "",
           apartment: "",
           comments: "",
-          termsAccepted: false,
+          termsAccepted: false
+        });
+        setLocationInfo({
           pais: "",
           departamento: "",
           municipio: "",
@@ -1037,7 +1041,7 @@ const ServicioOnePage = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="pais">País *</Label>
-                  <Select value={personalInfo.pais} onValueChange={value => setPersonalInfo(prev => ({
+                  <Select value={locationInfo.pais} onValueChange={value => setLocationInfo(prev => ({
                     ...prev,
                     pais: value,
                     departamento: "",
@@ -1060,14 +1064,14 @@ const ServicioOnePage = () => {
                 <div>
                   <Label htmlFor="departamento">Departamento *</Label>
                   <Select 
-                    value={personalInfo.departamento} 
-                    onValueChange={value => setPersonalInfo(prev => ({
+                    value={locationInfo.departamento} 
+                    onValueChange={value => setLocationInfo(prev => ({
                       ...prev,
                       departamento: value,
                       municipio: "",
                       zona: ""
                     }))}
-                    disabled={!personalInfo.pais}
+                    disabled={!locationInfo.pais}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccionar departamento" />
@@ -1085,13 +1089,13 @@ const ServicioOnePage = () => {
                 <div>
                   <Label htmlFor="municipio">Municipio *</Label>
                   <Select 
-                    value={personalInfo.municipio} 
-                    onValueChange={value => setPersonalInfo(prev => ({
+                    value={locationInfo.municipio} 
+                    onValueChange={value => setLocationInfo(prev => ({
                       ...prev,
                       municipio: value,
                       zona: ""
                     }))}
-                    disabled={!personalInfo.departamento}
+                    disabled={!locationInfo.departamento}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccionar municipio" />
@@ -1110,12 +1114,12 @@ const ServicioOnePage = () => {
               <div>
                 <Label htmlFor="zona">Zona *</Label>
                 <Select 
-                  value={personalInfo.zona} 
-                  onValueChange={value => setPersonalInfo(prev => ({
+                  value={locationInfo.zona} 
+                  onValueChange={value => setLocationInfo(prev => ({
                     ...prev,
                     zona: value
                   }))}
-                  disabled={!personalInfo.municipio}
+                  disabled={!locationInfo.municipio}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccionar zona" />
