@@ -50,6 +50,10 @@ interface Product {
   DetallesID?: number | null;
 }
 
+interface ProductWithQuantity extends Product {
+  quantity: number;
+}
+
 
 interface PurchaseLocation {
   storeId: string;
@@ -72,8 +76,6 @@ const iconComponents = {
 };
 
 const ServicioOnePage = () => {
-  console.log("ServicioOnePage component rendering");
-  
   const navigate = useNavigate();
   const {
     userId,
@@ -85,7 +87,7 @@ const ServicioOnePage = () => {
   // Form states
   const [selectedService, setSelectedService] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
-  const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<ProductWithQuantity[]>([]);
   const [personalInfo, setPersonalInfo] = useState({
     name: "",
     phone: "",
@@ -117,7 +119,7 @@ const ServicioOnePage = () => {
     serviceName: string;
     categoryId: string;
     categoryName: string;
-    products: Product[];
+    products: ProductWithQuantity[];
   }[]>([]);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [confirmationData, setConfirmationData] = useState<any>(null);
@@ -216,12 +218,31 @@ const ServicioOnePage = () => {
     }
   }, [urlServiceId, urlCategoryId]);
 
-  const handleProductToggle = (product: Product, selected: boolean) => {
-    if (selected) {
-      setSelectedProducts(prev => [...prev, product]);
-    } else {
-      setSelectedProducts(prev => prev.filter(p => p.ProductoID !== product.ProductoID));
-    }
+  const handleProductQuantityChange = (product: Product, change: number) => {
+    setSelectedProducts(prev => {
+      const existing = prev.find(p => p.ProductoID === product.ProductoID);
+      
+      if (existing) {
+        const newQuantity = existing.quantity + change;
+        
+        if (newQuantity <= 0) {
+          // Remove product if quantity becomes 0
+          return prev.filter(p => p.ProductoID !== product.ProductoID);
+        }
+        
+        // Update quantity
+        return prev.map(p => 
+          p.ProductoID === product.ProductoID 
+            ? { ...p, quantity: newQuantity }
+            : p
+        );
+      } else if (change > 0) {
+        // Add new product with quantity 1
+        return [...prev, { ...product, quantity: 1 }];
+      }
+      
+      return prev;
+    });
   };
 
 
@@ -378,18 +399,18 @@ const ServicioOnePage = () => {
         RubrosId: parseInt(service.serviceId),
         ProductoID: parseInt(service.categoryId),
         DetalleID: product.ProductoID, // The product ID is the Nivel2 (DetalleID)
-        Cantidad: 1,
+        Cantidad: product.quantity || 1,
         Precio: product.Precio,
         SR: product.SR,
         Comision: product.Comision,
         ComisionTipo: product.ComisionTipo,
-        PrecioFinal: product.Precio,
+        PrecioFinal: product.Precio * (product.quantity || 1),
         ProductName: product.NombreProducto
       }))
     );
 
     // Calculate total
-    const productsTotal = checkoutItems.reduce((sum, item) => sum + item.Precio, 0);
+    const productsTotal = checkoutItems.reduce((sum, item) => sum + item.PrecioFinal, 0);
     const total = productsTotal + zoneCost;
 
       const data: CheckoutData = {
@@ -761,8 +782,8 @@ const ServicioOnePage = () => {
                           <div className="space-y-0.5 mb-1">
                             {service.products.map((product, idx) => (
                               <div key={idx} className="flex justify-between text-xs bg-gray-50 px-1.5 py-0.5 rounded">
-                                <span className="text-gray-700">{product.NombreProducto}</span>
-                                <span className="font-medium text-gray-900">${product.Precio}</span>
+                                <span className="text-gray-700">{product.NombreProducto} x{product.quantity}</span>
+                                <span className="font-medium text-gray-900">${product.Precio * product.quantity}</span>
                               </div>
                             ))}
                           </div>
@@ -770,7 +791,7 @@ const ServicioOnePage = () => {
                           <div className="flex justify-between items-center pt-1 border-t border-gray-100">
                             <span className="text-xs font-medium text-gray-700">Subtotal:</span>
                             <span className="text-sm font-bold text-green-700">
-                              ${service.products.reduce((sum, p) => sum + p.Precio, 0)}
+                              ${service.products.reduce((sum, p) => sum + (p.Precio * p.quantity), 0)}
                             </span>
                           </div>
                         </div>
@@ -802,7 +823,7 @@ const ServicioOnePage = () => {
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-semibold text-green-800">Total de servicios:</span>
                     <span className="text-base font-bold text-green-800">
-                      ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio, 0), 0)}
+                      ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + (p.Precio * p.quantity), 0), 0)}
                     </span>
                   </div>
                 </div>
@@ -829,39 +850,70 @@ const ServicioOnePage = () => {
                         ))}
                       </div>
                     ) : products && products.length > 0 ? (
-                      products.map((product: Product) => (
-                        <div 
-                          key={product.ProductoID} 
-                          className={cn(
-                            "flex items-center space-x-2 p-2 border-2 rounded-lg transition-all duration-200 cursor-pointer hover:shadow-md", 
-                            selectedProducts.some(p => p.ProductoID === product.ProductoID) 
-                              ? "border-primary bg-primary/5 shadow-sm" 
-                              : "border-gray-200 hover:border-gray-300"
-                          )} 
-                          onClick={() => handleProductToggle(product, !selectedProducts.some(p => p.ProductoID === product.ProductoID))}
-                        >
-                          <Checkbox 
-                            id={`product-${product.ProductoID}`} 
-                            checked={selectedProducts.some(p => p.ProductoID === product.ProductoID)} 
-                            onCheckedChange={checked => handleProductToggle(product, checked as boolean)} 
-                            className="w-4 h-4" 
-                          />
-                          <div className="flex-1">
-                            <Label htmlFor={`product-${product.ProductoID}`} className="cursor-pointer block">
-                              <div className="flex justify-between items-start">
+                      products.map((product: Product) => {
+                        const selectedProduct = selectedProducts.find(p => p.ProductoID === product.ProductoID);
+                        const quantity = selectedProduct?.quantity || 0;
+                        
+                        return (
+                          <div 
+                            key={product.ProductoID} 
+                            className={cn(
+                              "flex items-center space-x-2 p-2 border-2 rounded-lg transition-all duration-200", 
+                              quantity > 0
+                                ? "border-primary bg-primary/5 shadow-sm" 
+                                : "border-gray-200"
+                            )}
+                          >
+                            <div className="flex-1">
+                              <div className="flex justify-between items-start mb-2">
                                 <div>
                                   <span className="font-medium text-gray-900 block text-sm">{product.NombreProducto}</span>
                                   <span className="text-xs text-gray-500">Código: {product.ProductoID}</span>
                                 </div>
                                 <div className="text-right">
                                   <span className="text-sm font-bold text-primary">${product.Precio}</span>
-                                  <span className="block text-xs text-gray-500">por servicio</span>
+                                  <span className="block text-xs text-gray-500">por unidad</span>
                                 </div>
                               </div>
-                            </Label>
+                              
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-gray-600">Cantidad:</span>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleProductQuantityChange(product, -1)}
+                                    disabled={quantity === 0}
+                                    className="h-7 w-7 p-0"
+                                  >
+                                    -
+                                  </Button>
+                                  <span className="text-sm font-semibold min-w-[2ch] text-center">{quantity}</span>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleProductQuantityChange(product, 1)}
+                                    className="h-7 w-7 p-0"
+                                  >
+                                    <Plus className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                              
+                              {quantity > 0 && (
+                                <div className="mt-2 pt-2 border-t border-gray-200">
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-xs font-medium text-gray-700">Subtotal:</span>
+                                    <span className="text-sm font-bold text-primary">${product.Precio * quantity}</span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      ))
+                        );
+                      })
                     ) : (
                       <div className="text-center py-4 text-muted-foreground bg-gray-50 rounded-lg">
                         <Package className="h-8 w-8 mx-auto mb-2 text-gray-400" />
@@ -876,11 +928,11 @@ const ServicioOnePage = () => {
                     <div className="mt-2 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
                       <div className="flex items-center justify-between mb-1">
                         <p className="font-medium text-blue-900 text-sm">
-                          ✓ {selectedProducts.length} seleccionados
+                          ✓ {selectedProducts.reduce((sum, p) => sum + p.quantity, 0)} productos ({selectedProducts.length} tipos)
                         </p>
                         <div className="text-right">
                           <p className="text-sm font-bold text-blue-900">
-                            ${selectedProducts.reduce((sum, p) => sum + p.Precio, 0)}
+                            ${selectedProducts.reduce((sum, p) => sum + (p.Precio * p.quantity), 0)}
                           </p>
                         </div>
                       </div>
