@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Home, Wind, Droplets, Zap, Package, Truck, Baby, MapPin, CalendarClock, UserCheck, CreditCard, Check, ShoppingCart, Plus, X } from "lucide-react";
+import { ArrowLeft, Home, Wind, Droplets, Zap, Package, Truck, Baby, MapPin, CalendarClock, UserCheck, CreditCard, Check, ShoppingCart, Plus, X, Pencil } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -271,6 +271,23 @@ const ServicioOnePage = () => {
 
   const removeServiceFromList = (index: number) => {
     setAllSelectedServices(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const editServiceFromList = (index: number) => {
+    const serviceToEdit = allSelectedServices[index];
+    
+    // Load the service data back into the form
+    setSelectedService(serviceToEdit.serviceId);
+    setSelectedCategory(serviceToEdit.categoryId);
+    setSelectedProducts([...serviceToEdit.products]);
+    
+    // Remove from the list of added services
+    setAllSelectedServices(prev => prev.filter((_, i) => i !== index));
+    
+    // Scroll to top to show the form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    toast.info("Servicio cargado para edición");
   };
 
   // Helper function to convert time slot string to number (1, 2, or 3)
@@ -756,14 +773,24 @@ const ServicioOnePage = () => {
                           </div>
                         </div>
                         
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => removeServiceFromList(index)} 
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50 ml-2 h-6 w-6 p-0"
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
+                        <div className="flex gap-1 ml-2">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => editServiceFromList(index)} 
+                            className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 h-6 w-6 p-0"
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => removeServiceFromList(index)} 
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 h-6 w-6 p-0"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}
