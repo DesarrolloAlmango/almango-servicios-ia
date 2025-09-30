@@ -273,6 +273,14 @@ const ServicioOnePage = () => {
     setAllSelectedServices(prev => prev.filter((_, i) => i !== index));
   };
 
+  // Helper function to convert time slot string to number (1, 2, or 3)
+  const getTimeSlotNumber = (timeSlot: string): string => {
+    if (timeSlot === "08:00 - 12:00" || timeSlot === "08:00 - 14:00") return "1";
+    if (timeSlot === "12:00 - 16:00" || timeSlot === "14:00 - 20:00") return "2";
+    if (timeSlot === "16:00 - 20:00") return "3";
+    return "1"; // default
+  };
+
   const handleNextStep = () => {
     // For step 1, check if we need location first
     if (currentStep === 1) {
@@ -368,12 +376,12 @@ const ServicioOnePage = () => {
         ZonasID: 0,
         Direccion: `${personalInfo.street} ${personalInfo.number}${personalInfo.apartment ? ` Apto ${personalInfo.apartment}` : ''}${personalInfo.corner ? ` esq. ${personalInfo.corner}` : ''}`,
         MetodoPagosID: parseInt(paymentMethod) || 1,
-        SolicitudPagada: null,
+        SolicitudPagada: "",
         SolicitaCotizacion: total.toString(),
-        SolicitaOtroServicio: "N",
+        SolicitaOtroServicio: "",
         OtroServicioDetalle: "",
         FechaInstalacion: format(selectedDate!, "yyyy-MM-dd"),
-        TurnoInstalacion: selectedTimeSlot,
+        TurnoInstalacion: getTimeSlotNumber(selectedTimeSlot),
         Comentario: personalInfo.comments || "",
         ConfirmarCondicionesUso: personalInfo.termsAccepted ? "S" : "N",
         ProveedorAuxiliar: commerceId || purchaseLocation?.storeId || null,
