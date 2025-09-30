@@ -428,6 +428,12 @@ const ServicioOnePage = () => {
       console.log("Provider ID:", providerId);
       console.log("User ID:", userId || "0");
       console.log("Datos completos:", data);
+      console.log("=== IDs DEL JSON ===");
+      console.log("DepartamentoId en JSON:", data.DepartamentoId);
+      console.log("MunicipioId en JSON:", data.MunicipioId);
+      console.log("PaisISO en JSON:", data.PaisISO);
+      console.log("ZonasID en JSON:", data.ZonasID);
+      console.log("SolicitaCotizacion en JSON:", data.SolicitaCotizacion);
       console.log("JSON que se envía:", jsonSolicitud);
       console.log("Personal Info completo:", personalInfo);
       console.log("Purchase Location:", purchaseLocation);
