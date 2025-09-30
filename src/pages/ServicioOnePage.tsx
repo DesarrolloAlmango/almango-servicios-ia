@@ -411,22 +411,43 @@ const ServicioOnePage = () => {
 
       const response = await fetch(url.toString());
       
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+      
       if (!response.ok) {
         throw new Error(`Error en la respuesta: ${response.status} ${response.statusText}`);
       }
 
-      const result = await response.json();
-      console.log("Respuesta del servidor:", result);
+      const responseText = await response.text();
+      console.log("Response text raw:", responseText);
       
-      if (!result || typeof result.SolicitudesID === 'undefined' || result.SolicitudesID <= 0) {
-        throw new Error("La solicitud no pudo ser procesada correctamente");
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("Error parsing JSON:", parseError);
+        console.log("Raw response that failed to parse:", responseText);
+        throw new Error("La respuesta del servidor no es un JSON válido");
       }
-
-      // Success - show the request number
-      toast.success(`¡Solicitud creada exitosamente!`, {
-        description: `Número de solicitud: ${result.SolicitudesID}`,
-        duration: 10000,
-      });
+      
+      console.log("Respuesta del servidor parseada:", result);
+      console.log("Tipo de respuesta:", typeof result);
+      console.log("SolicitudesID:", result?.SolicitudesID);
+      
+      // Check different possible response formats
+      if (result && (result.SolicitudesID > 0 || result.solicitudesId > 0 || result.id > 0)) {
+        const solicitudId = result.SolicitudesID || result.solicitudesId || result.id;
+        console.log("Solicitud exitosa con ID:", solicitudId);
+        
+        // Success - show the request number
+        toast.success(`¡Solicitud creada exitosamente!`, {
+          description: `Número de solicitud: ${solicitudId}`,
+          duration: 10000,
+        });
+      } else {
+        console.error("Formato de respuesta inesperado:", result);
+        throw new Error(`Respuesta del servidor: ${responseText.substring(0, 200)}...`);
+      }
 
       // Reset form data
       setAllSelectedServices([]);
