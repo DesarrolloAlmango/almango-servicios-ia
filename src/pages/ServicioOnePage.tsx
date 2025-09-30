@@ -351,10 +351,11 @@ const ServicioOnePage = () => {
       return;
     }
 
+    // Map products correctly: RubrosId=Nivel0(service), ProductoID=Nivel1(category), DetalleID=Nivel2(product)
     const checkoutItems: CheckoutItem[] = allProducts.map(product => ({
-      RubrosId: product.RubrosId,
-      ProductoID: product.ProductoID,
-      DetalleID: product.DetallesID || null,
+      RubrosId: parseInt(selectedService),
+      ProductoID: parseInt(selectedCategory),
+      DetalleID: product.ProductoID, // The product ID is the Nivel2 (DetalleID)
       Cantidad: 1,
       Precio: product.Precio,
       SR: product.SR,
