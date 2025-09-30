@@ -108,11 +108,10 @@ const ServicioOnePage = () => {
     nombre: "",
     telefono: "",
     email: "",
-    pais: "",
-    departamento: "",
-    municipio: "",
-    zona: "",
-    direccion: ""
+    calle: "",
+    numero: "",
+    esquina: "",
+    apartamento: ""
   });
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
@@ -250,27 +249,14 @@ const ServicioOnePage = () => {
     }
   };
 
-  const getFilteredDepartments = () => {
-    if (!locationData || !personalInfo.pais) return [];
-    return locationData.departments.filter(dept => dept.paisId === parseInt(personalInfo.pais));
-  };
-
-  const getFilteredMunicipalities = () => {
-    if (!locationData || !personalInfo.departamento) return [];
-    return locationData.municipalities.filter(mun => mun.departamentoId === parseInt(personalInfo.departamento));
-  };
-
-  const getFilteredZones = () => {
-    if (!locationData || !personalInfo.municipio) return [];
-    return locationData.zones.filter(zone => zone.municipioId === parseInt(personalInfo.municipio));
-  };
+  // Remove unused filter functions since we're using purchaseLocation data
 
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
         return (allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0) && !!selectedDate && !!selectedTimeSlot;
       case 2:
-        return !!(personalInfo.nombre && personalInfo.telefono && personalInfo.direccion);
+        return !!(personalInfo.nombre && personalInfo.telefono && personalInfo.calle && personalInfo.numero);
       default:
         return false;
     }
@@ -361,11 +347,7 @@ const ServicioOnePage = () => {
         }
       }
 
-      // If personal info has values, use those instead
-      if (personalInfo.pais) paisId = parseInt(personalInfo.pais);
-      if (personalInfo.departamento) departamentoId = parseInt(personalInfo.departamento);
-      if (personalInfo.municipio) municipioId = parseInt(personalInfo.municipio);
-      if (personalInfo.zona) zonasId = parseInt(personalInfo.zona);
+      // Note: personal info override removed since we use purchaseLocation data
 
       const zoneCost = locationData?.zones.find(z => z.id === zonasId)?.costo || 0;
 
@@ -398,7 +380,7 @@ const ServicioOnePage = () => {
         DepartamentoId: departamentoId,
         MunicipioId: municipioId,
         ZonasID: zonasId,
-        Direccion: personalInfo.direccion,
+        Direccion: `${personalInfo.calle} ${personalInfo.numero}${personalInfo.apartamento ? ` Apto ${personalInfo.apartamento}` : ''}${personalInfo.esquina ? ` esq. ${personalInfo.esquina}` : ''}`,
         MetodoPagosID: parseInt(paymentMethod) || 1,
         SolicitudPagada: null,
         SolicitaCotizacion: soliciteQuote ? "S" : "N",
@@ -418,7 +400,8 @@ const ServicioOnePage = () => {
       const missingFields = [];
       if (!data.Nombre) missingFields.push("Nombre");
       if (!data.Telefono) missingFields.push("Teléfono");
-      if (!data.Direccion) missingFields.push("Dirección");
+      if (!personalInfo.calle) missingFields.push("Calle");
+      if (!personalInfo.numero) missingFields.push("Número");
       if (!data.DepartamentoId) missingFields.push("Departamento");
       if (!data.MunicipioId) missingFields.push("Municipio");
       if (!data.ZonasID) missingFields.push("Zona");
@@ -494,11 +477,10 @@ const ServicioOnePage = () => {
           nombre: "",
           telefono: "",
           email: "",
-          pais: "",
-          departamento: "",
-          municipio: "",
-          zona: "",
-          direccion: ""
+          calle: "",
+          numero: "",
+          esquina: "",
+          apartamento: ""
         });
         setSelectedDate(undefined);
         setSelectedTimeSlot("");
@@ -815,14 +797,39 @@ const ServicioOnePage = () => {
 
             {/* Debug info */}
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <h4 className="font-medium text-yellow-800 mb-2">🔍 Debug - Datos que se enviarán:</h4>
-              <pre className="text-xs text-yellow-700 whitespace-pre-wrap bg-yellow-100 p-2 rounded max-h-40 overflow-y-auto">
+              <h4 className="font-medium text-yellow-800 mb-2">🔍 Debug - JSON completo que se enviará:</h4>
+              <pre className="text-xs text-yellow-700 whitespace-pre-wrap bg-yellow-100 p-2 rounded max-h-96 overflow-y-auto">
                 {JSON.stringify({
-                  purchaseLocation,
-                  locationData: locationData ? "loaded" : "not loaded",
-                  departamentoId: purchaseLocation ? parseInt(purchaseLocation.departmentId || "0") : 0,
-                  municipioId: purchaseLocation ? parseInt(purchaseLocation.locationId || "0") : 0,
-                  zonasId: purchaseLocation && locationData ? locationData.zones.find(z => z.municipioId === parseInt(purchaseLocation.locationId || "0"))?.id || 0 : 0
+                  Nombre: personalInfo.nombre,
+                  Telefono: personalInfo.telefono,
+                  Mail: personalInfo.email || null,
+                  PaisISO: 0,
+                  DepartamentoId: purchaseLocation ? parseInt(purchaseLocation.departmentId || "0") : 0,
+                  MunicipioId: purchaseLocation ? parseInt(purchaseLocation.locationId || "0") : 0,
+                  ZonasID: purchaseLocation && locationData ? locationData.zones.find(z => z.municipioId === parseInt(purchaseLocation.locationId || "0"))?.id || 0 : 0,
+                  Direccion: `${personalInfo.calle} ${personalInfo.numero}${personalInfo.apartamento ? ` Apto ${personalInfo.apartamento}` : ''}${personalInfo.esquina ? ` esq. ${personalInfo.esquina}` : ''}`,
+                  MetodoPagosID: parseInt(paymentMethod) || 1,
+                  SolicitudPagada: null,
+                  SolicitaCotizacion: soliciteQuote ? "S" : "N",
+                  SolicitaOtroServicio: soliciteOtherService ? "S" : "N",
+                  OtroServicioDetalle: otherServiceDetail || "",
+                  FechaInstalacion: selectedDate ? format(selectedDate, "yyyy-MM-dd") : "",
+                  TurnoInstalacion: selectedTimeSlot,
+                  Comentario: comments || "",
+                  ConfirmarCondicionesUso: "S",
+                  ProveedorAuxiliar: commerceId || null,
+                  CostoXZona: purchaseLocation && locationData ? locationData.zones.find(z => z.municipioId === parseInt(purchaseLocation.locationId || "0"))?.costoAdicional || 0 : 0,
+                  Level1: selectedProducts.map(product => ({
+                    RubrosId: parseInt(selectedService) || 0,
+                    ProductoID: parseInt(selectedCategory) || null,
+                    DetalleID: product.ProductoID || null,
+                    Cantidad: 1,
+                    Precio: product.Precio || 0,
+                    SR: "N",
+                    Comision: 0,
+                    ComisionTipo: "P",
+                    PrecioFinal: product.Precio || 0
+                  }))
                 }, null, 2)}
               </pre>
             </div>
@@ -874,18 +881,59 @@ const ServicioOnePage = () => {
             {/* Dirección */}
             <div className="space-y-4">
               <h4 className="font-medium">Dirección</h4>
-              <div>
-                <Label htmlFor="direccion">Dirección completa *</Label>
-                <Input 
-                  id="direccion" 
-                  placeholder="Calle, número, apartamento, etc." 
-                  value={personalInfo.direccion} 
-                  onChange={e => setPersonalInfo(prev => ({
-                    ...prev,
-                    direccion: e.target.value
-                  }))} 
-                  required 
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="calle">Calle *</Label>
+                  <Input 
+                    id="calle" 
+                    placeholder="Nombre de la calle" 
+                    value={personalInfo.calle} 
+                    onChange={e => setPersonalInfo(prev => ({
+                      ...prev,
+                      calle: e.target.value
+                    }))} 
+                    required 
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="numero">Número *</Label>
+                  <Input 
+                    id="numero" 
+                    placeholder="Número de puerta" 
+                    value={personalInfo.numero} 
+                    onChange={e => setPersonalInfo(prev => ({
+                      ...prev,
+                      numero: e.target.value
+                    }))} 
+                    required 
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="esquina">Esquina (opcional)</Label>
+                  <Input 
+                    id="esquina" 
+                    placeholder="Esquina de referencia" 
+                    value={personalInfo.esquina} 
+                    onChange={e => setPersonalInfo(prev => ({
+                      ...prev,
+                      esquina: e.target.value
+                    }))} 
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="apartamento">Apartamento (opcional)</Label>
+                  <Input 
+                    id="apartamento" 
+                    placeholder="Número de apartamento" 
+                    value={personalInfo.apartamento} 
+                    onChange={e => setPersonalInfo(prev => ({
+                      ...prev,
+                      apartamento: e.target.value
+                    }))} 
+                  />
+                </div>
               </div>
             </div>
 
