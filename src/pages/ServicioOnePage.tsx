@@ -222,11 +222,25 @@ const ServicioOnePage = () => {
 
 
   const validateStep = (step: number): boolean => {
+    console.log("validateStep called for step:", step);
     switch (step) {
       case 1:
-        return (allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0) && !!selectedDate && !!selectedTimeSlot;
+        const step1Valid = (allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0) && !!selectedDate && !!selectedTimeSlot;
+        console.log("Step 1 validation:", { allSelectedServices: allSelectedServices.length, selectedService, selectedCategory, selectedProducts: selectedProducts.length, selectedDate, selectedTimeSlot, result: step1Valid });
+        return step1Valid;
       case 2:
-        return !!(personalInfo.name && personalInfo.phone && personalInfo.street && (personalInfo.number || noNumber) && personalInfo.termsAccepted);
+        const step2Valid = !!(personalInfo.name && personalInfo.phone && personalInfo.street && (personalInfo.number || noNumber) && personalInfo.termsAccepted);
+        console.log("Step 2 validation:", { 
+          name: personalInfo.name, 
+          phone: personalInfo.phone, 
+          street: personalInfo.street, 
+          number: personalInfo.number, 
+          noNumber: noNumber, 
+          numberCondition: (personalInfo.number || noNumber),
+          termsAccepted: personalInfo.termsAccepted, 
+          result: step2Valid 
+        });
+        return step2Valid;
       default:
         return false;
     }
@@ -987,6 +1001,31 @@ const ServicioOnePage = () => {
                   <Label htmlFor="transferencia">Transferencia Bancaria</Label>
                 </div>
               </RadioGroup>
+            </div>
+
+            {/* Términos y Condiciones */}
+            <div className="flex items-start space-x-2">
+              <Checkbox 
+                id="terms" 
+                checked={personalInfo.termsAccepted} 
+                onCheckedChange={(checked) => setPersonalInfo(prev => ({
+                  ...prev,
+                  termsAccepted: checked === true
+                }))} 
+              />
+              <div className="flex flex-col space-y-1">
+                <Label htmlFor="terms" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Acepto los{" "}
+                  <button
+                    type="button"
+                    onClick={() => setIsTermsModalOpen(true)}
+                    className="text-primary underline hover:text-primary/80"
+                  >
+                    términos y condiciones
+                  </button>
+                  {" "}*
+                </Label>
+              </div>
             </div>
 
           </div>
