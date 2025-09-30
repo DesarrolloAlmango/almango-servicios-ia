@@ -335,10 +335,15 @@ const ServicioOnePage = () => {
     // toast.success("Ubicación configurada correctamente");
   };
   const handleSubmit = async () => {
-    if (!validateStep(4)) {
+    if (!validateStep(currentStep)) {
+      toast.error("Por favor complete todos los campos requeridos");
+      return;
+    }
+    if (!acceptTerms) {
       toast.error("Por favor acepte los términos y condiciones");
       return;
     }
+    
     setIsSubmitting(true);
     try {
       const zoneCost = locationData?.zones.find(z => z.id === parseInt(personalInfo.zona))?.costo || 0;
@@ -357,7 +362,11 @@ const ServicioOnePage = () => {
         PrecioFinal: product.Precio,
         ProductName: product.NombreProducto
       }));
-      const data: CheckoutData = {
+
+      // Calculate total discount
+      const totalDiscountAmount = 0; // You can implement discount calculation here if needed
+
+      const data = {
         Nombre: personalInfo.nombre,
         Telefono: personalInfo.telefono,
         Mail: personalInfo.email || null,
@@ -377,14 +386,82 @@ const ServicioOnePage = () => {
         ConfirmarCondicionesUso: acceptTerms ? "S" : "N",
         ProveedorAuxiliar: commerceId || null,
         CostoXZona: zoneCost,
-        Level1: checkoutItems,
-        serviceName: services?.find(s => s.id === selectedService)?.name || ""
+        Descuento: totalDiscountAmount,
+        Level1: checkoutItems
       };
-      setCheckoutData(data);
-      setShowCheckoutSummary(true);
+
+      // Prepare API call to AltaSolicitudweb
+      const jsonSolicitud = JSON.stringify(data);
+      
+      // Determine provider ID from commerceId or purchaseLocation
+      let providerId = "0";
+      if (commerceId) {
+        providerId = commerceId;
+      } else if (purchaseLocation?.storeId) {
+        providerId = purchaseLocation.storeId;
+      }
+
+      const url = new URL("https://app.almango.com.uy/WebAPI/AltaSolicitudweb");
+      url.searchParams.append("Userconect", "NoEmpty");
+      url.searchParams.append("Key", "d3d3LmF6bWl0YS5jb20=");
+      url.searchParams.append("Proveedorid", providerId);
+      url.searchParams.append("Usuarioid", userId || "0");
+      url.searchParams.append("Jsonsolicitud", jsonSolicitud);
+
+      console.log("Enviando solicitud con los siguientes datos:");
+      console.log("Provider ID:", providerId);
+      console.log("User ID:", userId || "0");
+      console.log("JSON Solicitud:", data);
+
+      const response = await fetch(url.toString());
+      
+      if (!response.ok) {
+        throw new Error(`Error en la respuesta: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log("Respuesta del servidor:", result);
+      
+      if (!result || typeof result.SolicitudesID === 'undefined' || result.SolicitudesID <= 0) {
+        throw new Error("La solicitud no pudo ser procesada correctamente");
+      }
+
+      // Success - show the request number
+      toast.success(`¡Solicitud creada exitosamente!`, {
+        description: `Número de solicitud: ${result.SolicitudesID}`,
+        duration: 10000,
+      });
+
+      // Reset form data
+      setAllSelectedServices([]);
+      setSelectedService("");
+      setSelectedCategory("");
+      setSelectedProducts([]);
+      setPersonalInfo({
+        nombre: "",
+        telefono: "",
+        email: "",
+        pais: "",
+        departamento: "",
+        municipio: "",
+        zona: "",
+        direccion: ""
+      });
+      setSelectedDate(undefined);
+      setSelectedTimeSlot("");
+      setComments("");
+      setAcceptTerms(false);
+      setSoliciteQuote(false);
+      setSoliciteOtherService(false);
+      setOtherServiceDetail("");
+      setPurchaseLocation(null);
+      setCurrentStep(1);
+
     } catch (error) {
       console.error("Error al procesar solicitud:", error);
-      toast.error("Error al procesar la solicitud");
+      toast.error("Error al procesar la solicitud", {
+        description: error instanceof Error ? error.message : "Error desconocido"
+      });
     } finally {
       setIsSubmitting(false);
     }
