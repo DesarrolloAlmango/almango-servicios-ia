@@ -397,7 +397,7 @@ const ServicioOnePage = () => {
         providerId = purchaseLocation.storeId;
       }
 
-      const url = new URL("https://app.almango.com.uy/WebAPI/AltaSolicitudweb");
+      const url = new URL("https://app.almango.com.uy/WebAPI/AltaSolicitud");
       url.searchParams.append("Userconect", "NoEmpty");
       url.searchParams.append("Key", "d3d3LmF6bWl0YS5jb20=");
       url.searchParams.append("Proveedorid", providerId);
