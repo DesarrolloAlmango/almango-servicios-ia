@@ -298,6 +298,15 @@ const ServicioOnePage = () => {
   };
 
   const handleLocationSelect = (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string, zonaCostoAdicional?: string) => {
+    console.log("=== LOCATION SELECT RECIBIDO ===");
+    console.log("storeId:", storeId);
+    console.log("storeName:", storeName);
+    console.log("departmentId:", departmentId);
+    console.log("departmentName:", departmentName);
+    console.log("locationId:", locationId);
+    console.log("locationName:", locationName);
+    console.log("zonaCostoAdicional:", zonaCostoAdicional);
+    
     const location: PurchaseLocation = {
       storeId,
       storeName,
@@ -308,6 +317,7 @@ const ServicioOnePage = () => {
       zonaCostoAdicional
     };
     setPurchaseLocation(location);
+    console.log("=== PURCHASE LOCATION GUARDADO ===", location);
 
     // Set global zone cost for price calculations
     const zoneCost = zonaCostoAdicional ? parseFloat(zonaCostoAdicional) : 0;
