@@ -1021,11 +1021,7 @@ const ServicioOnePage = () => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <div className="container mx-auto px-4 py-4">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-3 mb-4">
-            <Button variant="outline" size="sm" onClick={() => navigate(-1)} className="h-8">
-              <ArrowLeft className="h-3 w-3 mr-2" />
-              Volver
-            </Button>
+          <div className="mb-4">
             <h1 className="text-2xl font-bold text-gray-900">Solicitar Servicio</h1>
           </div>
 
@@ -1044,16 +1040,7 @@ const ServicioOnePage = () => {
             </CardContent>
             
             {/* Action Buttons */}
-            <div className="flex justify-between p-4 pt-0 border-t bg-muted/30">
-              <Button 
-                variant="outline" 
-                onClick={() => navigate(-1)} 
-                className="min-w-24 h-8 text-sm"
-              >
-                <ArrowLeft className="h-3 w-3 mr-2" />
-                Volver
-              </Button>
-            
+            <div className="flex justify-end p-4 pt-0 border-t bg-muted/30">
               <div className="flex gap-2">
                 {(selectedService || selectedCategory || selectedProducts.length > 0) && (
                   <Button variant="outline" onClick={() => {
