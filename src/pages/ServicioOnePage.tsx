@@ -676,9 +676,19 @@ const ServicioOnePage = () => {
 
             {purchaseLocation && (
               <div className="mt-2 p-2 bg-muted rounded-lg">
-                <div className="flex items-center gap-2 mb-1">
-                  <MapPin className="h-3 w-3 text-orange-500" />
-                  <span className="font-medium text-xs">Ubicación del servicio</span>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-3 w-3 text-orange-500" />
+                    <span className="font-medium text-xs">Ubicación del servicio</span>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setIsLocationModalOpen(true)}
+                    className="h-6 text-xs px-2"
+                  >
+                    Editar
+                  </Button>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {purchaseLocation.storeName} - {purchaseLocation.departmentName}, {purchaseLocation.locationName}
