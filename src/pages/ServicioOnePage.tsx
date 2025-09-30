@@ -192,7 +192,7 @@ const ServicioOnePage = () => {
         Precio: parseFloat(product.price) || product.Precio,
         TextosId: product.TextosId || product.textosId,
         RubrosId: parseInt(selectedCategory),
-        SR: product.SR || "S",
+        SR: product.SR || "N",
         Comision: product.Comision || 0,
         ComisionTipo: product.ComisionTipo || "P",
         DetallesID: product.DetallesID || product.detallesId || null
