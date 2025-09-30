@@ -315,6 +315,7 @@ const ServicioOnePage = () => {
   };
 
   const handleShowConfirmation = () => {
+    console.log("handleShowConfirmation called, purchaseLocation:", purchaseLocation);
     if (!validateStep(currentStep)) {
       toast.error("Por favor complete todos los campos requeridos");
       return;
@@ -375,10 +376,6 @@ const ServicioOnePage = () => {
     if (!data.Nombre) missingFields.push("Nombre");
     if (!data.Telefono) missingFields.push("Teléfono");
     if (!data.Direccion) missingFields.push("Dirección");
-    if (!data.PaisISO) missingFields.push("País");
-    if (!data.DepartamentoId) missingFields.push("Departamento");
-    if (!data.MunicipioId) missingFields.push("Municipio");
-    if (!data.ZonasID) missingFields.push("Zona");
     if (!data.FechaInstalacion) missingFields.push("Fecha");
     if (!data.TurnoInstalacion) missingFields.push("Horario");
     if (data.Level1.length === 0) missingFields.push("Productos");
