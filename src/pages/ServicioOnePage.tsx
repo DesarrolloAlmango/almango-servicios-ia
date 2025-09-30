@@ -72,6 +72,8 @@ const iconComponents = {
 };
 
 const ServicioOnePage = () => {
+  console.log("ServicioOnePage component rendering");
+  
   const navigate = useNavigate();
   const {
     userId,
