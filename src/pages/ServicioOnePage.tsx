@@ -18,7 +18,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckoutData, CheckoutItem } from "@/types/checkoutTypes";
+import { CheckoutData, CheckoutItem, getProviderAuxiliary } from "@/types/checkoutTypes";
 import CheckoutSummary from "@/components/checkout/CheckoutSummary";
 import PurchaseLocationModal from "@/components/PurchaseLocationModal";
 import ConfirmationModal from "@/components/ConfirmationModal";
@@ -391,7 +391,10 @@ const ServicioOnePage = () => {
         TurnoInstalacion: getTimeSlotNumber(selectedTimeSlot),
         Comentario: personalInfo.comments || "",
         ConfirmarCondicionesUso: personalInfo.termsAccepted ? "S" : "N",
-        ProveedorAuxiliar: commerceId || purchaseLocation?.storeId || null,
+        ProveedorAuxiliar: getProviderAuxiliary(
+          purchaseLocation?.storeId || "unknown",
+          purchaseLocation?.storeName
+        ),
         CostoXZona: zoneCost,
         Level1: checkoutItems
       };
@@ -438,12 +441,18 @@ const ServicioOnePage = () => {
       // Prepare API call to AltaSolicitud
       const jsonSolicitud = JSON.stringify(data);
       
-      // Determine provider ID from commerceId or purchaseLocation
+      // Determine provider ID from ProveedorAuxiliar
       let providerId = "0";
-      if (commerceId) {
-        providerId = commerceId;
-      } else if (purchaseLocation?.storeId) {
-        providerId = purchaseLocation.storeId;
+      
+      if (data.ProveedorAuxiliar) {
+        const aux = data.ProveedorAuxiliar.trim();
+        
+        // If it's "No lo sé", provider ID should be 0 
+        if (aux === "No lo sé") {
+          providerId = "0";
+        } else {
+          providerId = aux;
+        }
       }
 
       // Combine all selected services and current selection for logging
