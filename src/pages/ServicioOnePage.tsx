@@ -21,6 +21,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CheckoutData, CheckoutItem } from "@/types/checkoutTypes";
 import CheckoutSummary from "@/components/checkout/CheckoutSummary";
 import PurchaseLocationModal from "@/components/PurchaseLocationModal";
+import ConfirmationModal from "@/components/ConfirmationModal";
 import { setGlobalZoneCost } from "@/utils/globalZoneCost";
 interface TarjetaServicio {
   id?: string;
@@ -130,6 +131,8 @@ const ServicioOnePage = () => {
     categoryName: string;
     products: Product[];
   }[]>([]);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [confirmationData, setConfirmationData] = useState<any>(null);
 
   // Data fetching
   const {
@@ -334,81 +337,91 @@ const ServicioOnePage = () => {
     // Don't automatically continue to next step, stay in step 1 to show products
     // toast.success("Ubicación configurada correctamente");
   };
-  const handleSubmit = async () => {
+  const handleShowConfirmation = () => {
     if (!validateStep(currentStep)) {
       toast.error("Por favor complete todos los campos requeridos");
       return;
     }
+
+    const zoneCost = locationData?.zones.find(z => z.id === parseInt(personalInfo.zona))?.costo || 0;
+
+    // Combine all selected services and current selection
+    const allProducts = [...allSelectedServices.flatMap(service => service.products), ...selectedProducts];
+    
+    if (allProducts.length === 0) {
+      toast.error("Debe seleccionar al menos un producto");
+      return;
+    }
+
+    const checkoutItems: CheckoutItem[] = allProducts.map(product => ({
+      RubrosId: product.RubrosId,
+      ProductoID: product.ProductoID,
+      DetalleID: null,
+      Cantidad: 1,
+      Precio: product.Precio,
+      SR: product.SR,
+      Comision: product.Comision,
+      ComisionTipo: product.ComisionTipo,
+      PrecioFinal: product.Precio,
+      ProductName: product.NombreProducto
+    }));
+
+    // Calculate total discount
+    const totalDiscountAmount = 0; // You can implement discount calculation here if needed
+
+    const data = {
+      Nombre: personalInfo.nombre,
+      Telefono: personalInfo.telefono,
+      Mail: personalInfo.email || "",
+      PaisISO: parseInt(personalInfo.pais) || 0,
+      DepartamentoId: parseInt(personalInfo.departamento) || 0,
+      MunicipioId: parseInt(personalInfo.municipio) || 0,
+      ZonasID: parseInt(personalInfo.zona) || 0,
+      Direccion: personalInfo.direccion,
+      MetodoPagosID: parseInt(paymentMethod) || 1,
+      SolicitudPagada: null,
+      SolicitaCotizacion: soliciteQuote ? "S" : "N",
+      SolicitaOtroServicio: soliciteOtherService ? "S" : "N",
+      OtroServicioDetalle: otherServiceDetail || "",
+      FechaInstalacion: format(selectedDate!, "yyyy-MM-dd"),
+      TurnoInstalacion: selectedTimeSlot,
+      Comentario: comments || "",
+      ConfirmarCondicionesUso: "S", // Always send "S" since we removed validation
+      ProveedorAuxiliar: commerceId || null,
+      CostoXZona: zoneCost,
+      Descuento: totalDiscountAmount,
+      Level1: checkoutItems
+    };
+
+    // Validate required fields
+    const missingFields = [];
+    if (!data.Nombre) missingFields.push("Nombre");
+    if (!data.Telefono) missingFields.push("Teléfono");
+    if (!data.Direccion) missingFields.push("Dirección");
+    if (!data.PaisISO) missingFields.push("País");
+    if (!data.DepartamentoId) missingFields.push("Departamento");
+    if (!data.MunicipioId) missingFields.push("Municipio");
+    if (!data.ZonasID) missingFields.push("Zona");
+    if (!data.FechaInstalacion) missingFields.push("Fecha");
+    if (!data.TurnoInstalacion) missingFields.push("Horario");
+    if (data.Level1.length === 0) missingFields.push("Productos");
+
+    if (missingFields.length > 0) {
+      toast.error(`Faltan campos requeridos: ${missingFields.join(", ")}`);
+      return;
+    }
+
+    // Store the data and show confirmation modal
+    setConfirmationData(data);
+    setShowConfirmationModal(true);
+  };
+
+  const handleSubmit = async () => {
+    if (!confirmationData) return;
     
     setIsSubmitting(true);
     try {
-      const zoneCost = locationData?.zones.find(z => z.id === parseInt(personalInfo.zona))?.costo || 0;
-
-      // Combine all selected services and current selection
-      const allProducts = [...allSelectedServices.flatMap(service => service.products), ...selectedProducts];
-      
-      if (allProducts.length === 0) {
-        toast.error("Debe seleccionar al menos un producto");
-        return;
-      }
-
-      const checkoutItems: CheckoutItem[] = allProducts.map(product => ({
-        RubrosId: product.RubrosId,
-        ProductoID: product.ProductoID,
-        DetalleID: null,
-        Cantidad: 1,
-        Precio: product.Precio,
-        SR: product.SR,
-        Comision: product.Comision,
-        ComisionTipo: product.ComisionTipo,
-        PrecioFinal: product.Precio,
-        ProductName: product.NombreProducto
-      }));
-
-      // Calculate total discount
-      const totalDiscountAmount = 0; // You can implement discount calculation here if needed
-
-      const data = {
-        Nombre: personalInfo.nombre,
-        Telefono: personalInfo.telefono,
-        Mail: personalInfo.email || "",
-        PaisISO: parseInt(personalInfo.pais) || 0,
-        DepartamentoId: parseInt(personalInfo.departamento) || 0,
-        MunicipioId: parseInt(personalInfo.municipio) || 0,
-        ZonasID: parseInt(personalInfo.zona) || 0,
-        Direccion: personalInfo.direccion,
-        MetodoPagosID: parseInt(paymentMethod) || 1,
-        SolicitudPagada: null,
-        SolicitaCotizacion: soliciteQuote ? "S" : "N",
-        SolicitaOtroServicio: soliciteOtherService ? "S" : "N",
-        OtroServicioDetalle: otherServiceDetail || "",
-        FechaInstalacion: format(selectedDate!, "yyyy-MM-dd"),
-        TurnoInstalacion: selectedTimeSlot,
-        Comentario: comments || "",
-        ConfirmarCondicionesUso: "S", // Always send "S" since we removed validation
-        ProveedorAuxiliar: commerceId || null,
-        CostoXZona: zoneCost,
-        Descuento: totalDiscountAmount,
-        Level1: checkoutItems
-      };
-
-      // Validate required fields
-      const missingFields = [];
-      if (!data.Nombre) missingFields.push("Nombre");
-      if (!data.Telefono) missingFields.push("Teléfono");
-      if (!data.Direccion) missingFields.push("Dirección");
-      if (!data.PaisISO) missingFields.push("País");
-      if (!data.DepartamentoId) missingFields.push("Departamento");
-      if (!data.MunicipioId) missingFields.push("Municipio");
-      if (!data.ZonasID) missingFields.push("Zona");
-      if (!data.FechaInstalacion) missingFields.push("Fecha");
-      if (!data.TurnoInstalacion) missingFields.push("Horario");
-      if (data.Level1.length === 0) missingFields.push("Productos");
-
-      if (missingFields.length > 0) {
-        toast.error(`Faltan campos requeridos: ${missingFields.join(", ")}`);
-        return;
-      }
+      const data = confirmationData;
 
       // Prepare API call to AltaSolicitud
       const jsonSolicitud = JSON.stringify(data);
@@ -420,6 +433,9 @@ const ServicioOnePage = () => {
       } else if (purchaseLocation?.storeId) {
         providerId = purchaseLocation.storeId;
       }
+
+      // Combine all selected services and current selection for logging
+      const allProducts = [...allSelectedServices.flatMap(service => service.products), ...selectedProducts];
 
       console.log("=== DATOS DE LA SOLICITUD ===");
       console.log("Provider ID:", providerId);
@@ -1224,11 +1240,11 @@ const ServicioOnePage = () => {
                 )}
                 {currentStep === 2 && (
                   <Button 
-                    onClick={handleSubmit} 
+                    onClick={handleShowConfirmation} 
                     disabled={isSubmitting || !validateStep(2)}
                     className="min-w-32"
                   >
-                    {isSubmitting ? "Enviando..." : "Enviar Solicitud"}
+                    {isSubmitting ? "Enviando..." : "Confirmar Solicitud"}
                   </Button>
                 )}
               </div>
@@ -1242,6 +1258,16 @@ const ServicioOnePage = () => {
         </div>
 
         <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => setIsLocationModalOpen(false)} onSelectLocation={handleLocationSelect} stores={[]} serviceId={selectedService} serviceName={services?.find(s => s.id === selectedService)?.name} categoryId={selectedCategory} categoryName={categories?.find(c => c.id === selectedCategory)?.name} />
+        
+        <ConfirmationModal
+          open={showConfirmationModal}
+          onClose={() => setShowConfirmationModal(false)}
+          onConfirm={handleSubmit}
+          title="Confirmar Solicitud"
+          description="Por favor revise los datos antes de enviar la solicitud."
+          jsonData={confirmationData}
+          isSubmitting={isSubmitting}
+        />
       </div>
     </div>;
 };
