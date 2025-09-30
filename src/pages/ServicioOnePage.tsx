@@ -343,27 +343,41 @@ const ServicioOnePage = () => {
 
     const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
 
-    // Combine all selected services and current selection
-    const allProducts = [...allSelectedServices.flatMap(service => service.products), ...selectedProducts];
+    // Combine all selected services with their context and current selection
+    const allServicesWithProducts = [
+      ...allSelectedServices.map(service => ({
+        serviceId: service.serviceId,
+        categoryId: service.categoryId,
+        products: service.products
+      })),
+      // Add current selection if there are selected products
+      ...(selectedProducts.length > 0 ? [{
+        serviceId: selectedService,
+        categoryId: selectedCategory,
+        products: selectedProducts
+      }] : [])
+    ];
     
-    if (allProducts.length === 0) {
+    if (allServicesWithProducts.length === 0 || allServicesWithProducts.every(s => s.products.length === 0)) {
       toast.error("Debe seleccionar al menos un producto");
       return;
     }
 
     // Map products correctly: RubrosId=Nivel0(service), ProductoID=Nivel1(category), DetalleID=Nivel2(product)
-    const checkoutItems: CheckoutItem[] = allProducts.map(product => ({
-      RubrosId: parseInt(selectedService),
-      ProductoID: parseInt(selectedCategory),
-      DetalleID: product.ProductoID, // The product ID is the Nivel2 (DetalleID)
-      Cantidad: 1,
-      Precio: product.Precio,
-      SR: product.SR,
-      Comision: product.Comision,
-      ComisionTipo: product.ComisionTipo,
-      PrecioFinal: product.Precio,
-      ProductName: product.NombreProducto
-    }));
+    const checkoutItems: CheckoutItem[] = allServicesWithProducts.flatMap(service => 
+      service.products.map(product => ({
+        RubrosId: parseInt(service.serviceId),
+        ProductoID: parseInt(service.categoryId),
+        DetalleID: product.ProductoID, // The product ID is the Nivel2 (DetalleID)
+        Cantidad: 1,
+        Precio: product.Precio,
+        SR: product.SR,
+        Comision: product.Comision,
+        ComisionTipo: product.ComisionTipo,
+        PrecioFinal: product.Precio,
+        ProductName: product.NombreProducto
+      }))
+    );
 
     // Calculate total
     const productsTotal = checkoutItems.reduce((sum, item) => sum + item.Precio, 0);
@@ -443,7 +457,15 @@ const ServicioOnePage = () => {
       }
 
       // Combine all selected services and current selection for logging
-      const allProducts = [...allSelectedServices.flatMap(service => service.products), ...selectedProducts];
+      const allServicesForLogging = [
+        ...allSelectedServices,
+        ...(selectedProducts.length > 0 ? [{
+          serviceId: selectedService,
+          categoryId: selectedCategory,
+          products: selectedProducts
+        }] : [])
+      ];
+      const allProducts = allServicesForLogging.flatMap(service => service.products);
 
       console.log("=== DATOS DE LA SOLICITUD ===");
       console.log("Provider ID:", providerId);
