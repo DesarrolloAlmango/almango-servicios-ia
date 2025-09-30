@@ -619,10 +619,6 @@ const ServicioOnePage = () => {
                         })()}
                       </SelectContent>
                     </Select>
-                    
-                    <p className="text-xs text-blue-600 mt-2">
-                      En caso de coordinación web, confirme disponibilidad por WhatsApp.
-                    </p>
                   </div>
                 )}
               </div>
@@ -650,11 +646,6 @@ const ServicioOnePage = () => {
                   )}
                 </SelectContent>
               </Select>
-              {services && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Servicios encontrados: {services.length}
-                </p>
-              )}
             </div>
 
             {selectedService && (
@@ -677,15 +668,10 @@ const ServicioOnePage = () => {
                       <SelectItem value="no-categories" disabled>
                         No hay categorías disponibles
                       </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-                {categories && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Categorías encontradas: {categories.length}
-                  </p>
-                )}
-              </div>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
             )}
 
             {purchaseLocation && (
@@ -718,19 +704,12 @@ const ServicioOnePage = () => {
 
             {/* Services Summary Section */}
             {allSelectedServices.length > 0 && (
-              <div className="mb-3 p-3 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg shadow-sm">
+              <div className="mb-2 p-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                    <Check className="h-3 w-3 text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-green-800 text-sm">
-                      Servicios Agregados ({allSelectedServices.length})
-                    </h3>
-                    <p className="text-xs text-green-600">
-                      Puedes agregar más servicios o continuar
-                    </p>
-                  </div>
+                  <Check className="h-4 w-4 text-green-600" />
+                  <h3 className="font-semibold text-green-800 text-sm">
+                    Servicios Agregados ({allSelectedServices.length})
+                  </h3>
                 </div>
                 
                 <div className="space-y-2">
@@ -738,14 +717,10 @@ const ServicioOnePage = () => {
                     <div key={index} className="bg-white p-2 rounded-lg border border-green-100 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <div className="flex items-center gap-1 mb-1">
-                            <ShoppingCart className="h-3 w-3 text-green-600" />
-                            <h4 className="font-medium text-gray-900 text-sm">{service.serviceName}</h4>
-                          </div>
-                          <p className="text-xs text-gray-600 mb-1">Categoría: {service.categoryName}</p>
-                          <p className="text-xs text-green-600 mb-2">{service.products.length} productos seleccionados</p>
+                          <h4 className="font-medium text-gray-900 text-sm mb-1">{service.serviceName}</h4>
+                          <p className="text-xs text-gray-600 mb-1">{service.categoryName}</p>
                           
-                          <div className="space-y-0.5 mb-2">
+                          <div className="space-y-0.5 mb-1">
                             {service.products.map((product, idx) => (
                               <div key={idx} className="flex justify-between text-xs bg-gray-50 px-1.5 py-0.5 rounded">
                                 <span className="text-gray-700">{product.NombreProducto}</span>
@@ -850,26 +825,20 @@ const ServicioOnePage = () => {
 
                   {/* Add Service Action */}
                   {selectedProducts.length > 0 && (
-                    <div className="mt-3 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <p className="font-medium text-blue-900 text-sm">
-                            ✓ {selectedProducts.length} productos seleccionados
-                          </p>
-                          <p className="text-xs text-blue-700">
-                            de "{services?.find(s => s.id === selectedService)?.name}"
-                          </p>
-                        </div>
+                    <div className="mt-2 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="font-medium text-blue-900 text-sm">
+                          ✓ {selectedProducts.length} seleccionados
+                        </p>
                         <div className="text-right">
                           <p className="text-sm font-bold text-blue-900">
                             ${selectedProducts.reduce((sum, p) => sum + p.Precio, 0)}
                           </p>
-                          <p className="text-xs text-blue-600">subtotal</p>
                         </div>
                       </div>
-                      <Button onClick={addCurrentServiceToList} className="w-full bg-blue-600 hover:bg-blue-700 h-8 text-sm">
-                        <Plus className="h-3 w-3 mr-2" />
-                        Agregar "{services?.find(s => s.id === selectedService)?.name}" a mi solicitud
+                      <Button onClick={addCurrentServiceToList} className="w-full bg-blue-600 hover:bg-blue-700 h-8 text-xs">
+                        <Plus className="h-3 w-3 mr-1" />
+                        Agregar a solicitud
                       </Button>
                     </div>
                   )}
@@ -968,7 +937,7 @@ const ServicioOnePage = () => {
                       }))} 
                       required={!noNumber}
                     />
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1">
                       <Checkbox
                         id="no-number"
                         checked={noNumber}
@@ -986,9 +955,10 @@ const ServicioOnePage = () => {
                             }));
                           }
                         }}
+                        className="h-3 w-3"
                       />
-                      <Label htmlFor="no-number" className="text-sm font-normal cursor-pointer">
-                        S/N (sin número)
+                      <Label htmlFor="no-number" className="text-xs font-normal cursor-pointer">
+                        S/N
                       </Label>
                     </div>
                   </div>
