@@ -23,17 +23,20 @@ import CheckoutSummary from "@/components/checkout/CheckoutSummary";
 import PurchaseLocationModal from "@/components/PurchaseLocationModal";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import { setGlobalZoneCost } from "@/utils/globalZoneCost";
+
 interface TarjetaServicio {
   id?: string;
   name: string;
   icon: keyof typeof iconComponents | string;
   url?: string;
 }
+
 interface Category {
   id: string;
   name: string;
   icon?: string;
 }
+
 interface Product {
   ProductoID: number;
   NombreProducto: string;
@@ -44,6 +47,7 @@ interface Product {
   Comision: number;
   ComisionTipo: string;
 }
+
 interface LocationData {
   countries: Array<{
     id: number;
@@ -67,6 +71,7 @@ interface LocationData {
     costo: number;
   }>;
 }
+
 interface PurchaseLocation {
   storeId: string;
   storeName: string;
@@ -76,6 +81,7 @@ interface PurchaseLocation {
   locationName: string;
   zonaCostoAdicional?: string;
 }
+
 const iconComponents = {
   Package,
   Baby,
@@ -85,6 +91,7 @@ const iconComponents = {
   Zap,
   Truck
 };
+
 const ServicioOnePage = () => {
   const navigate = useNavigate();
   const {
@@ -147,6 +154,7 @@ const ServicioOnePage = () => {
       return JSON.parse(data.SDTTarjetasServiciosJson);
     }
   });
+
   const {
     data: categories,
     isLoading: isCategoriesLoading
@@ -175,6 +183,7 @@ const ServicioOnePage = () => {
     },
     enabled: !!selectedService
   });
+
   const {
     data: products,
     isLoading: isProductsLoading
@@ -213,14 +222,25 @@ const ServicioOnePage = () => {
     },
     enabled: !!(selectedService && selectedCategory && purchaseLocation)
   });
+
   const {
     data: locationData,
     isLoading: isLocationLoading
   } = useQuery({
     queryKey: ["locationData"],
     queryFn: async () => {
-      const [countriesRes, departmentsRes, municipalitiesRes, zonesRes] = await Promise.all([fetch("https://app.almango.com.uy/WebAPI/GetPaises"), fetch("https://app.almango.com.uy/WebAPI/GetDepartamentos"), fetch("https://app.almango.com.uy/WebAPI/GetMunicipios"), fetch("https://app.almango.com.uy/WebAPI/GetZonas")]);
-      const [countries, departments, municipalities, zones] = await Promise.all([countriesRes.json(), departmentsRes.json(), municipalitiesRes.json(), zonesRes.json()]);
+      const [countriesRes, departmentsRes, municipalitiesRes, zonesRes] = await Promise.all([
+        fetch("https://app.almango.com.uy/WebAPI/GetPaises"),
+        fetch("https://app.almango.com.uy/WebAPI/GetDepartamentos"),
+        fetch("https://app.almango.com.uy/WebAPI/GetMunicipios"),
+        fetch("https://app.almango.com.uy/WebAPI/GetZonas")
+      ]);
+      const [countries, departments, municipalities, zones] = await Promise.all([
+        countriesRes.json(),
+        departmentsRes.json(),
+        municipalitiesRes.json(),
+        zonesRes.json()
+      ]);
       return {
         countries: JSON.parse(countries.SDTPaisesJson),
         departments: JSON.parse(departments.SDTDepartamentosJson),
@@ -239,6 +259,7 @@ const ServicioOnePage = () => {
       setSelectedCategory(urlCategoryId);
     }
   }, [urlServiceId, urlCategoryId]);
+
   const handleProductToggle = (product: Product, selected: boolean) => {
     if (selected) {
       setSelectedProducts(prev => [...prev, product]);
@@ -246,18 +267,22 @@ const ServicioOnePage = () => {
       setSelectedProducts(prev => prev.filter(p => p.ProductoID !== product.ProductoID));
     }
   };
+
   const getFilteredDepartments = () => {
     if (!locationData || !personalInfo.pais) return [];
     return locationData.departments.filter(dept => dept.paisId === parseInt(personalInfo.pais));
   };
+
   const getFilteredMunicipalities = () => {
     if (!locationData || !personalInfo.departamento) return [];
     return locationData.municipalities.filter(mun => mun.departamentoId === parseInt(personalInfo.departamento));
   };
+
   const getFilteredZones = () => {
     if (!locationData || !personalInfo.municipio) return [];
     return locationData.zones.filter(zone => zone.municipioId === parseInt(personalInfo.municipio));
   };
+
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
@@ -268,6 +293,7 @@ const ServicioOnePage = () => {
         return false;
     }
   };
+
   const addCurrentServiceToList = () => {
     if (!selectedService || !selectedCategory || selectedProducts.length === 0) {
       toast.error("Por favor complete la selección de servicio");
@@ -289,12 +315,12 @@ const ServicioOnePage = () => {
     setSelectedCategory("");
     setSelectedProducts([]);
     setPurchaseLocation(null);
-    // toast.success(`Servicio "${serviceName}" agregado correctamente`);
   };
+
   const removeServiceFromList = (index: number) => {
     setAllSelectedServices(prev => prev.filter((_, i) => i !== index));
-    // toast.success("Servicio eliminado");
   };
+
   const handleNextStep = () => {
     // For step 1, check if we need location first
     if (currentStep === 1) {
@@ -318,6 +344,7 @@ const ServicioOnePage = () => {
       toast.error("Por favor complete todos los campos requeridos");
     }
   };
+
   const handleLocationSelect = (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string, zonaCostoAdicional?: string) => {
     const location: PurchaseLocation = {
       storeId,
@@ -333,10 +360,8 @@ const ServicioOnePage = () => {
     // Set global zone cost for price calculations
     const zoneCost = zonaCostoAdicional ? parseFloat(zonaCostoAdicional) : 0;
     setGlobalZoneCost(zoneCost);
-
-    // Don't automatically continue to next step, stay in step 1 to show products
-    // toast.success("Ubicación configurada correctamente");
   };
+
   const handleShowConfirmation = () => {
     if (!validateStep(currentStep)) {
       toast.error("Por favor complete todos los campos requeridos");
@@ -473,66 +498,62 @@ const ServicioOnePage = () => {
       } catch (parseError) {
         console.error("Error parsing JSON:", parseError);
         console.log("Raw response that failed to parse:", responseText);
-        throw new Error("La respuesta del servidor no es un JSON válido");
+        throw new Error("Error al procesar la respuesta del servidor");
       }
+
+      console.log("=== RESULTADO FINAL ===");
+      console.log("SolicitudesID:", result.SolicitudesID);
       
-      console.log("Respuesta del servidor parseada:", result);
-      console.log("Tipo de respuesta:", typeof result);
-      console.log("SolicitudesID:", result?.SolicitudesID);
-      
-      // Check different possible response formats
-      if (result && (result.SolicitudesID > 0 || result.solicitudesId > 0 || result.id > 0)) {
-        const solicitudId = result.SolicitudesID || result.solicitudesId || result.id;
-        console.log("Solicitud exitosa con ID:", solicitudId);
-        
-        // Success - show the request number
-        toast.success(`¡Solicitud creada exitosamente!`, {
-          description: `Número de solicitud: ${solicitudId}`,
-          duration: 10000,
+      if (result.SolicitudesID && result.SolicitudesID !== "0") {
+        toast.success(`Solicitud enviada exitosamente. ID: ${result.SolicitudesID}`);
+        // Reset form or redirect
+        setCurrentStep(1);
+        setSelectedService("");
+        setSelectedCategory("");
+        setSelectedProducts([]);
+        setAllSelectedServices([]);
+        setPersonalInfo({
+          nombre: "",
+          telefono: "",
+          email: "",
+          pais: "",
+          departamento: "",
+          municipio: "",
+          zona: "",
+          direccion: ""
         });
+        setSelectedDate(undefined);
+        setSelectedTimeSlot("");
+        setPaymentMethod("1");
+        setComments("");
+        setAcceptTerms(false);
+        setSoliciteQuote(false);
+        setSoliciteOtherService(false);
+        setOtherServiceDetail("");
+        setPurchaseLocation(null);
+        setShowConfirmationModal(false);
+        setConfirmationData(null);
       } else {
-        console.error("Formato de respuesta inesperado:", result);
-        throw new Error(`Respuesta del servidor: ${responseText.substring(0, 200)}...`);
+        toast.error("Error: No se pudo obtener el ID de la solicitud");
       }
-
-      // Reset form data
-      setAllSelectedServices([]);
-      setSelectedService("");
-      setSelectedCategory("");
-      setSelectedProducts([]);
-      setPersonalInfo({
-        nombre: "",
-        telefono: "",
-        email: "",
-        pais: "",
-        departamento: "",
-        municipio: "",
-        zona: "",
-        direccion: ""
-      });
-      setSelectedDate(undefined);
-      setSelectedTimeSlot("");
-      setComments("");
-      setAcceptTerms(false);
-      setSoliciteQuote(false);
-      setSoliciteOtherService(false);
-      setOtherServiceDetail("");
-      setPurchaseLocation(null);
-      setCurrentStep(1);
-
     } catch (error) {
-      console.error("Error al procesar solicitud:", error);
-      toast.error("Error al procesar la solicitud", {
-        description: error instanceof Error ? error.message : "Error desconocido"
-      });
+      console.error("Error al enviar solicitud:", error);
+      toast.error("Error al enviar la solicitud");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const stepTitles = [
+    "Servicios y Programación",
+    "Información Personal"
+  ];
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
-        return <div className="space-y-6">
+        return (
+          <div className="space-y-6">
             <div>
               <Label htmlFor="service">Seleccione un Servicio</Label>
               <Select value={selectedService} onValueChange={setSelectedService}>
@@ -540,33 +561,61 @@ const ServicioOnePage = () => {
                   <SelectValue placeholder="Seleccione un servicio" />
                 </SelectTrigger>
                 <SelectContent>
-                  {isServicesLoading ? <SelectItem value="loading" disabled>Cargando...</SelectItem> : services?.map((service: TarjetaServicio) => <SelectItem key={service.id} value={service.id!}>
+                  {isServicesLoading ? (
+                    <SelectItem value="loading" disabled>Cargando servicios...</SelectItem>
+                  ) : services && services.length > 0 ? (
+                    services.map((service: TarjetaServicio) => (
+                      <SelectItem key={service.id} value={service.id!}>
                         {service.name}
-                      </SelectItem>)}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="no-services" disabled>
+                      No hay servicios disponibles
+                    </SelectItem>
+                  )}
                 </SelectContent>
               </Select>
+              {services && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Servicios encontrados: {services.length}
+                </p>
+              )}
             </div>
 
-            {selectedService && <div>
+            {selectedService && (
+              <div>
                 <Label htmlFor="category">Seleccione una Categoría</Label>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleccione una categoría" />
                   </SelectTrigger>
                   <SelectContent>
-                    {isCategoriesLoading ? <SelectItem value="loading" disabled>Cargando categorías...</SelectItem> : categories && categories.length > 0 ? categories.map((category: Category) => <SelectItem key={category.id} value={category.id}>
+                    {isCategoriesLoading ? (
+                      <SelectItem value="loading" disabled>Cargando categorías...</SelectItem>
+                    ) : categories && categories.length > 0 ? (
+                      categories.map((category: Category) => (
+                        <SelectItem key={category.id} value={category.id}>
                           {category.name}
-                        </SelectItem>) : <SelectItem value="no-categories" disabled>
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-categories" disabled>
                         No hay categorías disponibles
-                      </SelectItem>}
+                      </SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
-                {categories && <p className="text-xs text-muted-foreground mt-1">
+                {categories && (
+                  <p className="text-xs text-muted-foreground mt-1">
                     Categorías encontradas: {categories.length}
-                  </p>}
-              </div>}
+                  </p>
+                )}
+              </div>
+            )}
 
-            {purchaseLocation && <div className="mt-4 p-3 bg-muted rounded-lg">
+            {purchaseLocation && (
+              <div className="mt-4 p-3 bg-muted rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <MapPin className="h-4 w-4 text-orange-500" />
                   <span className="font-medium text-sm">Ubicación del servicio</span>
@@ -574,19 +623,28 @@ const ServicioOnePage = () => {
                 <p className="text-sm text-muted-foreground">
                   {purchaseLocation.storeName} - {purchaseLocation.departmentName}, {purchaseLocation.locationName}
                 </p>
-                {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-xs text-orange-600 mt-1">
+                {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && (
+                  <p className="text-xs text-orange-600 mt-1">
                     Costo adicional por zona: ${purchaseLocation.zonaCostoAdicional}
-                  </p>}
-              </div>}
+                  </p>
+                )}
+              </div>
+            )}
 
-            {selectedCategory && !purchaseLocation && <div className="mt-4 flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors" onClick={() => setIsLocationModalOpen(true)}>
+            {selectedCategory && !purchaseLocation && (
+              <div 
+                className="mt-4 flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors" 
+                onClick={() => setIsLocationModalOpen(true)}
+              >
                 <MapPin className="h-4 w-4 text-gray-500" />
                 <span className="text-sm text-gray-700 flex-1">Configurar ubicación del servicio</span>
                 <span className="text-xs text-gray-500">Click para configurar</span>
-              </div>}
+              </div>
+            )}
 
             {/* Services Summary Section */}
-            {allSelectedServices.length > 0 && <div className="mb-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl shadow-sm">
+            {allSelectedServices.length > 0 && (
+              <div className="mb-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl shadow-sm">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                     <Check className="h-5 w-5 text-green-600" />
@@ -602,7 +660,8 @@ const ServicioOnePage = () => {
                 </div>
                 
                 <div className="space-y-3">
-                  {allSelectedServices.map((service, index) => <div key={index} className="bg-white p-4 rounded-lg border border-green-100 shadow-sm hover:shadow-md transition-shadow">
+                  {allSelectedServices.map((service, index) => (
+                    <div key={index} className="bg-white p-4 rounded-lg border border-green-100 shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
@@ -613,10 +672,12 @@ const ServicioOnePage = () => {
                           <p className="text-sm text-green-600 mb-3">{service.products.length} productos seleccionados</p>
                           
                           <div className="space-y-1 mb-3">
-                            {service.products.map((product, idx) => <div key={idx} className="flex justify-between text-xs bg-gray-50 px-2 py-1 rounded">
+                            {service.products.map((product, idx) => (
+                              <div key={idx} className="flex justify-between text-xs bg-gray-50 px-2 py-1 rounded">
                                 <span className="text-gray-700">{product.NombreProducto}</span>
                                 <span className="font-medium text-gray-900">${product.Precio}</span>
-                              </div>)}
+                              </div>
+                            ))}
                           </div>
                           
                           <div className="flex justify-between items-center pt-2 border-t border-gray-100">
@@ -627,11 +688,17 @@ const ServicioOnePage = () => {
                           </div>
                         </div>
                         
-                        <Button variant="ghost" size="sm" onClick={() => removeServiceFromList(index)} className="text-red-500 hover:text-red-700 hover:bg-red-50 ml-4">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => removeServiceFromList(index)} 
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 ml-4"
+                        >
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
-                    </div>)}
+                    </div>
+                  ))}
                 </div>
                 
                 <div className="mt-4 pt-4 border-t border-green-200 bg-green-50 rounded-lg p-3">
@@ -642,11 +709,90 @@ const ServicioOnePage = () => {
                     </span>
                   </div>
                 </div>
-              </div>}
+              </div>
+            )}
+
+            {/* Date and Time Selection - Always visible */}
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
+              <h4 className="font-medium mb-4 flex items-center gap-2">
+                <CalendarClock className="h-4 w-4" />
+                Fecha y Hora del Servicio
+              </h4>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="date">Fecha</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !selectedDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarClock className="mr-2 h-4 w-4" />
+                        {selectedDate ? format(selectedDate, "PPP", { locale: es }) : "Seleccionar fecha"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 z-50 bg-white" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={setSelectedDate}
+                        disabled={(date) => {
+                          const today = new Date();
+                          today.setHours(0, 0, 0, 0);
+                          return date.getDay() === 0 || date < today || date.getTime() === today.getTime();
+                        }}
+                        locale={es}
+                        className="pointer-events-auto"
+                        fromDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}
+                        toDate={new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000)}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
+                {selectedDate && (
+                  <div>
+                    <Label htmlFor="timeSlot">Horario</Label>
+                    <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Seleccionar horario" />
+                      </SelectTrigger>
+                      <SelectContent className="z-50 bg-white">
+                        {(() => {
+                          const day = selectedDate.getDay();
+                          let timeSlots: string[] = [];
+                          
+                          if (day === 6) {
+                            timeSlots = ["08:00 - 14:00", "14:00 - 20:00"];
+                          } else if (day !== 0) {
+                            timeSlots = ["08:00 - 12:00", "12:00 - 16:00", "16:00 - 20:00"];
+                          }
+                          
+                          return timeSlots.map(slot => (
+                            <SelectItem key={slot} value={slot}>
+                              {slot}
+                            </SelectItem>
+                          ));
+                        })()}
+                      </SelectContent>
+                    </Select>
+                    
+                    <p className="text-xs text-blue-600 mt-2">
+                      En caso de coordinación web, confirme disponibilidad por WhatsApp.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* Service Selection Section - Only show when category and location are selected */}
-            {selectedCategory && purchaseLocation && <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-              <div className="mt-6">
+            {selectedCategory && purchaseLocation && (
+              <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+                <div className="mt-6">
                   <div className="flex items-center gap-2 mb-4">
                     <Package className="h-5 w-5 text-blue-600" />
                     <Label className="text-base font-medium">
@@ -655,10 +801,30 @@ const ServicioOnePage = () => {
                   </div>
                   
                   <div className="grid gap-3 max-h-96 overflow-y-auto pr-2">
-                    {isProductsLoading ? <div className="space-y-3">
-                        {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full rounded-lg" />)}
-                      </div> : products && products.length > 0 ? products.map((product: Product) => <div key={product.ProductoID} className={cn("flex items-center space-x-3 p-4 border-2 rounded-lg transition-all duration-200 cursor-pointer hover:shadow-md", selectedProducts.some(p => p.ProductoID === product.ProductoID) ? "border-primary bg-primary/5 shadow-sm" : "border-gray-200 hover:border-gray-300")} onClick={() => handleProductToggle(product, !selectedProducts.some(p => p.ProductoID === product.ProductoID))}>
-                          <Checkbox id={`product-${product.ProductoID}`} checked={selectedProducts.some(p => p.ProductoID === product.ProductoID)} onCheckedChange={checked => handleProductToggle(product, checked as boolean)} className="w-5 h-5" />
+                    {isProductsLoading ? (
+                      <div className="space-y-3">
+                        {[1, 2, 3].map(i => (
+                          <Skeleton key={i} className="h-20 w-full rounded-lg" />
+                        ))}
+                      </div>
+                    ) : products && products.length > 0 ? (
+                      products.map((product: Product) => (
+                        <div 
+                          key={product.ProductoID} 
+                          className={cn(
+                            "flex items-center space-x-3 p-4 border-2 rounded-lg transition-all duration-200 cursor-pointer hover:shadow-md", 
+                            selectedProducts.some(p => p.ProductoID === product.ProductoID) 
+                              ? "border-primary bg-primary/5 shadow-sm" 
+                              : "border-gray-200 hover:border-gray-300"
+                          )} 
+                          onClick={() => handleProductToggle(product, !selectedProducts.some(p => p.ProductoID === product.ProductoID))}
+                        >
+                          <Checkbox 
+                            id={`product-${product.ProductoID}`} 
+                            checked={selectedProducts.some(p => p.ProductoID === product.ProductoID)} 
+                            onCheckedChange={checked => handleProductToggle(product, checked as boolean)} 
+                            className="w-5 h-5" 
+                          />
                           <div className="flex-1">
                             <Label htmlFor={`product-${product.ProductoID}`} className="cursor-pointer block">
                               <div className="flex justify-between items-start">
@@ -673,15 +839,20 @@ const ServicioOnePage = () => {
                               </div>
                             </Label>
                           </div>
-                        </div>) : <div className="text-center py-8 text-muted-foreground bg-gray-50 rounded-lg">
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground bg-gray-50 rounded-lg">
                         <Package className="h-12 w-12 mx-auto mb-3 text-gray-400" />
                         <p className="font-medium">No hay productos disponibles</p>
                         <p className="text-sm">para esta categoría en tu ubicación</p>
-                      </div>}
+                      </div>
+                    )}
                   </div>
 
                   {/* Add Service Action */}
-                  {selectedProducts.length > 0 && <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                  {selectedProducts.length > 0 && (
+                    <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
                       <div className="flex items-center justify-between mb-3">
                         <div>
                           <p className="font-medium text-blue-900">
@@ -702,89 +873,17 @@ const ServicioOnePage = () => {
                         <Plus className="h-4 w-4 mr-2" />
                         Agregar "{services?.find(s => s.id === selectedService)?.name}" a mi solicitud
                       </Button>
-                    </div>}
-                </div>
-                
-                {/* Date and Time Selection */}
-                <div className="mt-6 p-4 bg-gray-50 rounded-lg border">
-                  <h4 className="font-medium mb-4 flex items-center gap-2">
-                    <CalendarClock className="h-4 w-4" />
-                    Fecha y Hora del Servicio
-                  </h4>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="date">Fecha</Label>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full justify-start text-left font-normal",
-                              !selectedDate && "text-muted-foreground"
-                            )}
-                          >
-                            <CalendarClock className="mr-2 h-4 w-4" />
-                            {selectedDate ? format(selectedDate, "PPP", { locale: es }) : "Seleccionar fecha"}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={selectedDate}
-                            onSelect={setSelectedDate}
-                            disabled={(date) => {
-                              const today = new Date();
-                              today.setHours(0, 0, 0, 0);
-                              return date.getDay() === 0 || date < today || date.getTime() === today.getTime();
-                            }}
-                            locale={es}
-                            className="pointer-events-auto"
-                            fromDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}
-                            toDate={new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000)}
-                          />
-                        </PopoverContent>
-                      </Popover>
                     </div>
-                    
-                    {selectedDate && (
-                      <div>
-                        <Label htmlFor="timeSlot">Horario</Label>
-                        <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Seleccionar horario" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {(() => {
-                              const day = selectedDate.getDay();
-                              let timeSlots: string[] = [];
-                              
-                              if (day === 6) {
-                                timeSlots = ["08:00 - 14:00", "14:00 - 20:00"];
-                              } else if (day !== 0) {
-                                timeSlots = ["08:00 - 12:00", "12:00 - 16:00", "16:00 - 20:00"];
-                              }
-                              
-                              return timeSlots.map(slot => (
-                                <SelectItem key={slot} value={slot}>
-                                  {slot}
-                                </SelectItem>
-                              ));
-                            })()}
-                          </SelectContent>
-                        </Select>
-                        
-                        <p className="text-xs text-blue-600 mt-2">
-                          En caso de coordinación web, confirme disponibilidad por WhatsApp.
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
-            </div>}
-          </div>;
+              </div>
+            )}
+          </div>
+        );
+
       case 2:
-        return <div className="space-y-6">
+        return (
+          <div className="space-y-6">
             {/* Información Personal */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -832,182 +931,118 @@ const ServicioOnePage = () => {
             {/* Dirección */}
             <div className="space-y-4">
               <h4 className="font-medium">Dirección</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="calle">Calle *</Label>
-                  <Input 
-                    id="calle" 
-                    placeholder="Nombre de la calle" 
-                    value={personalInfo.direccion} 
-                    onChange={e => setPersonalInfo(prev => ({
-                      ...prev,
-                      direccion: e.target.value
-                    }))} 
-                    required 
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="numero">Número *</Label>
-                  <Input 
-                    id="numero" 
-                    placeholder="Número de puerta" 
-                    value={personalInfo.pais} 
-                    onChange={e => setPersonalInfo(prev => ({
-                      ...prev,
-                      pais: e.target.value
-                    }))} 
-                    required 
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="esquina">Esquina</Label>
-                  <Input 
-                    id="esquina" 
-                    placeholder="Esquina o referencia" 
-                    value={personalInfo.departamento} 
-                    onChange={e => setPersonalInfo(prev => ({
-                      ...prev,
-                      departamento: e.target.value
-                    }))} 
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="apartamento">Apartamento</Label>
-                  <Input 
-                    id="apartamento" 
-                    placeholder="Número de apartamento" 
-                    value={personalInfo.municipio} 
-                    onChange={e => setPersonalInfo(prev => ({
-                      ...prev,
-                      municipio: e.target.value
-                    }))} 
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Comentarios Adicionales */}
-            <div>
-              <Label htmlFor="comments">Comentarios Adicionales</Label>
-              <Textarea 
-                id="comments" 
-                value={comments} 
-                onChange={e => setComments(e.target.value)} 
-                placeholder="Agregue cualquier comentario o solicitud especial" 
-              />
-            </div>
-          </div>;
-      case 3:
-        return <div className="space-y-6">
-
-            {/* Información Personal */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="nombre">Nombre completo *</Label>
+                <Label htmlFor="direccion">Dirección completa *</Label>
                 <Input 
-                  id="nombre" 
-                  placeholder="Nombre y apellido" 
-                  value={personalInfo.nombre} 
+                  id="direccion" 
+                  placeholder="Calle y número" 
+                  value={personalInfo.direccion} 
                   onChange={e => setPersonalInfo(prev => ({
                     ...prev,
-                    nombre: e.target.value
-                  }))} 
-                  required 
-                />
-              </div>
-              <div>
-                <Label htmlFor="telefono">Teléfono *</Label>
-                <Input 
-                  id="telefono" 
-                  placeholder="Teléfono de contacto" 
-                  value={personalInfo.telefono} 
-                  onChange={e => setPersonalInfo(prev => ({
-                    ...prev,
-                    telefono: e.target.value
+                    direccion: e.target.value
                   }))} 
                   required 
                 />
               </div>
             </div>
 
-            <div>
-              <Label htmlFor="email">Correo electrónico (opcional)</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder="tu@email.com" 
-                value={personalInfo.email} 
-                onChange={e => setPersonalInfo(prev => ({
-                  ...prev,
-                  email: e.target.value
-                }))} 
-              />
-            </div>
-
-            {/* Dirección */}
+            {/* Ubicación */}
             <div className="space-y-4">
-              <h4 className="font-medium">Dirección</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <h4 className="font-medium">Ubicación</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <Label htmlFor="calle">Calle *</Label>
-                  <Input 
-                    id="calle" 
-                    placeholder="Nombre de la calle" 
-                    value={personalInfo.direccion} 
-                    onChange={e => setPersonalInfo(prev => ({
-                      ...prev,
-                      direccion: e.target.value
-                    }))} 
-                    required 
-                  />
+                  <Label htmlFor="pais">País *</Label>
+                  <Select value={personalInfo.pais} onValueChange={value => setPersonalInfo(prev => ({
+                    ...prev,
+                    pais: value,
+                    departamento: "",
+                    municipio: "",
+                    zona: ""
+                  }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar país" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {locationData?.countries.map(country => (
+                        <SelectItem key={country.id} value={country.id.toString()}>
+                          {country.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                
+
                 <div>
-                  <Label htmlFor="numero">Número *</Label>
-                  <Input 
-                    id="numero" 
-                    placeholder="Número de puerta" 
-                    value={personalInfo.pais} 
-                    onChange={e => setPersonalInfo(prev => ({
+                  <Label htmlFor="departamento">Departamento *</Label>
+                  <Select 
+                    value={personalInfo.departamento} 
+                    onValueChange={value => setPersonalInfo(prev => ({
                       ...prev,
-                      pais: e.target.value
-                    }))} 
-                    required 
-                  />
+                      departamento: value,
+                      municipio: "",
+                      zona: ""
+                    }))}
+                    disabled={!personalInfo.pais}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar departamento" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getFilteredDepartments().map(dept => (
+                        <SelectItem key={dept.id} value={dept.id.toString()}>
+                          {dept.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="municipio">Municipio *</Label>
+                  <Select 
+                    value={personalInfo.municipio} 
+                    onValueChange={value => setPersonalInfo(prev => ({
+                      ...prev,
+                      municipio: value,
+                      zona: ""
+                    }))}
+                    disabled={!personalInfo.departamento}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar municipio" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getFilteredMunicipalities().map(mun => (
+                        <SelectItem key={mun.id} value={mun.id.toString()}>
+                          {mun.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="esquina">Esquina</Label>
-                  <Input 
-                    id="esquina" 
-                    placeholder="Intersección más cercana" 
-                    value={personalInfo.departamento} 
-                    onChange={e => setPersonalInfo(prev => ({
-                      ...prev,
-                      departamento: e.target.value
-                    }))} 
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="apartamento">Apartamento</Label>
-                  <Input 
-                    id="apartamento" 
-                    placeholder="Apto (opcional)" 
-                    value={personalInfo.municipio} 
-                    onChange={e => setPersonalInfo(prev => ({
-                      ...prev,
-                      municipio: e.target.value
-                    }))} 
-                  />
-                </div>
+              <div>
+                <Label htmlFor="zona">Zona *</Label>
+                <Select 
+                  value={personalInfo.zona} 
+                  onValueChange={value => setPersonalInfo(prev => ({
+                    ...prev,
+                    zona: value
+                  }))}
+                  disabled={!personalInfo.municipio}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar zona" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getFilteredZones().map(zone => (
+                      <SelectItem key={zone.id} value={zone.id.toString()}>
+                        {zone.name} {zone.costo > 0 && `(+$${zone.costo})`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -1017,169 +1052,164 @@ const ServicioOnePage = () => {
               <Textarea 
                 id="comentarios" 
                 placeholder="¿Hay algo más que debamos saber?" 
-                value={personalInfo.zona} 
-                onChange={e => setPersonalInfo(prev => ({
-                  ...prev,
-                  zona: e.target.value
-                }))} 
-              />
-            </div>
-            
-            {/* Comentarios Adicionales */}
-            <div>
-              <Label htmlFor="comments">Comentarios Adicionales</Label>
-              <Textarea 
-                id="comments" 
                 value={comments} 
                 onChange={e => setComments(e.target.value)} 
-                placeholder="Agregue cualquier comentario o solicitud especial" 
               />
             </div>
 
-          </div>;
+            {/* Método de Pago */}
+            <div>
+              <Label>Método de Pago</Label>
+              <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="mt-2">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="1" id="efectivo" />
+                  <Label htmlFor="efectivo">Efectivo</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="2" id="tarjeta" />
+                  <Label htmlFor="tarjeta">Tarjeta de Crédito/Débito</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="3" id="transferencia" />
+                  <Label htmlFor="transferencia">Transferencia Bancaria</Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {/* Opciones adicionales */}
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="soliciteQuote" 
+                  checked={soliciteQuote} 
+                  onCheckedChange={(checked) => setSoliciteQuote(checked === true)} 
+                />
+                <Label htmlFor="soliciteQuote">Solicitar cotización</Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="soliciteOtherService" 
+                  checked={soliciteOtherService} 
+                  onCheckedChange={(checked) => setSoliciteOtherService(checked === true)} 
+                />
+                <Label htmlFor="soliciteOtherService">Solicitar otro servicio</Label>
+              </div>
+
+              {soliciteOtherService && (
+                <div className="ml-6">
+                  <Label htmlFor="otherServiceDetail">Detalle del otro servicio</Label>
+                  <Textarea 
+                    id="otherServiceDetail" 
+                    placeholder="Describa el servicio adicional que necesita" 
+                    value={otherServiceDetail} 
+                    onChange={e => setOtherServiceDetail(e.target.value)} 
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        );
 
       default:
         return null;
     }
   };
-  const stepTitles = ["Servicios", "Datos Personales"];
-  const stepIcons = [ShoppingCart, UserCheck];
-  const stepDescriptions = [
-    "Selecciona los servicios que necesitas",
-    "Completa tus datos de contacto"
-  ];
-  if (showCheckoutSummary && checkoutData) {
-    const departmentsData = locationData?.departments.map(dept => ({
-      id: dept.id.toString(),
-      name: dept.name
-    })) || [];
-    const municipalitiesData = locationData?.departments.reduce((acc, dept) => {
-      acc[dept.id.toString()] = locationData?.municipalities.filter(mun => mun.departamentoId === dept.id).map(mun => ({
-        id: mun.id.toString(),
-        name: mun.name
-      })) || [];
-      return acc;
-    }, {} as Record<string, Array<{
-      id: string;
-      name: string;
-    }>>) || {};
-    return <CheckoutSummary isOpen={showCheckoutSummary} onClose={success => {
-      setShowCheckoutSummary(false);
-      if (success) {
-        toast.success("Solicitud enviada correctamente");
-        navigate("/");
-      }
-    }} data={[checkoutData]} departments={departmentsData} municipalities={municipalitiesData} />;
-  }
-  return <div className="min-h-screen bg-gradient-to-br from-background to-muted">
-      <div className="container mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <Button variant="ghost" onClick={() => navigate(-1)} className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Volver
-          </Button>
-          <h1 className="text-2xl font-bold">Solicitud de Servicio</h1>
-          <div className="w-20" />
-        </div>
 
-        {/* Modern Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between max-w-4xl mx-auto">
-            {stepTitles.map((title, index) => {
-            const IconComponent = stepIcons[index];
-            const isCompleted = index + 1 < currentStep;
-            const isCurrent = index + 1 === currentStep;
-            return <div key={index} className="flex flex-col items-center relative flex-1">
-                  {/* Connection Line */}
-                  {index < stepTitles.length - 1 && <div className="absolute top-6 left-1/2 w-full h-0.5 bg-muted -z-10">
-                      <div className={cn("h-full bg-primary transition-all duration-500", isCompleted ? "w-full" : "w-0")} />
-                    </div>}
-                  
-                  {/* Step Circle */}
-                  <div className={cn("w-12 h-12 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 shadow-lg", isCurrent && "animate-scale-in ring-4 ring-primary/20", isCompleted ? "bg-primary text-primary-foreground shadow-primary/25" : isCurrent ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
-                    {isCompleted ? <Check className="h-5 w-5" /> : <IconComponent className="h-5 w-5" />}
-                  </div>
-                  
-                  {/* Step Info */}
-                  <div className="text-center mt-3 max-w-32">
-                    <span className={cn("text-sm font-medium block transition-colors", isCurrent ? "text-primary" : isCompleted ? "text-primary" : "text-muted-foreground")}>
-                      {title}
-                    </span>
-                    
-                  </div>
-                </div>;
-          })}
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center gap-4 mb-8">
+            <Button variant="outline" size="sm" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Volver
+            </Button>
+            <h1 className="text-3xl font-bold text-gray-900">Solicitar Servicio</h1>
           </div>
-        </div>
 
-        {/* Form Content with Animation */}
-        <div className="max-w-4xl mx-auto animate-fade-in">
-          <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-            <CardHeader className="text-center border-b bg-gradient-to-r from-primary/5 to-primary/10">
-              <div className="flex items-center justify-center gap-3 mb-2">
-                {React.createElement(stepIcons[currentStep - 1], {
-                className: "h-6 w-6 text-primary"
-              })}
-                <CardTitle className="text-xl text-primary">
-                  Paso {currentStep} de {stepTitles.length}
+          <Card className="shadow-lg border-0">
+            <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl font-semibold flex items-center gap-3">
+                  {currentStep === 1 && <Package className="h-6 w-6" />}
+                  {currentStep === 2 && <UserCheck className="h-6 w-6" />}
+                  {stepTitles[currentStep - 1]}
                 </CardTitle>
+                <CardDescription className="text-blue-100 text-sm">
+                  Paso {currentStep} de {stepTitles.length}
+                </CardDescription>
               </div>
-              
             </CardHeader>
-          <CardContent className="p-8">{renderStepContent()}</CardContent>
+            
+            <CardContent className="p-8">
+              {renderStepContent()}
+            </CardContent>
             
             {/* Action Buttons */}
             <div className="flex justify-between p-8 pt-0 border-t bg-muted/30">
-              <Button variant="outline" onClick={() => setCurrentStep(prev => prev - 1)} disabled={currentStep === 1} className="min-w-32">
+              <Button 
+                variant="outline" 
+                onClick={() => setCurrentStep(prev => prev - 1)} 
+                disabled={currentStep === 1} 
+                className="min-w-32"
+              >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Anterior
               </Button>
             
-            {currentStep < stepTitles.length ? (
-              <div className="flex gap-2">
-                {currentStep === 1 && allSelectedServices.length > 0 && (
-                  <Button onClick={() => {
-                    if (!selectedDate || !selectedTimeSlot) {
-                      toast.error("Por favor seleccione fecha y horario");
-                      return;
-                    }
-                    setCurrentStep(2);
-                  }} className="flex-1">
-                    Continuar con {allSelectedServices.length} servicio{allSelectedServices.length > 1 ? 's' : ''} seleccionado{allSelectedServices.length > 1 ? 's' : ''}
-                  </Button>
-                )}
-                {currentStep === 1 && (selectedService || selectedCategory || selectedProducts.length > 0) && (
-                  <Button variant="outline" onClick={() => {
-                    setSelectedService("");
-                    setSelectedCategory("");
-                    setSelectedProducts([]);
-                    setPurchaseLocation(null);
-                    // toast.success("Selección actual limpiada");
-                  }} className={allSelectedServices.length > 0 ? "flex-1" : ""}>
-                    Limpiar selección actual
-                  </Button>
-                )}
-                {currentStep === 2 && (
-                  <Button 
-                    onClick={handleShowConfirmation} 
-                    disabled={isSubmitting || !validateStep(2)}
-                    className="min-w-32"
-                  >
-                    {isSubmitting ? "Enviando..." : "Confirmar Solicitud"}
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <Button onClick={handleSubmit} disabled={!validateStep(currentStep) || isSubmitting}>
-                {isSubmitting ? "Procesando..." : "Confirmar Solicitud"}
-              </Button>
-            )}
+              {currentStep < stepTitles.length ? (
+                <div className="flex gap-2">
+                  {currentStep === 1 && allSelectedServices.length > 0 && (
+                    <Button onClick={() => {
+                      if (!selectedDate || !selectedTimeSlot) {
+                        toast.error("Por favor seleccione fecha y horario");
+                        return;
+                      }
+                      setCurrentStep(2);
+                    }} className="flex-1">
+                      Continuar con {allSelectedServices.length} servicio{allSelectedServices.length > 1 ? 's' : ''} seleccionado{allSelectedServices.length > 1 ? 's' : ''}
+                    </Button>
+                  )}
+                  {currentStep === 1 && (selectedService || selectedCategory || selectedProducts.length > 0) && (
+                    <Button variant="outline" onClick={() => {
+                      setSelectedService("");
+                      setSelectedCategory("");
+                      setSelectedProducts([]);
+                      setPurchaseLocation(null);
+                    }} className={allSelectedServices.length > 0 ? "flex-1" : ""}>
+                      Limpiar selección actual
+                    </Button>
+                  )}
+                  {currentStep === 2 && (
+                    <Button 
+                      onClick={handleShowConfirmation} 
+                      disabled={isSubmitting || !validateStep(2)}
+                      className="min-w-32"
+                    >
+                      {isSubmitting ? "Enviando..." : "Confirmar Solicitud"}
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <Button onClick={handleShowConfirmation} disabled={!validateStep(currentStep) || isSubmitting}>
+                  {isSubmitting ? "Procesando..." : "Confirmar Solicitud"}
+                </Button>
+              )}
             </div>
           </Card>
         </div>
 
-        <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => setIsLocationModalOpen(false)} onSelectLocation={handleLocationSelect} stores={[]} serviceId={selectedService} serviceName={services?.find(s => s.id === selectedService)?.name} categoryId={selectedCategory} categoryName={categories?.find(c => c.id === selectedCategory)?.name} />
+        <PurchaseLocationModal 
+          isOpen={isLocationModalOpen} 
+          onClose={() => setIsLocationModalOpen(false)} 
+          onSelectLocation={handleLocationSelect} 
+          stores={[]} 
+          serviceId={selectedService} 
+          serviceName={services?.find(s => s.id === selectedService)?.name} 
+          categoryId={selectedCategory} 
+          categoryName={categories?.find(c => c.id === selectedCategory)?.name} 
+        />
         
         <ConfirmationModal
           open={showConfirmationModal}
@@ -1191,6 +1221,8 @@ const ServicioOnePage = () => {
           isSubmitting={isSubmitting}
         />
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default ServicioOnePage;
