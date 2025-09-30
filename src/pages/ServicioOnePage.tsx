@@ -49,29 +49,6 @@ interface Product {
   ComisionTipo: string;
 }
 
-interface LocationData {
-  countries: Array<{
-    id: number;
-    name: string;
-    iso: string;
-  }>;
-  departments: Array<{
-    id: number;
-    name: string;
-    paisId: number;
-  }>;
-  municipalities: Array<{
-    id: number;
-    name: string;
-    departamentoId: number;
-  }>;
-  zones: Array<{
-    id: number;
-    name: string;
-    municipioId: number;
-    costo: number;
-  }>;
-}
 
 interface PurchaseLocation {
   storeId: string;
@@ -127,12 +104,6 @@ const ServicioOnePage = () => {
   const [otherServiceDetail, setOtherServiceDetail] = useState("");
   const [noNumber, setNoNumber] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
-  const [locationInfo, setLocationInfo] = useState({
-    pais: "",
-    departamento: "",
-    municipio: "",
-    zona: ""
-  });
 
   // UI states
   const [currentStep, setCurrentStep] = useState(1);
@@ -233,32 +204,6 @@ const ServicioOnePage = () => {
     enabled: !!(selectedService && selectedCategory && purchaseLocation)
   });
 
-  const {
-    data: locationData,
-    isLoading: isLocationLoading
-  } = useQuery({
-    queryKey: ["locationData"],
-    queryFn: async () => {
-      const [countriesRes, departmentsRes, municipalitiesRes, zonesRes] = await Promise.all([
-        fetch("https://app.almango.com.uy/WebAPI/GetPaises"),
-        fetch("https://app.almango.com.uy/WebAPI/GetDepartamentos"),
-        fetch("https://app.almango.com.uy/WebAPI/GetMunicipios"),
-        fetch("https://app.almango.com.uy/WebAPI/GetZonas")
-      ]);
-      const [countries, departments, municipalities, zones] = await Promise.all([
-        countriesRes.json(),
-        departmentsRes.json(),
-        municipalitiesRes.json(),
-        zonesRes.json()
-      ]);
-      return {
-        countries: JSON.parse(countries.SDTPaisesJson),
-        departments: JSON.parse(departments.SDTDepartamentosJson),
-        municipalities: JSON.parse(municipalities.SDTMunicipiosJson),
-        zones: JSON.parse(zones.SDTZonasJson)
-      };
-    }
-  });
 
   // Pre-select from URL parameters
   useEffect(() => {
@@ -278,20 +223,6 @@ const ServicioOnePage = () => {
     }
   };
 
-  const getFilteredDepartments = () => {
-    if (!locationData || !locationInfo.pais) return [];
-    return locationData.departments.filter(dept => dept.paisId === parseInt(locationInfo.pais));
-  };
-
-  const getFilteredMunicipalities = () => {
-    if (!locationData || !locationInfo.departamento) return [];
-    return locationData.municipalities.filter(mun => mun.departamentoId === parseInt(locationInfo.departamento));
-  };
-
-  const getFilteredZones = () => {
-    if (!locationData || !locationInfo.municipio) return [];
-    return locationData.zones.filter(zone => zone.municipioId === parseInt(locationInfo.municipio));
-  };
 
   const validateStep = (step: number): boolean => {
     switch (step) {
@@ -378,7 +309,7 @@ const ServicioOnePage = () => {
       return;
     }
 
-    const zoneCost = locationData?.zones.find(z => z.id === parseInt(locationInfo.zona))?.costo || 0;
+    const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
 
     // Combine all selected services and current selection
     const allProducts = [...allSelectedServices.flatMap(service => service.products), ...selectedProducts];
@@ -408,10 +339,10 @@ const ServicioOnePage = () => {
       Nombre: personalInfo.name,
       Telefono: personalInfo.phone,
       Mail: personalInfo.email || "",
-      PaisISO: parseInt(locationInfo.pais) || 0,
-      DepartamentoId: parseInt(locationInfo.departamento) || 0,
-      MunicipioId: parseInt(locationInfo.municipio) || 0,
-      ZonasID: parseInt(locationInfo.zona) || 0,
+      PaisISO: 858, // Uruguay por defecto
+      DepartamentoId: parseInt(purchaseLocation?.departmentId || "0"),
+      MunicipioId: parseInt(purchaseLocation?.locationId || "0"),
+      ZonasID: 0, // Se manejará con el costo adicional de zona
       Direccion: `${personalInfo.street} ${personalInfo.number}${personalInfo.apartment ? ` Apto ${personalInfo.apartment}` : ''}${personalInfo.corner ? ` esq. ${personalInfo.corner}` : ''}`,
       MetodoPagosID: parseInt(paymentMethod) || 1,
       SolicitudPagada: null,
@@ -533,12 +464,6 @@ const ServicioOnePage = () => {
           apartment: "",
           comments: "",
           termsAccepted: false
-        });
-        setLocationInfo({
-          pais: "",
-          departamento: "",
-          municipio: "",
-          zona: ""
         });
         setSelectedDate(undefined);
         setComments("");
@@ -1035,105 +960,6 @@ const ServicioOnePage = () => {
               </div>
             </div>
 
-            {/* Ubicación */}
-            <div className="space-y-4">
-              <h4 className="font-medium">Ubicación</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="pais">País *</Label>
-                  <Select value={locationInfo.pais} onValueChange={value => setLocationInfo(prev => ({
-                    ...prev,
-                    pais: value,
-                    departamento: "",
-                    municipio: "",
-                    zona: ""
-                  }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar país" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {locationData?.countries.map(country => (
-                        <SelectItem key={country.id} value={country.id.toString()}>
-                          {country.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="departamento">Departamento *</Label>
-                  <Select 
-                    value={locationInfo.departamento} 
-                    onValueChange={value => setLocationInfo(prev => ({
-                      ...prev,
-                      departamento: value,
-                      municipio: "",
-                      zona: ""
-                    }))}
-                    disabled={!locationInfo.pais}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar departamento" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {getFilteredDepartments().map(dept => (
-                        <SelectItem key={dept.id} value={dept.id.toString()}>
-                          {dept.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="municipio">Municipio *</Label>
-                  <Select 
-                    value={locationInfo.municipio} 
-                    onValueChange={value => setLocationInfo(prev => ({
-                      ...prev,
-                      municipio: value,
-                      zona: ""
-                    }))}
-                    disabled={!locationInfo.departamento}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar municipio" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {getFilteredMunicipalities().map(mun => (
-                        <SelectItem key={mun.id} value={mun.id.toString()}>
-                          {mun.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="zona">Zona *</Label>
-                <Select 
-                  value={locationInfo.zona} 
-                  onValueChange={value => setLocationInfo(prev => ({
-                    ...prev,
-                    zona: value
-                  }))}
-                  disabled={!locationInfo.municipio}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar zona" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {getFilteredZones().map(zone => (
-                      <SelectItem key={zone.id} value={zone.id.toString()}>
-                        {zone.name} {zone.costo > 0 && `(+$${zone.costo})`}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
 
             {/* Comentarios */}
             <div>
