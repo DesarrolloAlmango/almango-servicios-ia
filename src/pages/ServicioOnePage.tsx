@@ -346,6 +346,12 @@ const ServicioOnePage = () => {
 
       // Combine all selected services and current selection
       const allProducts = [...allSelectedServices.flatMap(service => service.products), ...selectedProducts];
+      
+      if (allProducts.length === 0) {
+        toast.error("Debe seleccionar al menos un producto");
+        return;
+      }
+
       const checkoutItems: CheckoutItem[] = allProducts.map(product => ({
         RubrosId: product.RubrosId,
         ProductoID: product.ProductoID,
@@ -365,28 +371,46 @@ const ServicioOnePage = () => {
       const data = {
         Nombre: personalInfo.nombre,
         Telefono: personalInfo.telefono,
-        Mail: personalInfo.email || null,
-        PaisISO: parseInt(personalInfo.pais),
-        DepartamentoId: parseInt(personalInfo.departamento),
-        MunicipioId: parseInt(personalInfo.municipio),
-        ZonasID: parseInt(personalInfo.zona),
+        Mail: personalInfo.email || "",
+        PaisISO: parseInt(personalInfo.pais) || 0,
+        DepartamentoId: parseInt(personalInfo.departamento) || 0,
+        MunicipioId: parseInt(personalInfo.municipio) || 0,
+        ZonasID: parseInt(personalInfo.zona) || 0,
         Direccion: personalInfo.direccion,
-        MetodoPagosID: parseInt(paymentMethod),
+        MetodoPagosID: parseInt(paymentMethod) || 1,
         SolicitudPagada: null,
         SolicitaCotizacion: soliciteQuote ? "S" : "N",
         SolicitaOtroServicio: soliciteOtherService ? "S" : "N",
-        OtroServicioDetalle: otherServiceDetail,
+        OtroServicioDetalle: otherServiceDetail || "",
         FechaInstalacion: format(selectedDate!, "yyyy-MM-dd"),
         TurnoInstalacion: selectedTimeSlot,
-        Comentario: comments,
-        ConfirmarCondicionesUso: acceptTerms ? "S" : "N",
+        Comentario: comments || "",
+        ConfirmarCondicionesUso: "S", // Always send "S" since we removed validation
         ProveedorAuxiliar: commerceId || null,
         CostoXZona: zoneCost,
         Descuento: totalDiscountAmount,
         Level1: checkoutItems
       };
 
-      // Prepare API call to AltaSolicitudweb
+      // Validate required fields
+      const missingFields = [];
+      if (!data.Nombre) missingFields.push("Nombre");
+      if (!data.Telefono) missingFields.push("Teléfono");
+      if (!data.Direccion) missingFields.push("Dirección");
+      if (!data.PaisISO) missingFields.push("País");
+      if (!data.DepartamentoId) missingFields.push("Departamento");
+      if (!data.MunicipioId) missingFields.push("Municipio");
+      if (!data.ZonasID) missingFields.push("Zona");
+      if (!data.FechaInstalacion) missingFields.push("Fecha");
+      if (!data.TurnoInstalacion) missingFields.push("Horario");
+      if (data.Level1.length === 0) missingFields.push("Productos");
+
+      if (missingFields.length > 0) {
+        toast.error(`Faltan campos requeridos: ${missingFields.join(", ")}`);
+        return;
+      }
+
+      // Prepare API call to AltaSolicitud
       const jsonSolicitud = JSON.stringify(data);
       
       // Determine provider ID from commerceId or purchaseLocation
@@ -397,6 +421,15 @@ const ServicioOnePage = () => {
         providerId = purchaseLocation.storeId;
       }
 
+      console.log("=== DATOS DE LA SOLICITUD ===");
+      console.log("Provider ID:", providerId);
+      console.log("User ID:", userId || "0");
+      console.log("Datos completos:", data);
+      console.log("JSON que se envía:", jsonSolicitud);
+      console.log("Personal Info completo:", personalInfo);
+      console.log("Purchase Location:", purchaseLocation);
+      console.log("Selected Products:", allProducts);
+
       const url = new URL("https://app.almango.com.uy/WebAPI/AltaSolicitud");
       url.searchParams.append("Userconect", "NoEmpty");
       url.searchParams.append("Key", "d3d3LmF6bWl0YS5jb20=");
@@ -404,10 +437,7 @@ const ServicioOnePage = () => {
       url.searchParams.append("Usuarioid", userId || "0");
       url.searchParams.append("Jsonsolicitud", jsonSolicitud);
 
-      console.log("Enviando solicitud con los siguientes datos:");
-      console.log("Provider ID:", providerId);
-      console.log("User ID:", userId || "0");
-      console.log("JSON Solicitud:", data);
+      console.log("URL completa:", url.toString());
 
       const response = await fetch(url.toString());
       
