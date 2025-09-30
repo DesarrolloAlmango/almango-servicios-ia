@@ -262,11 +262,11 @@ const ServicioOnePage = () => {
     };
     setAllSelectedServices(prev => [...prev, newService]);
 
-    // Reset current selection
+    // Reset current selection but KEEP purchaseLocation - it persists for the entire order
     setSelectedService("");
     setSelectedCategory("");
     setSelectedProducts([]);
-    setPurchaseLocation(null);
+    // DON'T reset: setPurchaseLocation(null);
   };
 
   const removeServiceFromList = (index: number) => {
@@ -1121,7 +1121,7 @@ const ServicioOnePage = () => {
                       setSelectedService("");
                       setSelectedCategory("");
                       setSelectedProducts([]);
-                      setPurchaseLocation(null);
+                      // DON'T reset purchaseLocation here
                     }} className={allSelectedServices.length > 0 ? "flex-1" : ""}>
                       Limpiar selección actual
                     </Button>
@@ -1153,7 +1153,8 @@ const ServicioOnePage = () => {
           serviceId={selectedService} 
           serviceName={services?.find(s => s.id === selectedService)?.name} 
           categoryId={selectedCategory} 
-          categoryName={categories?.find(c => c.id === selectedCategory)?.name} 
+          categoryName={categories?.find(c => c.id === selectedCategory)?.name}
+          commerceId={commerceId}
         />
         
         <ConfirmationModal
