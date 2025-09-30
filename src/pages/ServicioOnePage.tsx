@@ -223,29 +223,27 @@ const ServicioOnePage = () => {
   };
 
 
-  const validateStep = (step: number): boolean => {
-    console.log("validateStep called for step:", step);
-    switch (step) {
-      case 1:
-        const step1Valid = (allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0) && !!selectedDate && !!selectedTimeSlot;
-        console.log("Step 1 validation:", { allSelectedServices: allSelectedServices.length, selectedService, selectedCategory, selectedProducts: selectedProducts.length, selectedDate, selectedTimeSlot, result: step1Valid });
-        return step1Valid;
-      case 2:
-        const step2Valid = !!(personalInfo.name && personalInfo.phone && personalInfo.street && (personalInfo.number || noNumber) && personalInfo.termsAccepted);
-        console.log("Step 2 validation:", { 
-          name: personalInfo.name, 
-          phone: personalInfo.phone, 
-          street: personalInfo.street, 
-          number: personalInfo.number, 
-          noNumber: noNumber, 
-          numberCondition: (personalInfo.number || noNumber),
-          termsAccepted: personalInfo.termsAccepted, 
-          result: step2Valid 
-        });
-        return step2Valid;
-      default:
-        return false;
-    }
+  const validateForm = (): boolean => {
+    console.log("validateForm called");
+    const hasServices = allSelectedServices.length > 0 || (selectedService && selectedCategory && selectedProducts.length > 0);
+    const hasDateTime = !!selectedDate && !!selectedTimeSlot;
+    const hasPersonalInfo = !!(personalInfo.name && personalInfo.phone && personalInfo.street && (personalInfo.number || noNumber) && personalInfo.termsAccepted);
+    
+    console.log("Form validation:", { 
+      hasServices, 
+      hasDateTime,
+      hasPersonalInfo,
+      allSelectedServices: allSelectedServices.length,
+      selectedProducts: selectedProducts.length,
+      selectedDate,
+      selectedTimeSlot,
+      name: personalInfo.name,
+      phone: personalInfo.phone,
+      termsAccepted: personalInfo.termsAccepted,
+      result: hasServices && hasDateTime && hasPersonalInfo 
+    });
+    
+    return hasServices && hasDateTime && hasPersonalInfo;
   };
 
   const addCurrentServiceToList = () => {
@@ -283,29 +281,7 @@ const ServicioOnePage = () => {
     return "1"; // default
   };
 
-  const handleNextStep = () => {
-    // For step 1, check if we need location first
-    if (currentStep === 1) {
-      if (!selectedService || !selectedCategory) {
-        toast.error("Por favor seleccione un servicio y categoría");
-        return;
-      }
-      if (!purchaseLocation) {
-        setIsLocationModalOpen(true);
-        return;
-      }
-      // Check if we have services selected or if we need to add current service
-      if (allSelectedServices.length === 0 && selectedProducts.length === 0) {
-        toast.error("Por favor seleccione al menos un producto");
-        return;
-      }
-    }
-    if (validateStep(currentStep)) {
-      setCurrentStep(prev => prev + 1);
-    } else {
-      toast.error("Por favor complete todos los campos requeridos");
-    }
-  };
+  // Removed handleNextStep since we now have a single form
 
   const handleLocationSelect = (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string, zonaCostoAdicional?: string) => {
     console.log("=== LOCATION SELECT RECIBIDO ===");
@@ -336,7 +312,18 @@ const ServicioOnePage = () => {
 
   const handleShowConfirmation = () => {
     console.log("handleShowConfirmation called, purchaseLocation:", purchaseLocation);
-    if (!validateStep(currentStep)) {
+    
+    // Check if location is selected first
+    if (!selectedService || !selectedCategory) {
+      toast.error("Por favor seleccione un servicio y categoría");
+      return;
+    }
+    if (!purchaseLocation) {
+      setIsLocationModalOpen(true);
+      return;
+    }
+    
+    if (!validateForm()) {
       toast.error("Por favor complete todos los campos requeridos");
       return;
     }
@@ -555,16 +542,13 @@ const ServicioOnePage = () => {
   };
 
   const stepTitles = [
-    "Servicios y Programación",
-    "Información Personal"
+    "Solicitud de Servicio"
   ];
 
   const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <div className="space-y-6">
-            {/* Date and Time Selection - First priority */}
+    return (
+      <div className="space-y-8">
+        {/* Date and Time Selection - First priority */}
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
               <h4 className="font-medium mb-4 flex items-center gap-2 text-blue-800">
                 <CalendarClock className="h-5 w-5" />
@@ -889,11 +873,16 @@ const ServicioOnePage = () => {
                 </div>
               </div>
             )}
-          </div>
-        );
 
-      case 2:
-        return (
+        {/* Información Personal Section */}
+        <Separator className="my-8" />
+        
+        <div className="space-y-6">
+          <div className="flex items-center gap-2 mb-4">
+            <UserCheck className="h-6 w-6 text-blue-600" />
+            <h3 className="text-xl font-semibold text-gray-900">Información Personal</h3>
+          </div>
+          
           <div className="space-y-6">
             {/* Información Personal */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1085,13 +1074,10 @@ const ServicioOnePage = () => {
                 </Label>
               </div>
             </div>
-
           </div>
-        );
-
-      default:
-        return null;
-    }
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -1110,13 +1096,9 @@ const ServicioOnePage = () => {
             <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xl font-semibold flex items-center gap-3">
-                  {currentStep === 1 && <Package className="h-6 w-6" />}
-                  {currentStep === 2 && <UserCheck className="h-6 w-6" />}
-                  {stepTitles[currentStep - 1]}
+                  <Package className="h-6 w-6" />
+                  {stepTitles[0]}
                 </CardTitle>
-                <CardDescription className="text-blue-100 text-sm">
-                  Paso {currentStep} de {stepTitles.length}
-                </CardDescription>
               </div>
             </CardHeader>
             
@@ -1128,52 +1110,32 @@ const ServicioOnePage = () => {
             <div className="flex justify-between p-8 pt-0 border-t bg-muted/30">
               <Button 
                 variant="outline" 
-                onClick={() => setCurrentStep(prev => prev - 1)} 
-                disabled={currentStep === 1} 
+                onClick={() => navigate(-1)} 
                 className="min-w-32"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Anterior
+                Volver
               </Button>
             
-              {currentStep < stepTitles.length ? (
-                <div className="flex gap-2">
-                  {currentStep === 1 && allSelectedServices.length > 0 && (
-                    <Button onClick={() => {
-                      if (!selectedDate || !selectedTimeSlot) {
-                        toast.error("Por favor seleccione fecha y horario");
-                        return;
-                      }
-                      setCurrentStep(2);
-                    }} className="flex-1">
-                      Continuar con {allSelectedServices.length} servicio{allSelectedServices.length > 1 ? 's' : ''} seleccionado{allSelectedServices.length > 1 ? 's' : ''}
-                    </Button>
-                  )}
-                  {currentStep === 1 && (selectedService || selectedCategory || selectedProducts.length > 0) && (
-                    <Button variant="outline" onClick={() => {
-                      setSelectedService("");
-                      setSelectedCategory("");
-                      setSelectedProducts([]);
-                      // DON'T reset purchaseLocation here
-                    }} className={allSelectedServices.length > 0 ? "flex-1" : ""}>
-                      Limpiar selección actual
-                    </Button>
-                  )}
-                  {currentStep === 2 && (
-                    <Button 
-                      onClick={handleShowConfirmation} 
-                      disabled={isSubmitting || !validateStep(2)}
-                      className="min-w-32"
-                    >
-                      {isSubmitting ? "Enviando..." : "Confirmar Solicitud"}
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                <Button onClick={handleShowConfirmation} disabled={!validateStep(currentStep) || isSubmitting}>
-                  {isSubmitting ? "Procesando..." : "Confirmar Solicitud"}
+              <div className="flex gap-2">
+                {(selectedService || selectedCategory || selectedProducts.length > 0) && (
+                  <Button variant="outline" onClick={() => {
+                    setSelectedService("");
+                    setSelectedCategory("");
+                    setSelectedProducts([]);
+                    // DON'T reset purchaseLocation here
+                  }}>
+                    Limpiar selección actual
+                  </Button>
+                )}
+                <Button 
+                  onClick={handleShowConfirmation} 
+                  disabled={isSubmitting || !validateForm()}
+                  className="min-w-32"
+                >
+                  {isSubmitting ? "Enviando..." : "Confirmar Solicitud"}
                 </Button>
-              )}
+              </div>
             </div>
           </Card>
         </div>
