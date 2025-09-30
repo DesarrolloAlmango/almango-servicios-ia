@@ -554,6 +554,83 @@ const ServicioOnePage = () => {
       case 1:
         return (
           <div className="space-y-6">
+            {/* Date and Time Selection - First priority */}
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <h4 className="font-medium mb-4 flex items-center gap-2 text-blue-800">
+                <CalendarClock className="h-5 w-5" />
+                Fecha y Hora del Servicio
+              </h4>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="date">Fecha *</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal bg-white",
+                          !selectedDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarClock className="mr-2 h-4 w-4" />
+                        {selectedDate ? format(selectedDate, "PPP", { locale: es }) : "Seleccionar fecha"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 z-50 bg-white" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={setSelectedDate}
+                        disabled={(date) => {
+                          const today = new Date();
+                          today.setHours(0, 0, 0, 0);
+                          return date.getDay() === 0 || date < today || date.getTime() === today.getTime();
+                        }}
+                        locale={es}
+                        className="pointer-events-auto"
+                        fromDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}
+                        toDate={new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000)}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
+                {selectedDate && (
+                  <div>
+                    <Label htmlFor="timeSlot">Horario *</Label>
+                    <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
+                      <SelectTrigger className="bg-white">
+                        <SelectValue placeholder="Seleccionar horario" />
+                      </SelectTrigger>
+                      <SelectContent className="z-50 bg-white">
+                        {(() => {
+                          const day = selectedDate.getDay();
+                          let timeSlots: string[] = [];
+                          
+                          if (day === 6) {
+                            timeSlots = ["08:00 - 14:00", "14:00 - 20:00"];
+                          } else if (day !== 0) {
+                            timeSlots = ["08:00 - 12:00", "12:00 - 16:00", "16:00 - 20:00"];
+                          }
+                          
+                          return timeSlots.map(slot => (
+                            <SelectItem key={slot} value={slot}>
+                              {slot}
+                            </SelectItem>
+                          ));
+                        })()}
+                      </SelectContent>
+                    </Select>
+                    
+                    <p className="text-xs text-blue-600 mt-2">
+                      En caso de coordinación web, confirme disponibilidad por WhatsApp.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div>
               <Label htmlFor="service">Seleccione un Servicio</Label>
               <Select value={selectedService} onValueChange={setSelectedService}>
@@ -712,82 +789,6 @@ const ServicioOnePage = () => {
               </div>
             )}
 
-            {/* Date and Time Selection - Always visible */}
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg border">
-              <h4 className="font-medium mb-4 flex items-center gap-2">
-                <CalendarClock className="h-4 w-4" />
-                Fecha y Hora del Servicio
-              </h4>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="date">Fecha</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal",
-                          !selectedDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarClock className="mr-2 h-4 w-4" />
-                        {selectedDate ? format(selectedDate, "PPP", { locale: es }) : "Seleccionar fecha"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 z-50 bg-white" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={setSelectedDate}
-                        disabled={(date) => {
-                          const today = new Date();
-                          today.setHours(0, 0, 0, 0);
-                          return date.getDay() === 0 || date < today || date.getTime() === today.getTime();
-                        }}
-                        locale={es}
-                        className="pointer-events-auto"
-                        fromDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}
-                        toDate={new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000)}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                
-                {selectedDate && (
-                  <div>
-                    <Label htmlFor="timeSlot">Horario</Label>
-                    <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
-                      <SelectTrigger className="bg-white">
-                        <SelectValue placeholder="Seleccionar horario" />
-                      </SelectTrigger>
-                      <SelectContent className="z-50 bg-white">
-                        {(() => {
-                          const day = selectedDate.getDay();
-                          let timeSlots: string[] = [];
-                          
-                          if (day === 6) {
-                            timeSlots = ["08:00 - 14:00", "14:00 - 20:00"];
-                          } else if (day !== 0) {
-                            timeSlots = ["08:00 - 12:00", "12:00 - 16:00", "16:00 - 20:00"];
-                          }
-                          
-                          return timeSlots.map(slot => (
-                            <SelectItem key={slot} value={slot}>
-                              {slot}
-                            </SelectItem>
-                          ));
-                        })()}
-                      </SelectContent>
-                    </Select>
-                    
-                    <p className="text-xs text-blue-600 mt-2">
-                      En caso de coordinación web, confirme disponibilidad por WhatsApp.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
 
             {/* Service Selection Section - Only show when category and location are selected */}
             {selectedCategory && purchaseLocation && (
