@@ -93,7 +93,7 @@ const ServicioOnePage = () => {
     corner: "",
     apartment: "",
     comments: "",
-    termsAccepted: false
+    termsAccepted: true // Always accepted by default
   });
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
@@ -522,7 +522,7 @@ const ServicioOnePage = () => {
           corner: "",
           apartment: "",
           comments: "",
-          termsAccepted: false
+          termsAccepted: true // Reset to default (accepted)
         });
         setSelectedDate(undefined);
         setComments("");
@@ -1010,50 +1010,6 @@ const ServicioOnePage = () => {
                   comments: e.target.value
                 }))} 
               />
-            </div>
-
-            {/* Método de Pago */}
-            <div>
-              <Label className="text-sm">Método de Pago</Label>
-              <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="mt-1 space-y-1">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="1" id="efectivo" className="h-4 w-4" />
-                  <Label htmlFor="efectivo" className="text-sm">Efectivo</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="2" id="tarjeta" className="h-4 w-4" />
-                  <Label htmlFor="tarjeta" className="text-sm">Tarjeta de Crédito/Débito</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="3" id="transferencia" className="h-4 w-4" />
-                  <Label htmlFor="transferencia" className="text-sm">Transferencia Bancaria</Label>
-                </div>
-              </RadioGroup>
-            </div>
-
-            {/* Términos y Condiciones */}
-            <div className="flex items-start space-x-2">
-              <Checkbox 
-                id="terms" 
-                checked={personalInfo.termsAccepted} 
-                onCheckedChange={(checked) => setPersonalInfo(prev => ({
-                  ...prev,
-                  termsAccepted: checked === true
-                }))} 
-              />
-              <div className="flex flex-col space-y-1">
-                <Label htmlFor="terms" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                  Acepto los{" "}
-                  <button
-                    type="button"
-                    onClick={() => setIsTermsModalOpen(true)}
-                    className="text-primary underline hover:text-primary/80"
-                  >
-                    términos y condiciones
-                  </button>
-                  {" "}*
-                </Label>
-              </div>
             </div>
           </div>
         </div>
