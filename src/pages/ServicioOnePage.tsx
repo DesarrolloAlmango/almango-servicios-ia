@@ -258,7 +258,7 @@ const ServicioOnePage = () => {
   const validateStep = (step: number): boolean => {
     switch (step) {
       case 1:
-        return allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0;
+        return (allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0) && !!selectedDate && !!selectedTimeSlot;
       case 2:
         return !!(personalInfo.nombre && personalInfo.telefono && personalInfo.direccion && personalInfo.pais);
       default:
@@ -572,10 +572,6 @@ const ServicioOnePage = () => {
                         })()}
                       </SelectContent>
                     </Select>
-                    
-                    <p className="text-xs text-blue-600 mt-2">
-                      En caso de coordinación web, confirme disponibilidad por WhatsApp.
-                    </p>
                   </div>
                 )}
               </div>
