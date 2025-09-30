@@ -47,6 +47,7 @@ interface Product {
   SR: string;
   Comision: number;
   ComisionTipo: string;
+  DetallesID?: number | null;
 }
 
 
@@ -193,7 +194,8 @@ const ServicioOnePage = () => {
         RubrosId: parseInt(selectedCategory),
         SR: product.SR || "S",
         Comision: product.Comision || 0,
-        ComisionTipo: product.ComisionTipo || "P"
+        ComisionTipo: product.ComisionTipo || "P",
+        DetallesID: product.DetallesID || product.detallesId || null
       }));
       console.log("Mapped products:", mappedProducts);
       return mappedProducts;
@@ -352,7 +354,7 @@ const ServicioOnePage = () => {
     const checkoutItems: CheckoutItem[] = allProducts.map(product => ({
       RubrosId: product.RubrosId,
       ProductoID: product.ProductoID,
-      DetalleID: null,
+      DetalleID: product.DetallesID || null,
       Cantidad: 1,
       Precio: product.Precio,
       SR: product.SR,
