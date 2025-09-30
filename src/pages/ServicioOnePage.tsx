@@ -347,10 +347,10 @@ const ServicioOnePage = () => {
     // Calculate total discount
     const totalDiscountAmount = 0; // You can implement discount calculation here if needed
 
-    const data = {
+    const data: CheckoutData = {
       Nombre: personalInfo.name,
       Telefono: personalInfo.phone,
-      Mail: personalInfo.email || "",
+      Mail: personalInfo.email || null,
       PaisISO: 858, // Uruguay por defecto
       DepartamentoId: parseInt(purchaseLocation?.departmentId || "0"),
       MunicipioId: parseInt(purchaseLocation?.locationId || "0"),
@@ -365,11 +365,20 @@ const ServicioOnePage = () => {
       TurnoInstalacion: selectedTimeSlot,
       Comentario: personalInfo.comments || "",
       ConfirmarCondicionesUso: personalInfo.termsAccepted ? "S" : "N",
-      ProveedorAuxiliar: commerceId || null,
+      ProveedorAuxiliar: commerceId || purchaseLocation?.storeId || null,
       CostoXZona: zoneCost,
-      Descuento: totalDiscountAmount,
       Level1: checkoutItems
     };
+
+    console.log("=== VERIFICACIÓN DE ESTRUCTURA ===");
+    console.log("Data object keys:", Object.keys(data));
+    console.log("CheckoutData esperado vs actual:");
+    console.log("- Nombre:", data.Nombre);
+    console.log("- DepartamentoId:", data.DepartamentoId);
+    console.log("- MunicipioId:", data.MunicipioId);
+    console.log("- ProveedorAuxiliar:", data.ProveedorAuxiliar);
+    console.log("- Level1 length:", data.Level1.length);
+    console.log("- Level1 structure:", data.Level1[0]);
 
     // Validate required fields
     const missingFields = [];
