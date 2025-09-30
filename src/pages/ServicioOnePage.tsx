@@ -99,9 +99,6 @@ const ServicioOnePage = () => {
   const [paymentMethod, setPaymentMethod] = useState("1"); // Default to cash (efectivo)
   const [comments, setComments] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
-  const [soliciteQuote, setSoliciteQuote] = useState(false);
-  const [soliciteOtherService, setSoliciteOtherService] = useState(false);
-  const [otherServiceDetail, setOtherServiceDetail] = useState("");
   const [noNumber, setNoNumber] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
@@ -229,7 +226,7 @@ const ServicioOnePage = () => {
       case 1:
         return (allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0) && !!selectedDate && !!selectedTimeSlot;
       case 2:
-        return !!(personalInfo.name && personalInfo.phone && personalInfo.street && personalInfo.number && personalInfo.termsAccepted);
+        return !!(personalInfo.name && personalInfo.phone && personalInfo.street && (personalInfo.number || noNumber) && personalInfo.termsAccepted);
       default:
         return false;
     }
@@ -346,9 +343,9 @@ const ServicioOnePage = () => {
       Direccion: `${personalInfo.street} ${personalInfo.number}${personalInfo.apartment ? ` Apto ${personalInfo.apartment}` : ''}${personalInfo.corner ? ` esq. ${personalInfo.corner}` : ''}`,
       MetodoPagosID: parseInt(paymentMethod) || 1,
       SolicitudPagada: null,
-      SolicitaCotizacion: soliciteQuote ? "S" : "N",
-      SolicitaOtroServicio: soliciteOtherService ? "S" : "N",
-      OtroServicioDetalle: otherServiceDetail || "",
+      SolicitaCotizacion: "N",
+      SolicitaOtroServicio: "N",
+      OtroServicioDetalle: "",
       FechaInstalacion: format(selectedDate!, "yyyy-MM-dd"),
       TurnoInstalacion: selectedTimeSlot,
       Comentario: personalInfo.comments || "",
@@ -468,8 +465,6 @@ const ServicioOnePage = () => {
         setSelectedDate(undefined);
         setComments("");
         setAcceptTerms(false);
-        setSoliciteQuote(false);
-        setSoliciteOtherService(false);
         setSelectedTimeSlot("");
         setPaymentMethod("1");
         setNoNumber(false);
@@ -994,38 +989,6 @@ const ServicioOnePage = () => {
               </RadioGroup>
             </div>
 
-            {/* Opciones adicionales */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="soliciteQuote" 
-                  checked={soliciteQuote} 
-                  onCheckedChange={(checked) => setSoliciteQuote(checked === true)} 
-                />
-                <Label htmlFor="soliciteQuote">Solicitar cotización</Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="soliciteOtherService" 
-                  checked={soliciteOtherService} 
-                  onCheckedChange={(checked) => setSoliciteOtherService(checked === true)} 
-                />
-                <Label htmlFor="soliciteOtherService">Solicitar otro servicio</Label>
-              </div>
-
-              {soliciteOtherService && (
-                <div className="ml-6">
-                  <Label htmlFor="otherServiceDetail">Detalle del otro servicio</Label>
-                  <Textarea 
-                    id="otherServiceDetail" 
-                    placeholder="Describa el servicio adicional que necesita" 
-                    value={otherServiceDetail} 
-                    onChange={e => setOtherServiceDetail(e.target.value)} 
-                  />
-                </div>
-              )}
-            </div>
           </div>
         );
 
