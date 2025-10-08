@@ -1193,7 +1193,7 @@ const ServicioOnePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#e7e9ef]">
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
