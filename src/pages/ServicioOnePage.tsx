@@ -24,6 +24,7 @@ import PurchaseLocationModal from "@/components/PurchaseLocationModal";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import { GeneralTermsModal } from "@/components/ui/general-terms-modal";
 import { setGlobalZoneCost } from "@/utils/globalZoneCost";
+import ProductTermsModal from "@/components/checkout/ProductTermsModal";
 
 interface TarjetaServicio {
   id?: string;
@@ -123,6 +124,10 @@ const ServicioOnePage = () => {
   }[]>([]);
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [confirmationData, setConfirmationData] = useState<any>(null);
+  const [selectedProductTerms, setSelectedProductTerms] = useState<{
+    textosId: string | null;
+    productName: string;
+  } | null>(null);
 
   // Data fetching
   const {
@@ -908,6 +913,20 @@ const ServicioOnePage = () => {
                                 </div>
                               </div>
                               
+                              <div className="mb-2">
+                                <Button 
+                                  variant="link" 
+                                  className="text-sm text-secondary hover:text-secondary/80 p-0 h-auto cursor-pointer" 
+                                  onClick={() => setSelectedProductTerms({
+                                    textosId: product.TextosId?.toString() || null,
+                                    productName: product.NombreProducto
+                                  })} 
+                                  type="button"
+                                >
+                                  Ver Condiciones
+                                </Button>
+                              </div>
+                              
                               <div className="flex items-center justify-between">
                                 <span className="text-sm text-muted-foreground">Cantidad:</span>
                                 <div className="flex items-center gap-3">
@@ -1213,6 +1232,13 @@ const ServicioOnePage = () => {
           commerceId={commerceId}
         />
         
+        <ProductTermsModal
+          isOpen={!!selectedProductTerms}
+          onClose={() => setSelectedProductTerms(null)}
+          textosId={selectedProductTerms?.textosId || null}
+          productName={selectedProductTerms?.productName || ""}
+        />
+
         <ConfirmationModal
           open={showConfirmationModal}
           onClose={() => setShowConfirmationModal(false)}
