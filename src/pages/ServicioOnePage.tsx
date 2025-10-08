@@ -631,23 +631,23 @@ const ServicioOnePage = () => {
 
   const renderStepContent = () => {
     return (
-      <div className="space-y-4">
+      <div className="space-y-6">
         {/* Date and Time Selection - First priority */}
-            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <h4 className="font-medium mb-2 flex items-center gap-2 text-blue-800 text-sm">
-                <CalendarClock className="h-4 w-4" />
+            <div className="p-4 bg-accent/50 rounded-lg border border-border">
+              <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
+                <CalendarClock className="h-5 w-5 text-primary" />
                 Fecha y Hora del Servicio
               </h4>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="date" className="text-sm">Fecha *</Label>
+                  <Label htmlFor="date" className="text-sm font-medium mb-2 block">Fecha *</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         className={cn(
-                          "w-full justify-start text-left font-normal bg-white h-9 text-sm",
+                          "w-full justify-start text-left font-normal bg-background h-10",
                           !selectedDate && "text-muted-foreground"
                         )}
                       >
@@ -676,9 +676,9 @@ const ServicioOnePage = () => {
                 
                 {selectedDate && (
                   <div>
-                    <Label htmlFor="timeSlot" className="text-sm">Horario *</Label>
+                    <Label htmlFor="timeSlot" className="text-sm font-medium mb-2 block">Horario *</Label>
                     <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
-                      <SelectTrigger className="bg-white h-9 text-sm">
+                      <SelectTrigger className="bg-background h-10">
                         <SelectValue placeholder="Seleccionar horario" />
                       </SelectTrigger>
                       <SelectContent className="z-50 bg-white">
@@ -706,9 +706,9 @@ const ServicioOnePage = () => {
             </div>
 
             <div>
-              <Label htmlFor="service" className="text-sm">Seleccione un Servicio</Label>
+              <Label htmlFor="service" className="text-sm font-medium mb-2 block">Seleccione un Servicio</Label>
               <Select value={selectedService} onValueChange={setSelectedService}>
-                <SelectTrigger className="h-9 text-sm">
+                <SelectTrigger className="h-10">
                   <SelectValue placeholder="Seleccione un servicio" />
                 </SelectTrigger>
                 <SelectContent>
@@ -731,9 +731,9 @@ const ServicioOnePage = () => {
 
             {selectedService && (
               <div>
-                <Label htmlFor="category" className="text-sm">Seleccione una Categoría</Label>
+                <Label htmlFor="category" className="text-sm font-medium mb-2 block">Seleccione una Categoría</Label>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger className="h-9 text-sm">
+                  <SelectTrigger className="h-10">
                     <SelectValue placeholder="Seleccione una categoría" />
                   </SelectTrigger>
                   <SelectContent>
@@ -756,26 +756,26 @@ const ServicioOnePage = () => {
             )}
 
             {purchaseLocation && (
-              <div className="mt-2 p-2 bg-muted rounded-lg">
-                <div className="flex items-center justify-between mb-1">
+              <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <MapPin className="h-3 w-3 text-orange-500" />
-                    <span className="font-medium text-xs">Ubicación del servicio</span>
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="font-medium text-sm">Ubicación del servicio</span>
                   </div>
                   <Button 
                     variant="ghost" 
                     size="sm" 
                     onClick={() => setIsLocationModalOpen(true)}
-                    className="h-6 text-xs px-2"
+                    className="h-8 text-sm"
                   >
                     Editar
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {purchaseLocation.storeName} - {purchaseLocation.departmentName}, {purchaseLocation.locationName}
                 </p>
                 {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && (
-                  <p className="text-xs text-orange-600 mt-1">
+                  <p className="text-sm text-primary font-medium mt-2">
                     Costo adicional por zona: ${purchaseLocation.zonaCostoAdicional}
                   </p>
                 )}
@@ -784,66 +784,66 @@ const ServicioOnePage = () => {
 
             {selectedCategory && !purchaseLocation && (
               <div 
-                className="mt-2 flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors" 
+                className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" 
                 onClick={() => setIsLocationModalOpen(true)}
               >
-                <MapPin className="h-3 w-3 text-gray-500" />
-                <span className="text-xs text-gray-700 flex-1">Configurar ubicación del servicio</span>
-                <span className="text-xs text-gray-500">Click</span>
+                <MapPin className="h-5 w-5 text-primary" />
+                <span className="text-sm text-foreground flex-1">Configurar ubicación del servicio</span>
+                <span className="text-sm text-muted-foreground">Click aquí</span>
               </div>
             )}
 
             {/* Services Summary Section */}
             {allSelectedServices.length > 0 && (
-              <div className="mb-2 p-2 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <Check className="h-4 w-4 text-green-600" />
-                  <h3 className="font-semibold text-green-800 text-sm">
+              <div className="p-4 bg-secondary/10 border border-secondary/30 rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <Check className="h-5 w-5 text-secondary" />
+                  <h3 className="font-semibold text-secondary text-base">
                     Servicios Agregados ({allSelectedServices.length})
                   </h3>
                 </div>
                 
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {allSelectedServices.map((service, index) => (
-                    <div key={index} className="bg-white p-2 rounded-lg border border-green-100 shadow-sm hover:shadow-md transition-shadow">
+                    <div key={index} className="bg-background p-3 rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <h4 className="font-medium text-gray-900 text-sm mb-1">{service.serviceName}</h4>
-                          <p className="text-xs text-gray-600 mb-1">{service.categoryName}</p>
+                          <h4 className="font-semibold text-foreground mb-1">{service.serviceName}</h4>
+                          <p className="text-sm text-muted-foreground mb-2">{service.categoryName}</p>
                           
-                          <div className="space-y-0.5 mb-1">
+                          <div className="space-y-1 mb-2">
                             {service.products.map((product, idx) => (
-                              <div key={idx} className="flex justify-between text-xs bg-gray-50 px-1.5 py-0.5 rounded">
-                                <span className="text-gray-700">{product.NombreProducto} x{product.quantity}</span>
-                                <span className="font-medium text-gray-900">${product.Precio * product.quantity}</span>
+                              <div key={idx} className="flex justify-between text-sm bg-muted/50 px-2 py-1 rounded">
+                                <span className="text-foreground">{product.NombreProducto} x{product.quantity}</span>
+                                <span className="font-medium text-foreground">${product.Precio * product.quantity}</span>
                               </div>
                             ))}
                           </div>
                           
-                          <div className="flex justify-between items-center pt-1 border-t border-gray-100">
-                            <span className="text-xs font-medium text-gray-700">Subtotal:</span>
-                            <span className="text-sm font-bold text-green-700">
+                          <div className="flex justify-between items-center pt-2 border-t border-border">
+                            <span className="text-sm font-medium text-muted-foreground">Subtotal:</span>
+                            <span className="font-bold text-secondary">
                               ${service.products.reduce((sum, p) => sum + (p.Precio * p.quantity), 0)}
                             </span>
                           </div>
                         </div>
                         
-                        <div className="flex gap-1 ml-2">
+                        <div className="flex gap-2 ml-3">
                           <Button 
                             variant="ghost" 
                             size="sm" 
                             onClick={() => editServiceFromList(index)} 
-                            className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 h-6 w-6 p-0"
+                            className="text-secondary hover:text-secondary/80 hover:bg-secondary/10 h-8 w-8 p-0"
                           >
-                            <Pencil className="h-3 w-3" />
+                            <Pencil className="h-4 w-4" />
                           </Button>
                           <Button 
                             variant="ghost" 
                             size="sm" 
                             onClick={() => removeServiceFromList(index)} 
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50 h-6 w-6 p-0"
+                            className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 h-8 w-8 p-0"
                           >
-                            <X className="h-3 w-3" />
+                            <X className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
@@ -851,10 +851,10 @@ const ServicioOnePage = () => {
                   ))}
                 </div>
                 
-                <div className="mt-2 pt-2 border-t border-green-200 bg-green-50 rounded-lg p-2">
+                <div className="mt-3 pt-3 border-t border-secondary/30 bg-secondary/5 rounded-lg p-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-semibold text-green-800">Total de servicios:</span>
-                    <span className="text-base font-bold text-green-800">
+                    <span className="font-semibold text-secondary">Total de servicios:</span>
+                    <span className="text-lg font-bold text-secondary">
                       ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + (p.Precio * p.quantity), 0), 0)}
                     </span>
                   </div>
@@ -865,20 +865,20 @@ const ServicioOnePage = () => {
 
             {/* Service Selection Section - Only show when category and location are selected */}
             {selectedCategory && purchaseLocation && (
-              <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-                <div className="mt-2">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Package className="h-4 w-4 text-blue-600" />
-                    <Label className="text-sm font-medium">
+              <div className="bg-background border border-border rounded-lg p-4 shadow-sm">
+                <div className="mb-3">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Package className="h-5 w-5 text-primary" />
+                    <Label className="font-semibold">
                       Productos disponibles para: {services?.find(s => s.id === selectedService)?.name}
                     </Label>
                   </div>
                   
-                  <div className="grid gap-2 max-h-80 overflow-y-auto pr-2">
+                  <div className="grid gap-3 max-h-80 overflow-y-auto pr-2">
                     {isProductsLoading ? (
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         {[1, 2, 3].map(i => (
-                          <Skeleton key={i} className="h-14 w-full rounded-lg" />
+                          <Skeleton key={i} className="h-20 w-full rounded-lg" />
                         ))}
                       </div>
                     ) : products && products.length > 0 ? (
@@ -890,55 +890,55 @@ const ServicioOnePage = () => {
                           <div 
                             key={product.ProductoID} 
                             className={cn(
-                              "flex items-center space-x-2 p-2 border-2 rounded-lg transition-all duration-200", 
+                              "flex items-center space-x-2 p-3 border-2 rounded-lg transition-all duration-200", 
                               quantity > 0
-                                ? "border-primary bg-primary/5 shadow-sm" 
-                                : "border-gray-200"
+                                ? "border-primary bg-primary/5 shadow-md" 
+                                : "border-border hover:border-primary/50"
                             )}
                           >
                             <div className="flex-1">
-                              <div className="flex justify-between items-start mb-2">
+                              <div className="flex justify-between items-start mb-3">
                                 <div>
-                                  <span className="font-medium text-gray-900 block text-sm">{product.NombreProducto}</span>
-                                  <span className="text-xs text-gray-500">Código: {product.ProductoID}</span>
+                                  <span className="font-semibold text-foreground block">{product.NombreProducto}</span>
+                                  <span className="text-xs text-muted-foreground">Código: {product.ProductoID}</span>
                                 </div>
                                 <div className="text-right">
-                                  <span className="text-sm font-bold text-primary">${product.Precio}</span>
-                                  <span className="block text-xs text-gray-500">por unidad</span>
+                                  <span className="font-bold text-primary">${product.Precio}</span>
+                                  <span className="block text-xs text-muted-foreground">por unidad</span>
                                 </div>
                               </div>
                               
                               <div className="flex items-center justify-between">
-                                <span className="text-xs text-gray-600">Cantidad:</span>
-                                <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">Cantidad:</span>
+                                <div className="flex items-center gap-3">
                                   <Button
                                     type="button"
                                     variant="outline"
                                     size="sm"
                                     onClick={() => handleProductQuantityChange(product, -1)}
                                     disabled={quantity === 0}
-                                    className="h-7 w-7 p-0"
+                                    className="h-8 w-8 p-0"
                                   >
                                     -
                                   </Button>
-                                  <span className="text-sm font-semibold min-w-[2ch] text-center">{quantity}</span>
+                                  <span className="font-semibold min-w-[2ch] text-center">{quantity}</span>
                                   <Button
                                     type="button"
                                     variant="outline"
                                     size="sm"
                                     onClick={() => handleProductQuantityChange(product, 1)}
-                                    className="h-7 w-7 p-0"
+                                    className="h-8 w-8 p-0"
                                   >
-                                    <Plus className="h-3 w-3" />
+                                    <Plus className="h-4 w-4" />
                                   </Button>
                                 </div>
                               </div>
                               
                               {quantity > 0 && (
-                                <div className="mt-2 pt-2 border-t border-gray-200">
+                                <div className="mt-3 pt-3 border-t border-border">
                                   <div className="flex justify-between items-center">
-                                    <span className="text-xs font-medium text-gray-700">Subtotal:</span>
-                                    <span className="text-sm font-bold text-primary">${product.Precio * quantity}</span>
+                                    <span className="text-sm font-medium text-muted-foreground">Subtotal:</span>
+                                    <span className="font-bold text-primary">${product.Precio * quantity}</span>
                                   </div>
                                 </div>
                               )}
@@ -947,29 +947,29 @@ const ServicioOnePage = () => {
                         );
                       })
                     ) : (
-                      <div className="text-center py-4 text-muted-foreground bg-gray-50 rounded-lg">
-                        <Package className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                        <p className="font-medium text-sm">No hay productos disponibles</p>
-                        <p className="text-xs">para esta categoría en tu ubicación</p>
+                      <div className="text-center py-6 text-muted-foreground bg-muted/30 rounded-lg">
+                        <Package className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                        <p className="font-medium">No hay productos disponibles</p>
+                        <p className="text-sm">para esta categoría en tu ubicación</p>
                       </div>
                     )}
                   </div>
 
                   {/* Add Service Action */}
                   {selectedProducts.length > 0 && (
-                    <div className="mt-2 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-                      <div className="flex items-center justify-between mb-1">
-                        <p className="font-medium text-blue-900 text-sm">
+                    <div className="mt-4 p-4 bg-primary/10 border border-primary/30 rounded-lg">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="font-semibold text-primary">
                           ✓ {selectedProducts.reduce((sum, p) => sum + p.quantity, 0)} productos ({selectedProducts.length} tipos)
                         </p>
                         <div className="text-right">
-                          <p className="text-sm font-bold text-blue-900">
+                          <p className="text-lg font-bold text-primary">
                             ${selectedProducts.reduce((sum, p) => sum + (p.Precio * p.quantity), 0)}
                           </p>
                         </div>
                       </div>
-                      <Button onClick={addCurrentServiceToList} className="w-full bg-blue-600 hover:bg-blue-700 h-8 text-xs">
-                        <Plus className="h-3 w-3 mr-1" />
+                      <Button onClick={addCurrentServiceToList} className="w-full bg-primary hover:bg-primary/90 h-10">
+                        <Plus className="h-4 w-4 mr-2" />
                         Agregar a solicitud
                       </Button>
                     </div>
@@ -979,24 +979,24 @@ const ServicioOnePage = () => {
             )}
 
         {/* Información Personal Section */}
-        <Separator className="my-4" />
+        <Separator className="my-6" />
         
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 mb-2">
-            <UserCheck className="h-4 w-4 text-blue-600" />
-            <h3 className="text-base font-semibold text-gray-900">Información Personal</h3>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-3">
+            <UserCheck className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold text-foreground">Información Personal</h3>
           </div>
           
-          <div className="space-y-3">
+          <div className="space-y-4">
             {/* Información Personal */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="name" className="text-sm">Nombre completo *</Label>
+                <Label htmlFor="name" className="text-sm font-medium mb-2 block">Nombre completo *</Label>
                 <Input 
                   id="name" 
                   placeholder="Nombre y apellido" 
                   value={personalInfo.name}
-                  className="h-9 text-sm"
+                  className="h-10"
                   onChange={e => setPersonalInfo(prev => ({
                     ...prev,
                     name: e.target.value
@@ -1005,12 +1005,12 @@ const ServicioOnePage = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="phone" className="text-sm">Teléfono *</Label>
+                <Label htmlFor="phone" className="text-sm font-medium mb-2 block">Teléfono *</Label>
                 <Input 
                   id="phone" 
                   placeholder="Teléfono de contacto" 
                   value={personalInfo.phone}
-                  className="h-9 text-sm"
+                  className="h-10"
                   onChange={e => setPersonalInfo(prev => ({
                     ...prev,
                     phone: e.target.value
@@ -1021,13 +1021,13 @@ const ServicioOnePage = () => {
             </div>
 
             <div>
-              <Label htmlFor="email" className="text-sm">Correo electrónico (opcional)</Label>
+              <Label htmlFor="email" className="text-sm font-medium mb-2 block">Correo electrónico (opcional)</Label>
               <Input 
                 id="email" 
                 type="email" 
                 placeholder="tu@email.com" 
                 value={personalInfo.email}
-                className="h-9 text-sm"
+                className="h-10"
                 onChange={e => setPersonalInfo(prev => ({
                   ...prev,
                   email: e.target.value
@@ -1036,16 +1036,16 @@ const ServicioOnePage = () => {
             </div>
 
             {/* Dirección */}
-            <div className="space-y-2">
-              <h4 className="font-medium text-sm">Dirección</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="space-y-4">
+              <h4 className="font-semibold">Dirección</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="street" className="text-sm">Calle *</Label>
+                  <Label htmlFor="street" className="text-sm font-medium mb-2 block">Calle *</Label>
                   <Input 
                     id="street" 
                     placeholder="Nombre de la calle" 
                     value={personalInfo.street}
-                    className="h-9 text-sm"
+                    className="h-10"
                     onChange={e => setPersonalInfo(prev => ({
                       ...prev,
                       street: e.target.value
@@ -1055,21 +1055,21 @@ const ServicioOnePage = () => {
                 </div>
                 
                 <div>
-                  <Label htmlFor="number" className="text-sm">Número *</Label>
-                  <div className="space-y-1">
+                  <Label htmlFor="number" className="text-sm font-medium mb-2 block">Número *</Label>
+                  <div className="space-y-2">
                     <Input 
                       id="number" 
                       placeholder="Número de puerta" 
                       value={personalInfo.number} 
                       disabled={noNumber}
-                      className="h-9 text-sm"
+                      className="h-10"
                       onChange={e => setPersonalInfo(prev => ({
                         ...prev,
                         number: e.target.value
                       }))} 
                       required={!noNumber}
                     />
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-2">
                       <Checkbox
                         id="no-number"
                         checked={noNumber}
@@ -1087,9 +1087,9 @@ const ServicioOnePage = () => {
                             }));
                           }
                         }}
-                        className="h-3 w-3"
+                        className="h-4 w-4"
                       />
-                      <Label htmlFor="no-number" className="text-xs font-normal cursor-pointer">
+                      <Label htmlFor="no-number" className="text-sm font-normal cursor-pointer">
                         S/N
                       </Label>
                     </div>
@@ -1097,14 +1097,14 @@ const ServicioOnePage = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="corner" className="text-sm">Esquina</Label>
+                  <Label htmlFor="corner" className="text-sm font-medium mb-2 block">Esquina</Label>
                   <Input 
                     id="corner" 
                     placeholder="Intersección más cercana" 
                     value={personalInfo.corner}
-                    className="h-9 text-sm"
+                    className="h-10"
                     onChange={e => setPersonalInfo(prev => ({
                       ...prev,
                       corner: e.target.value
@@ -1113,12 +1113,12 @@ const ServicioOnePage = () => {
                 </div>
                 
                 <div>
-                  <Label htmlFor="apartment" className="text-sm">Apartamento</Label>
+                  <Label htmlFor="apartment" className="text-sm font-medium mb-2 block">Apartamento</Label>
                   <Input 
                     id="apartment" 
                     placeholder="Apto (opcional)" 
                     value={personalInfo.apartment}
-                    className="h-9 text-sm"
+                    className="h-10"
                     onChange={e => setPersonalInfo(prev => ({
                       ...prev,
                       apartment: e.target.value
@@ -1131,12 +1131,12 @@ const ServicioOnePage = () => {
 
             {/* Comentarios */}
             <div>
-              <Label htmlFor="comments" className="text-sm">Comentarios</Label>
+              <Label htmlFor="comments" className="text-sm font-medium mb-2 block">Comentarios</Label>
               <Textarea 
                 id="comments" 
                 placeholder="¿Hay algo más que debamos saber?" 
                 value={personalInfo.comments}
-                className="text-sm min-h-[60px]"
+                className="min-h-[80px]"
                 onChange={e => setPersonalInfo(prev => ({
                   ...prev,
                   comments: e.target.value
@@ -1150,44 +1150,50 @@ const ServicioOnePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="container mx-auto px-4 py-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">Solicitar Servicio</h1>
-          </div>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8 max-w-3xl">
+        <div className="mb-6 text-center">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
+            Solicitar Servicio
+          </h1>
+          <p className="text-muted-foreground text-sm">Complete el formulario para solicitar su servicio</p>
+        </div>
 
-          <Card className="shadow-lg border-0">
-            <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg p-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base font-semibold flex items-center gap-2">
-                  <Package className="h-5 w-5" />
-                  {stepTitles[0]}
-                </CardTitle>
-              </div>
-            </CardHeader>
+        <Card className="shadow-xl border-border">
+          <CardHeader className="bg-gradient-to-r from-primary to-secondary text-primary-foreground p-6">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              {stepTitles[0]}
+            </CardTitle>
+          </CardHeader>
             
-            <CardContent className="p-4">
+            <CardContent className="p-6">
               {renderStepContent()}
             </CardContent>
             
             {/* Action Buttons */}
-            <div className="flex justify-end p-4 pt-0 border-t bg-muted/30">
-              <div className="flex gap-2">
+            <div className="flex justify-between items-center p-6 border-t bg-accent/10">
+              <div className="text-sm text-muted-foreground">
+                * Campos requeridos
+              </div>
+              <div className="flex gap-3">
                 {(selectedService || selectedCategory || selectedProducts.length > 0) && (
-                  <Button variant="outline" onClick={() => {
-                    setSelectedService("");
-                    setSelectedCategory("");
-                    setSelectedProducts([]);
-                    // DON'T reset purchaseLocation here
-                  }} className="h-8 text-sm">
-                    Limpiar selección
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setSelectedService("");
+                      setSelectedCategory("");
+                      setSelectedProducts([]);
+                    }} 
+                    className="h-10"
+                  >
+                    Limpiar
                   </Button>
                 )}
                 <Button 
                   onClick={handleShowConfirmation} 
                   disabled={isSubmitting || !validateForm()}
-                  className="min-w-24 h-8 text-sm"
+                  className="min-w-32 h-10 bg-primary hover:bg-primary/90"
                 >
                   {isSubmitting ? "Enviando..." : "Confirmar Solicitud"}
                 </Button>
