@@ -932,6 +932,32 @@ const ServicioOnePage = () => {
               comments: e.target.value
             }))} />
             </div>
+
+            {/* Términos y condiciones */}
+            <div className="flex items-start space-x-2 p-4 bg-accent/30 rounded-lg border border-border">
+              <Checkbox 
+                id="terms" 
+                checked={acceptTerms}
+                onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
+                className="mt-1"
+              />
+              <div className="flex-1">
+                <Label htmlFor="terms" className="text-sm font-medium cursor-pointer">
+                  Acepto los{" "}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsTermsModalOpen(true);
+                    }}
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    términos y condiciones
+                  </button>
+                  {" "}*
+                </Label>
+              </div>
+            </div>
           </div>
         </div>
       </div>;
