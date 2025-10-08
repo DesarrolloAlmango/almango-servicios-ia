@@ -287,7 +287,7 @@ const ServicioOnePage = () => {
     console.log("validateForm called");
     const hasServices = allSelectedServices.length > 0 || (selectedService && selectedCategory && selectedProducts.length > 0);
     const hasDateTime = !!selectedDate && !!selectedTimeSlot;
-    const hasPersonalInfo = !!(personalInfo.name && personalInfo.phone && personalInfo.street && (personalInfo.number || noNumber) && personalInfo.termsAccepted);
+    const hasPersonalInfo = !!(personalInfo.name && personalInfo.phone && personalInfo.street && (personalInfo.number || noNumber) && acceptTerms);
     
     console.log("Form validation:", { 
       hasServices, 
@@ -299,7 +299,7 @@ const ServicioOnePage = () => {
       selectedTimeSlot,
       name: personalInfo.name,
       phone: personalInfo.phone,
-      termsAccepted: personalInfo.termsAccepted,
+      acceptTerms,
       result: hasServices && hasDateTime && hasPersonalInfo 
     });
     
@@ -467,7 +467,7 @@ const ServicioOnePage = () => {
         FechaInstalacion: format(selectedDate!, "yyyy-MM-dd"),
         TurnoInstalacion: getTimeSlotNumber(selectedTimeSlot),
         Comentario: personalInfo.comments || "",
-        ConfirmarCondicionesUso: personalInfo.termsAccepted ? "S" : "N",
+        ConfirmarCondicionesUso: acceptTerms ? "S" : "N",
         ProveedorAuxiliar: getProviderAuxiliary(
           purchaseLocation?.storeId || "unknown",
           purchaseLocation?.storeName
@@ -1160,6 +1160,31 @@ const ServicioOnePage = () => {
                   comments: e.target.value
                 }))} 
               />
+            </div>
+
+            {/* Términos y Condiciones */}
+            <div className="flex flex-row items-start space-x-3 space-y-0 pt-2">
+              <Checkbox
+                checked={acceptTerms}
+                onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
+                id="terms"
+                className="h-4 w-4"
+              />
+              <div className="space-y-1 leading-none">
+                <Label htmlFor="terms" className="text-sm font-normal cursor-pointer">
+                  Acepto los{" "}
+                  <span 
+                    className="text-primary hover:underline cursor-pointer"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsTermsModalOpen(true);
+                    }}
+                  >
+                    términos y condiciones
+                  </span>
+                  {" "}*
+                </Label>
+              </div>
             </div>
           </div>
         </div>
