@@ -895,28 +895,28 @@ const ServicioOnePage = () => {
                           <div 
                             key={product.ProductoID} 
                             className={cn(
-                              "flex items-center space-x-2 p-3 border-2 rounded-lg transition-all duration-200", 
+                              "flex items-center space-x-2 p-2 border-2 rounded-lg transition-all duration-200", 
                               quantity > 0
                                 ? "border-primary bg-primary/5 shadow-md" 
                                 : "border-border hover:border-primary/50"
                             )}
                           >
                             <div className="flex-1">
-                              <div className="flex justify-between items-start mb-3">
+                              <div className="flex justify-between items-start mb-2">
                                 <div>
-                                  <span className="font-semibold text-foreground block">{product.NombreProducto}</span>
+                                  <span className="font-semibold text-sm text-foreground block">{product.NombreProducto}</span>
                                   <span className="text-xs text-muted-foreground">Código: {product.ProductoID}</span>
                                 </div>
                                 <div className="text-right">
-                                  <span className="font-bold text-secondary">${product.Precio}</span>
+                                  <span className="font-bold text-secondary text-sm">${product.Precio}</span>
                                   <span className="block text-xs text-muted-foreground">por unidad</span>
                                 </div>
                               </div>
                               
-                              <div className="mb-2">
+                              <div className="mb-1">
                                 <Button 
                                   variant="link" 
-                                  className="text-sm text-secondary hover:text-secondary/80 p-0 h-auto cursor-pointer" 
+                                  className="text-xs text-secondary hover:text-secondary/80 p-0 h-auto cursor-pointer" 
                                   onClick={() => setSelectedProductTerms({
                                     textosId: product.TextosId?.toString() || null,
                                     productName: product.NombreProducto
@@ -928,36 +928,36 @@ const ServicioOnePage = () => {
                               </div>
                               
                               <div className="flex items-center justify-between">
-                                <span className="text-sm text-muted-foreground">Cantidad:</span>
-                                <div className="flex items-center gap-3">
+                                <span className="text-xs text-muted-foreground">Cantidad:</span>
+                                <div className="flex items-center gap-2">
                                   <Button
                                     type="button"
                                     variant="outline"
                                     size="sm"
                                     onClick={() => handleProductQuantityChange(product, -1)}
                                     disabled={quantity === 0}
-                                    className="h-8 w-8 p-0"
+                                    className="h-7 w-7 p-0"
                                   >
                                     -
                                   </Button>
-                                  <span className="font-semibold min-w-[2ch] text-center">{quantity}</span>
+                                  <span className="font-semibold text-sm min-w-[2ch] text-center">{quantity}</span>
                                   <Button
                                     type="button"
                                     variant="outline"
                                     size="sm"
                                     onClick={() => handleProductQuantityChange(product, 1)}
-                                    className="h-8 w-8 p-0"
+                                    className="h-7 w-7 p-0"
                                   >
-                                    <Plus className="h-4 w-4" />
+                                    <Plus className="h-3 w-3" />
                                   </Button>
                                 </div>
                               </div>
                               
                               {quantity > 0 && (
-                                <div className="mt-3 pt-3 border-t border-border">
+                                <div className="mt-2 pt-2 border-t border-border">
                                   <div className="flex justify-between items-center">
-                                    <span className="text-sm font-medium text-muted-foreground">Subtotal:</span>
-                                    <span className="font-bold text-primary">${product.Precio * quantity}</span>
+                                    <span className="text-xs font-medium text-muted-foreground">Subtotal:</span>
+                                    <span className="font-bold text-sm text-primary">${product.Precio * quantity}</span>
                                   </div>
                                 </div>
                               )}
