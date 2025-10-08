@@ -25,20 +25,17 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 import { GeneralTermsModal } from "@/components/ui/general-terms-modal";
 import { setGlobalZoneCost } from "@/utils/globalZoneCost";
 import ProductTermsModal from "@/components/checkout/ProductTermsModal";
-
 interface TarjetaServicio {
   id?: string;
   name: string;
   icon: keyof typeof iconComponents | string;
   url?: string;
 }
-
 interface Category {
   id: string;
   name: string;
   icon?: string;
 }
-
 interface Product {
   ProductoID: number;
   NombreProducto: string;
@@ -50,12 +47,9 @@ interface Product {
   ComisionTipo: string;
   DetallesID?: number | null;
 }
-
 interface ProductWithQuantity extends Product {
   quantity: number;
 }
-
-
 interface PurchaseLocation {
   storeId: string;
   storeName: string;
@@ -65,7 +59,6 @@ interface PurchaseLocation {
   locationName: string;
   zonaCostoAdicional?: string;
 }
-
 const iconComponents = {
   Package,
   Baby,
@@ -75,7 +68,6 @@ const iconComponents = {
   Zap,
   Truck
 };
-
 const ServicioOnePage = () => {
   const navigate = useNavigate();
   const {
@@ -142,7 +134,6 @@ const ServicioOnePage = () => {
       return JSON.parse(data.SDTTarjetasServiciosJson);
     }
   });
-
   const {
     data: categories,
     isLoading: isCategoriesLoading,
@@ -154,18 +145,14 @@ const ServicioOnePage = () => {
         console.log("No service selected, returning empty categories");
         return [];
       }
-      
       console.log("Fetching categories for service:", selectedService);
-      
       try {
         const response = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerNivel1?Nivel0=${selectedService}`);
         console.log("Response status:", response.status, response.statusText);
-        
         if (!response.ok) {
           console.error("Response not OK:", response.status);
           throw new Error("Error al obtener categorías");
         }
-        
         const data = await response.json();
         console.log("Raw categories data:", data);
 
@@ -203,7 +190,6 @@ const ServicioOnePage = () => {
       console.error("Categories query error:", categoriesError);
     }
   }, [categoriesError]);
-
   const {
     data: products,
     isLoading: isProductsLoading
@@ -244,7 +230,6 @@ const ServicioOnePage = () => {
     enabled: !!(selectedService && selectedCategory && purchaseLocation)
   });
 
-
   // Pre-select from URL parameters
   useEffect(() => {
     if (urlServiceId) {
@@ -254,43 +239,38 @@ const ServicioOnePage = () => {
       setSelectedCategory(urlCategoryId);
     }
   }, [urlServiceId, urlCategoryId]);
-
   const handleProductQuantityChange = (product: Product, change: number) => {
     setSelectedProducts(prev => {
       const existing = prev.find(p => p.ProductoID === product.ProductoID);
-      
       if (existing) {
         const newQuantity = existing.quantity + change;
-        
         if (newQuantity <= 0) {
           // Remove product if quantity becomes 0
           return prev.filter(p => p.ProductoID !== product.ProductoID);
         }
-        
+
         // Update quantity
-        return prev.map(p => 
-          p.ProductoID === product.ProductoID 
-            ? { ...p, quantity: newQuantity }
-            : p
-        );
+        return prev.map(p => p.ProductoID === product.ProductoID ? {
+          ...p,
+          quantity: newQuantity
+        } : p);
       } else if (change > 0) {
         // Add new product with quantity 1
-        return [...prev, { ...product, quantity: 1 }];
+        return [...prev, {
+          ...product,
+          quantity: 1
+        }];
       }
-      
       return prev;
     });
   };
-
-
   const validateForm = (): boolean => {
     console.log("validateForm called");
-    const hasServices = allSelectedServices.length > 0 || (selectedService && selectedCategory && selectedProducts.length > 0);
+    const hasServices = allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0;
     const hasDateTime = !!selectedDate && !!selectedTimeSlot;
-    const hasPersonalInfo = !!(personalInfo.name && personalInfo.phone && personalInfo.street && (personalInfo.number || noNumber) && acceptTerms);
-    
-    console.log("Form validation:", { 
-      hasServices, 
+    const hasPersonalInfo = !!(personalInfo.name && personalInfo.phone && personalInfo.street && (personalInfo.number || noNumber) && personalInfo.termsAccepted);
+    console.log("Form validation:", {
+      hasServices,
       hasDateTime,
       hasPersonalInfo,
       allSelectedServices: allSelectedServices.length,
@@ -299,13 +279,11 @@ const ServicioOnePage = () => {
       selectedTimeSlot,
       name: personalInfo.name,
       phone: personalInfo.phone,
-      acceptTerms,
-      result: hasServices && hasDateTime && hasPersonalInfo 
+      termsAccepted: personalInfo.termsAccepted,
+      result: hasServices && hasDateTime && hasPersonalInfo
     });
-    
     return hasServices && hasDateTime && hasPersonalInfo;
   };
-
   const addCurrentServiceToList = () => {
     if (!selectedService || !selectedCategory || selectedProducts.length === 0) {
       toast.error("Por favor complete la selección de servicio");
@@ -328,25 +306,25 @@ const ServicioOnePage = () => {
     setSelectedProducts([]);
     // DON'T reset: setPurchaseLocation(null);
   };
-
   const removeServiceFromList = (index: number) => {
     setAllSelectedServices(prev => prev.filter((_, i) => i !== index));
   };
-
   const editServiceFromList = (index: number) => {
     const serviceToEdit = allSelectedServices[index];
-    
+
     // Load the service data back into the form
     setSelectedService(serviceToEdit.serviceId);
     setSelectedCategory(serviceToEdit.categoryId);
     setSelectedProducts([...serviceToEdit.products]);
-    
+
     // Remove from the list of added services
     setAllSelectedServices(prev => prev.filter((_, i) => i !== index));
-    
+
     // Scroll to top to show the form
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
     toast.info("Servicio cargado para edición");
   };
 
@@ -369,7 +347,6 @@ const ServicioOnePage = () => {
     console.log("locationId:", locationId);
     console.log("locationName:", locationName);
     console.log("zonaCostoAdicional:", zonaCostoAdicional);
-    
     const location: PurchaseLocation = {
       storeId,
       storeName,
@@ -386,107 +363,92 @@ const ServicioOnePage = () => {
     const zoneCost = zonaCostoAdicional ? parseFloat(zonaCostoAdicional) : 0;
     setGlobalZoneCost(zoneCost);
   };
-
   const handleShowConfirmation = () => {
     console.log("handleShowConfirmation called, purchaseLocation:", purchaseLocation);
-    
+
     // Check if we have services (either in the list or currently selected)
-    const hasServices = allSelectedServices.length > 0 || (selectedService && selectedCategory && selectedProducts.length > 0);
-    
+    const hasServices = allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0;
     if (!hasServices) {
       toast.error("Por favor seleccione al menos un servicio");
       return;
     }
-    
     if (!purchaseLocation) {
       setIsLocationModalOpen(true);
       return;
     }
-    
     if (!validateForm()) {
       toast.error("Por favor complete todos los campos requeridos");
       return;
     }
-
     const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
 
     // Combine all selected services with their context and current selection
-    const allServicesWithProducts = [
-      ...allSelectedServices.map(service => ({
-        serviceId: service.serviceId,
-        categoryId: service.categoryId,
-        products: service.products
-      })),
-      // Add current selection if there are selected products
-      ...(selectedProducts.length > 0 ? [{
-        serviceId: selectedService,
-        categoryId: selectedCategory,
-        products: selectedProducts
-      }] : [])
-    ];
-    
+    const allServicesWithProducts = [...allSelectedServices.map(service => ({
+      serviceId: service.serviceId,
+      categoryId: service.categoryId,
+      products: service.products
+    })),
+    // Add current selection if there are selected products
+    ...(selectedProducts.length > 0 ? [{
+      serviceId: selectedService,
+      categoryId: selectedCategory,
+      products: selectedProducts
+    }] : [])];
     if (allServicesWithProducts.length === 0 || allServicesWithProducts.every(s => s.products.length === 0)) {
       toast.error("Debe seleccionar al menos un producto");
       return;
     }
 
     // Map products correctly: RubrosId=Nivel0(service), ProductoID=Nivel1(category), DetalleID=Nivel2(product)
-    const checkoutItems: CheckoutItem[] = allServicesWithProducts.flatMap(service => 
-      service.products.map(product => ({
-        RubrosId: parseInt(service.serviceId),
-        ProductoID: parseInt(service.categoryId),
-        DetalleID: product.ProductoID, // The product ID is the Nivel2 (DetalleID)
-        Cantidad: product.quantity || 1,
-        Precio: product.Precio,
-        SR: product.SR,
-        Comision: product.Comision,
-        ComisionTipo: product.ComisionTipo,
-        PrecioFinal: product.Precio * (product.quantity || 1),
-        ProductName: product.NombreProducto
-      }))
-    );
+    const checkoutItems: CheckoutItem[] = allServicesWithProducts.flatMap(service => service.products.map(product => ({
+      RubrosId: parseInt(service.serviceId),
+      ProductoID: parseInt(service.categoryId),
+      DetalleID: product.ProductoID,
+      // The product ID is the Nivel2 (DetalleID)
+      Cantidad: product.quantity || 1,
+      Precio: product.Precio,
+      SR: product.SR,
+      Comision: product.Comision,
+      ComisionTipo: product.ComisionTipo,
+      PrecioFinal: product.Precio * (product.quantity || 1),
+      ProductName: product.NombreProducto
+    })));
 
     // Calculate total
     const productsTotal = checkoutItems.reduce((sum, item) => sum + item.PrecioFinal, 0);
     const total = productsTotal + zoneCost;
-
-      const data: CheckoutData = {
-        Nombre: personalInfo.name,
-        Telefono: personalInfo.phone,
-        Mail: personalInfo.email || null,
-        PaisISO: 0,
-        DepartamentoId: parseInt(purchaseLocation?.departmentId || "0"),
-        MunicipioId: parseInt(purchaseLocation?.locationId || "0"),
-        ZonasID: 0,
-        Direccion: `${personalInfo.street} ${personalInfo.number}${personalInfo.apartment ? ` Apto ${personalInfo.apartment}` : ''}${personalInfo.corner ? ` esq. ${personalInfo.corner}` : ''}`,
-        MetodoPagosID: parseInt(paymentMethod) || 1,
-        SolicitudPagada: "",
-        SolicitaCotizacion: total.toString(),
-        SolicitaOtroServicio: "",
-        OtroServicioDetalle: "",
-        FechaInstalacion: format(selectedDate!, "yyyy-MM-dd"),
-        TurnoInstalacion: getTimeSlotNumber(selectedTimeSlot),
-        Comentario: personalInfo.comments || "",
-        ConfirmarCondicionesUso: acceptTerms ? "S" : "N",
-        ProveedorAuxiliar: getProviderAuxiliary(
-          purchaseLocation?.storeId || "unknown",
-          purchaseLocation?.storeName
-        ),
-        CostoXZona: zoneCost,
-        Level1: checkoutItems
-      };
-
-
-      console.log("=== VERIFICACIÓN DE ESTRUCTURA ===");
-      console.log("Data object keys:", Object.keys(data));
-      console.log("CheckoutData esperado vs actual:");
-      console.log("- Nombre:", data.Nombre);
-      console.log("- DepartamentoId:", data.DepartamentoId, "(" + (purchaseLocation?.departmentName || "sin nombre") + ")");
-      console.log("- MunicipioId:", data.MunicipioId, "(" + (purchaseLocation?.locationName || "sin nombre") + ")");
-      console.log("- ProveedorAuxiliar:", data.ProveedorAuxiliar);
-      console.log("- PurchaseLocation completo:", purchaseLocation);
-      console.log("- Level1 length:", data.Level1.length);
-      console.log("- Level1 structure:", data.Level1[0]);
+    const data: CheckoutData = {
+      Nombre: personalInfo.name,
+      Telefono: personalInfo.phone,
+      Mail: personalInfo.email || null,
+      PaisISO: 0,
+      DepartamentoId: parseInt(purchaseLocation?.departmentId || "0"),
+      MunicipioId: parseInt(purchaseLocation?.locationId || "0"),
+      ZonasID: 0,
+      Direccion: `${personalInfo.street} ${personalInfo.number}${personalInfo.apartment ? ` Apto ${personalInfo.apartment}` : ''}${personalInfo.corner ? ` esq. ${personalInfo.corner}` : ''}`,
+      MetodoPagosID: parseInt(paymentMethod) || 1,
+      SolicitudPagada: "",
+      SolicitaCotizacion: total.toString(),
+      SolicitaOtroServicio: "",
+      OtroServicioDetalle: "",
+      FechaInstalacion: format(selectedDate!, "yyyy-MM-dd"),
+      TurnoInstalacion: getTimeSlotNumber(selectedTimeSlot),
+      Comentario: personalInfo.comments || "",
+      ConfirmarCondicionesUso: personalInfo.termsAccepted ? "S" : "N",
+      ProveedorAuxiliar: getProviderAuxiliary(purchaseLocation?.storeId || "unknown", purchaseLocation?.storeName),
+      CostoXZona: zoneCost,
+      Level1: checkoutItems
+    };
+    console.log("=== VERIFICACIÓN DE ESTRUCTURA ===");
+    console.log("Data object keys:", Object.keys(data));
+    console.log("CheckoutData esperado vs actual:");
+    console.log("- Nombre:", data.Nombre);
+    console.log("- DepartamentoId:", data.DepartamentoId, "(" + (purchaseLocation?.departmentName || "sin nombre") + ")");
+    console.log("- MunicipioId:", data.MunicipioId, "(" + (purchaseLocation?.locationName || "sin nombre") + ")");
+    console.log("- ProveedorAuxiliar:", data.ProveedorAuxiliar);
+    console.log("- PurchaseLocation completo:", purchaseLocation);
+    console.log("- Level1 length:", data.Level1.length);
+    console.log("- Level1 structure:", data.Level1[0]);
 
     // Validate required fields
     const missingFields = [];
@@ -497,7 +459,6 @@ const ServicioOnePage = () => {
     if (!data.TurnoInstalacion) missingFields.push("Horario");
     if (data.Level1.length === 0) missingFields.push("Productos");
     if (!personalInfo.termsAccepted) missingFields.push("Términos y condiciones");
-
     if (missingFields.length > 0) {
       toast.error(`Faltan campos requeridos: ${missingFields.join(", ")}`);
       return;
@@ -507,23 +468,20 @@ const ServicioOnePage = () => {
     setConfirmationData(data);
     setShowConfirmationModal(true);
   };
-
   const handleSubmit = async () => {
     if (!confirmationData) return;
-    
     setIsSubmitting(true);
     try {
       const data = confirmationData;
 
       // Prepare API call to AltaSolicitud
       const jsonSolicitud = JSON.stringify(data);
-      
+
       // Determine provider ID from ProveedorAuxiliar
       let providerId = "0";
-      
       if (data.ProveedorAuxiliar) {
         const aux = data.ProveedorAuxiliar.trim();
-        
+
         // If it's "No lo sé", provider ID should be 0 
         if (aux === "No lo sé") {
           providerId = "0";
@@ -533,16 +491,12 @@ const ServicioOnePage = () => {
       }
 
       // Combine all selected services and current selection for logging
-      const allServicesForLogging = [
-        ...allSelectedServices,
-        ...(selectedProducts.length > 0 ? [{
-          serviceId: selectedService,
-          categoryId: selectedCategory,
-          products: selectedProducts
-        }] : [])
-      ];
+      const allServicesForLogging = [...allSelectedServices, ...(selectedProducts.length > 0 ? [{
+        serviceId: selectedService,
+        categoryId: selectedCategory,
+        products: selectedProducts
+      }] : [])];
       const allProducts = allServicesForLogging.flatMap(service => service.products);
-
       console.log("=== DATOS DE LA SOLICITUD ===");
       console.log("Provider ID:", providerId);
       console.log("User ID:", userId || "0");
@@ -557,28 +511,21 @@ const ServicioOnePage = () => {
       console.log("Personal Info completo:", personalInfo);
       console.log("Purchase Location:", purchaseLocation);
       console.log("Selected Products:", allProducts);
-
       const url = new URL("https://app.almango.com.uy/WebAPI/AltaSolicitud");
       url.searchParams.append("Userconect", "NoEmpty");
       url.searchParams.append("Key", "d3d3LmF6bWl0YS5jb20=");
       url.searchParams.append("Proveedorid", providerId);
       url.searchParams.append("Usuarioid", userId || "0");
       url.searchParams.append("Jsonsolicitud", jsonSolicitud);
-
       console.log("URL completa:", url.toString());
-
       const response = await fetch(url.toString());
-      
       console.log("Response status:", response.status);
       console.log("Response headers:", response.headers);
-      
       if (!response.ok) {
         throw new Error(`Error en la respuesta: ${response.status} ${response.statusText}`);
       }
-
       const responseText = await response.text();
       console.log("Response text raw:", responseText);
-      
       let result;
       try {
         result = JSON.parse(responseText);
@@ -587,10 +534,8 @@ const ServicioOnePage = () => {
         console.log("Raw response that failed to parse:", responseText);
         throw new Error("Error al procesar la respuesta del servidor");
       }
-
       console.log("=== RESULTADO FINAL ===");
       console.log("SolicitudesID:", result.SolicitudesID);
-      
       if (result.SolicitudesID && result.SolicitudesID !== "0") {
         toast.success(`Solicitud enviada exitosamente. ID: ${result.SolicitudesID}`);
         // Reset form or redirect
@@ -629,14 +574,9 @@ const ServicioOnePage = () => {
       setIsSubmitting(false);
     }
   };
-
-  const stepTitles = [
-    "Solicitud de Servicio"
-  ];
-
+  const stepTitles = ["Solicitud de Servicio"];
   const renderStepContent = () => {
-    return (
-      <div className="space-y-6">
+    return <div className="space-y-6">
         {/* Date and Time Selection - First priority */}
             <div className="p-4 bg-accent/50 rounded-lg border border-border">
               <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
@@ -649,38 +589,24 @@ const ServicioOnePage = () => {
                   <Label htmlFor="date" className="text-sm font-medium mb-2 block">Fecha *</Label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal bg-background h-10",
-                          !selectedDate && "text-muted-foreground"
-                        )}
-                      >
+                      <Button variant="outline" className={cn("w-full justify-start text-left font-normal bg-background h-10", !selectedDate && "text-muted-foreground")}>
                         <CalendarClock className="mr-2 h-3 w-3" />
-                        {selectedDate ? format(selectedDate, "PPP", { locale: es }) : "Seleccionar fecha"}
+                        {selectedDate ? format(selectedDate, "PPP", {
+                    locale: es
+                  }) : "Seleccionar fecha"}
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0 z-50 bg-white" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={setSelectedDate}
-                        disabled={(date) => {
-                          const today = new Date();
-                          today.setHours(0, 0, 0, 0);
-                          return date.getDay() === 0 || date < today || date.getTime() === today.getTime();
-                        }}
-                        locale={es}
-                        className="pointer-events-auto"
-                        fromDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)}
-                        toDate={new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000)}
-                      />
+                      <Calendar mode="single" selected={selectedDate} onSelect={setSelectedDate} disabled={date => {
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  return date.getDay() === 0 || date < today || date.getTime() === today.getTime();
+                }} locale={es} className="pointer-events-auto" fromDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)} toDate={new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000)} />
                     </PopoverContent>
                   </Popover>
                 </div>
                 
-                {selectedDate && (
-                  <div>
+                {selectedDate && <div>
                     <Label htmlFor="timeSlot" className="text-sm font-medium mb-2 block">Horario *</Label>
                     <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
                       <SelectTrigger className="bg-background h-10">
@@ -688,31 +614,25 @@ const ServicioOnePage = () => {
                       </SelectTrigger>
                       <SelectContent className="z-50 bg-white">
                         {(() => {
-                          const day = selectedDate.getDay();
-                          let timeSlots: string[] = [];
-                          
-                          if (day === 6) {
-                            timeSlots = ["08:00 - 14:00", "14:00 - 20:00"];
-                          } else if (day !== 0) {
-                            timeSlots = ["08:00 - 12:00", "12:00 - 16:00", "16:00 - 20:00"];
-                          }
-                          
-                          return timeSlots.map(slot => (
-                            <SelectItem key={slot} value={slot}>
+                  const day = selectedDate.getDay();
+                  let timeSlots: string[] = [];
+                  if (day === 6) {
+                    timeSlots = ["08:00 - 14:00", "14:00 - 20:00"];
+                  } else if (day !== 0) {
+                    timeSlots = ["08:00 - 12:00", "12:00 - 16:00", "16:00 - 20:00"];
+                  }
+                  return timeSlots.map(slot => <SelectItem key={slot} value={slot}>
                               {slot}
-                            </SelectItem>
-                          ));
-                        })()}
+                            </SelectItem>);
+                })()}
                       </SelectContent>
                     </Select>
-                  </div>
-                )}
+                  </div>}
               </div>
             </div>
 
             {/* Services Summary Section */}
-            {allSelectedServices.length > 0 && (
-              <div className="p-4 bg-secondary/10 border border-secondary/30 rounded-lg">
+            {allSelectedServices.length > 0 && <div className="p-4 bg-secondary/10 border border-secondary/30 rounded-lg">
                 <div className="flex items-center gap-2 mb-3">
                   <Check className="h-5 w-5 text-secondary" />
                   <h3 className="font-semibold text-secondary text-base">
@@ -721,63 +641,48 @@ const ServicioOnePage = () => {
                 </div>
                 
                 <div className="space-y-3">
-                  {allSelectedServices.map((service, index) => (
-                    <div key={index} className="bg-background p-3 rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow">
+                  {allSelectedServices.map((service, index) => <div key={index} className="bg-background p-3 rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <h4 className="font-semibold text-foreground mb-1">{service.serviceName}</h4>
                           <p className="text-sm text-muted-foreground mb-2">{service.categoryName}</p>
                           
                           <div className="space-y-1 mb-2">
-                            {service.products.map((product, idx) => (
-                              <div key={idx} className="flex justify-between text-sm bg-muted/50 px-2 py-1 rounded">
+                            {service.products.map((product, idx) => <div key={idx} className="flex justify-between text-sm bg-muted/50 px-2 py-1 rounded">
                                 <span className="text-foreground">{product.NombreProducto} x{product.quantity}</span>
                                 <span className="font-medium text-foreground">${product.Precio * product.quantity}</span>
-                              </div>
-                            ))}
+                              </div>)}
                           </div>
                           
                           <div className="flex justify-between items-center pt-2 border-t border-border">
                             <span className="text-sm font-medium text-muted-foreground">Subtotal:</span>
                             <span className="font-bold text-secondary">
-                              ${service.products.reduce((sum, p) => sum + (p.Precio * p.quantity), 0)}
+                              ${service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0)}
                             </span>
                           </div>
                         </div>
                         
                         <div className="flex gap-2 ml-3">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => editServiceFromList(index)} 
-                            className="text-secondary hover:text-secondary/80 hover:bg-secondary/10 h-8 w-8 p-0"
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => editServiceFromList(index)} className="text-secondary hover:text-secondary/80 hover:bg-secondary/10 h-8 w-8 p-0">
                             <Pencil className="h-4 w-4" />
                           </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => removeServiceFromList(index)} 
-                            className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 h-8 w-8 p-0"
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => removeServiceFromList(index)} className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 h-8 w-8 p-0">
                             <X className="h-4 w-4" />
                           </Button>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
                 
                 <div className="mt-3 pt-3 border-t border-secondary/30 bg-secondary/5 rounded-lg p-3">
                   <div className="flex justify-between items-center">
                     <span className="font-semibold text-secondary">Total de servicios:</span>
                     <span className="text-lg font-bold text-secondary">
-                      ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + (p.Precio * p.quantity), 0), 0)}
+                      ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0)}
                     </span>
                   </div>
                 </div>
-              </div>
-            )}
+              </div>}
 
             <div>
               <Label htmlFor="service" className="text-sm font-medium mb-2 block">Seleccione otro Servicio</Label>
@@ -786,90 +691,57 @@ const ServicioOnePage = () => {
                   <SelectValue placeholder="Seleccione un servicio" />
                 </SelectTrigger>
                 <SelectContent>
-                  {isServicesLoading ? (
-                    <SelectItem value="loading" disabled>Cargando servicios...</SelectItem>
-                  ) : services && services.length > 0 ? (
-                    services.map((service: TarjetaServicio) => (
-                      <SelectItem key={service.id} value={service.id!}>
+                  {isServicesLoading ? <SelectItem value="loading" disabled>Cargando servicios...</SelectItem> : services && services.length > 0 ? services.map((service: TarjetaServicio) => <SelectItem key={service.id} value={service.id!}>
                         {service.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="no-services" disabled>
+                      </SelectItem>) : <SelectItem value="no-services" disabled>
                       No hay servicios disponibles
-                    </SelectItem>
-                  )}
+                    </SelectItem>}
                 </SelectContent>
               </Select>
             </div>
 
-            {selectedService && (
-              <div>
+            {selectedService && <div>
                 <Label htmlFor="category" className="text-sm font-medium mb-2 block">Seleccione una Categoría</Label>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger className="h-10">
                     <SelectValue placeholder="Seleccione una categoría" />
                   </SelectTrigger>
                   <SelectContent>
-                    {isCategoriesLoading ? (
-                      <SelectItem value="loading" disabled>Cargando categorías...</SelectItem>
-                    ) : categories && categories.length > 0 ? (
-                      categories.map((category: Category) => (
-                        <SelectItem key={category.id} value={category.id}>
+                    {isCategoriesLoading ? <SelectItem value="loading" disabled>Cargando categorías...</SelectItem> : categories && categories.length > 0 ? categories.map((category: Category) => <SelectItem key={category.id} value={category.id}>
                           {category.name}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="no-categories" disabled>
+                        </SelectItem>) : <SelectItem value="no-categories" disabled>
                         No hay categorías disponibles
-                      </SelectItem>
-                  )}
+                      </SelectItem>}
                 </SelectContent>
               </Select>
-            </div>
-            )}
+            </div>}
 
-            {purchaseLocation && (
-              <div className="p-4 bg-muted/50 rounded-lg border border-border">
+            {purchaseLocation && <div className="p-4 bg-muted/50 rounded-lg border border-border">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-primary" />
                     <span className="font-medium text-sm">Ubicación del servicio</span>
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    onClick={() => setIsLocationModalOpen(true)}
-                    className="h-8 text-sm"
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => setIsLocationModalOpen(true)} className="h-8 text-sm">
                     Editar
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground">
                   {purchaseLocation.storeName} - {purchaseLocation.departmentName}, {purchaseLocation.locationName}
                 </p>
-                {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && (
-                  <p className="text-sm text-primary font-medium mt-2">
+                {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-sm text-primary font-medium mt-2">
                     Costo adicional por zona: ${purchaseLocation.zonaCostoAdicional}
-                  </p>
-                )}
-              </div>
-            )}
+                  </p>}
+              </div>}
 
-            {selectedCategory && !purchaseLocation && (
-              <div 
-                className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" 
-                onClick={() => setIsLocationModalOpen(true)}
-              >
+            {selectedCategory && !purchaseLocation && <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" onClick={() => setIsLocationModalOpen(true)}>
                 <MapPin className="h-5 w-5 text-primary" />
                 <span className="text-sm text-foreground flex-1">Configurar ubicación del servicio</span>
                 <span className="text-sm text-muted-foreground">Click aquí</span>
-              </div>
-            )}
+              </div>}
 
             {/* Service Selection Section - Only show when category and location are selected */}
-            {selectedCategory && purchaseLocation && (
-              <div className="bg-background border border-border rounded-lg p-4 shadow-sm">
+            {selectedCategory && purchaseLocation && <div className="bg-background border border-border rounded-lg p-4 shadow-sm">
                 <div className="mb-3">
                   <div className="flex items-center gap-2 mb-3">
                     <Package className="h-5 w-5 text-primary" />
@@ -879,27 +751,12 @@ const ServicioOnePage = () => {
                   </div>
                   
                   <div className="grid gap-3 max-h-80 overflow-y-auto pr-2">
-                    {isProductsLoading ? (
-                      <div className="space-y-3">
-                        {[1, 2, 3].map(i => (
-                          <Skeleton key={i} className="h-20 w-full rounded-lg" />
-                        ))}
-                      </div>
-                    ) : products && products.length > 0 ? (
-                      products.map((product: Product) => {
-                        const selectedProduct = selectedProducts.find(p => p.ProductoID === product.ProductoID);
-                        const quantity = selectedProduct?.quantity || 0;
-                        
-                        return (
-                          <div 
-                            key={product.ProductoID} 
-                            className={cn(
-                              "flex items-center space-x-2 p-2 border-2 rounded-lg transition-all duration-200", 
-                              quantity > 0
-                                ? "border-primary bg-primary/5 shadow-md" 
-                                : "border-border hover:border-primary/50"
-                            )}
-                          >
+                    {isProductsLoading ? <div className="space-y-3">
+                        {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full rounded-lg" />)}
+                      </div> : products && products.length > 0 ? products.map((product: Product) => {
+              const selectedProduct = selectedProducts.find(p => p.ProductoID === product.ProductoID);
+              const quantity = selectedProduct?.quantity || 0;
+              return <div key={product.ProductoID} className={cn("flex items-center space-x-2 p-2 border-2 rounded-lg transition-all duration-200", quantity > 0 ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/50")}>
                             <div className="flex-1">
                               <div className="flex justify-between items-start mb-2">
                                 <div>
@@ -913,15 +770,10 @@ const ServicioOnePage = () => {
                               </div>
                               
                               <div className="mb-1">
-                                <Button 
-                                  variant="link" 
-                                  className="text-xs text-secondary hover:text-secondary/80 p-0 h-auto cursor-pointer" 
-                                  onClick={() => setSelectedProductTerms({
-                                    textosId: product.TextosId?.toString() || null,
-                                    productName: product.NombreProducto
-                                  })} 
-                                  type="button"
-                                >
+                                <Button variant="link" className="text-xs text-secondary hover:text-secondary/80 p-0 h-auto cursor-pointer" onClick={() => setSelectedProductTerms({
+                      textosId: product.TextosId?.toString() || null,
+                      productName: product.NombreProducto
+                    })} type="button">
                                   Ver Condiciones
                                 </Button>
                               </div>
@@ -929,60 +781,40 @@ const ServicioOnePage = () => {
                               <div className="flex items-center justify-between">
                                 <span className="text-xs text-muted-foreground">Cantidad:</span>
                                 <div className="flex items-center gap-2">
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleProductQuantityChange(product, -1)}
-                                    disabled={quantity === 0}
-                                    className="h-7 w-7 p-0"
-                                  >
+                                  <Button type="button" variant="outline" size="sm" onClick={() => handleProductQuantityChange(product, -1)} disabled={quantity === 0} className="h-7 w-7 p-0">
                                     -
                                   </Button>
                                   <span className="font-semibold text-sm min-w-[2ch] text-center">{quantity}</span>
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => handleProductQuantityChange(product, 1)}
-                                    className="h-7 w-7 p-0"
-                                  >
+                                  <Button type="button" variant="outline" size="sm" onClick={() => handleProductQuantityChange(product, 1)} className="h-7 w-7 p-0">
                                     <Plus className="h-3 w-3" />
                                   </Button>
                                 </div>
                               </div>
                               
-                              {quantity > 0 && (
-                                <div className="mt-2 pt-2 border-t border-border">
+                              {quantity > 0 && <div className="mt-2 pt-2 border-t border-border">
                                   <div className="flex justify-between items-center">
                                     <span className="text-xs font-medium text-muted-foreground">Subtotal:</span>
                                     <span className="font-bold text-sm text-primary">${product.Precio * quantity}</span>
                                   </div>
-                                </div>
-                              )}
+                                </div>}
                             </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="text-center py-6 text-muted-foreground bg-muted/30 rounded-lg">
+                          </div>;
+            }) : <div className="text-center py-6 text-muted-foreground bg-muted/30 rounded-lg">
                         <Package className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
                         <p className="font-medium">No hay productos disponibles</p>
                         <p className="text-sm">para esta categoría en tu ubicación</p>
-                      </div>
-                    )}
+                      </div>}
                   </div>
 
                   {/* Add Service Action */}
-                  {selectedProducts.length > 0 && (
-                    <div className="mt-4 p-4 bg-primary/10 border border-primary/30 rounded-lg">
+                  {selectedProducts.length > 0 && <div className="mt-4 p-4 bg-primary/10 border border-primary/30 rounded-lg">
                       <div className="flex items-center justify-between mb-3">
                         <p className="font-semibold text-primary">
                           ✓ {selectedProducts.reduce((sum, p) => sum + p.quantity, 0)} productos ({selectedProducts.length} tipos)
                         </p>
                         <div className="text-right">
                           <p className="text-lg font-bold text-primary">
-                            ${selectedProducts.reduce((sum, p) => sum + (p.Precio * p.quantity), 0)}
+                            ${selectedProducts.reduce((sum, p) => sum + p.Precio * p.quantity, 0)}
                           </p>
                         </div>
                       </div>
@@ -990,11 +822,9 @@ const ServicioOnePage = () => {
                         <Plus className="h-4 w-4 mr-2" />
                         Agregar a solicitud
                       </Button>
-                    </div>
-                  )}
+                    </div>}
                 </div>
-              </div>
-            )}
+              </div>}
 
         {/* Información Personal Section */}
         <Separator className="my-6" />
@@ -1010,47 +840,26 @@ const ServicioOnePage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="name" className="text-sm font-medium mb-2 block">Nombre completo *</Label>
-                <Input 
-                  id="name" 
-                  placeholder="Nombre y apellido" 
-                  value={personalInfo.name}
-                  className="h-10"
-                  onChange={e => setPersonalInfo(prev => ({
-                    ...prev,
-                    name: e.target.value
-                  }))} 
-                  required 
-                />
+                <Input id="name" placeholder="Nombre y apellido" value={personalInfo.name} className="h-10" onChange={e => setPersonalInfo(prev => ({
+                ...prev,
+                name: e.target.value
+              }))} required />
               </div>
               <div>
                 <Label htmlFor="phone" className="text-sm font-medium mb-2 block">Teléfono *</Label>
-                <Input 
-                  id="phone" 
-                  placeholder="Teléfono de contacto" 
-                  value={personalInfo.phone}
-                  className="h-10"
-                  onChange={e => setPersonalInfo(prev => ({
-                    ...prev,
-                    phone: e.target.value
-                  }))} 
-                  required 
-                />
+                <Input id="phone" placeholder="Teléfono de contacto" value={personalInfo.phone} className="h-10" onChange={e => setPersonalInfo(prev => ({
+                ...prev,
+                phone: e.target.value
+              }))} required />
               </div>
             </div>
 
             <div>
               <Label htmlFor="email" className="text-sm font-medium mb-2 block">Correo electrónico (opcional)</Label>
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder="tu@email.com" 
-                value={personalInfo.email}
-                className="h-10"
-                onChange={e => setPersonalInfo(prev => ({
-                  ...prev,
-                  email: e.target.value
-                }))} 
-              />
+              <Input id="email" type="email" placeholder="tu@email.com" value={personalInfo.email} className="h-10" onChange={e => setPersonalInfo(prev => ({
+              ...prev,
+              email: e.target.value
+            }))} />
             </div>
 
             {/* Dirección */}
@@ -1059,54 +868,34 @@ const ServicioOnePage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="street" className="text-sm font-medium mb-2 block">Calle *</Label>
-                  <Input 
-                    id="street" 
-                    placeholder="Nombre de la calle" 
-                    value={personalInfo.street}
-                    className="h-10"
-                    onChange={e => setPersonalInfo(prev => ({
-                      ...prev,
-                      street: e.target.value
-                    }))} 
-                    required 
-                  />
+                  <Input id="street" placeholder="Nombre de la calle" value={personalInfo.street} className="h-10" onChange={e => setPersonalInfo(prev => ({
+                  ...prev,
+                  street: e.target.value
+                }))} required />
                 </div>
                 
                 <div>
                   <Label htmlFor="number" className="text-sm font-medium mb-2 block">Número *</Label>
                   <div className="space-y-2">
-                    <Input 
-                      id="number" 
-                      placeholder="Número de puerta" 
-                      value={personalInfo.number} 
-                      disabled={noNumber}
-                      className="h-10"
-                      onChange={e => setPersonalInfo(prev => ({
-                        ...prev,
-                        number: e.target.value
-                      }))} 
-                      required={!noNumber}
-                    />
+                    <Input id="number" placeholder="Número de puerta" value={personalInfo.number} disabled={noNumber} className="h-10" onChange={e => setPersonalInfo(prev => ({
+                    ...prev,
+                    number: e.target.value
+                  }))} required={!noNumber} />
                     <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="no-number"
-                        checked={noNumber}
-                        onCheckedChange={(checked) => {
-                          setNoNumber(checked as boolean);
-                          if (checked) {
-                            setPersonalInfo(prev => ({
-                              ...prev,
-                              number: "S/N"
-                            }));
-                          } else {
-                            setPersonalInfo(prev => ({
-                              ...prev,
-                              number: ""
-                            }));
-                          }
-                        }}
-                        className="h-4 w-4"
-                      />
+                      <Checkbox id="no-number" checked={noNumber} onCheckedChange={checked => {
+                      setNoNumber(checked as boolean);
+                      if (checked) {
+                        setPersonalInfo(prev => ({
+                          ...prev,
+                          number: "S/N"
+                        }));
+                      } else {
+                        setPersonalInfo(prev => ({
+                          ...prev,
+                          number: ""
+                        }));
+                      }
+                    }} className="h-4 w-4" />
                       <Label htmlFor="no-number" className="text-sm font-normal cursor-pointer">
                         S/N
                       </Label>
@@ -1118,30 +907,18 @@ const ServicioOnePage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="corner" className="text-sm font-medium mb-2 block">Esquina</Label>
-                  <Input 
-                    id="corner" 
-                    placeholder="Intersección más cercana" 
-                    value={personalInfo.corner}
-                    className="h-10"
-                    onChange={e => setPersonalInfo(prev => ({
-                      ...prev,
-                      corner: e.target.value
-                    }))} 
-                  />
+                  <Input id="corner" placeholder="Intersección más cercana" value={personalInfo.corner} className="h-10" onChange={e => setPersonalInfo(prev => ({
+                  ...prev,
+                  corner: e.target.value
+                }))} />
                 </div>
                 
                 <div>
                   <Label htmlFor="apartment" className="text-sm font-medium mb-2 block">Apartamento</Label>
-                  <Input 
-                    id="apartment" 
-                    placeholder="Apto (opcional)" 
-                    value={personalInfo.apartment}
-                    className="h-10"
-                    onChange={e => setPersonalInfo(prev => ({
-                      ...prev,
-                      apartment: e.target.value
-                    }))} 
-                  />
+                  <Input id="apartment" placeholder="Apto (opcional)" value={personalInfo.apartment} className="h-10" onChange={e => setPersonalInfo(prev => ({
+                  ...prev,
+                  apartment: e.target.value
+                }))} />
                 </div>
               </div>
             </div>
@@ -1150,50 +927,16 @@ const ServicioOnePage = () => {
             {/* Comentarios */}
             <div>
               <Label htmlFor="comments" className="text-sm font-medium mb-2 block">Comentarios</Label>
-              <Textarea 
-                id="comments" 
-                placeholder="¿Hay algo más que debamos saber?" 
-                value={personalInfo.comments}
-                className="min-h-[80px]"
-                onChange={e => setPersonalInfo(prev => ({
-                  ...prev,
-                  comments: e.target.value
-                }))} 
-              />
-            </div>
-
-            {/* Términos y Condiciones */}
-            <div className="flex flex-row items-start space-x-3 space-y-0 pt-2">
-              <Checkbox
-                checked={acceptTerms}
-                onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
-                id="terms"
-                className="h-4 w-4"
-              />
-              <div className="space-y-1 leading-none">
-                <Label htmlFor="terms" className="text-sm font-normal cursor-pointer">
-                  Acepto los{" "}
-                  <span 
-                    className="text-primary hover:underline cursor-pointer"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setIsTermsModalOpen(true);
-                    }}
-                  >
-                    términos y condiciones
-                  </span>
-                  {" "}*
-                </Label>
-              </div>
+              <Textarea id="comments" placeholder="¿Hay algo más que debamos saber?" value={personalInfo.comments} className="min-h-[80px]" onChange={e => setPersonalInfo(prev => ({
+              ...prev,
+              comments: e.target.value
+            }))} />
             </div>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   };
-
-  return (
-    <div className="min-h-screen bg-[#e7e9ef]">
+  return <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         <div className="mb-6 text-center">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
@@ -1220,66 +963,28 @@ const ServicioOnePage = () => {
                 * Campos requeridos
               </div>
               <div className="flex gap-3">
-                {(selectedService || selectedCategory || selectedProducts.length > 0) && (
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      setSelectedService("");
-                      setSelectedCategory("");
-                      setSelectedProducts([]);
-                    }} 
-                    className="h-10"
-                  >
+                {(selectedService || selectedCategory || selectedProducts.length > 0) && <Button variant="outline" onClick={() => {
+              setSelectedService("");
+              setSelectedCategory("");
+              setSelectedProducts([]);
+            }} className="h-10 text-slate-950 font-bold">
                     Limpiar
-                  </Button>
-                )}
-                <Button 
-                  onClick={handleShowConfirmation} 
-                  disabled={isSubmitting || !validateForm()}
-                  className="min-w-32 h-10 bg-primary hover:bg-primary/90"
-                >
+                  </Button>}
+                <Button onClick={handleShowConfirmation} disabled={isSubmitting || !validateForm()} className="min-w-32 h-10 bg-primary hover:bg-primary/90">
                   {isSubmitting ? "Enviando..." : "Confirmar Solicitud"}
                 </Button>
               </div>
             </div>
           </Card>
 
-        <PurchaseLocationModal 
-          isOpen={isLocationModalOpen} 
-          onClose={() => setIsLocationModalOpen(false)} 
-          onSelectLocation={handleLocationSelect} 
-          stores={[]} 
-          serviceId={selectedService} 
-          serviceName={services?.find(s => s.id === selectedService)?.name} 
-          categoryId={selectedCategory} 
-          categoryName={categories?.find(c => c.id === selectedCategory)?.name}
-          commerceId={commerceId}
-        />
+        <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => setIsLocationModalOpen(false)} onSelectLocation={handleLocationSelect} stores={[]} serviceId={selectedService} serviceName={services?.find(s => s.id === selectedService)?.name} categoryId={selectedCategory} categoryName={categories?.find(c => c.id === selectedCategory)?.name} commerceId={commerceId} />
         
-        <ProductTermsModal
-          isOpen={!!selectedProductTerms}
-          onClose={() => setSelectedProductTerms(null)}
-          textosId={selectedProductTerms?.textosId || null}
-          productName={selectedProductTerms?.productName || ""}
-        />
+        <ProductTermsModal isOpen={!!selectedProductTerms} onClose={() => setSelectedProductTerms(null)} textosId={selectedProductTerms?.textosId || null} productName={selectedProductTerms?.productName || ""} />
 
-        <ConfirmationModal
-          open={showConfirmationModal}
-          onClose={() => setShowConfirmationModal(false)}
-          onConfirm={handleSubmit}
-          title="Confirmar Solicitud"
-          description="Por favor revise los datos antes de enviar la solicitud."
-          jsonData={confirmationData}
-          isSubmitting={isSubmitting}
-        />
+        <ConfirmationModal open={showConfirmationModal} onClose={() => setShowConfirmationModal(false)} onConfirm={handleSubmit} title="Confirmar Solicitud" description="Por favor revise los datos antes de enviar la solicitud." jsonData={confirmationData} isSubmitting={isSubmitting} />
 
-        <GeneralTermsModal 
-          isOpen={isTermsModalOpen} 
-          onClose={() => setIsTermsModalOpen(false)} 
-        />
+        <GeneralTermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default ServicioOnePage;
