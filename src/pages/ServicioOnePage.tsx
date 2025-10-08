@@ -1200,7 +1200,6 @@ const ServicioOnePage = () => {
               </div>
             </div>
           </Card>
-        </div>
 
         <PurchaseLocationModal 
           isOpen={isLocationModalOpen} 
