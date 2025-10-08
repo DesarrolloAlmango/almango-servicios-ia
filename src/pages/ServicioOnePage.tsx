@@ -903,7 +903,7 @@ const ServicioOnePage = () => {
                                   <span className="text-xs text-muted-foreground">Código: {product.ProductoID}</span>
                                 </div>
                                 <div className="text-right">
-                                  <span className="font-bold text-primary">${product.Precio}</span>
+                                  <span className="font-bold text-secondary">${product.Precio}</span>
                                   <span className="block text-xs text-muted-foreground">por unidad</span>
                                 </div>
                               </div>
