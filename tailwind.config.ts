@@ -110,6 +110,10 @@ export default {
 				'infinite-scroll-reverse': {
 					'0%': { transform: 'translateX(-100%)' },
 					'100%': { transform: 'translateX(0)' }
+				},
+				'gradient': {
+					'0%, 100%': { backgroundPosition: '0% 50%' },
+					'50%': { backgroundPosition: '100% 50%' }
 				}
 			},
 			animation: {
@@ -117,7 +121,8 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
 				'infinite-scroll': 'scroll 30s linear infinite',
-				'infinite-scroll-reverse': 'infinite-scroll-reverse 30s linear infinite'
+				'infinite-scroll-reverse': 'infinite-scroll-reverse 30s linear infinite',
+				'gradient': 'gradient 3s ease infinite'
 			},
 			fontFamily: {
 				// Updated font families for a more impactful service website
