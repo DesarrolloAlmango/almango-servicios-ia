@@ -33,6 +33,8 @@ export interface CheckoutData {
   ConfirmarCondicionesUso: string;
   ProveedorAuxiliar: string | null;
   CostoXZona: number;
+  Paginaone?: string;
+  Descuento?: number;
   Level1: CheckoutItem[];
   serviceName?: string; // Service category name
 }
