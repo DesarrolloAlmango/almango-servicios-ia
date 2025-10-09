@@ -462,6 +462,7 @@ const ServicioOnePage = () => {
     if (!data.TurnoInstalacion) missingFields.push("Horario");
     if (data.Level1.length === 0) missingFields.push("Productos");
     if (!personalInfo.termsAccepted) missingFields.push("Términos y condiciones");
+    if (!acceptTerms) missingFields.push("Aceptar términos y condiciones");
     if (missingFields.length > 0) {
       toast.error(`Faltan campos requeridos: ${missingFields.join(", ")}`);
       return;
