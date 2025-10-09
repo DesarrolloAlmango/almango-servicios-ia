@@ -269,10 +269,12 @@ const ServicioOnePage = () => {
     const hasServices = allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0;
     const hasDateTime = !!selectedDate && !!selectedTimeSlot;
     const hasPersonalInfo = !!(personalInfo.name && personalInfo.phone && personalInfo.street && (personalInfo.number || noNumber) && personalInfo.termsAccepted);
+    const hasAcceptedTerms = acceptTerms;
     console.log("Form validation:", {
       hasServices,
       hasDateTime,
       hasPersonalInfo,
+      hasAcceptedTerms,
       allSelectedServices: allSelectedServices.length,
       selectedProducts: selectedProducts.length,
       selectedDate,
@@ -280,9 +282,10 @@ const ServicioOnePage = () => {
       name: personalInfo.name,
       phone: personalInfo.phone,
       termsAccepted: personalInfo.termsAccepted,
-      result: hasServices && hasDateTime && hasPersonalInfo
+      acceptTerms,
+      result: hasServices && hasDateTime && hasPersonalInfo && hasAcceptedTerms
     });
-    return hasServices && hasDateTime && hasPersonalInfo;
+    return hasServices && hasDateTime && hasPersonalInfo && hasAcceptedTerms;
   };
   const addCurrentServiceToList = () => {
     if (!selectedService || !selectedCategory || selectedProducts.length === 0) {
