@@ -228,16 +228,13 @@ const ServicioOnePageWithUser = () => {
     enabled: !!(selectedService && selectedCategory && purchaseLocation)
   });
 
-  // Update product prices when API products are loaded
+  // Update product prices and names when API products are loaded
   useEffect(() => {
     if (products && products.length > 0 && selectedProducts.length > 0) {
       console.log("Updating prices for preloaded products", { products, selectedProducts });
       const updatedProducts = selectedProducts.map(selectedProduct => {
-        // Match by DetallesID if available, otherwise by ProductoID
-        const apiProduct = products.find(p => 
-          (selectedProduct.DetallesID && p.DetallesID === selectedProduct.DetallesID) ||
-          p.ProductoID === selectedProduct.ProductoID
-        );
+        // Match by ProductoID (which is the DetalleID from JSON)
+        const apiProduct = products.find(p => p.ProductoID === selectedProduct.ProductoID);
         if (apiProduct) {
           console.log(`Matched product ${selectedProduct.ProductoID} with API product:`, apiProduct);
           return {
@@ -266,6 +263,73 @@ const ServicioOnePageWithUser = () => {
       }
     }
   }, [products]);
+
+  // Update service and category names in allSelectedServices when API data is loaded
+  useEffect(() => {
+    if ((services && services.length > 0) || (categories && categories.length > 0)) {
+      if (allSelectedServices.length > 0) {
+        console.log("Updating service and category names in allSelectedServices");
+        const updatedServices = allSelectedServices.map(service => {
+          let serviceName = service.serviceName;
+          let categoryName = service.categoryName;
+
+          // Update service name if available
+          if (services && services.length > 0) {
+            const apiService = services.find((s: any) => s.id === service.serviceId);
+            if (apiService) {
+              serviceName = apiService.name;
+            }
+          }
+
+          // Update category name if available
+          if (categories && categories.length > 0) {
+            const apiCategory = categories.find((c: any) => c.id === service.categoryId);
+            if (apiCategory) {
+              categoryName = apiCategory.name;
+            }
+          }
+
+          // Update product names and prices
+          const updatedProducts = service.products.map(product => {
+            if (products && products.length > 0) {
+              const apiProduct = products.find(p => p.ProductoID === product.ProductoID);
+              if (apiProduct) {
+                return {
+                  ...product,
+                  NombreProducto: apiProduct.NombreProducto,
+                  Precio: apiProduct.Precio,
+                  TextosId: apiProduct.TextosId,
+                  SR: apiProduct.SR,
+                  Comision: apiProduct.Comision,
+                  ComisionTipo: apiProduct.ComisionTipo,
+                  DetallesID: apiProduct.DetallesID
+                };
+              }
+            }
+            return product;
+          });
+
+          return {
+            ...service,
+            serviceName,
+            categoryName,
+            products: updatedProducts
+          };
+        });
+
+        const hasChanges = updatedServices.some((s, i) => 
+          s.serviceName !== allSelectedServices[i].serviceName || 
+          s.categoryName !== allSelectedServices[i].categoryName ||
+          s.products.some((p, j) => p.NombreProducto !== allSelectedServices[i].products[j]?.NombreProducto)
+        );
+
+        if (hasChanges) {
+          console.log("Updated allSelectedServices with API names:", updatedServices);
+          setAllSelectedServices(updatedServices);
+        }
+      }
+    }
+  }, [services, categories, products]);
 
   // Load data from solicitudId
   useEffect(() => {
@@ -418,7 +482,7 @@ const ServicioOnePageWithUser = () => {
           // Map all products from Level1
           // DetalleID in JSON corresponds to ProductoID in the API
           const loadedProducts: ProductWithQuantity[] = solicitudData.Level1.map((item: any) => ({
-            ProductoID: item.DetalleID, // This is the actual product ID
+            ProductoID: parseInt(item.DetalleID.toString()), // This is the actual product ID - convert to number
             NombreProducto: `Producto ${item.DetalleID}`,
             Precio: parseFloat(item.Precio || "0"),
             TextosId: undefined,
@@ -426,7 +490,7 @@ const ServicioOnePageWithUser = () => {
             SR: item.SR || "S",
             Comision: parseFloat(item.Comision || "0"),
             ComisionTipo: item.ComisionTipo || "P",
-            DetallesID: null,
+            DetallesID: parseInt(item.DetalleID.toString()), // Store DetalleID for matching with API products
             quantity: parseInt(item.Cantidad || "1")
           }));
           
@@ -449,7 +513,7 @@ const ServicioOnePageWithUser = () => {
             }
             
             serviceGroups[rubrosId][productoId].push({
-              ProductoID: detalleId, // Use DetalleID as the actual product ID
+              ProductoID: parseInt(detalleId.toString()), // Use DetalleID as the actual product ID - convert to number
               NombreProducto: `Producto ${detalleId}`,
               Precio: parseFloat(item.Precio || "0"),
               TextosId: undefined,
@@ -457,7 +521,7 @@ const ServicioOnePageWithUser = () => {
               SR: item.SR || "S",
               Comision: parseFloat(item.Comision || "0"),
               ComisionTipo: item.ComisionTipo || "P",
-              DetallesID: detalleId, // Store DetalleID for matching with API products
+              DetallesID: parseInt(detalleId.toString()), // Store DetalleID for matching with API products
               quantity: parseInt(item.Cantidad || "1")
             });
           });
