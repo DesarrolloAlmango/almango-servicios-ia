@@ -988,10 +988,14 @@ const ServicioOnePageWithUser = () => {
                   </div>
                   
                   <div className="grid gap-3 max-h-80 overflow-y-auto pr-2">
-                    {isProductsLoading ? <div className="space-y-3">
+                      {isProductsLoading ? <div className="space-y-3">
                         {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full rounded-lg" />)}
                       </div> : products && products.length > 0 ? products.map((product: Product) => {
-              const selectedProduct = selectedProducts.find(p => p.ProductoID === product.ProductoID);
+              // Match by DetallesID if available, otherwise by ProductoID
+              const selectedProduct = selectedProducts.find(p => 
+                (product.DetallesID && p.DetallesID && p.DetallesID === product.DetallesID) ||
+                p.ProductoID === product.ProductoID
+              );
               const quantity = selectedProduct?.quantity || 0;
               return <div key={product.ProductoID} className={cn("flex items-center space-x-2 p-2 border-2 rounded-lg transition-all duration-200", quantity > 0 ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/50")}>
                             <div className="flex-1">
