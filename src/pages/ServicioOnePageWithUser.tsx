@@ -317,10 +317,35 @@ const ServicioOnePageWithUser = () => {
         }
 
         // Process Level1 products
-        if (solicitudData.Level1 && Array.isArray(solicitudData.Level1)) {
+        if (solicitudData.Level1 && Array.isArray(solicitudData.Level1) && solicitudData.Level1.length > 0) {
+          // Get the first item to set service and category
+          const firstItem = solicitudData.Level1[0];
+          const firstServiceId = firstItem.RubrosId.toString();
+          const firstCategoryId = firstItem.ProductoID.toString();
+          
+          // Set selected service and category
+          setSelectedService(firstServiceId);
+          setSelectedCategory(firstCategoryId);
+          
+          // Map all products from Level1
+          const loadedProducts: ProductWithQuantity[] = solicitudData.Level1.map((item: any) => ({
+            ProductoID: item.DetalleID,
+            NombreProducto: `Producto ${item.DetalleID}`,
+            Precio: parseFloat(item.Precio || "0"),
+            TextosId: undefined,
+            RubrosId: parseInt(item.RubrosId.toString()),
+            SR: item.SR || "S",
+            Comision: parseFloat(item.Comision || "0"),
+            ComisionTipo: item.ComisionTipo || "P",
+            DetallesID: item.DetalleID,
+            quantity: parseInt(item.Cantidad || "1")
+          }));
+          
+          setSelectedProducts(loadedProducts);
+          
+          // Also set allSelectedServices for the summary
           const serviceGroups: { [key: string]: { [key: string]: ProductWithQuantity[] } } = {};
           
-          // Group products by RubrosId and ProductoID
           solicitudData.Level1.forEach((item: any) => {
             const rubrosId = item.RubrosId.toString();
             const productoId = item.ProductoID.toString();
@@ -346,7 +371,6 @@ const ServicioOnePageWithUser = () => {
             });
           });
 
-          // Convert to allSelectedServices format
           const loadedServices = Object.entries(serviceGroups).flatMap(([rubrosId, categories]) => 
             Object.entries(categories).map(([productoId, products]) => ({
               serviceId: rubrosId,
@@ -359,6 +383,12 @@ const ServicioOnePageWithUser = () => {
 
           setAllSelectedServices(loadedServices);
         }
+        
+        // Set comments
+        setComments(solicitudData.Comentario || "");
+        
+        // Set terms acceptance
+        setAcceptTerms(solicitudData.ConfirmarCondicionesUso === "S");
 
         toast.success("Datos de solicitud cargados correctamente");
       } catch (error) {
