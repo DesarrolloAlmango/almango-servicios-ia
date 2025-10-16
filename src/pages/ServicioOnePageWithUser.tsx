@@ -299,10 +299,10 @@ const ServicioOnePageWithUser = () => {
           setPaymentMethod(solicitudData.MetodoPagosID.toString());
         }
 
-        // Set purchase location based on departamento and municipio
-        if (solicitudData.DepartamentoId && solicitudData.MunicipioId) {
+        // Set purchase location based on ProveedorId, DepartamentoId and MunicipioId
+        if (data.ProveedorID && solicitudData.DepartamentoId && solicitudData.MunicipioId) {
           const location: PurchaseLocation = {
-            storeId: data.ProveedorID?.toString() || "0",
+            storeId: data.ProveedorID.toString(),
             storeName: "",
             departmentId: solicitudData.DepartamentoId.toString(),
             departmentName: "",
@@ -314,6 +314,8 @@ const ServicioOnePageWithUser = () => {
           
           const zoneCost = parseFloat(solicitudData.CostoXZona || "0");
           setGlobalZoneCost(zoneCost);
+          
+          console.log("Location loaded:", location);
         }
 
         // Process Level1 products
