@@ -27,8 +27,8 @@ const App = () => (
             <Route path="/servicios/:userId/:commerceId/:serviceId" element={<Servicios />} />
             <Route path="/servicios/:userId/:commerceId/:serviceId/:categoryId" element={<Servicios />} />
             <Route path="/servicioonepage" element={<ServicioOnePage />} />
+            <Route path="/servicioonepage/update/:userId/:solicitudId" element={<ServicioOnePageWithUser />} />
             <Route path="/servicioonepage/:userId/:commerceId" element={<ServicioOnePage />} />
-            <Route path="/servicioonepage/solicitud/:userId/:solicitudId" element={<ServicioOnePageWithUser />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
