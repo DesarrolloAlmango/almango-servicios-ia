@@ -1026,148 +1026,174 @@ const ServicioOnePageWithUser = () => {
                 </div>
               </div>}
 
-            <div>
-              <Label htmlFor="service" className="text-sm font-medium mb-2 block">Seleccione otro Servicio</Label>
-              <Select value={selectedService} onValueChange={setSelectedService}>
-                <SelectTrigger className="h-10">
-                  <SelectValue placeholder="Seleccione un servicio" />
-                </SelectTrigger>
-                <SelectContent>
-                  {isServicesLoading ? <SelectItem value="loading" disabled>Cargando servicios...</SelectItem> : services && services.length > 0 ? services.map((service: TarjetaServicio) => <SelectItem key={service.id} value={service.id!}>
-                        {service.name}
-                      </SelectItem>) : <SelectItem value="no-services" disabled>
-                      No hay servicios disponibles
-                    </SelectItem>}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Only show service selection when user wants to add more services */}
+            {allSelectedServices.length > 0 && (
+              <div className="text-center py-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    // This will show the service selection form
+                    setSelectedService("");
+                    setSelectedCategory("");
+                    setSelectedProducts([]);
+                  }}
+                  className="gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Agregar otro servicio
+                </Button>
+              </div>
+            )}
 
-            {selectedService && <div>
-                <Label htmlFor="category" className="text-sm font-medium mb-2 block">Seleccione una Categoría</Label>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger className="h-10">
-                    <SelectValue placeholder="Seleccione una categoría" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {isCategoriesLoading ? <SelectItem value="loading" disabled>Cargando categorías...</SelectItem> : categories && categories.length > 0 ? categories.map((category: Category) => <SelectItem key={category.id} value={category.id}>
-                          {category.name}
-                        </SelectItem>) : <SelectItem value="no-categories" disabled>
-                        No hay categorías disponibles
-                      </SelectItem>}
-                </SelectContent>
-              </Select>
-            </div>}
-
-            {purchaseLocation && <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-primary" />
-                    <span className="font-medium text-sm">Ubicación del servicio</span>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => setIsLocationModalOpen(true)} className="h-8 text-sm">
-                    Editar
-                  </Button>
+            {/* Service selection form - only show if no services added yet OR user clicked "add another service" */}
+            {(allSelectedServices.length === 0 || selectedService || selectedCategory) && (
+              <>
+                <div>
+                  <Label htmlFor="service" className="text-sm font-medium mb-2 block">
+                    {allSelectedServices.length > 0 ? "Seleccione otro Servicio" : "Seleccione un Servicio"}
+                  </Label>
+                  <Select value={selectedService} onValueChange={setSelectedService}>
+                    <SelectTrigger className="h-10">
+                      <SelectValue placeholder="Seleccione un servicio" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {isServicesLoading ? <SelectItem value="loading" disabled>Cargando servicios...</SelectItem> : services && services.length > 0 ? services.map((service: TarjetaServicio) => <SelectItem key={service.id} value={service.id!}>
+                            {service.name}
+                          </SelectItem>) : <SelectItem value="no-services" disabled>
+                          No hay servicios disponibles
+                        </SelectItem>}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {purchaseLocation.storeName} - {purchaseLocation.departmentName}, {purchaseLocation.locationName}
-                </p>
-                {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-sm text-primary font-medium mt-2">
-                    Costo adicional por zona: ${purchaseLocation.zonaCostoAdicional}
-                  </p>}
-              </div>}
 
-            {selectedCategory && !purchaseLocation && <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" onClick={() => setIsLocationModalOpen(true)}>
-                <MapPin className="h-5 w-5 text-primary" />
-                <span className="text-sm text-foreground flex-1">Configurar ubicación del servicio</span>
-                <span className="text-sm text-muted-foreground">Click aquí</span>
-              </div>}
+                {selectedService && <div>
+                    <Label htmlFor="category" className="text-sm font-medium mb-2 block">Seleccione una Categoría</Label>
+                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                      <SelectTrigger className="h-10">
+                        <SelectValue placeholder="Seleccione una categoría" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {isCategoriesLoading ? <SelectItem value="loading" disabled>Cargando categorías...</SelectItem> : categories && categories.length > 0 ? categories.map((category: Category) => <SelectItem key={category.id} value={category.id}>
+                              {category.name}
+                            </SelectItem>) : <SelectItem value="no-categories" disabled>
+                            No hay categorías disponibles
+                          </SelectItem>}
+                      </SelectContent>
+                    </Select>
+                  </div>}
 
-            {/* Service Selection Section - Only show when category and location are selected */}
-            {selectedCategory && purchaseLocation && <div className="bg-background border border-border rounded-lg p-4 shadow-sm">
-                <div className="mb-3">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Package className="h-5 w-5 text-primary" />
-                    <Label className="font-semibold">
-                      Productos disponibles para: {services?.find(s => s.id === selectedService)?.name}
-                    </Label>
-                  </div>
-                  
-                  <div className="grid gap-3 max-h-80 overflow-y-auto pr-2">
-                      {isProductsLoading ? <div className="space-y-3">
-                        {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full rounded-lg" />)}
-                      </div> : products && products.length > 0 ? products.map((product: Product) => {
-              // Match by ProductoID 
-              const selectedProduct = selectedProducts.find(p => p.ProductoID === product.ProductoID);
-              const quantity = selectedProduct?.quantity || 0;
-              return <div key={product.ProductoID} className={cn("flex items-center space-x-2 p-2 border-2 rounded-lg transition-all duration-200", quantity > 0 ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/50")}>
-                            <div className="flex-1">
-                              <div className="flex justify-between items-start mb-2">
-                                <div>
-                                  <span className="font-semibold text-sm text-foreground block">{product.NombreProducto}</span>
-                                  <span className="text-xs text-muted-foreground">Código: {product.ProductoID}</span>
-                                </div>
-                                <div className="text-right">
-                                  <span className="font-bold text-secondary text-sm">${product.Precio}</span>
-                                  <span className="block text-xs text-muted-foreground">por unidad</span>
-                                </div>
-                              </div>
-                              
-                              <div className="mb-1">
-                                <Button variant="link" className="text-xs text-secondary hover:text-secondary/80 p-0 h-auto cursor-pointer" onClick={() => setSelectedProductTerms({
-                      textosId: product.TextosId?.toString() || null,
-                      productName: product.NombreProducto
-                    })} type="button">
-                                  Ver Condiciones
-                                </Button>
-                              </div>
-                              
-                              <div className="flex items-center justify-between">
-                                <span className="text-xs text-muted-foreground">Cantidad:</span>
-                                <div className="flex items-center gap-2">
-                                  <Button type="button" variant="outline" size="sm" onClick={() => handleProductQuantityChange(product, -1)} disabled={quantity === 0} className="h-7 w-7 p-0">
-                                    -
-                                  </Button>
-                                  <span className="font-semibold text-sm min-w-[2ch] text-center">{quantity}</span>
-                                  <Button type="button" variant="outline" size="sm" onClick={() => handleProductQuantityChange(product, 1)} className="h-7 w-7 p-0">
-                                    <Plus className="h-3 w-3" />
-                                  </Button>
-                                </div>
-                              </div>
-                              
-                              {quantity > 0 && <div className="mt-2 pt-2 border-t border-border">
-                                  <div className="flex justify-between items-center">
-                                    <span className="text-xs font-medium text-muted-foreground">Subtotal:</span>
-                                    <span className="font-bold text-sm text-primary">${product.Precio * quantity}</span>
+                {purchaseLocation && <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        <span className="font-medium text-sm">Ubicación del servicio</span>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => setIsLocationModalOpen(true)} className="h-8 text-sm">
+                        Editar
+                      </Button>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {purchaseLocation.storeName} - {purchaseLocation.departmentName}, {purchaseLocation.locationName}
+                    </p>
+                    {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-sm text-primary font-medium mt-2">
+                        Costo adicional por zona: ${purchaseLocation.zonaCostoAdicional}
+                      </p>}
+                  </div>}
+
+                {selectedCategory && !purchaseLocation && <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" onClick={() => setIsLocationModalOpen(true)}>
+                    <MapPin className="h-5 w-5 text-primary" />
+                    <span className="text-sm text-foreground flex-1">Configurar ubicación del servicio</span>
+                    <span className="text-sm text-muted-foreground">Click aquí</span>
+                  </div>}
+
+                {/* Service Selection Section - Only show when category and location are selected */}
+                {selectedCategory && purchaseLocation && <div className="bg-background border border-border rounded-lg p-4 shadow-sm">
+                  <div className="mb-3">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Package className="h-5 w-5 text-primary" />
+                      <Label className="font-semibold">
+                        Productos disponibles para: {services?.find(s => s.id === selectedService)?.name}
+                      </Label>
+                    </div>
+                    
+                    <div className="grid gap-3 max-h-80 overflow-y-auto pr-2">
+                        {isProductsLoading ? <div className="space-y-3">
+                          {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full rounded-lg" />)}
+                        </div> : products && products.length > 0 ? products.map((product: Product) => {
+                // Match by ProductoID 
+                const selectedProduct = selectedProducts.find(p => p.ProductoID === product.ProductoID);
+                const quantity = selectedProduct?.quantity || 0;
+                return <div key={product.ProductoID} className={cn("flex items-center space-x-2 p-2 border-2 rounded-lg transition-all duration-200", quantity > 0 ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/50")}>
+                              <div className="flex-1">
+                                <div className="flex justify-between items-start mb-2">
+                                  <div>
+                                    <span className="font-semibold text-sm text-foreground block">{product.NombreProducto}</span>
+                                    <span className="text-xs text-muted-foreground">Código: {product.ProductoID}</span>
                                   </div>
-                                </div>}
-                            </div>
-                          </div>;
-            }) : <div className="text-center py-6 text-muted-foreground bg-muted/30 rounded-lg">
-                        <Package className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-                        <p className="font-medium">No hay productos disponibles</p>
-                        <p className="text-sm">para esta categoría en tu ubicación</p>
+                                  <div className="text-right">
+                                    <span className="font-bold text-secondary text-sm">${product.Precio}</span>
+                                    <span className="block text-xs text-muted-foreground">por unidad</span>
+                                  </div>
+                                </div>
+                                
+                                <div className="mb-1">
+                                  <Button variant="link" className="text-xs text-secondary hover:text-secondary/80 p-0 h-auto cursor-pointer" onClick={() => setSelectedProductTerms({
+                        textosId: product.TextosId?.toString() || null,
+                        productName: product.NombreProducto
+                      })} type="button">
+                                    Ver Condiciones
+                                  </Button>
+                                </div>
+                                
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs text-muted-foreground">Cantidad:</span>
+                                  <div className="flex items-center gap-2">
+                                    <Button type="button" variant="outline" size="sm" onClick={() => handleProductQuantityChange(product, -1)} disabled={quantity === 0} className="h-7 w-7 p-0">
+                                      -
+                                    </Button>
+                                    <span className="font-semibold text-sm min-w-[2ch] text-center">{quantity}</span>
+                                    <Button type="button" variant="outline" size="sm" onClick={() => handleProductQuantityChange(product, 1)} className="h-7 w-7 p-0">
+                                      <Plus className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                </div>
+                                
+                                {quantity > 0 && <div className="mt-2 pt-2 border-t border-border">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-xs font-medium text-muted-foreground">Subtotal:</span>
+                                      <span className="font-bold text-sm text-primary">${product.Precio * quantity}</span>
+                                    </div>
+                                  </div>}
+                              </div>
+                            </div>;
+              }) : <div className="text-center py-6 text-muted-foreground bg-muted/30 rounded-lg">
+                          <Package className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                          <p className="font-medium">No hay productos disponibles</p>
+                          <p className="text-sm">para esta categoría en tu ubicación</p>
+                        </div>}
+                    </div>
+
+                    {/* Add Service Action */}
+                    {selectedProducts.length > 0 && <div className="mt-4 p-4 bg-primary/10 border border-primary/30 rounded-lg">
+                        <div className="flex items-center justify-between mb-3">
+                          <p className="font-semibold text-primary">
+                            ✓ {selectedProducts.reduce((sum, p) => sum + p.quantity, 0)} productos ({selectedProducts.length} tipos)
+                          </p>
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-primary">
+                              ${selectedProducts.reduce((sum, p) => sum + p.Precio * p.quantity, 0)}
+                            </p>
+                          </div>
+                        </div>
+                        <Button onClick={addCurrentServiceToList} className="w-full bg-primary hover:bg-primary/90 h-10">
+                          <Plus className="h-4 w-4 mr-2" />
+                          Agregar a solicitud
+                        </Button>
                       </div>}
                   </div>
-
-                  {/* Add Service Action */}
-                  {selectedProducts.length > 0 && <div className="mt-4 p-4 bg-primary/10 border border-primary/30 rounded-lg">
-                      <div className="flex items-center justify-between mb-3">
-                        <p className="font-semibold text-primary">
-                          ✓ {selectedProducts.reduce((sum, p) => sum + p.quantity, 0)} productos ({selectedProducts.length} tipos)
-                        </p>
-                        <div className="text-right">
-                          <p className="text-lg font-bold text-primary">
-                            ${selectedProducts.reduce((sum, p) => sum + p.Precio * p.quantity, 0)}
-                          </p>
-                        </div>
-                      </div>
-                      <Button onClick={addCurrentServiceToList} className="w-full bg-primary hover:bg-primary/90 h-10">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Agregar a solicitud
-                      </Button>
-                    </div>}
-                </div>
-              </div>}
+                </div>}
+              </>
+            )}
 
         {/* Información Personal Section */}
         <Separator className="my-6" />
