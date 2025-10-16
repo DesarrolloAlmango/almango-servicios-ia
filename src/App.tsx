@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Servicios from "./pages/Servicios";
 import ServicioOnePage from "./pages/ServicioOnePage";
+import ServicioOnePageWithUser from "./pages/ServicioOnePageWithUser";
 import { ThemeProvider } from "./hooks/useTheme";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/servicios/:userId/:commerceId/:serviceId/:categoryId" element={<Servicios />} />
             <Route path="/servicioonepage" element={<ServicioOnePage />} />
             <Route path="/servicioonepage/:userId/:commerceId" element={<ServicioOnePage />} />
+            <Route path="/servicioonepage/:userId/:solicitudId" element={<ServicioOnePageWithUser />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
