@@ -301,18 +301,65 @@ const ServicioOnePageWithUser = () => {
 
         // Set purchase location based on ProveedorId, DepartamentoId and MunicipioId
         if (data.ProveedorID && solicitudData.DepartamentoId && solicitudData.MunicipioId) {
+          // Fetch provider name
+          let providerName = "";
+          try {
+            const providerResponse = await fetch("https://app.almango.com.uy/WebAPI/ObtenerProveedorTodos");
+            if (providerResponse.ok) {
+              const providers = await providerResponse.json();
+              const provider = providers.find((p: any) => p.ProveedorID?.toString() === data.ProveedorID.toString());
+              if (provider) {
+                providerName = provider.ProveedorNombre || "";
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching provider name:", error);
+          }
+
+          // Fetch department name
+          let departmentName = "";
+          try {
+            const deptResponse = await fetch("https://app.almango.com.uy/WebAPI/ObtenerDepto");
+            if (deptResponse.ok) {
+              const departments = await deptResponse.json();
+              const dept = departments.find((d: any) => d.DepartamentoId?.toString() === solicitudData.DepartamentoId.toString());
+              if (dept) {
+                departmentName = dept.DepartamentoDepartamento || "";
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching department name:", error);
+          }
+
+          // Fetch municipality name and zone cost
+          let municipalityName = "";
+          let zonaCostoAdicional = "0";
+          try {
+            const munResponse = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerMunicipio?DepartamentoId=${solicitudData.DepartamentoId}`);
+            if (munResponse.ok) {
+              const municipalities = await munResponse.json();
+              const mun = municipalities.find((m: any) => m.DepartamentoMunicipioId?.toString() === solicitudData.MunicipioId.toString());
+              if (mun) {
+                municipalityName = mun.DepartamentoMunicipioNombre || "";
+                zonaCostoAdicional = mun.ZonaCostoAdicional?.toString() || "0";
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching municipality name:", error);
+          }
+
           const location: PurchaseLocation = {
             storeId: data.ProveedorID.toString(),
-            storeName: "",
+            storeName: providerName,
             departmentId: solicitudData.DepartamentoId.toString(),
-            departmentName: "",
+            departmentName: departmentName,
             locationId: solicitudData.MunicipioId.toString(),
-            locationName: "",
-            zonaCostoAdicional: solicitudData.CostoXZona || "0"
+            locationName: municipalityName,
+            zonaCostoAdicional: zonaCostoAdicional
           };
           setPurchaseLocation(location);
           
-          const zoneCost = parseFloat(solicitudData.CostoXZona || "0");
+          const zoneCost = parseFloat(zonaCostoAdicional);
           setGlobalZoneCost(zoneCost);
           
           console.log("Location loaded:", location);
