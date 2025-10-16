@@ -27,6 +27,10 @@ interface PurchaseLocationModalProps {
   serviceId?: string;
   categoryId?: string;
   categoryName?: string;
+  // Props for preloading location data
+  initialStoreId?: string;
+  initialDepartmentId?: string;
+  initialLocationId?: string;
 }
 interface Department {
   id: string;
@@ -58,7 +62,10 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   commerceName,
   serviceId,
   categoryId,
-  categoryName
+  categoryName,
+  initialStoreId,
+  initialDepartmentId,
+  initialLocationId
 }) => {
   const [selectedStore, setSelectedStore] = useState<string>("");
   const [otherStore, setOtherStore] = useState<string>("");
@@ -148,11 +155,13 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         fetchCommerceName(commerceId!);
       }
       fetchDepartments();
-      setSelectedStore(validCommerceId ? commerceId! : "");
+      
+      // Preload values if provided
+      setSelectedStore(initialStoreId || (validCommerceId ? commerceId! : ""));
       setOtherStore("");
       setShowOtherInput(false);
-      setSelectedDepartment("");
-      setSelectedLocation("");
+      setSelectedDepartment(initialDepartmentId || "");
+      setSelectedLocation(initialLocationId || "");
       setSearchQuery(validCommerceId ? commerceName || "" : "");
 
       // Set local category state from props or global variable
@@ -169,7 +178,7 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
         setLocalServiceId(globalLastSelectedCategory.serviceId || undefined);
       }
     }
-  }, [isOpen, commerceId, commerceName, categoryId, categoryName, effectiveCategoryId, effectiveCategoryName, serviceId]);
+  }, [isOpen, commerceId, commerceName, categoryId, categoryName, effectiveCategoryId, effectiveCategoryName, serviceId, initialStoreId, initialDepartmentId, initialLocationId]);
   useEffect(() => {
     if (isStoreDropdownOpen && inputRef.current) {
       inputRef.current.focus();
