@@ -428,8 +428,9 @@ const ServicioOnePageWithUser = () => {
           const serviceGroups: { [key: string]: { [key: string]: ProductWithQuantity[] } } = {};
           
           solicitudData.Level1.forEach((item: any) => {
-            const rubrosId = item.RubrosId.toString();
-            const productoId = item.ProductoID.toString();
+            const rubrosId = item.RubrosId.toString(); // Service ID
+            const productoId = item.ProductoID.toString(); // Category ID
+            const detalleId = item.DetalleID; // Actual Product ID
             
             if (!serviceGroups[rubrosId]) {
               serviceGroups[rubrosId] = {};
@@ -439,15 +440,15 @@ const ServicioOnePageWithUser = () => {
             }
             
             serviceGroups[rubrosId][productoId].push({
-              ProductoID: item.DetalleID,
-              NombreProducto: `Producto ${item.DetalleID}`,
+              ProductoID: detalleId, // Use DetalleID as the actual product ID
+              NombreProducto: `Producto ${detalleId}`,
               Precio: parseFloat(item.Precio || "0"),
               TextosId: undefined,
               RubrosId: parseInt(rubrosId),
               SR: item.SR || "S",
               Comision: parseFloat(item.Comision || "0"),
               ComisionTipo: item.ComisionTipo || "P",
-              DetallesID: item.DetalleID,
+              DetallesID: null,
               quantity: parseInt(item.Cantidad || "1")
             });
           });
