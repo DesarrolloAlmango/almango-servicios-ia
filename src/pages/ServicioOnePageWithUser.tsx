@@ -1239,7 +1239,7 @@ const ServicioOnePageWithUser = () => {
             </div>
           </Card>
 
-        <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => setIsLocationModalOpen(false)} onSelectLocation={handleLocationSelect} stores={[]} serviceId={selectedService} serviceName={services?.find(s => s.id === selectedService)?.name} categoryId={selectedCategory} categoryName={categories?.find(c => c.id === selectedCategory)?.name} commerceId={undefined} initialStoreId={purchaseLocation?.storeId} initialDepartmentId={purchaseLocation?.departmentId} initialLocationId={purchaseLocation?.locationId} />
+        <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => setIsLocationModalOpen(false)} onSelectLocation={handleLocationSelect} stores={[]} serviceId={selectedService} serviceName={services?.find(s => s.id === selectedService)?.name} categoryId={selectedCategory} categoryName={categories?.find(c => c.id === selectedCategory)?.name} commerceId={purchaseLocation?.storeId} commerceName={purchaseLocation?.storeName} initialStoreId={purchaseLocation?.storeId} initialDepartmentId={purchaseLocation?.departmentId} initialLocationId={purchaseLocation?.locationId} />
         
         <ProductTermsModal isOpen={!!selectedProductTerms} onClose={() => setSelectedProductTerms(null)} textosId={selectedProductTerms?.textosId || null} productName={selectedProductTerms?.productName || ""} />
 

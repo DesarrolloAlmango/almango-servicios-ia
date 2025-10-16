@@ -161,8 +161,18 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       setOtherStore("");
       setShowOtherInput(false);
       setSelectedDepartment(initialDepartmentId || "");
-      setSelectedLocation(initialLocationId || "");
       setSearchQuery(validCommerceId ? commerceName || "" : "");
+      
+      // Load municipalities first if department is preloaded, then set location
+      if (initialDepartmentId) {
+        fetchMunicipalities(initialDepartmentId).then(() => {
+          if (initialLocationId) {
+            setSelectedLocation(initialLocationId);
+          }
+        });
+      } else {
+        setSelectedLocation("");
+      }
 
       // Set local category state from props or global variable
       if (effectiveCategoryId) {
