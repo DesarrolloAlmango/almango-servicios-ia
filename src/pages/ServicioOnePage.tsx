@@ -440,7 +440,7 @@ const ServicioOnePage = () => {
       ConfirmarCondicionesUso: personalInfo.termsAccepted ? "S" : "N",
       ProveedorAuxiliar: getProviderAuxiliary(purchaseLocation?.storeId || "unknown", purchaseLocation?.storeName),
       CostoXZona: zoneCost,
-      Paginaone: "one",
+      PaginaOne: "One",
       Descuento: 0,
       Level1: checkoutItems
     };
