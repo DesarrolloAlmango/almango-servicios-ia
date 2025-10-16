@@ -240,6 +240,13 @@ const ServicioOnePageWithUser = () => {
         
         console.log("Datos de solicitud recibidos:", data);
         
+        // Show debug JSON
+        console.log("=== DEBUG: JSON OBTENIDO DE ObtenerDatosToUpdateSol ===");
+        console.log(JSON.stringify(data, null, 2));
+        toast.info(`DEBUG - JSON obtenido: ${JSON.stringify(data, null, 2)}`, {
+          duration: 10000,
+        });
+        
         // Extract SolicitudesDatos
         const solicitudData = data.SolicitudesDatos;
         
