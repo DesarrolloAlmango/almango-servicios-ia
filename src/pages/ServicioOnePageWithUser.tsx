@@ -231,10 +231,15 @@ const ServicioOnePageWithUser = () => {
   // Update product prices when API products are loaded
   useEffect(() => {
     if (products && products.length > 0 && selectedProducts.length > 0) {
-      console.log("Updating prices for preloaded products");
+      console.log("Updating prices for preloaded products", { products, selectedProducts });
       const updatedProducts = selectedProducts.map(selectedProduct => {
-        const apiProduct = products.find(p => p.ProductoID === selectedProduct.ProductoID);
+        // Match by DetallesID if available, otherwise by ProductoID
+        const apiProduct = products.find(p => 
+          (selectedProduct.DetallesID && p.DetallesID === selectedProduct.DetallesID) ||
+          p.ProductoID === selectedProduct.ProductoID
+        );
         if (apiProduct) {
+          console.log(`Matched product ${selectedProduct.ProductoID} with API product:`, apiProduct);
           return {
             ...selectedProduct,
             NombreProducto: apiProduct.NombreProducto,
@@ -246,13 +251,17 @@ const ServicioOnePageWithUser = () => {
             DetallesID: apiProduct.DetallesID
           };
         }
+        console.log(`No match found for product ${selectedProduct.ProductoID}`);
         return selectedProduct;
       });
       
-      // Only update if prices changed
-      const pricesChanged = updatedProducts.some((p, i) => p.Precio !== selectedProducts[i].Precio);
-      if (pricesChanged) {
-        console.log("Updated products with API prices:", updatedProducts);
+      // Only update if prices changed or names changed
+      const hasChanges = updatedProducts.some((p, i) => 
+        p.Precio !== selectedProducts[i].Precio || 
+        p.NombreProducto !== selectedProducts[i].NombreProducto
+      );
+      if (hasChanges) {
+        console.log("Updated products with API data:", updatedProducts);
         setSelectedProducts(updatedProducts);
       }
     }
@@ -448,7 +457,7 @@ const ServicioOnePageWithUser = () => {
               SR: item.SR || "S",
               Comision: parseFloat(item.Comision || "0"),
               ComisionTipo: item.ComisionTipo || "P",
-              DetallesID: null,
+              DetallesID: detalleId, // Store DetalleID for matching with API products
               quantity: parseInt(item.Cantidad || "1")
             });
           });
