@@ -230,11 +230,22 @@ const ServicioOnePageWithUser = () => {
 
   // Load data from solicitudId
   useEffect(() => {
-    if (!solicitudId) return;
+    console.log("=== useEffect triggered ===");
+    console.log("solicitudId:", solicitudId);
+    
+    if (!solicitudId) {
+      console.log("No solicitudId found, skipping fetch");
+      return;
+    }
 
     const loadSolicitudData = async () => {
       try {
-        const response = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerDatosToUpdateSol?SolicitudID=${solicitudId}`);
+        const url = `https://app.almango.com.uy/WebAPI/ObtenerDatosToUpdateSol?SolicitudId=${solicitudId}`;
+        console.log("Fetching URL:", url);
+        
+        const response = await fetch(url);
+        console.log("Response status:", response.status);
+        
         if (!response.ok) throw new Error("Error al obtener datos de la solicitud");
         const data = await response.json();
         
