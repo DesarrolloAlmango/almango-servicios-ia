@@ -25,20 +25,17 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 import { GeneralTermsModal } from "@/components/ui/general-terms-modal";
 import { setGlobalZoneCost } from "@/utils/globalZoneCost";
 import ProductTermsModal from "@/components/checkout/ProductTermsModal";
-
 interface TarjetaServicio {
   id?: string;
   name: string;
   icon: keyof typeof iconComponents | string;
   url?: string;
 }
-
 interface Category {
   id: string;
   name: string;
   icon?: string;
 }
-
 interface Product {
   ProductoID: number;
   NombreProducto: string;
@@ -50,11 +47,9 @@ interface Product {
   ComisionTipo: string;
   DetallesID?: number | null;
 }
-
 interface ProductWithQuantity extends Product {
   quantity: number;
 }
-
 interface PurchaseLocation {
   storeId: string;
   storeName: string;
@@ -64,7 +59,6 @@ interface PurchaseLocation {
   locationName: string;
   zonaCostoAdicional?: string;
 }
-
 const iconComponents = {
   Package,
   Baby,
@@ -74,7 +68,6 @@ const iconComponents = {
   Zap,
   Truck
 };
-
 const ServicioOnePageWithUser = () => {
   const navigate = useNavigate();
   const {
@@ -82,6 +75,7 @@ const ServicioOnePageWithUser = () => {
     solicitudId
   } = useParams();
 
+  // Form states
   const [selectedService, setSelectedService] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedProducts, setSelectedProducts] = useState<ProductWithQuantity[]>([]);
@@ -94,15 +88,17 @@ const ServicioOnePageWithUser = () => {
     corner: "",
     apartment: "",
     comments: "",
-    termsAccepted: true
+    termsAccepted: true // Always accepted by default
   });
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("1");
+  const [paymentMethod, setPaymentMethod] = useState("1"); // Default to cash (efectivo)
   const [comments, setComments] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [noNumber, setNoNumber] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+
+  // UI states
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCheckoutSummary, setShowCheckoutSummary] = useState(false);
@@ -123,11 +119,12 @@ const ServicioOnePageWithUser = () => {
     productName: string;
   } | null>(null);
 
+  // Data fetching
   const {
     data: services,
     isLoading: isServicesLoading
   } = useQuery({
-    queryKey: ["tarjetasServicios", solicitudId],
+    queryKey: ["tarjetasServicios"],
     queryFn: async () => {
       const response = await fetch("https://app.almango.com.uy/WebAPI/GetTarjetasServicios");
       if (!response.ok) throw new Error("Error al obtener servicios");
@@ -135,7 +132,6 @@ const ServicioOnePageWithUser = () => {
       return JSON.parse(data.SDTTarjetasServiciosJson);
     }
   });
-
   const {
     data: categories,
     isLoading: isCategoriesLoading,
@@ -144,25 +140,40 @@ const ServicioOnePageWithUser = () => {
     queryKey: ["categories", selectedService],
     queryFn: async () => {
       if (!selectedService) {
+        console.log("No service selected, returning empty categories");
         return [];
       }
+      console.log("Fetching categories for service:", selectedService);
       try {
         const response = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerNivel1?Nivel0=${selectedService}`);
+        console.log("Response status:", response.status, response.statusText);
         if (!response.ok) {
+          console.error("Response not OK:", response.status);
           throw new Error("Error al obtener categorías");
         }
         const data = await response.json();
+        console.log("Raw categories data:", data);
+
+        // Parse the JSON if it comes as a string
         const parsedData = typeof data === 'string' ? JSON.parse(data) : data;
+        console.log("Parsed categories data:", parsedData);
+
+        // Check if parsedData is an array
         if (!Array.isArray(parsedData)) {
+          console.error("Categories data is not an array:", parsedData);
           return [];
         }
+
+        // Map the categories based on the actual structure
         const mappedCategories = parsedData.map((cat: any) => ({
           id: cat.Nivel1ID ? cat.Nivel1ID.toString() : cat.id?.toString() || cat.ID?.toString(),
           name: cat.NombreNivel1 || cat.name || cat.Name,
           icon: cat.IconoNivel1 || cat.icon
         }));
+        console.log("Mapped categories:", mappedCategories);
         return mappedCategories;
       } catch (error) {
+        console.error("Error fetching categories:", error);
         toast.error("Error al cargar las categorías");
         throw error;
       }
@@ -171,12 +182,12 @@ const ServicioOnePageWithUser = () => {
     retry: 1
   });
 
+  // Log category errors
   useEffect(() => {
     if (categoriesError) {
       console.error("Categories query error:", categoriesError);
     }
   }, [categoriesError]);
-
   const {
     data: products,
     isLoading: isProductsLoading
@@ -184,6 +195,9 @@ const ServicioOnePageWithUser = () => {
     queryKey: ["products", selectedService, selectedCategory, purchaseLocation?.storeId, purchaseLocation?.departmentId, purchaseLocation?.locationId],
     queryFn: async () => {
       if (!selectedService || !selectedCategory || !purchaseLocation) return [];
+      console.log("Fetching products for service:", selectedService, "category:", selectedCategory, "location:", purchaseLocation);
+
+      // Include location parameters in the API call
       const params = new URLSearchParams({
         Nivel0: selectedService,
         Nivel1: selectedCategory,
@@ -194,6 +208,9 @@ const ServicioOnePageWithUser = () => {
       const response = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerNivel2?${params.toString()}`);
       if (!response.ok) throw new Error("Error al obtener productos");
       const data = await response.json();
+      console.log("Raw products data:", data);
+
+      // Map the products to the expected format
       const mappedProducts = data.map((product: any) => ({
         ProductoID: parseInt(product.id) || product.ProductoID,
         NombreProducto: product.name || product.NombreProducto,
@@ -205,24 +222,152 @@ const ServicioOnePageWithUser = () => {
         ComisionTipo: product.ComisionTipo || "P",
         DetallesID: product.DetallesID || product.detallesId || null
       }));
+      console.log("Mapped products:", mappedProducts);
       return mappedProducts;
     },
     enabled: !!(selectedService && selectedCategory && purchaseLocation)
   });
 
+  // Load data from solicitudId
+  useEffect(() => {
+    if (!solicitudId) return;
+
+    const loadSolicitudData = async () => {
+      try {
+        const response = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerDatosToUpdateSol?SolicitudID=${solicitudId}`);
+        if (!response.ok) throw new Error("Error al obtener datos de la solicitud");
+        const data = await response.json();
+        
+        console.log("Datos de solicitud recibidos:", data);
+        
+        // Extract SolicitudesDatos
+        const solicitudData = data.SolicitudesDatos;
+        
+        if (!solicitudData) {
+          toast.error("No se encontraron datos para esta solicitud");
+          return;
+        }
+
+        // Set personal info
+        setPersonalInfo({
+          name: solicitudData.Nombre || "",
+          phone: solicitudData.Telefono || "",
+          email: solicitudData.Mail || "",
+          street: solicitudData.Direccion || "",
+          number: "",
+          corner: "",
+          apartment: "",
+          comments: solicitudData.Comentario || "",
+          termsAccepted: solicitudData.ConfirmarCondicionesUso === "S"
+        });
+
+        // Set date if available
+        if (solicitudData.FechaInstalacion) {
+          setSelectedDate(new Date(solicitudData.FechaInstalacion));
+        }
+
+        // Set time slot based on TurnoInstalacion
+        const turno = solicitudData.TurnoInstalacion;
+        if (turno === 1 || turno === "1") {
+          setSelectedTimeSlot("08:00 - 12:00");
+        } else if (turno === 2 || turno === "2") {
+          setSelectedTimeSlot("12:00 - 16:00");
+        } else if (turno === 3 || turno === "3") {
+          setSelectedTimeSlot("16:00 - 20:00");
+        }
+
+        // Set payment method
+        if (solicitudData.MetodoPagosID) {
+          setPaymentMethod(solicitudData.MetodoPagosID.toString());
+        }
+
+        // Set purchase location based on departamento and municipio
+        if (solicitudData.DepartamentoId && solicitudData.MunicipioId) {
+          const location: PurchaseLocation = {
+            storeId: data.ProveedorID?.toString() || "0",
+            storeName: "",
+            departmentId: solicitudData.DepartamentoId.toString(),
+            departmentName: "",
+            locationId: solicitudData.MunicipioId.toString(),
+            locationName: "",
+            zonaCostoAdicional: solicitudData.CostoXZona || "0"
+          };
+          setPurchaseLocation(location);
+          
+          const zoneCost = parseFloat(solicitudData.CostoXZona || "0");
+          setGlobalZoneCost(zoneCost);
+        }
+
+        // Process Level1 products
+        if (solicitudData.Level1 && Array.isArray(solicitudData.Level1)) {
+          const serviceGroups: { [key: string]: { [key: string]: ProductWithQuantity[] } } = {};
+          
+          // Group products by RubrosId and ProductoID
+          solicitudData.Level1.forEach((item: any) => {
+            const rubrosId = item.RubrosId.toString();
+            const productoId = item.ProductoID.toString();
+            
+            if (!serviceGroups[rubrosId]) {
+              serviceGroups[rubrosId] = {};
+            }
+            if (!serviceGroups[rubrosId][productoId]) {
+              serviceGroups[rubrosId][productoId] = [];
+            }
+            
+            serviceGroups[rubrosId][productoId].push({
+              ProductoID: item.DetalleID,
+              NombreProducto: `Producto ${item.DetalleID}`,
+              Precio: parseFloat(item.Precio || "0"),
+              TextosId: undefined,
+              RubrosId: parseInt(rubrosId),
+              SR: item.SR || "S",
+              Comision: parseFloat(item.Comision || "0"),
+              ComisionTipo: item.ComisionTipo || "P",
+              DetallesID: item.DetalleID,
+              quantity: parseInt(item.Cantidad || "1")
+            });
+          });
+
+          // Convert to allSelectedServices format
+          const loadedServices = Object.entries(serviceGroups).flatMap(([rubrosId, categories]) => 
+            Object.entries(categories).map(([productoId, products]) => ({
+              serviceId: rubrosId,
+              serviceName: `Servicio ${rubrosId}`,
+              categoryId: productoId,
+              categoryName: `Categoría ${productoId}`,
+              products: products
+            }))
+          );
+
+          setAllSelectedServices(loadedServices);
+        }
+
+        toast.success("Datos de solicitud cargados correctamente");
+      } catch (error) {
+        console.error("Error al cargar datos de solicitud:", error);
+        toast.error("Error al cargar datos de la solicitud");
+      }
+    };
+
+    loadSolicitudData();
+  }, [solicitudId]);
   const handleProductQuantityChange = (product: Product, change: number) => {
     setSelectedProducts(prev => {
       const existing = prev.find(p => p.ProductoID === product.ProductoID);
       if (existing) {
         const newQuantity = existing.quantity + change;
         if (newQuantity <= 0) {
+          // Remove product if quantity becomes 0
           return prev.filter(p => p.ProductoID !== product.ProductoID);
         }
+
+        // Update quantity
         return prev.map(p => p.ProductoID === product.ProductoID ? {
           ...p,
           quantity: newQuantity
         } : p);
       } else if (change > 0) {
+        // Add new product with quantity 1
         return [...prev, {
           ...product,
           quantity: 1
@@ -231,15 +376,29 @@ const ServicioOnePageWithUser = () => {
       return prev;
     });
   };
-
   const validateForm = (): boolean => {
+    console.log("validateForm called");
     const hasServices = allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0;
     const hasDateTime = !!selectedDate && !!selectedTimeSlot;
     const hasPersonalInfo = !!(personalInfo.name && personalInfo.phone && personalInfo.street && (personalInfo.number || noNumber) && personalInfo.termsAccepted);
     const hasAcceptedTerms = acceptTerms;
+    console.log("Form validation:", {
+      hasServices,
+      hasDateTime,
+      hasPersonalInfo,
+      hasAcceptedTerms,
+      allSelectedServices: allSelectedServices.length,
+      selectedProducts: selectedProducts.length,
+      selectedDate,
+      selectedTimeSlot,
+      name: personalInfo.name,
+      phone: personalInfo.phone,
+      termsAccepted: personalInfo.termsAccepted,
+      acceptTerms,
+      result: hasServices && hasDateTime && hasPersonalInfo && hasAcceptedTerms
+    });
     return hasServices && hasDateTime && hasPersonalInfo && hasAcceptedTerms;
   };
-
   const addCurrentServiceToList = () => {
     if (!selectedService || !selectedCategory || selectedProducts.length === 0) {
       toast.error("Por favor complete la selección de servicio");
@@ -255,21 +414,28 @@ const ServicioOnePageWithUser = () => {
       products: [...selectedProducts]
     };
     setAllSelectedServices(prev => [...prev, newService]);
+
+    // Reset current selection but KEEP purchaseLocation - it persists for the entire order
     setSelectedService("");
     setSelectedCategory("");
     setSelectedProducts([]);
+    // DON'T reset: setPurchaseLocation(null);
   };
-
   const removeServiceFromList = (index: number) => {
     setAllSelectedServices(prev => prev.filter((_, i) => i !== index));
   };
-
   const editServiceFromList = (index: number) => {
     const serviceToEdit = allSelectedServices[index];
+
+    // Load the service data back into the form
     setSelectedService(serviceToEdit.serviceId);
     setSelectedCategory(serviceToEdit.categoryId);
     setSelectedProducts([...serviceToEdit.products]);
+
+    // Remove from the list of added services
     setAllSelectedServices(prev => prev.filter((_, i) => i !== index));
+
+    // Scroll to top to show the form
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
@@ -277,14 +443,25 @@ const ServicioOnePageWithUser = () => {
     toast.info("Servicio cargado para edición");
   };
 
+  // Helper function to convert time slot string to number (1, 2, or 3)
   const getTimeSlotNumber = (timeSlot: string): string => {
     if (timeSlot === "08:00 - 12:00" || timeSlot === "08:00 - 14:00") return "1";
     if (timeSlot === "12:00 - 16:00" || timeSlot === "14:00 - 20:00") return "2";
     if (timeSlot === "16:00 - 20:00") return "3";
-    return "1";
+    return "1"; // default
   };
 
+  // Removed handleNextStep since we now have a single form
+
   const handleLocationSelect = (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string, zonaCostoAdicional?: string) => {
+    console.log("=== LOCATION SELECT RECIBIDO ===");
+    console.log("storeId:", storeId);
+    console.log("storeName:", storeName);
+    console.log("departmentId:", departmentId);
+    console.log("departmentName:", departmentName);
+    console.log("locationId:", locationId);
+    console.log("locationName:", locationName);
+    console.log("zonaCostoAdicional:", zonaCostoAdicional);
     const location: PurchaseLocation = {
       storeId,
       storeName,
@@ -295,11 +472,16 @@ const ServicioOnePageWithUser = () => {
       zonaCostoAdicional
     };
     setPurchaseLocation(location);
+    console.log("=== PURCHASE LOCATION GUARDADO ===", location);
+
+    // Set global zone cost for price calculations
     const zoneCost = zonaCostoAdicional ? parseFloat(zonaCostoAdicional) : 0;
     setGlobalZoneCost(zoneCost);
   };
-
   const handleShowConfirmation = () => {
+    console.log("handleShowConfirmation called, purchaseLocation:", purchaseLocation);
+
+    // Check if we have services (either in the list or currently selected)
     const hasServices = allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0;
     if (!hasServices) {
       toast.error("Por favor seleccione al menos un servicio");
@@ -315,26 +497,29 @@ const ServicioOnePageWithUser = () => {
     }
     const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
 
+    // Combine all selected services with their context and current selection
     const allServicesWithProducts = [...allSelectedServices.map(service => ({
       serviceId: service.serviceId,
       categoryId: service.categoryId,
       products: service.products
     })),
+    // Add current selection if there are selected products
     ...(selectedProducts.length > 0 ? [{
       serviceId: selectedService,
       categoryId: selectedCategory,
       products: selectedProducts
     }] : [])];
-
     if (allServicesWithProducts.length === 0 || allServicesWithProducts.every(s => s.products.length === 0)) {
       toast.error("Debe seleccionar al menos un producto");
       return;
     }
 
+    // Map products correctly: RubrosId=Nivel0(service), ProductoID=Nivel1(category), DetalleID=Nivel2(product)
     const checkoutItems: CheckoutItem[] = allServicesWithProducts.flatMap(service => service.products.map(product => ({
       RubrosId: parseInt(service.serviceId),
       ProductoID: parseInt(service.categoryId),
       DetalleID: product.ProductoID,
+      // The product ID is the Nivel2 (DetalleID)
       Cantidad: product.quantity || 1,
       Precio: product.Precio,
       SR: product.SR,
@@ -344,9 +529,9 @@ const ServicioOnePageWithUser = () => {
       ProductName: product.NombreProducto
     })));
 
+    // Calculate total
     const productsTotal = checkoutItems.reduce((sum, item) => sum + item.PrecioFinal, 0);
     const total = productsTotal + zoneCost;
-
     const data: CheckoutData = {
       Nombre: personalInfo.name,
       Telefono: personalInfo.phone,
@@ -371,7 +556,18 @@ const ServicioOnePageWithUser = () => {
       Descuento: 0,
       Level1: checkoutItems
     };
+    console.log("=== VERIFICACIÓN DE ESTRUCTURA ===");
+    console.log("Data object keys:", Object.keys(data));
+    console.log("CheckoutData esperado vs actual:");
+    console.log("- Nombre:", data.Nombre);
+    console.log("- DepartamentoId:", data.DepartamentoId, "(" + (purchaseLocation?.departmentName || "sin nombre") + ")");
+    console.log("- MunicipioId:", data.MunicipioId, "(" + (purchaseLocation?.locationName || "sin nombre") + ")");
+    console.log("- ProveedorAuxiliar:", data.ProveedorAuxiliar);
+    console.log("- PurchaseLocation completo:", purchaseLocation);
+    console.log("- Level1 length:", data.Level1.length);
+    console.log("- Level1 structure:", data.Level1[0]);
 
+    // Validate required fields
     const missingFields = [];
     if (!data.Nombre) missingFields.push("Nombre");
     if (!data.Telefono) missingFields.push("Teléfono");
@@ -381,27 +577,30 @@ const ServicioOnePageWithUser = () => {
     if (data.Level1.length === 0) missingFields.push("Productos");
     if (!personalInfo.termsAccepted) missingFields.push("Términos y condiciones");
     if (!acceptTerms) missingFields.push("Aceptar términos y condiciones");
-
     if (missingFields.length > 0) {
       toast.error(`Faltan campos requeridos: ${missingFields.join(", ")}`);
       return;
     }
 
+    // Store the data and show confirmation modal
     setConfirmationData(data);
     setShowConfirmationModal(true);
   };
-
-  // THE KEY DIFFERENCE: Add userId to UsuarioID parameter
   const handleSubmit = async () => {
     if (!confirmationData) return;
     setIsSubmitting(true);
     try {
       const data = confirmationData;
+
+      // Prepare API call to AltaSolicitud
       const jsonSolicitud = JSON.stringify(data);
 
+      // Determine provider ID from ProveedorAuxiliar
       let providerId = "0";
       if (data.ProveedorAuxiliar) {
         const aux = data.ProveedorAuxiliar.trim();
+
+        // If it's "No lo sé", provider ID should be 0 
         if (aux === "No lo sé") {
           providerId = "0";
         } else {
@@ -409,32 +608,58 @@ const ServicioOnePageWithUser = () => {
         }
       }
 
+      // Combine all selected services and current selection for logging
+      const allServicesForLogging = [...allSelectedServices, ...(selectedProducts.length > 0 ? [{
+        serviceId: selectedService,
+        categoryId: selectedCategory,
+        products: selectedProducts
+      }] : [])];
+      const allProducts = allServicesForLogging.flatMap(service => service.products);
+      console.log("=== DATOS DE LA SOLICITUD ===");
+      console.log("Provider ID:", providerId);
+      console.log("User ID:", userId || "0");
+      console.log("Datos completos:", data);
+      console.log("=== IDs DEL JSON ===");
+      console.log("DepartamentoId en JSON:", data.DepartamentoId);
+      console.log("MunicipioId en JSON:", data.MunicipioId);
+      console.log("PaisISO en JSON:", data.PaisISO);
+      console.log("ZonasID en JSON:", data.ZonasID);
+      console.log("SolicitaCotizacion en JSON:", data.SolicitaCotizacion);
+      console.log("JSON que se envía:", jsonSolicitud);
+      console.log("Personal Info completo:", personalInfo);
+      console.log("Purchase Location:", purchaseLocation);
+      console.log("Selected Products:", allProducts);
       const url = new URL("https://app.almango.com.uy/WebAPI/AltaSolicitud");
       url.searchParams.append("Userconect", "NoEmpty");
       url.searchParams.append("Key", "d3d3LmF6bWl0YS5jb20=");
       url.searchParams.append("Proveedorid", providerId);
-      // HERE IS THE DIFFERENCE: Use userId from URL params
       url.searchParams.append("Usuarioid", userId || "0");
+      if (solicitudId) {
+        url.searchParams.append("SolicitudID", solicitudId);
+      }
       url.searchParams.append("Jsonsolicitud", jsonSolicitud);
-
-      console.log("URL completa con userId:", url.toString());
-
+      console.log("URL completa:", url.toString());
       const response = await fetch(url.toString());
-
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
       if (!response.ok) {
         throw new Error(`Error en la respuesta: ${response.status} ${response.statusText}`);
       }
-
       const responseText = await response.text();
+      console.log("Response text raw:", responseText);
       let result;
       try {
         result = JSON.parse(responseText);
       } catch (parseError) {
+        console.error("Error parsing JSON:", parseError);
+        console.log("Raw response that failed to parse:", responseText);
         throw new Error("Error al procesar la respuesta del servidor");
       }
-
+      console.log("=== RESULTADO FINAL ===");
+      console.log("SolicitudesID:", result.SolicitudesID);
       if (result.SolicitudesID && result.SolicitudesID !== "0") {
         toast.success(`Solicitud enviada exitosamente. ID: ${result.SolicitudesID}`);
+        // Reset form or redirect
         setCurrentStep(1);
         setSelectedService("");
         setSelectedCategory("");
@@ -449,7 +674,7 @@ const ServicioOnePageWithUser = () => {
           corner: "",
           apartment: "",
           comments: "",
-          termsAccepted: true
+          termsAccepted: true // Reset to default (accepted)
         });
         setSelectedDate(undefined);
         setComments("");
@@ -470,305 +695,461 @@ const ServicioOnePageWithUser = () => {
       setIsSubmitting(false);
     }
   };
-
-  return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto p-4">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 flex items-center gap-2">
-          <ArrowLeft size={16} /> Volver
-        </Button>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Solicitud de Servicio</CardTitle>
-            <CardDescription>Complete el formulario para solicitar el servicio deseado.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {/* Step 1: Selección de servicios */}
-            {currentStep === 1 && (
-              <>
-                <div className="mb-4">
-                  <Label htmlFor="service-select">Seleccione un servicio</Label>
-                  {isServicesLoading ? (
-                    <Skeleton className="h-10 w-full" />
-                  ) : (
-                    <Select value={selectedService} onValueChange={setSelectedService} id="service-select">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione un servicio" />
+  const stepTitles = ["Solicitud de Servicio"];
+  const renderStepContent = () => {
+    return <div className="space-y-6">
+        {/* Date and Time Selection - First priority */}
+            <div className="p-4 bg-accent/50 rounded-lg border border-border">
+              <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
+                <CalendarClock className="h-5 w-5 text-primary" />
+                Fecha y Hora del Servicio
+              </h4>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="date" className="text-sm font-medium mb-2 block">Fecha *</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className={cn("w-full justify-start text-left font-normal bg-background h-10", !selectedDate && "text-muted-foreground")}>
+                        <CalendarClock className="mr-2 h-3 w-3" />
+                        {selectedDate ? format(selectedDate, "PPP", {
+                    locale: es
+                  }) : "Seleccionar fecha"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 z-50 bg-white" align="start">
+                      <Calendar mode="single" selected={selectedDate} onSelect={setSelectedDate} disabled={date => {
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  return date.getDay() === 0 || date < today || date.getTime() === today.getTime();
+                }} locale={es} className="pointer-events-auto" fromDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)} toDate={new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000)} />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
+                {selectedDate && <div>
+                    <Label htmlFor="timeSlot" className="text-sm font-medium mb-2 block">Horario *</Label>
+                    <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
+                      <SelectTrigger className="bg-background h-10">
+                        <SelectValue placeholder="Seleccionar horario" />
                       </SelectTrigger>
-                      <SelectContent>
-                        {services?.map(service => (
-                          <SelectItem key={service.id} value={service.id}>
-                            {service.name}
-                          </SelectItem>
-                        ))}
+                      <SelectContent className="z-50 bg-white">
+                        {(() => {
+                  const day = selectedDate.getDay();
+                  let timeSlots: string[] = [];
+                  if (day === 6) {
+                    timeSlots = ["08:00 - 14:00", "14:00 - 20:00"];
+                  } else if (day !== 0) {
+                    timeSlots = ["08:00 - 12:00", "12:00 - 16:00", "16:00 - 20:00"];
+                  }
+                  return timeSlots.map(slot => <SelectItem key={slot} value={slot}>
+                              {slot}
+                            </SelectItem>);
+                })()}
                       </SelectContent>
                     </Select>
-                  )}
-                </div>
+                  </div>}
+              </div>
+            </div>
 
-                <div className="mb-4">
-                  <Label htmlFor="category-select">Seleccione una categoría</Label>
-                  {isCategoriesLoading ? (
-                    <Skeleton className="h-10 w-full" />
-                  ) : (
-                    <Select value={selectedCategory} onValueChange={setSelectedCategory} id="category-select" disabled={!selectedService}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione una categoría" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories?.map(category => (
-                          <SelectItem key={category.id} value={category.id}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
+            {/* Services Summary Section */}
+            {allSelectedServices.length > 0 && <div className="p-4 bg-secondary/10 border border-secondary/30 rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <Check className="h-5 w-5 text-secondary" />
+                  <h3 className="font-semibold text-secondary text-base">
+                    Servicios Agregados ({allSelectedServices.length})
+                  </h3>
                 </div>
-
-                <div className="mb-4">
-                  <Label>Seleccione productos</Label>
-                  {isProductsLoading ? (
-                    <Skeleton className="h-24 w-full" />
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-64 overflow-y-auto border rounded p-2">
-                      {products?.map(product => {
-                        const selectedProduct = selectedProducts.find(p => p.ProductoID === product.ProductoID);
-                        return (
-                          <div key={product.ProductoID} className="flex items-center justify-between border-b py-2">
-                            <div>
-                              <p className="font-medium">{product.NombreProducto}</p>
-                              <p className="text-sm text-muted-foreground">${product.Precio.toFixed(2)}</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Button size="sm" variant="outline" onClick={() => handleProductQuantityChange(product, -1)} disabled={!selectedProduct}>
-                                <MinusIcon />
-                              </Button>
-                              <span>{selectedProduct?.quantity || 0}</span>
-                              <Button size="sm" variant="outline" onClick={() => handleProductQuantityChange(product, 1)}>
-                                <PlusIcon />
-                              </Button>
-                            </div>
+                
+                <div className="space-y-3">
+                  {allSelectedServices.map((service, index) => <div key={index} className="bg-background p-3 rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-foreground mb-1">{service.serviceName}</h4>
+                          <p className="text-sm text-muted-foreground mb-2">{service.categoryName}</p>
+                          
+                          <div className="space-y-1 mb-2">
+                            {service.products.map((product, idx) => <div key={idx} className="flex justify-between text-sm bg-muted/50 px-2 py-1 rounded">
+                                <span className="text-foreground">{product.NombreProducto} x{product.quantity}</span>
+                                <span className="font-medium text-foreground">${product.Precio * product.quantity}</span>
+                              </div>)}
                           </div>
-                        );
-                      })}
+                          
+                          <div className="flex justify-between items-center pt-2 border-t border-border">
+                            <span className="text-sm font-medium text-muted-foreground">Subtotal:</span>
+                            <span className="font-bold text-secondary">
+                              ${service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0)}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2 ml-3">
+                          <Button variant="ghost" size="sm" onClick={() => editServiceFromList(index)} className="text-secondary hover:text-secondary/80 hover:bg-secondary/10 h-8 w-8 p-0">
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => removeServiceFromList(index)} className="text-destructive hover:text-destructive/80 hover:bg-destructive/10 h-8 w-8 p-0">
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>)}
+                </div>
+                
+                <div className="mt-3 pt-3 border-t border-secondary/30 bg-secondary/5 rounded-lg p-3">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold text-secondary">Total de servicios:</span>
+                      <span className="text-lg font-bold text-secondary">
+                        ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0)}
+                      </span>
                     </div>
-                  )}
-                </div>
-
-                <Button onClick={addCurrentServiceToList} disabled={!selectedService || !selectedCategory || selectedProducts.length === 0}>
-                  Agregar Servicio
-                </Button>
-
-                {allSelectedServices.length > 0 && (
-                  <div className="mt-6">
-                    <h3 className="text-lg font-semibold mb-2">Servicios agregados</h3>
-                    <ul>
-                      {allSelectedServices.map((service, index) => (
-                        <li key={index} className="border rounded p-2 mb-2 flex justify-between items-center">
-                          <div>
-                            <p className="font-medium">{service.serviceName} - {service.categoryName}</p>
-                            <ul className="list-disc list-inside text-sm">
-                              {service.products.map(product => (
-                                <li key={product.ProductoID}>{product.NombreProducto} x {product.quantity}</li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => editServiceFromList(index)}>
-                              <Pencil size={16} />
-                            </Button>
-                            <Button size="sm" variant="destructive" onClick={() => removeServiceFromList(index)}>
-                              <X size={16} />
-                            </Button>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
+                    {purchaseLocation?.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && (
+                      <>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-secondary">Costo adicional por zona:</span>
+                          <span className="font-semibold text-secondary">
+                            ${purchaseLocation.zonaCostoAdicional}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center pt-2 border-t border-secondary/20">
+                          <span className="font-bold text-secondary">Total final:</span>
+                          <span className="text-xl font-bold text-secondary">
+                            ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation.zonaCostoAdicional)}
+                          </span>
+                        </div>
+                      </>
+                    )}
                   </div>
-                )}
+                </div>
+              </div>}
 
-                <div className="mt-6 flex justify-end gap-2">
-                  <Button variant="secondary" onClick={() => navigate(-1)}>Cancelar</Button>
-                  <Button onClick={() => setCurrentStep(2)} disabled={allSelectedServices.length === 0 && (selectedProducts.length === 0 || !selectedService || !selectedCategory)}>
-                    Siguiente
+            <div>
+              <Label htmlFor="service" className="text-sm font-medium mb-2 block">Seleccione otro Servicio</Label>
+              <Select value={selectedService} onValueChange={setSelectedService}>
+                <SelectTrigger className="h-10">
+                  <SelectValue placeholder="Seleccione un servicio" />
+                </SelectTrigger>
+                <SelectContent>
+                  {isServicesLoading ? <SelectItem value="loading" disabled>Cargando servicios...</SelectItem> : services && services.length > 0 ? services.map((service: TarjetaServicio) => <SelectItem key={service.id} value={service.id!}>
+                        {service.name}
+                      </SelectItem>) : <SelectItem value="no-services" disabled>
+                      No hay servicios disponibles
+                    </SelectItem>}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {selectedService && <div>
+                <Label htmlFor="category" className="text-sm font-medium mb-2 block">Seleccione una Categoría</Label>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Seleccione una categoría" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {isCategoriesLoading ? <SelectItem value="loading" disabled>Cargando categorías...</SelectItem> : categories && categories.length > 0 ? categories.map((category: Category) => <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>) : <SelectItem value="no-categories" disabled>
+                        No hay categorías disponibles
+                      </SelectItem>}
+                </SelectContent>
+              </Select>
+            </div>}
+
+            {purchaseLocation && <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="font-medium text-sm">Ubicación del servicio</span>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setIsLocationModalOpen(true)} className="h-8 text-sm">
+                    Editar
                   </Button>
                 </div>
-              </>
-            )}
+                <p className="text-sm text-muted-foreground">
+                  {purchaseLocation.storeName} - {purchaseLocation.departmentName}, {purchaseLocation.locationName}
+                </p>
+                {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-sm text-primary font-medium mt-2">
+                    Costo adicional por zona: ${purchaseLocation.zonaCostoAdicional}
+                  </p>}
+              </div>}
 
-            {/* Step 2: Información personal y detalles */}
-            {currentStep === 2 && (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name">Nombre completo</Label>
-                    <Input
-                      id="name"
-                      value={personalInfo.name}
-                      onChange={e => setPersonalInfo({ ...personalInfo, name: e.target.value })}
-                      required
-                    />
+            {selectedCategory && !purchaseLocation && <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" onClick={() => setIsLocationModalOpen(true)}>
+                <MapPin className="h-5 w-5 text-primary" />
+                <span className="text-sm text-foreground flex-1">Configurar ubicación del servicio</span>
+                <span className="text-sm text-muted-foreground">Click aquí</span>
+              </div>}
+
+            {/* Service Selection Section - Only show when category and location are selected */}
+            {selectedCategory && purchaseLocation && <div className="bg-background border border-border rounded-lg p-4 shadow-sm">
+                <div className="mb-3">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Package className="h-5 w-5 text-primary" />
+                    <Label className="font-semibold">
+                      Productos disponibles para: {services?.find(s => s.id === selectedService)?.name}
+                    </Label>
                   </div>
-                  <div>
-                    <Label htmlFor="phone">Teléfono</Label>
-                    <Input
-                      id="phone"
-                      value={personalInfo.phone}
-                      onChange={e => setPersonalInfo({ ...personalInfo, phone: e.target.value })}
-                      required
-                    />
+                  
+                  <div className="grid gap-3 max-h-80 overflow-y-auto pr-2">
+                    {isProductsLoading ? <div className="space-y-3">
+                        {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full rounded-lg" />)}
+                      </div> : products && products.length > 0 ? products.map((product: Product) => {
+              const selectedProduct = selectedProducts.find(p => p.ProductoID === product.ProductoID);
+              const quantity = selectedProduct?.quantity || 0;
+              return <div key={product.ProductoID} className={cn("flex items-center space-x-2 p-2 border-2 rounded-lg transition-all duration-200", quantity > 0 ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/50")}>
+                            <div className="flex-1">
+                              <div className="flex justify-between items-start mb-2">
+                                <div>
+                                  <span className="font-semibold text-sm text-foreground block">{product.NombreProducto}</span>
+                                  <span className="text-xs text-muted-foreground">Código: {product.ProductoID}</span>
+                                </div>
+                                <div className="text-right">
+                                  <span className="font-bold text-secondary text-sm">${product.Precio}</span>
+                                  <span className="block text-xs text-muted-foreground">por unidad</span>
+                                </div>
+                              </div>
+                              
+                              <div className="mb-1">
+                                <Button variant="link" className="text-xs text-secondary hover:text-secondary/80 p-0 h-auto cursor-pointer" onClick={() => setSelectedProductTerms({
+                      textosId: product.TextosId?.toString() || null,
+                      productName: product.NombreProducto
+                    })} type="button">
+                                  Ver Condiciones
+                                </Button>
+                              </div>
+                              
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs text-muted-foreground">Cantidad:</span>
+                                <div className="flex items-center gap-2">
+                                  <Button type="button" variant="outline" size="sm" onClick={() => handleProductQuantityChange(product, -1)} disabled={quantity === 0} className="h-7 w-7 p-0">
+                                    -
+                                  </Button>
+                                  <span className="font-semibold text-sm min-w-[2ch] text-center">{quantity}</span>
+                                  <Button type="button" variant="outline" size="sm" onClick={() => handleProductQuantityChange(product, 1)} className="h-7 w-7 p-0">
+                                    <Plus className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                              
+                              {quantity > 0 && <div className="mt-2 pt-2 border-t border-border">
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-xs font-medium text-muted-foreground">Subtotal:</span>
+                                    <span className="font-bold text-sm text-primary">${product.Precio * quantity}</span>
+                                  </div>
+                                </div>}
+                            </div>
+                          </div>;
+            }) : <div className="text-center py-6 text-muted-foreground bg-muted/30 rounded-lg">
+                        <Package className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                        <p className="font-medium">No hay productos disponibles</p>
+                        <p className="text-sm">para esta categoría en tu ubicación</p>
+                      </div>}
                   </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={personalInfo.email}
-                      onChange={e => setPersonalInfo({ ...personalInfo, email: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="street">Calle</Label>
-                    <Input
-                      id="street"
-                      value={personalInfo.street}
-                      onChange={e => setPersonalInfo({ ...personalInfo, street: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="number">Número</Label>
-                    <Input
-                      id="number"
-                      value={personalInfo.number}
-                      onChange={e => setPersonalInfo({ ...personalInfo, number: e.target.value })}
-                      disabled={noNumber}
-                      required={!noNumber}
-                    />
-                    <Checkbox
-                      checked={noNumber}
-                      onCheckedChange={checked => {
-                        setNoNumber(!!checked);
-                        if (checked) {
-                          setPersonalInfo({ ...personalInfo, number: "" });
-                        }
-                      }}
-                    >
-                      No tiene número
-                    </Checkbox>
-                  </div>
-                  <div>
-                    <Label htmlFor="corner">Esquina</Label>
-                    <Input
-                      id="corner"
-                      value={personalInfo.corner}
-                      onChange={e => setPersonalInfo({ ...personalInfo, corner: e.target.value })}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="apartment">Apartamento</Label>
-                    <Input
-                      id="apartment"
-                      value={personalInfo.apartment}
-                      onChange={e => setPersonalInfo({ ...personalInfo, apartment: e.target.value })}
-                    />
+
+                  {/* Add Service Action */}
+                  {selectedProducts.length > 0 && <div className="mt-4 p-4 bg-primary/10 border border-primary/30 rounded-lg">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="font-semibold text-primary">
+                          ✓ {selectedProducts.reduce((sum, p) => sum + p.quantity, 0)} productos ({selectedProducts.length} tipos)
+                        </p>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-primary">
+                            ${selectedProducts.reduce((sum, p) => sum + p.Precio * p.quantity, 0)}
+                          </p>
+                        </div>
+                      </div>
+                      <Button onClick={addCurrentServiceToList} className="w-full bg-primary hover:bg-primary/90 h-10">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Agregar a solicitud
+                      </Button>
+                    </div>}
+                </div>
+              </div>}
+
+        {/* Información Personal Section */}
+        <Separator className="my-6" />
+        
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-3">
+            <UserCheck className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold text-foreground">Información Personal</h3>
+          </div>
+          
+          <div className="space-y-4">
+            {/* Información Personal */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="name" className="text-sm font-medium mb-2 block">Nombre completo *</Label>
+                <Input id="name" placeholder="Nombre y apellido" value={personalInfo.name} className="h-10" onChange={e => setPersonalInfo(prev => ({
+                ...prev,
+                name: e.target.value
+              }))} required />
+              </div>
+              <div>
+                <Label htmlFor="phone" className="text-sm font-medium mb-2 block">Teléfono *</Label>
+                <Input id="phone" placeholder="Teléfono de contacto" value={personalInfo.phone} className="h-10" onChange={e => setPersonalInfo(prev => ({
+                ...prev,
+                phone: e.target.value
+              }))} required />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="email" className="text-sm font-medium mb-2 block">Correo electrónico (opcional)</Label>
+              <Input id="email" type="email" placeholder="tu@email.com" value={personalInfo.email} className="h-10" onChange={e => setPersonalInfo(prev => ({
+              ...prev,
+              email: e.target.value
+            }))} />
+            </div>
+
+            {/* Dirección */}
+            <div className="space-y-4">
+              <h4 className="font-semibold">Dirección</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="street" className="text-sm font-medium mb-2 block">Calle *</Label>
+                  <Input id="street" placeholder="Nombre de la calle" value={personalInfo.street} className="h-10" onChange={e => setPersonalInfo(prev => ({
+                  ...prev,
+                  street: e.target.value
+                }))} required />
+                </div>
+                
+                <div>
+                  <Label htmlFor="number" className="text-sm font-medium mb-2 block">Número *</Label>
+                  <div className="space-y-2">
+                    <Input id="number" placeholder="Número de puerta" value={personalInfo.number} disabled={noNumber} className="h-10" onChange={e => setPersonalInfo(prev => ({
+                    ...prev,
+                    number: e.target.value
+                  }))} required={!noNumber} />
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="no-number" checked={noNumber} onCheckedChange={checked => {
+                      setNoNumber(checked as boolean);
+                      if (checked) {
+                        setPersonalInfo(prev => ({
+                          ...prev,
+                          number: "S/N"
+                        }));
+                      } else {
+                        setPersonalInfo(prev => ({
+                          ...prev,
+                          number: ""
+                        }));
+                      }
+                    }} className="h-4 w-4" />
+                      <Label htmlFor="no-number" className="text-sm font-normal cursor-pointer">
+                        S/N
+                      </Label>
+                    </div>
                   </div>
                 </div>
+              </div>
 
-                <div className="mt-4">
-                  <Label htmlFor="comments">Comentarios</Label>
-                  <Textarea
-                    id="comments"
-                    value={personalInfo.comments}
-                    onChange={e => setPersonalInfo({ ...personalInfo, comments: e.target.value })}
-                  />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="corner" className="text-sm font-medium mb-2 block">Esquina</Label>
+                  <Input id="corner" placeholder="Intersección más cercana" value={personalInfo.corner} className="h-10" onChange={e => setPersonalInfo(prev => ({
+                  ...prev,
+                  corner: e.target.value
+                }))} />
                 </div>
+                
+                <div>
+                  <Label htmlFor="apartment" className="text-sm font-medium mb-2 block">Apartamento</Label>
+                  <Input id="apartment" placeholder="Apto (opcional)" value={personalInfo.apartment} className="h-10" onChange={e => setPersonalInfo(prev => ({
+                  ...prev,
+                  apartment: e.target.value
+                }))} />
+                </div>
+              </div>
+            </div>
 
-                <div className="mt-4">
-                  <Label>Fecha de instalación</Label>
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    locale={es}
-                    disabled={(date) => date < new Date()}
-                  />
-                </div>
 
-                <div className="mt-4">
-                  <Label>Horario de instalación</Label>
-                  <RadioGroup value={selectedTimeSlot} onValueChange={setSelectedTimeSlot} className="flex flex-col gap-2">
-                    <RadioGroupItem value="08:00 - 12:00" id="time1" />
-                    <Label htmlFor="time1">08:00 - 12:00</Label>
-                    <RadioGroupItem value="12:00 - 16:00" id="time2" />
-                    <Label htmlFor="time2">12:00 - 16:00</Label>
-                    <RadioGroupItem value="16:00 - 20:00" id="time3" />
-                    <Label htmlFor="time3">16:00 - 20:00</Label>
-                  </RadioGroup>
-                </div>
+            {/* Comentarios */}
+            <div>
+              <Label htmlFor="comments" className="text-sm font-medium mb-2 block">Comentarios</Label>
+              <Textarea id="comments" placeholder="¿Hay algo más que debamos saber?" value={personalInfo.comments} className="min-h-[80px]" onChange={e => setPersonalInfo(prev => ({
+              ...prev,
+              comments: e.target.value
+            }))} />
+            </div>
 
-                <div className="mt-4">
-                  <Label>Método de pago</Label>
-                  <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">Tarjeta de crédito</SelectItem>
-                      <SelectItem value="2">Transferencia bancaria</SelectItem>
-                      <SelectItem value="3">Efectivo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+            {/* Términos y condiciones */}
+            <div className="flex items-start space-x-2 p-4 bg-accent/30 rounded-lg border border-border">
+              <Checkbox 
+                id="terms" 
+                checked={acceptTerms}
+                onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
+                className="mt-1"
+              />
+              <div className="flex-1">
+                <Label htmlFor="terms" className="text-sm font-medium cursor-pointer">
+                  Acepto los{" "}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsTermsModalOpen(true);
+                    }}
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    términos y condiciones
+                  </button>
+                  {" "}*
+                </Label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>;
+  };
+  return <div className="min-h-screen" style={{ backgroundColor: '#e7e9ef' }}>
+      <div className="container mx-auto px-4 py-8 max-w-3xl">
+        <div className="mb-6 text-center">
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-2 bg-gradient-to-r from-orange-500 via-orange-400 to-blue-500 bg-clip-text text-transparent drop-shadow-lg animate-gradient bg-[length:200%_auto]">
+            Solicitar Servicio
+          </h1>
+          <p className="text-muted-foreground text-sm">Complete el formulario para solicitar su servicio</p>
+        </div>
 
-                <div className="mt-4 flex items-center gap-2">
-                  <Checkbox checked={acceptTerms} onCheckedChange={setAcceptTerms} id="acceptTerms" />
-                  <Label htmlFor="acceptTerms" className="cursor-pointer">
-                    Acepto los términos y condiciones
-                  </Label>
-                  <Button variant="link" onClick={() => setIsTermsModalOpen(true)}>Ver términos</Button>
-                </div>
+        <Card className="shadow-xl border-border">
+          <CardHeader className="bg-gradient-to-r from-primary to-secondary text-primary-foreground p-6">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              {stepTitles[0]}
+            </CardTitle>
+          </CardHeader>
+            
+            <CardContent className="p-6">
+              {renderStepContent()}
+            </CardContent>
+            
+            {/* Action Buttons */}
+            <div className="flex justify-between items-center p-6 border-t bg-accent/10">
+              <div className="text-sm text-muted-foreground">
+                * Campos requeridos
+              </div>
+              <div className="flex gap-3">
+                {(selectedService || selectedCategory || selectedProducts.length > 0) && <Button variant="outline" onClick={() => {
+              setSelectedService("");
+              setSelectedCategory("");
+              setSelectedProducts([]);
+            }} className="h-10 text-slate-950 font-bold">
+                    Limpiar
+                  </Button>}
+                <Button onClick={handleShowConfirmation} disabled={isSubmitting || !validateForm()} className="min-w-32 h-10 bg-primary hover:bg-primary/90">
+                  {isSubmitting ? "Enviando..." : "Confirmar Solicitud"}
+                </Button>
+              </div>
+            </div>
+          </Card>
 
-                <div className="mt-6 flex justify-between">
-                  <Button variant="secondary" onClick={() => setCurrentStep(1)}>Anterior</Button>
-                  <Button onClick={handleShowConfirmation} disabled={!validateForm()}>Confirmar</Button>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+        <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => setIsLocationModalOpen(false)} onSelectLocation={handleLocationSelect} stores={[]} serviceId={selectedService} serviceName={services?.find(s => s.id === selectedService)?.name} categoryId={selectedCategory} categoryName={categories?.find(c => c.id === selectedCategory)?.name} commerceId={undefined} />
+        
+        <ProductTermsModal isOpen={!!selectedProductTerms} onClose={() => setSelectedProductTerms(null)} textosId={selectedProductTerms?.textosId || null} productName={selectedProductTerms?.productName || ""} />
+
+        <ConfirmationModal open={showConfirmationModal} onClose={() => setShowConfirmationModal(false)} onConfirm={handleSubmit} title="Confirmar Solicitud" description="Por favor revise los datos antes de enviar la solicitud." jsonData={confirmationData} isSubmitting={isSubmitting} />
+
+        <GeneralTermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
       </div>
-
-      <PurchaseLocationModal
-        open={isLocationModalOpen}
-        onClose={() => setIsLocationModalOpen(false)}
-        onSelect={handleLocationSelect}
-      />
-
-      <ConfirmationModal
-        open={showConfirmationModal}
-        onClose={() => setShowConfirmationModal(false)}
-        onConfirm={handleSubmit}
-        title="Confirmar Solicitud"
-        description="Revise los datos antes de enviar la solicitud."
-        jsonData={confirmationData}
-        isSubmitting={isSubmitting}
-      />
-
-      <GeneralTermsModal open={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
-
-      <ProductTermsModal
-        productTerms={selectedProductTerms}
-        onClose={() => setSelectedProductTerms(null)}
-      />
-
-      {showCheckoutSummary && checkoutData && (
-        <CheckoutSummary data={checkoutData} onClose={() => setShowCheckoutSummary(false)} />
-      )}
-    </div>
-  );
+    </div>;
 };
-
 export default ServicioOnePageWithUser;
