@@ -118,6 +118,7 @@ const ServicioOnePageWithUser = () => {
     textosId: string | null;
     productName: string;
   } | null>(null);
+  const [isAddingNewService, setIsAddingNewService] = useState(false);
 
   // Data fetching
   const {
@@ -618,10 +619,11 @@ const ServicioOnePageWithUser = () => {
     };
     setAllSelectedServices(prev => [...prev, newService]);
 
-    // Reset current selection but KEEP purchaseLocation - it persists for the entire order
+    // Reset current selection and hide the form
     setSelectedService("");
     setSelectedCategory("");
     setSelectedProducts([]);
+    setIsAddingNewService(false); // Hide the form after adding
     // DON'T reset: setPurchaseLocation(null);
   };
   const removeServiceFromList = (index: number) => {
@@ -1027,15 +1029,15 @@ const ServicioOnePageWithUser = () => {
               </div>}
 
             {/* Only show "Add another service" button when there are services and form is hidden */}
-            {allSelectedServices.length > 0 && selectedService === "" && selectedCategory === "" && (
+            {allSelectedServices.length > 0 && !isAddingNewService && (
               <div className="text-center py-4">
                 <Button 
                   variant="outline" 
                   onClick={() => {
-                    // Trigger the service selection form - we use a space character temporarily
-                    setSelectedService(" ");
-                    // Immediately reset to empty to allow selection
-                    requestAnimationFrame(() => setSelectedService(""));
+                    setIsAddingNewService(true);
+                    setSelectedService("");
+                    setSelectedCategory("");
+                    setSelectedProducts([]);
                   }}
                   className="gap-2"
                 >
@@ -1045,8 +1047,8 @@ const ServicioOnePageWithUser = () => {
               </div>
             )}
 
-            {/* Service selection form - only show if: no services yet, OR user clicked "add another" (selectedService was touched) */}
-            {(allSelectedServices.length === 0 || selectedService !== "" || selectedCategory !== "" || selectedProducts.length > 0) && (
+            {/* Service selection form - only show if no services yet OR user clicked "add another" */}
+            {(allSelectedServices.length === 0 || isAddingNewService) && (
               <>
                 <div>
                   <Label htmlFor="service" className="text-sm font-medium mb-2 block">
@@ -1106,8 +1108,8 @@ const ServicioOnePageWithUser = () => {
                     <span className="text-sm text-muted-foreground">Click aquí</span>
                   </div>}
 
-                {/* Service Selection Section - Only show when actively adding a service (category selected) */}
-                {selectedCategory !== "" && purchaseLocation && <div className="bg-background border border-border rounded-lg p-4 shadow-sm">
+                {/* Service Selection Section - Only show when actively adding a service */}
+                {selectedCategory !== "" && purchaseLocation && isAddingNewService && <div className="bg-background border border-border rounded-lg p-4 shadow-sm">
                   <div className="mb-3">
                     <div className="flex items-center gap-2 mb-3">
                       <Package className="h-5 w-5 text-primary" />
