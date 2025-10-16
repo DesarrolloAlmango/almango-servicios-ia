@@ -228,6 +228,36 @@ const ServicioOnePageWithUser = () => {
     enabled: !!(selectedService && selectedCategory && purchaseLocation)
   });
 
+  // Update product prices when API products are loaded
+  useEffect(() => {
+    if (products && products.length > 0 && selectedProducts.length > 0) {
+      console.log("Updating prices for preloaded products");
+      const updatedProducts = selectedProducts.map(selectedProduct => {
+        const apiProduct = products.find(p => p.ProductoID === selectedProduct.ProductoID);
+        if (apiProduct) {
+          return {
+            ...selectedProduct,
+            NombreProducto: apiProduct.NombreProducto,
+            Precio: apiProduct.Precio,
+            TextosId: apiProduct.TextosId,
+            SR: apiProduct.SR,
+            Comision: apiProduct.Comision,
+            ComisionTipo: apiProduct.ComisionTipo,
+            DetallesID: apiProduct.DetallesID
+          };
+        }
+        return selectedProduct;
+      });
+      
+      // Only update if prices changed
+      const pricesChanged = updatedProducts.some((p, i) => p.Precio !== selectedProducts[i].Precio);
+      if (pricesChanged) {
+        console.log("Updated products with API prices:", updatedProducts);
+        setSelectedProducts(updatedProducts);
+      }
+    }
+  }, [products]);
+
   // Load data from solicitudId
   useEffect(() => {
     console.log("=== useEffect triggered ===");
@@ -377,8 +407,9 @@ const ServicioOnePageWithUser = () => {
           setSelectedCategory(firstCategoryId);
           
           // Map all products from Level1
+          // DetalleID in JSON corresponds to ProductoID in the API
           const loadedProducts: ProductWithQuantity[] = solicitudData.Level1.map((item: any) => ({
-            ProductoID: item.DetalleID,
+            ProductoID: item.DetalleID, // This is the actual product ID
             NombreProducto: `Producto ${item.DetalleID}`,
             Precio: parseFloat(item.Precio || "0"),
             TextosId: undefined,
@@ -386,11 +417,11 @@ const ServicioOnePageWithUser = () => {
             SR: item.SR || "S",
             Comision: parseFloat(item.Comision || "0"),
             ComisionTipo: item.ComisionTipo || "P",
-            DetallesID: item.DetalleID,
+            DetallesID: null,
             quantity: parseInt(item.Cantidad || "1")
           }));
           
-          console.log("Loaded products with quantities:", loadedProducts);
+          console.log("Loaded products with quantities from JSON:", loadedProducts);
           setSelectedProducts(loadedProducts);
           
           // Also set allSelectedServices for the summary
@@ -991,11 +1022,8 @@ const ServicioOnePageWithUser = () => {
                       {isProductsLoading ? <div className="space-y-3">
                         {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full rounded-lg" />)}
                       </div> : products && products.length > 0 ? products.map((product: Product) => {
-              // Match by DetallesID if available, otherwise by ProductoID
-              const selectedProduct = selectedProducts.find(p => 
-                (product.DetallesID && p.DetallesID && p.DetallesID === product.DetallesID) ||
-                p.ProductoID === product.ProductoID
-              );
+              // Match by ProductoID 
+              const selectedProduct = selectedProducts.find(p => p.ProductoID === product.ProductoID);
               const quantity = selectedProduct?.quantity || 0;
               return <div key={product.ProductoID} className={cn("flex items-center space-x-2 p-2 border-2 rounded-lg transition-all duration-200", quantity > 0 ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/50")}>
                             <div className="flex-1">
