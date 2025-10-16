@@ -1027,15 +1027,14 @@ const ServicioOnePageWithUser = () => {
               </div>}
 
             {/* Only show service selection when user wants to add more services */}
-            {allSelectedServices.length > 0 && (
+            {allSelectedServices.length > 0 && !selectedService && !selectedCategory && (
               <div className="text-center py-4">
                 <Button 
                   variant="outline" 
                   onClick={() => {
-                    // This will show the service selection form
-                    setSelectedService("");
-                    setSelectedCategory("");
-                    setSelectedProducts([]);
+                    // This will trigger showing the service selection form by setting a flag
+                    setSelectedService(" "); // Set to space to trigger form display
+                    setTimeout(() => setSelectedService(""), 0); // Immediately clear it
                   }}
                   className="gap-2"
                 >
@@ -1045,8 +1044,8 @@ const ServicioOnePageWithUser = () => {
               </div>
             )}
 
-            {/* Service selection form - only show if no services added yet OR user clicked "add another service" */}
-            {(allSelectedServices.length === 0 || selectedService || selectedCategory) && (
+            {/* Service selection form - only show if no services added yet OR user is actively adding a service */}
+            {(allSelectedServices.length === 0 || selectedService !== "" || selectedCategory !== "") && (
               <>
                 <div>
                   <Label htmlFor="service" className="text-sm font-medium mb-2 block">
@@ -1106,8 +1105,8 @@ const ServicioOnePageWithUser = () => {
                     <span className="text-sm text-muted-foreground">Click aquí</span>
                   </div>}
 
-                {/* Service Selection Section - Only show when category and location are selected */}
-                {selectedCategory && purchaseLocation && <div className="bg-background border border-border rounded-lg p-4 shadow-sm">
+                {/* Service Selection Section - Only show when category and location are selected AND user is actively adding a service */}
+                {selectedCategory && purchaseLocation && (selectedService !== "" || selectedCategory !== "") && <div className="bg-background border border-border rounded-lg p-4 shadow-sm">
                   <div className="mb-3">
                     <div className="flex items-center gap-2 mb-3">
                       <Package className="h-5 w-5 text-primary" />
