@@ -390,6 +390,7 @@ const ServicioOnePageWithUser = () => {
             quantity: parseInt(item.Cantidad || "1")
           }));
           
+          console.log("Loaded products with quantities:", loadedProducts);
           setSelectedProducts(loadedProducts);
           
           // Also set allSelectedServices for the summary
