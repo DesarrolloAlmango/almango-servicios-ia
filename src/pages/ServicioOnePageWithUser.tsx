@@ -1040,9 +1040,9 @@ const ServicioOnePageWithUser = () => {
                           placeholder="Ingrese precio sugerido"
                           className="h-10"
                         />
-                        {suggestedPrice > 0 && (
+{suggestedPrice > 0 && (
                           <div className="flex justify-between items-center text-sm">
-                            <span className="text-secondary">Descuento aplicado:</span>
+                            <span className="text-secondary">Descuento a aplicar:</span>
                             <span className="font-semibold text-green-600">
                               ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) - suggestedPrice}
                             </span>
