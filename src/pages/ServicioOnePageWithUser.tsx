@@ -587,7 +587,7 @@ const ServicioOnePageWithUser = () => {
     console.log("validateForm called");
     const hasServices = allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0;
     const hasDateTime = !!selectedDate && !!selectedTimeSlot;
-    const hasPersonalInfo = !!(personalInfo.name && personalInfo.phone && personalInfo.street && (personalInfo.number || noNumber) && personalInfo.termsAccepted);
+    const hasPersonalInfo = !!(personalInfo.name && personalInfo.phone && personalInfo.street && (personalInfo.number || noNumber));
     const hasAcceptedTerms = acceptTerms;
     console.log("Form validation:", {
       hasServices,
@@ -600,7 +600,9 @@ const ServicioOnePageWithUser = () => {
       selectedTimeSlot,
       name: personalInfo.name,
       phone: personalInfo.phone,
-      termsAccepted: personalInfo.termsAccepted,
+      street: personalInfo.street,
+      number: personalInfo.number,
+      noNumber,
       acceptTerms,
       result: hasServices && hasDateTime && hasPersonalInfo && hasAcceptedTerms
     });
@@ -757,7 +759,7 @@ const ServicioOnePageWithUser = () => {
       FechaInstalacion: format(selectedDate!, "yyyy-MM-dd"),
       TurnoInstalacion: getTimeSlotNumber(selectedTimeSlot),
       Comentario: personalInfo.comments || "",
-      ConfirmarCondicionesUso: personalInfo.termsAccepted ? "S" : "N",
+      ConfirmarCondicionesUso: acceptTerms ? "S" : "N",
       ProveedorAuxiliar: getProviderAuxiliary(purchaseLocation?.storeId || "unknown", purchaseLocation?.storeName),
       CostoXZona: zoneCost,
       PaginaOne: "One",
@@ -783,8 +785,7 @@ const ServicioOnePageWithUser = () => {
     if (!data.FechaInstalacion) missingFields.push("Fecha");
     if (!data.TurnoInstalacion) missingFields.push("Horario");
     if (data.Level1.length === 0) missingFields.push("Productos");
-    if (!personalInfo.termsAccepted) missingFields.push("Términos y condiciones");
-    if (!acceptTerms) missingFields.push("Aceptar términos y condiciones");
+    if (!acceptTerms) missingFields.push("Términos y condiciones");
     if (missingFields.length > 0) {
       toast.error(`Faltan campos requeridos: ${missingFields.join(", ")}`);
       return;
