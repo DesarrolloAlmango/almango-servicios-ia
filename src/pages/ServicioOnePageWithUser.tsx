@@ -744,16 +744,18 @@ const ServicioOnePageWithUser = () => {
     const productsTotal = checkoutItems.reduce((sum, item) => sum + item.PrecioFinal, 0);
     const total = productsTotal + zoneCost;
     
-    // Calculate discount
+    // Calculate discount - DEBE SER EXACTAMENTE LA DIFERENCIA
     const discountAmount = (solicitudId && suggestedPrice > 0) 
-      ? productsTotal - suggestedPrice 
+      ? Math.round(productsTotal - suggestedPrice)
       : 0;
     
     console.log("=== CÁLCULO DE DESCUENTO ===");
     console.log("solicitudId:", solicitudId);
-    console.log("suggestedPrice:", suggestedPrice);
+    console.log("suggestedPrice (input del usuario):", suggestedPrice);
     console.log("productsTotal:", productsTotal);
-    console.log("discountAmount (productsTotal - suggestedPrice):", discountAmount);
+    console.log("Fórmula: productsTotal - suggestedPrice");
+    console.log("discountAmount calculado:", discountAmount);
+    console.log("Verificación manual:", productsTotal, "-", suggestedPrice, "=", (productsTotal - suggestedPrice));
     
     const data: CheckoutData = {
       Nombre: personalInfo.name,
@@ -1044,9 +1046,15 @@ const ServicioOnePageWithUser = () => {
                           onChange={(e) => {
                             const value = parseFloat(e.target.value) || 0;
                             const maxTotal = allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0);
+                            console.log("=== PRECIO SUGERIDO INPUT ===");
+                            console.log("Valor ingresado:", e.target.value);
+                            console.log("Valor parseado:", value);
+                            console.log("Total máximo:", maxTotal);
                             if (value <= maxTotal) {
+                              console.log("✓ Guardando precio sugerido:", value);
                               setSuggestedPrice(value);
                             } else {
+                              console.log("✗ Precio sugerido rechazado (mayor al total)");
                               toast.error("El precio sugerido no puede ser mayor al total de servicios");
                             }
                           }}
