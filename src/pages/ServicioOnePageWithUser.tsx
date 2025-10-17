@@ -781,6 +781,7 @@ const ServicioOnePageWithUser = () => {
     };
     console.log("=== VERIFICACIÓN DE ESTRUCTURA ===");
     console.log("Data object keys:", Object.keys(data));
+    console.log("DESCUENTO EN DATA OBJECT:", data.Descuento);
     console.log("CheckoutData esperado vs actual:");
     console.log("- Nombre:", data.Nombre);
     console.log("- DepartamentoId:", data.DepartamentoId, "(" + (purchaseLocation?.departmentName || "sin nombre") + ")");
@@ -840,6 +841,8 @@ const ServicioOnePageWithUser = () => {
       console.log("=== DATOS DE LA SOLICITUD ===");
       console.log("Provider ID:", providerId);
       console.log("User ID:", userId || "0");
+      console.log("DESCUENTO EN CONFIRMATIONDATA:", confirmationData.Descuento);
+      console.log("DESCUENTO EN DATA (debe ser igual):", data.Descuento);
       console.log("Datos completos:", data);
       console.log("=== IDs DEL JSON ===");
       console.log("DepartamentoId en JSON:", data.DepartamentoId);
