@@ -743,6 +743,18 @@ const ServicioOnePageWithUser = () => {
     // Calculate total
     const productsTotal = checkoutItems.reduce((sum, item) => sum + item.PrecioFinal, 0);
     const total = productsTotal + zoneCost;
+    
+    // Calculate discount
+    const discountAmount = (solicitudId && suggestedPrice > 0) 
+      ? productsTotal - suggestedPrice 
+      : 0;
+    
+    console.log("=== CÁLCULO DE DESCUENTO ===");
+    console.log("solicitudId:", solicitudId);
+    console.log("suggestedPrice:", suggestedPrice);
+    console.log("productsTotal:", productsTotal);
+    console.log("discountAmount (productsTotal - suggestedPrice):", discountAmount);
+    
     const data: CheckoutData = {
       Nombre: personalInfo.name,
       Telefono: personalInfo.phone,
@@ -764,9 +776,7 @@ const ServicioOnePageWithUser = () => {
       ProveedorAuxiliar: getProviderAuxiliary(purchaseLocation?.storeId || "unknown", purchaseLocation?.storeName),
       CostoXZona: zoneCost,
       PaginaOne: solicitudId ? "" : "One", // Empty when updating, "One" when creating
-      Descuento: solicitudId && suggestedPrice > 0 
-        ? Math.round(productsTotal - suggestedPrice) 
-        : 0,
+      Descuento: discountAmount,
       Level1: checkoutItems
     };
     console.log("=== VERIFICACIÓN DE ESTRUCTURA ===");
