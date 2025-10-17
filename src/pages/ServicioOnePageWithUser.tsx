@@ -709,17 +709,26 @@ const ServicioOnePageWithUser = () => {
     const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
 
     // Combine all selected services with their context and current selection
+    // En modo UPDATE (solicitudId existe), solo usar allSelectedServices
+    // En modo CREATE, agregar selectedProducts si existen
     const allServicesWithProducts = [...allSelectedServices.map(service => ({
       serviceId: service.serviceId,
       categoryId: service.categoryId,
       products: service.products
     })),
-    // Add current selection if there are selected products
-    ...(selectedProducts.length > 0 ? [{
+    // Add current selection ONLY if NOT in update mode and there are selected products
+    ...(!solicitudId && selectedProducts.length > 0 ? [{
       serviceId: selectedService,
       categoryId: selectedCategory,
       products: selectedProducts
     }] : [])];
+    
+    console.log("=== DEBUG SERVICIOS ===");
+    console.log("solicitudId:", solicitudId);
+    console.log("allSelectedServices:", allSelectedServices);
+    console.log("selectedProducts:", selectedProducts);
+    console.log("allServicesWithProducts:", allServicesWithProducts);
+    
     if (allServicesWithProducts.length === 0 || allServicesWithProducts.every(s => s.products.length === 0)) {
       toast.error("Debe seleccionar al menos un producto");
       return;
