@@ -642,6 +642,9 @@ const ServicioOnePageWithUser = () => {
     setSelectedService(serviceToEdit.serviceId);
     setSelectedCategory(serviceToEdit.categoryId);
     setSelectedProducts([...serviceToEdit.products]);
+    
+    // Enable the form to show the editing interface
+    setIsAddingNewService(true);
 
     // Remove from the list of added services
     setAllSelectedServices(prev => prev.filter((_, i) => i !== index));
