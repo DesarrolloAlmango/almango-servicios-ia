@@ -649,11 +649,6 @@ const ServicioOnePageWithUser = () => {
     // Remove from the list of added services
     setAllSelectedServices(prev => prev.filter((_, i) => i !== index));
 
-    // Scroll to top to show the form
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
     toast.info("Servicio cargado para edición");
   };
 
