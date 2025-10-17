@@ -1028,25 +1028,6 @@ const ServicioOnePageWithUser = () => {
                 </div>
               </div>}
 
-            {/* Only show "Add another service" button when there are services and form is hidden */}
-            {allSelectedServices.length > 0 && !isAddingNewService && (
-              <div className="text-center py-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setIsAddingNewService(true);
-                    setSelectedService("");
-                    setSelectedCategory("");
-                    setSelectedProducts([]);
-                  }}
-                  className="gap-2"
-                >
-                  <Plus className="h-4 w-4" />
-                  Agregar otro servicio
-                </Button>
-              </div>
-            )}
-
             {/* Service selection form - only show if no services yet OR user clicked "add another" */}
             {(allSelectedServices.length === 0 || isAddingNewService) && (
               <>
@@ -1083,30 +1064,53 @@ const ServicioOnePageWithUser = () => {
                       </SelectContent>
                     </Select>
                   </div>}
+              </>
+            )}
 
-                {purchaseLocation && <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-primary" />
-                        <span className="font-medium text-sm">Ubicación del servicio</span>
-                      </div>
-                      <Button variant="ghost" size="sm" onClick={() => setIsLocationModalOpen(true)} className="h-8 text-sm">
-                        Editar
-                      </Button>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {purchaseLocation.storeName} - {purchaseLocation.departmentName}, {purchaseLocation.locationName}
-                    </p>
-                    {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-sm text-primary font-medium mt-2">
-                        Costo adicional por zona: ${purchaseLocation.zonaCostoAdicional}
-                      </p>}
-                  </div>}
+            {/* Ubicación del servicio - always visible when it exists */}
+            {purchaseLocation && <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="font-medium text-sm">Ubicación del servicio</span>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setIsLocationModalOpen(true)} className="h-8 text-sm">
+                    Editar
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {purchaseLocation.storeName} - {purchaseLocation.departmentName}, {purchaseLocation.locationName}
+                </p>
+                {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-sm text-primary font-medium mt-2">
+                    Costo adicional por zona: ${purchaseLocation.zonaCostoAdicional}
+                  </p>}
+              </div>}
 
-                {selectedCategory && !purchaseLocation && <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" onClick={() => setIsLocationModalOpen(true)}>
-                    <MapPin className="h-5 w-5 text-primary" />
-                    <span className="text-sm text-foreground flex-1">Configurar ubicación del servicio</span>
-                    <span className="text-sm text-muted-foreground">Click aquí</span>
-                  </div>}
+            {/* Show "Add another service" button after location when there are services and form is hidden */}
+            {allSelectedServices.length > 0 && !isAddingNewService && (
+              <div className="text-center py-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setIsAddingNewService(true);
+                    setSelectedService("");
+                    setSelectedCategory("");
+                    setSelectedProducts([]);
+                  }}
+                  className="gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Agregar otro servicio
+                </Button>
+              </div>
+            )}
+
+            {/* Prompt to configure location when adding service but no location set */}
+            {isAddingNewService && selectedCategory && !purchaseLocation && <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" onClick={() => setIsLocationModalOpen(true)}>
+                <MapPin className="h-5 w-5 text-primary" />
+                <span className="text-sm text-foreground flex-1">Configurar ubicación del servicio</span>
+                <span className="text-sm text-muted-foreground">Click aquí</span>
+              </div>}
 
                 {/* Service Selection Section - Only show when actively adding a service */}
                 {selectedCategory !== "" && purchaseLocation && isAddingNewService && <div className="bg-background border border-border rounded-lg p-4 shadow-sm">
@@ -1194,8 +1198,6 @@ const ServicioOnePageWithUser = () => {
                       </div>}
                   </div>
                 </div>}
-              </>
-            )}
 
         {/* Información Personal Section */}
         <Separator className="my-6" />
