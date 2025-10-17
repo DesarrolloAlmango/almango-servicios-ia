@@ -119,6 +119,7 @@ const ServicioOnePageWithUser = () => {
     productName: string;
   } | null>(null);
   const [isAddingNewService, setIsAddingNewService] = useState(false);
+  const [hasLoadedInitialData, setHasLoadedInitialData] = useState(false);
 
   // Data fetching
   const {
@@ -266,10 +267,11 @@ const ServicioOnePageWithUser = () => {
   }, [products]);
 
   // Update service and category names in allSelectedServices when API data is loaded
+  // BUT ONLY for the initial load from JSON, not when adding new services
   useEffect(() => {
     if ((services && services.length > 0) || (categories && categories.length > 0)) {
-      if (allSelectedServices.length > 0) {
-        console.log("Updating service and category names in allSelectedServices");
+      if (allSelectedServices.length > 0 && !hasLoadedInitialData) {
+        console.log("Updating service and category names in allSelectedServices (initial load only)");
         const updatedServices = allSelectedServices.map(service => {
           let serviceName = service.serviceName;
           let categoryName = service.categoryName;
@@ -327,6 +329,7 @@ const ServicioOnePageWithUser = () => {
         if (hasChanges) {
           console.log("Updated allSelectedServices with API names:", updatedServices);
           setAllSelectedServices(updatedServices);
+          setHasLoadedInitialData(true); // Mark as loaded so this doesn't run again
         }
       }
     }
