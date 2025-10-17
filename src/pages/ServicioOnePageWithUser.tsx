@@ -762,7 +762,7 @@ const ServicioOnePageWithUser = () => {
       ConfirmarCondicionesUso: acceptTerms ? "S" : "N",
       ProveedorAuxiliar: getProviderAuxiliary(purchaseLocation?.storeId || "unknown", purchaseLocation?.storeName),
       CostoXZona: zoneCost,
-      PaginaOne: "One",
+      PaginaOne: solicitudId ? "" : "One", // Empty when updating, "One" when creating
       Descuento: 0,
       Level1: checkoutItems
     };
