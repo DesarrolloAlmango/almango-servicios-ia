@@ -120,6 +120,7 @@ const ServicioOnePageWithUser = () => {
   } | null>(null);
   const [isAddingNewService, setIsAddingNewService] = useState(false);
   const [hasLoadedInitialData, setHasLoadedInitialData] = useState(false);
+  const [suggestedPrice, setSuggestedPrice] = useState<number>(0);
 
   // Data fetching
   const {
@@ -763,7 +764,9 @@ const ServicioOnePageWithUser = () => {
       ProveedorAuxiliar: getProviderAuxiliary(purchaseLocation?.storeId || "unknown", purchaseLocation?.storeName),
       CostoXZona: zoneCost,
       PaginaOne: solicitudId ? "" : "One", // Empty when updating, "One" when creating
-      Descuento: 0,
+      Descuento: solicitudId && suggestedPrice > 0 
+        ? Math.round(productsTotal - suggestedPrice) 
+        : 0,
       Level1: checkoutItems
     };
     console.log("=== VERIFICACIÓN DE ESTRUCTURA ===");
@@ -1012,6 +1015,42 @@ const ServicioOnePageWithUser = () => {
                         ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0)}
                       </span>
                     </div>
+
+                    {/* Precio sugerido - solo visible en modo update */}
+                    {solicitudId && (
+                      <div className="space-y-2 pt-2 border-t border-secondary/20">
+                        <Label htmlFor="suggested-price" className="text-sm font-medium text-secondary">
+                          Precio sugerido
+                        </Label>
+                        <Input
+                          id="suggested-price"
+                          type="number"
+                          min="0"
+                          max={allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0)}
+                          value={suggestedPrice || ""}
+                          onChange={(e) => {
+                            const value = parseFloat(e.target.value) || 0;
+                            const maxTotal = allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0);
+                            if (value <= maxTotal) {
+                              setSuggestedPrice(value);
+                            } else {
+                              toast.error("El precio sugerido no puede ser mayor al total de servicios");
+                            }
+                          }}
+                          placeholder="Ingrese precio sugerido"
+                          className="h-10"
+                        />
+                        {suggestedPrice > 0 && (
+                          <div className="flex justify-between items-center text-sm">
+                            <span className="text-secondary">Descuento aplicado:</span>
+                            <span className="font-semibold text-green-600">
+                              ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) - suggestedPrice}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {purchaseLocation?.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && (
                       <>
                         <div className="flex justify-between items-center text-sm">
@@ -1023,7 +1062,10 @@ const ServicioOnePageWithUser = () => {
                         <div className="flex justify-between items-center pt-2 border-t border-secondary/20">
                           <span className="font-bold text-secondary">Total final:</span>
                           <span className="text-xl font-bold text-secondary">
-                            ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation.zonaCostoAdicional)}
+                            ${(solicitudId && suggestedPrice > 0 
+                              ? suggestedPrice 
+                              : allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0)
+                            ) + parseFloat(purchaseLocation.zonaCostoAdicional)}
                           </span>
                         </div>
                       </>
