@@ -746,6 +746,11 @@ const ServicioOnePageWithUser = () => {
       toast.error("Por favor complete todos los campos requeridos");
       return;
     }
+    // En modo update, validar que se haya ingresado un precio sugerido
+    if (solicitudId && (!suggestedPrice || suggestedPrice === 0)) {
+      toast.error("Por favor ingrese un precio sugerido");
+      return;
+    }
     const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
 
     // Combine all selected services with their context and current selection
