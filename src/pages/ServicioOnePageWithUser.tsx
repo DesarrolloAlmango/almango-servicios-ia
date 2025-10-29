@@ -374,15 +374,57 @@ const ServicioOnePageWithUser = () => {
           return;
         }
 
+        // Parse address into components
+        const parseAddress = (fullAddress: string) => {
+          let street = "";
+          let number = "";
+          let apartment = "";
+          let corner = "";
+
+          if (fullAddress) {
+            // Extract corner (everything after "esq.")
+            const esquinaMatch = fullAddress.match(/esq\.\s*(.+?)$/);
+            if (esquinaMatch) {
+              corner = esquinaMatch[1].trim();
+            }
+
+            // Extract apartment (everything after "Apto" and before "esq.")
+            const aptoMatch = fullAddress.match(/Apto\s+(.+?)(?:\s+esq\.|$)/i);
+            if (aptoMatch) {
+              apartment = aptoMatch[1].trim();
+            }
+
+            // Remove esquina and apartment parts to extract street and number
+            let streetAndNumber = fullAddress
+              .replace(/\s+Apto\s+.+?(?=\s+esq\.|$)/i, '')
+              .replace(/\s+esq\.\s+.+$/, '')
+              .trim();
+
+            // Extract number (first sequence of digits found)
+            const numberMatch = streetAndNumber.match(/\s(\d+)$/);
+            if (numberMatch) {
+              number = numberMatch[1];
+              street = streetAndNumber.substring(0, numberMatch.index).trim();
+            } else {
+              // If no number found, everything is street
+              street = streetAndNumber;
+            }
+          }
+
+          return { street, number, apartment, corner };
+        };
+
+        const addressParts = parseAddress(solicitudData.Direccion || "");
+
         // Set personal info
         setPersonalInfo({
           name: solicitudData.Nombre || "",
           phone: solicitudData.Telefono || "",
           email: solicitudData.Mail || "",
-          street: solicitudData.Direccion || "",
-          number: "",
-          corner: "",
-          apartment: "",
+          street: addressParts.street,
+          number: addressParts.number,
+          corner: addressParts.corner,
+          apartment: addressParts.apartment,
           comments: solicitudData.Comentario || "",
           termsAccepted: solicitudData.ConfirmarCondicionesUso === "S"
         });
