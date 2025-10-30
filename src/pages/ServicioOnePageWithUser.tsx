@@ -798,18 +798,19 @@ const ServicioOnePageWithUser = () => {
     const productsTotal = checkoutItems.reduce((sum, item) => sum + item.PrecioFinal, 0);
     const total = productsTotal + zoneCost;
     
-    // Calculate discount - DEBE SER EXACTAMENTE LA DIFERENCIA
+    // Calculate discount - DEBE SER EXACTAMENTE LA DIFERENCIA (incluyendo zona)
     const discountAmount = (solicitudId && suggestedPrice > 0) 
-      ? Math.round(productsTotal - suggestedPrice)
+      ? Math.round((productsTotal + zoneCost) - suggestedPrice)
       : 0;
     
     console.log("=== CÁLCULO DE DESCUENTO ===");
     console.log("solicitudId:", solicitudId);
     console.log("suggestedPrice (input del usuario):", suggestedPrice);
     console.log("productsTotal:", productsTotal);
-    console.log("Fórmula: productsTotal - suggestedPrice");
+    console.log("zoneCost:", zoneCost);
+    console.log("Fórmula: (productsTotal + zoneCost) - suggestedPrice");
     console.log("discountAmount calculado:", discountAmount);
-    console.log("Verificación manual:", productsTotal, "-", suggestedPrice, "=", (productsTotal - suggestedPrice));
+    console.log("Verificación manual:", productsTotal, "+", zoneCost, "-", suggestedPrice, "=", ((productsTotal + zoneCost) - suggestedPrice));
     
     const data: CheckoutData = {
       Nombre: personalInfo.name,
