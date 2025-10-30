@@ -637,6 +637,33 @@ const ServicioOnePage = () => {
               </div>
             </div>
 
+            {/* Ubicación del servicio - SIEMPRE VISIBLE después de fecha/hora y ANTES de seleccionar servicio */}
+            {purchaseLocation ? (
+              <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="font-medium text-sm">Ubicación del servicio</span>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setIsLocationModalOpen(true)} className="h-8 text-sm">
+                    Editar
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {purchaseLocation.storeName} - {purchaseLocation.departmentName}, {purchaseLocation.locationName}
+                </p>
+                {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-sm text-primary font-medium mt-2">
+                    Costo adicional por zona: ${purchaseLocation.zonaCostoAdicional}
+                  </p>}
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" onClick={() => setIsLocationModalOpen(true)}>
+                <MapPin className="h-5 w-5 text-primary" />
+                <span className="text-sm text-foreground flex-1">Configurar ubicación del servicio *</span>
+                <span className="text-sm text-muted-foreground">Click aquí</span>
+              </div>
+            )}
+
             {/* Services Summary Section */}
             {allSelectedServices.length > 0 && <div className="p-4 bg-secondary/10 border border-secondary/30 rounded-lg">
                 <div className="flex items-center gap-2 mb-3">
@@ -739,30 +766,6 @@ const ServicioOnePage = () => {
                 </SelectContent>
               </Select>
             </div>}
-
-            {purchaseLocation && <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-primary" />
-                    <span className="font-medium text-sm">Ubicación del servicio</span>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => setIsLocationModalOpen(true)} className="h-8 text-sm">
-                    Editar
-                  </Button>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {purchaseLocation.storeName} - {purchaseLocation.departmentName}, {purchaseLocation.locationName}
-                </p>
-                {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-sm text-primary font-medium mt-2">
-                    Costo adicional por zona: ${purchaseLocation.zonaCostoAdicional}
-                  </p>}
-              </div>}
-
-            {selectedCategory && !purchaseLocation && <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" onClick={() => setIsLocationModalOpen(true)}>
-                <MapPin className="h-5 w-5 text-primary" />
-                <span className="text-sm text-foreground flex-1">Configurar ubicación del servicio</span>
-                <span className="text-sm text-muted-foreground">Click aquí</span>
-              </div>}
 
             {/* Service Selection Section - Only show when category and location are selected */}
             {selectedCategory && purchaseLocation && <div className="bg-background border border-border rounded-lg p-4 shadow-sm">
