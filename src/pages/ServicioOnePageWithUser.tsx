@@ -1085,11 +1085,32 @@ const ServicioOnePageWithUser = () => {
                       </span>
                     </div>
 
-                    {/* Precio sugerido - solo visible en modo update */}
+                    {purchaseLocation?.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && (
+                      <>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-secondary">Costo adicional por zona:</span>
+                          <span className="font-semibold text-secondary">
+                            ${purchaseLocation.zonaCostoAdicional}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center pt-2 border-t border-secondary/20">
+                          <span className="font-bold text-secondary">Total final:</span>
+                          <span className="text-xl font-bold text-secondary">
+                            ${(solicitudId && suggestedPrice > 0 
+                              ? suggestedPrice 
+                              : allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0)
+                            ) + parseFloat(purchaseLocation.zonaCostoAdicional)}
+                          </span>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Precio sugerido - solo visible en modo update - DESPUÉS del total final */}
                     {solicitudId && (
-                      <div className="space-y-2 pt-2 border-t border-secondary/20">
-                        <Label htmlFor="suggested-price" className="text-sm font-medium text-secondary">
-                          Precio sugerido
+                      <div className="space-y-3 p-4 mt-4 rounded-lg border-2 border-primary/40 bg-primary/5">
+                        <Label htmlFor="suggested-price" className="text-base font-bold text-primary flex items-center gap-2">
+                          <span className="text-lg">💰</span>
+                          Precio sugerido *
                         </Label>
                         <Input
                           id="suggested-price"
@@ -1114,38 +1135,21 @@ const ServicioOnePageWithUser = () => {
                               toast.error("El precio sugerido no puede ser mayor al total final");
                             }
                           }}
-                          placeholder="Ingrese precio sugerido"
-                          className="h-10"
+                          placeholder="Ingrese el precio sugerido aquí"
+                          className="h-12 text-lg font-semibold border-primary/50"
                         />
+                        <p className="text-xs text-muted-foreground">
+                          * Campo obligatorio. El precio debe ser menor o igual al total final.
+                        </p>
                         {suggestedPrice > 0 && (
-                          <div className="flex justify-between items-center text-sm">
-                            <span className="text-secondary">Descuento a aplicar:</span>
-                            <span className="font-semibold text-green-600">
+                          <div className="flex justify-between items-center p-3 rounded-md bg-green-50 border border-green-200">
+                            <span className="text-sm font-medium text-green-800">Descuento a aplicar:</span>
+                            <span className="text-lg font-bold text-green-600">
                               ${(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0")) - suggestedPrice}
                             </span>
                           </div>
                         )}
                       </div>
-                    )}
-
-                    {purchaseLocation?.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && (
-                      <>
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-secondary">Costo adicional por zona:</span>
-                          <span className="font-semibold text-secondary">
-                            ${purchaseLocation.zonaCostoAdicional}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center pt-2 border-t border-secondary/20">
-                          <span className="font-bold text-secondary">Total final:</span>
-                          <span className="text-xl font-bold text-secondary">
-                            ${(solicitudId && suggestedPrice > 0 
-                              ? suggestedPrice 
-                              : allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0)
-                            ) + parseFloat(purchaseLocation.zonaCostoAdicional)}
-                          </span>
-                        </div>
-                      </>
                     )}
                   </div>
                 </div>
