@@ -1096,10 +1096,7 @@ const ServicioOnePageWithUser = () => {
                         <div className="flex justify-between items-center pt-2 border-t border-secondary/20">
                           <span className="font-bold text-secondary">Total final:</span>
                           <span className="text-xl font-bold text-secondary">
-                            ${(solicitudId && suggestedPrice > 0 
-                              ? suggestedPrice 
-                              : allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0)
-                            ) + parseFloat(purchaseLocation.zonaCostoAdicional)}
+                            ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation.zonaCostoAdicional)}
                           </span>
                         </div>
                       </>
