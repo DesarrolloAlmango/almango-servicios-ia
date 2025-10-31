@@ -35,6 +35,7 @@ export interface CheckoutData {
   CostoXZona: number;
   PaginaOne?: string;
   Descuento?: number;
+  SolicitudIdCancelar?: number;
   Level1: CheckoutItem[];
   serviceName?: string; // Service category name
 }

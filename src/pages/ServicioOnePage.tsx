@@ -74,7 +74,8 @@ const ServicioOnePage = () => {
     userId,
     commerceId,
     serviceId: urlServiceId,
-    categoryId: urlCategoryId
+    categoryId: urlCategoryId,
+    solicitudId
   } = useParams();
 
   // Form states
@@ -442,6 +443,7 @@ const ServicioOnePage = () => {
       CostoXZona: zoneCost,
       PaginaOne: "One",
       Descuento: 0,
+      ...(solicitudId && { SolicitudIdCancelar: parseInt(solicitudId) }),
       Level1: checkoutItems
     };
     console.log("=== VERIFICACIÓN DE ESTRUCTURA ===");
