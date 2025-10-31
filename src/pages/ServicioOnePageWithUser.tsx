@@ -1118,45 +1118,6 @@ const ServicioOnePageWithUser = () => {
               </div>
             )}
 
-            {/* Service selection form - only show if no services yet OR user clicked "add another" */}
-            {(allSelectedServices.length === 0 || isAddingNewService) && (
-              <>
-                <div>
-                  <Label htmlFor="service" className="text-sm font-medium mb-2 block">
-                    {allSelectedServices.length > 0 ? "Seleccione otro Servicio" : "Seleccione un Servicio"}
-                  </Label>
-                  <Select value={selectedService} onValueChange={setSelectedService}>
-                    <SelectTrigger className="h-10">
-                      <SelectValue placeholder="Seleccione un servicio" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {isServicesLoading ? <SelectItem value="loading" disabled>Cargando servicios...</SelectItem> : services && services.length > 0 ? services.map((service: TarjetaServicio) => <SelectItem key={service.id} value={service.id!}>
-                            {service.name}
-                          </SelectItem>) : <SelectItem value="no-services" disabled>
-                          No hay servicios disponibles
-                        </SelectItem>}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {selectedService && <div>
-                    <Label htmlFor="category" className="text-sm font-medium mb-2 block">Seleccione una Categoría</Label>
-                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                      <SelectTrigger className="h-10">
-                        <SelectValue placeholder="Seleccione una categoría" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {isCategoriesLoading ? <SelectItem value="loading" disabled>Cargando categorías...</SelectItem> : categories && categories.length > 0 ? categories.map((category: Category) => <SelectItem key={category.id} value={category.id}>
-                              {category.name}
-                            </SelectItem>) : <SelectItem value="no-categories" disabled>
-                            No hay categorías disponibles
-                          </SelectItem>}
-                      </SelectContent>
-                    </Select>
-                  </div>}
-              </>
-            )}
-
             {/* Services Summary Section */}
             {allSelectedServices.length > 0 && <div className="p-4 bg-secondary/10 border border-secondary/30 rounded-lg">
                 <div className="flex items-center gap-2 mb-3">
@@ -1293,6 +1254,45 @@ const ServicioOnePageWithUser = () => {
                   Agregar otro servicio
                 </Button>
               </div>
+            )}
+
+            {/* Service selection form - only show if no services yet OR user clicked "add another" */}
+            {(allSelectedServices.length === 0 || isAddingNewService) && (
+              <>
+                <div>
+                  <Label htmlFor="service" className="text-sm font-medium mb-2 block">
+                    {allSelectedServices.length > 0 ? "Seleccione otro Servicio" : "Seleccione un Servicio"}
+                  </Label>
+                  <Select value={selectedService} onValueChange={setSelectedService}>
+                    <SelectTrigger className="h-10">
+                      <SelectValue placeholder="Seleccione un servicio" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {isServicesLoading ? <SelectItem value="loading" disabled>Cargando servicios...</SelectItem> : services && services.length > 0 ? services.map((service: TarjetaServicio) => <SelectItem key={service.id} value={service.id!}>
+                            {service.name}
+                          </SelectItem>) : <SelectItem value="no-services" disabled>
+                          No hay servicios disponibles
+                        </SelectItem>}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {selectedService && <div>
+                    <Label htmlFor="category" className="text-sm font-medium mb-2 block">Seleccione una Categoría</Label>
+                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                      <SelectTrigger className="h-10">
+                        <SelectValue placeholder="Seleccione una categoría" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {isCategoriesLoading ? <SelectItem value="loading" disabled>Cargando categorías...</SelectItem> : categories && categories.length > 0 ? categories.map((category: Category) => <SelectItem key={category.id} value={category.id}>
+                              {category.name}
+                            </SelectItem>) : <SelectItem value="no-categories" disabled>
+                            No hay categorías disponibles
+                          </SelectItem>}
+                      </SelectContent>
+                    </Select>
+                  </div>}
+              </>
             )}
 
                 {/* Service Selection Section - Only show when actively adding a service */}
