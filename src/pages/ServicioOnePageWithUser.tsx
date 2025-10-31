@@ -834,6 +834,7 @@ const ServicioOnePageWithUser = () => {
       CostoXZona: zoneCost,
       PaginaOne: solicitudId ? "" : "One", // Empty when updating, "One" when creating
       Descuento: discountAmount,
+      ...(solicitudId && { SolicitudIdCancelar: parseInt(solicitudId) }),
       Level1: checkoutItems
     };
     console.log("=== VERIFICACIÓN DE ESTRUCTURA ===");
