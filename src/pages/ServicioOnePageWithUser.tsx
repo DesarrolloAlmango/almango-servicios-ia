@@ -638,6 +638,11 @@ const ServicioOnePageWithUser = () => {
     loadSolicitudData();
   }, [solicitudId]);
   const handleProductQuantityChange = (product: Product, change: number) => {
+    // Reset suggested price when product quantity changes
+    if (solicitudId) {
+      setSuggestedPrice(0);
+    }
+    
     setSelectedProducts(prev => {
       const existing = prev.find(p => p.ProductoID === product.ProductoID);
       if (existing) {
@@ -703,6 +708,11 @@ const ServicioOnePageWithUser = () => {
     };
     setAllSelectedServices(prev => [...prev, newService]);
 
+    // Reset suggested price when adding a new service in update mode
+    if (solicitudId) {
+      setSuggestedPrice(0);
+    }
+
     // Reset current selection and hide the form
     setSelectedService("");
     setSelectedCategory("");
@@ -711,10 +721,20 @@ const ServicioOnePageWithUser = () => {
     // DON'T reset: setPurchaseLocation(null);
   };
   const removeServiceFromList = (index: number) => {
+    // Reset suggested price when removing a service in update mode
+    if (solicitudId) {
+      setSuggestedPrice(0);
+    }
+    
     setAllSelectedServices(prev => prev.filter((_, i) => i !== index));
   };
   const editServiceFromList = (index: number) => {
     const serviceToEdit = allSelectedServices[index];
+
+    // Reset suggested price when editing a service in update mode
+    if (solicitudId) {
+      setSuggestedPrice(0);
+    }
 
     // Load the service data back into the form
     setSelectedService(serviceToEdit.serviceId);
