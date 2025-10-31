@@ -336,6 +336,42 @@ const ServicioOnePageWithUser = () => {
     }
   }, [services, categories, products]);
 
+  // Update allSelectedServices when product prices change from API
+  // This runs even after initial load to keep prices in sync
+  useEffect(() => {
+    if (products && products.length > 0 && allSelectedServices.length > 0) {
+      console.log("Syncing allSelectedServices product prices with API data");
+      const updatedServices = allSelectedServices.map(service => ({
+        ...service,
+        products: service.products.map(product => {
+          const apiProduct = products.find(p => p.ProductoID === product.ProductoID);
+          if (apiProduct) {
+            console.log(`Updating price for product ${product.ProductoID} in allSelectedServices from ${product.Precio} to ${apiProduct.Precio}`);
+            return {
+              ...product,
+              Precio: apiProduct.Precio,
+              NombreProducto: apiProduct.NombreProducto
+            };
+          }
+          return product;
+        })
+      }));
+
+      // Only update if prices actually changed
+      const hasChanges = updatedServices.some((s, i) => 
+        s.products.some((p, j) => 
+          p.Precio !== allSelectedServices[i].products[j]?.Precio ||
+          p.NombreProducto !== allSelectedServices[i].products[j]?.NombreProducto
+        )
+      );
+
+      if (hasChanges) {
+        console.log("Updated allSelectedServices with API prices:", updatedServices);
+        setAllSelectedServices(updatedServices);
+      }
+    }
+  }, [products]);
+
   // Load data from solicitudId
   useEffect(() => {
     console.log("=== useEffect triggered ===");
