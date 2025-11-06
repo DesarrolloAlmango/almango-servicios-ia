@@ -443,7 +443,9 @@ const ServicioOnePage = () => {
       CostoXZona: zoneCost,
       PaginaOne: "One",
       Descuento: 0,
-      ...(solicitudId && { SolicitudIdCancelar: parseInt(solicitudId) }),
+      ...(solicitudId && {
+        SolicitudIdCancelar: parseInt(solicitudId)
+      }),
       Level1: checkoutItems
     };
     console.log("=== VERIFICACIÓN DE ESTRUCTURA ===");
@@ -640,8 +642,7 @@ const ServicioOnePage = () => {
             </div>
 
             {/* Ubicación del servicio - SIEMPRE VISIBLE después de fecha/hora y ANTES de seleccionar servicio */}
-            {purchaseLocation ? (
-              <div className="p-4 bg-muted/50 rounded-lg border border-border">
+            {purchaseLocation ? <div className="p-4 bg-muted/50 rounded-lg border border-border">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-primary" />
@@ -657,14 +658,11 @@ const ServicioOnePage = () => {
                 {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-sm text-primary font-medium mt-2">
                     Costo adicional por zona: ${purchaseLocation.zonaCostoAdicional}
                   </p>}
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" onClick={() => setIsLocationModalOpen(true)}>
+              </div> : <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" onClick={() => setIsLocationModalOpen(true)}>
                 <MapPin className="h-5 w-5 text-primary" />
                 <span className="text-sm text-foreground flex-1">Configurar ubicación del servicio *</span>
                 <span className="text-sm text-muted-foreground">Click aquí</span>
-              </div>
-            )}
+              </div>}
 
             {/* Services Summary Section */}
             {allSelectedServices.length > 0 && <div className="p-4 bg-secondary/10 border border-secondary/30 rounded-lg">
@@ -717,8 +715,7 @@ const ServicioOnePage = () => {
                         ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0)}
                       </span>
                     </div>
-                    {purchaseLocation?.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && (
-                      <>
+                    {purchaseLocation?.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <>
                         <div className="flex justify-between items-center text-sm">
                           <span className="text-secondary">Costo adicional por zona:</span>
                           <span className="font-semibold text-secondary">
@@ -731,8 +728,7 @@ const ServicioOnePage = () => {
                             ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation.zonaCostoAdicional)}
                           </span>
                         </div>
-                      </>
-                    )}
+                      </>}
                   </div>
                 </div>
               </div>}
@@ -964,23 +960,14 @@ const ServicioOnePage = () => {
 
             {/* Términos y condiciones */}
             <div className="flex items-start space-x-2 p-4 bg-accent/30 rounded-lg border border-border">
-              <Checkbox 
-                id="terms" 
-                checked={acceptTerms}
-                onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
-                className="mt-1"
-              />
+              <Checkbox id="terms" checked={acceptTerms} onCheckedChange={checked => setAcceptTerms(checked as boolean)} className="mt-1" />
               <div className="flex-1">
                 <Label htmlFor="terms" className="text-sm font-medium cursor-pointer">
                   Acepto los{" "}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setIsTermsModalOpen(true);
-                    }}
-                    className="text-primary hover:underline font-semibold"
-                  >
+                  <button type="button" onClick={e => {
+                  e.preventDefault();
+                  setIsTermsModalOpen(true);
+                }} className="text-primary hover:underline font-semibold">
                     términos y condiciones
                   </button>
                   {" "}*
@@ -991,21 +978,21 @@ const ServicioOnePage = () => {
         </div>
       </div>;
   };
-  return <div className="min-h-screen" style={{ backgroundColor: '#e7e9ef' }}>
+  return <div className="min-h-screen" style={{
+    backgroundColor: '#e7e9ef'
+  }}>
       <div className="container mx-auto py-8 max-w-3xl">
         <div className="mb-6 px-4">
           <div className="bg-[#fe8d0c] rounded-t-3xl p-8 text-center">
-            <h1 className="text-white text-3xl md:text-4xl font-bold mb-3 tracking-wide">
+            <h1 className="text-white text-3xl mb-3 tracking-wide font-extrabold md:text-4xl">
               SOLICITAR SERVICIO
             </h1>
-            <p className="text-white text-sm md:text-base font-light">
-              Completa el formulario para solicitar tus servicios personalizados para tu hogar
-            </p>
+            <p className="text-white text-sm mt-[-8px] font-semibold md:text-xl">Completa el formulario para solicitar su servicio</p>
           </div>
         </div>
         <div className="px-4">
         <Card className="shadow-xl border-border -mt-6">
-          <CardHeader className="bg-gradient-to-r from-primary to-secondary text-primary-foreground p-6">
+          <CardHeader className="from-primary to-secondary text-primary-foreground p-6 bg-[fe8d0c] bg-[#fe8d0c]">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
               <Package className="h-5 w-5" />
               {stepTitles[0]}
@@ -1023,10 +1010,10 @@ const ServicioOnePage = () => {
               </div>
               <div className="flex gap-3">
                 {(selectedService || selectedCategory || selectedProducts.length > 0) && <Button variant="outline" onClick={() => {
-              setSelectedService("");
-              setSelectedCategory("");
-              setSelectedProducts([]);
-            }} className="h-10 text-slate-950 font-bold">
+                setSelectedService("");
+                setSelectedCategory("");
+                setSelectedProducts([]);
+              }} className="h-10 text-slate-950 font-bold">
                     Limpiar
                   </Button>}
                 <Button onClick={handleShowConfirmation} disabled={isSubmitting || !validateForm()} className="min-w-32 h-10 bg-primary hover:bg-primary/90">
