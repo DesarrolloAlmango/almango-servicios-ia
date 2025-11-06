@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Home, Wind, Droplets, Zap, Package, Truck, Baby, MapPin, CalendarClock, UserCheck, CreditCard, Check, ShoppingCart, Plus, X, Pencil } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import fondoAzul from "@/assets/fondo-azul-patrones.svg";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -979,7 +980,10 @@ const ServicioOnePage = () => {
       </div>;
   };
   return <div className="min-h-screen" style={{
-    backgroundColor: '#e7e9ef'
+    backgroundImage: `url(${fondoAzul})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat'
   }}>
       <div className="container mx-auto py-8 max-w-3xl">
         <div className="mb-6 px-4">
