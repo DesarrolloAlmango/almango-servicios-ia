@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Home, Wind, Droplets, Zap, Package, Truck, Baby, MapPin, CalendarClock, UserCheck, CreditCard, Check, ShoppingCart, Plus, X, Pencil } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import fondoAzul from "@/assets/fondo-azul-patrones.svg";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -1485,16 +1486,23 @@ const ServicioOnePageWithUser = () => {
         </div>
       </div>;
   };
-  return <div className="min-h-screen" style={{ backgroundColor: '#e7e9ef' }}>
-      <div className="container mx-auto px-4 py-8 max-w-3xl">
-        <div className="mb-6 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-2 bg-gradient-to-r from-orange-500 via-orange-400 to-blue-500 bg-clip-text text-transparent drop-shadow-lg animate-gradient bg-[length:200%_auto]">
-            Solicitar Servicio
-          </h1>
-          <p className="text-muted-foreground text-sm">Complete el formulario para solicitar su servicio</p>
+  return <div className="min-h-screen" style={{
+    backgroundImage: `url(${fondoAzul})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat'
+  }}>
+      <div className="container mx-auto py-8 max-w-3xl">
+        <div className="mb-6 px-4">
+          <div className="bg-[#fe8d0c] rounded-t-3xl p-8 text-center">
+            <h1 className="text-white text-3xl mb-3 tracking-wide font-extrabold md:text-4xl">
+              SOLICITAR SERVICIO
+            </h1>
+            <p className="text-white text-sm mt-[-8px] font-semibold md:text-xl">Completa el formulario para solicitar su servicio</p>
+          </div>
         </div>
-
-        <Card className="shadow-xl border-border">
+        <div className="px-4 mt-14">
+        <Card className="shadow-xl border-border -mt-6">
           <CardHeader className="bg-gradient-to-r from-primary to-secondary text-primary-foreground p-6">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
               <Package className="h-5 w-5" />
@@ -1525,6 +1533,7 @@ const ServicioOnePageWithUser = () => {
               </div>
             </div>
           </Card>
+        </div>
 
         <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => setIsLocationModalOpen(false)} onSelectLocation={handleLocationSelect} stores={[]} serviceId={selectedService} serviceName={services?.find(s => s.id === selectedService)?.name} categoryId={selectedCategory} categoryName={categories?.find(c => c.id === selectedCategory)?.name} commerceId={purchaseLocation?.storeId} commerceName={purchaseLocation?.storeName} initialStoreId={purchaseLocation?.storeId} initialDepartmentId={purchaseLocation?.departmentId} initialLocationId={purchaseLocation?.locationId} />
         
