@@ -235,7 +235,10 @@ const ServicioOnePageWithUser = () => {
   // Update product prices and names when API products are loaded
   useEffect(() => {
     if (products && products.length > 0 && selectedProducts.length > 0) {
-      console.log("Updating prices for preloaded products", { products, selectedProducts });
+      console.log("Updating prices for preloaded products", {
+        products,
+        selectedProducts
+      });
       const updatedProducts = selectedProducts.map(selectedProduct => {
         // Match by ProductoID (which is the DetalleID from JSON)
         const apiProduct = products.find(p => p.ProductoID === selectedProduct.ProductoID);
@@ -255,12 +258,9 @@ const ServicioOnePageWithUser = () => {
         console.log(`No match found for product ${selectedProduct.ProductoID}`);
         return selectedProduct;
       });
-      
+
       // Only update if prices changed or names changed
-      const hasChanges = updatedProducts.some((p, i) => 
-        p.Precio !== selectedProducts[i].Precio || 
-        p.NombreProducto !== selectedProducts[i].NombreProducto
-      );
+      const hasChanges = updatedProducts.some((p, i) => p.Precio !== selectedProducts[i].Precio || p.NombreProducto !== selectedProducts[i].NombreProducto);
       if (hasChanges) {
         console.log("Updated products with API data:", updatedProducts);
         setSelectedProducts(updatedProducts);
@@ -271,7 +271,7 @@ const ServicioOnePageWithUser = () => {
   // Update service and category names in allSelectedServices when API data is loaded
   // BUT ONLY for the initial load from JSON, not when adding new services
   useEffect(() => {
-    if ((services && services.length > 0) || (categories && categories.length > 0)) {
+    if (services && services.length > 0 || categories && categories.length > 0) {
       if (allSelectedServices.length > 0 && !hasLoadedInitialData) {
         console.log("Updating service and category names in allSelectedServices (initial load only)");
         const updatedServices = allSelectedServices.map(service => {
@@ -313,7 +313,6 @@ const ServicioOnePageWithUser = () => {
             }
             return product;
           });
-
           return {
             ...service,
             serviceName,
@@ -321,13 +320,7 @@ const ServicioOnePageWithUser = () => {
             products: updatedProducts
           };
         });
-
-        const hasChanges = updatedServices.some((s, i) => 
-          s.serviceName !== allSelectedServices[i].serviceName || 
-          s.categoryName !== allSelectedServices[i].categoryName ||
-          s.products.some((p, j) => p.NombreProducto !== allSelectedServices[i].products[j]?.NombreProducto)
-        );
-
+        const hasChanges = updatedServices.some((s, i) => s.serviceName !== allSelectedServices[i].serviceName || s.categoryName !== allSelectedServices[i].categoryName || s.products.some((p, j) => p.NombreProducto !== allSelectedServices[i].products[j]?.NombreProducto));
         if (hasChanges) {
           console.log("Updated allSelectedServices with API names:", updatedServices);
           setAllSelectedServices(updatedServices);
@@ -344,35 +337,29 @@ const ServicioOnePageWithUser = () => {
   useEffect(() => {
     console.log("=== useEffect triggered ===");
     console.log("solicitudId:", solicitudId);
-    
     if (!solicitudId) {
       console.log("No solicitudId found, skipping fetch");
       return;
     }
-
     const loadSolicitudData = async () => {
       try {
         const url = `https://app.almango.com.uy/WebAPI/ObtenerDatosToUpdateSol?SolicitudId=${solicitudId}`;
         console.log("Fetching URL:", url);
-        
         const response = await fetch(url);
         console.log("Response status:", response.status);
-        
         if (!response.ok) throw new Error("Error al obtener datos de la solicitud");
         const data = await response.json();
-        
         console.log("Datos de solicitud recibidos:", data);
-        
+
         // Show debug JSON
         console.log("=== DEBUG: JSON OBTENIDO DE ObtenerDatosToUpdateSol ===");
         console.log(JSON.stringify(data, null, 2));
         toast.info(`DEBUG - JSON obtenido: ${JSON.stringify(data, null, 2)}`, {
-          duration: 10000,
+          duration: 10000
         });
-        
+
         // Extract SolicitudesDatos
         const solicitudData = data.SolicitudesDatos;
-        
         if (!solicitudData) {
           toast.error("No se encontraron datos para esta solicitud");
           return;
@@ -384,7 +371,6 @@ const ServicioOnePageWithUser = () => {
           let number = "";
           let apartment = "";
           let corner = "";
-
           if (fullAddress) {
             // Extract corner (everything after "esq.")
             const esquinaMatch = fullAddress.match(/esq\.\s*(.+?)$/);
@@ -399,10 +385,7 @@ const ServicioOnePageWithUser = () => {
             }
 
             // Remove esquina and apartment parts to extract street and number
-            let streetAndNumber = fullAddress
-              .replace(/\s+Apto\s+.+?(?=\s+esq\.|$)/i, '')
-              .replace(/\s+esq\.\s+.+$/, '')
-              .trim();
+            let streetAndNumber = fullAddress.replace(/\s+Apto\s+.+?(?=\s+esq\.|$)/i, '').replace(/\s+esq\.\s+.+$/, '').trim();
 
             // Extract number (first sequence of digits found)
             const numberMatch = streetAndNumber.match(/\s(\d+)$/);
@@ -414,10 +397,13 @@ const ServicioOnePageWithUser = () => {
               street = streetAndNumber;
             }
           }
-
-          return { street, number, apartment, corner };
+          return {
+            street,
+            number,
+            apartment,
+            corner
+          };
         };
-
         const addressParts = parseAddress(solicitudData.Direccion || "");
 
         // Set personal info
@@ -501,7 +487,6 @@ const ServicioOnePageWithUser = () => {
           } catch (error) {
             console.error("Error fetching municipality name:", error);
           }
-
           const location: PurchaseLocation = {
             storeId: data.ProveedorID.toString(),
             storeName: providerName,
@@ -512,10 +497,8 @@ const ServicioOnePageWithUser = () => {
             zonaCostoAdicional: zonaCostoAdicional
           };
           setPurchaseLocation(location);
-          
           const zoneCost = parseFloat(zonaCostoAdicional);
           setGlobalZoneCost(zoneCost);
-          
           console.log("Location loaded:", location);
         }
 
@@ -525,15 +508,16 @@ const ServicioOnePageWithUser = () => {
           const firstItem = solicitudData.Level1[0];
           const firstServiceId = firstItem.RubrosId.toString();
           const firstCategoryId = firstItem.ProductoID.toString();
-          
+
           // Set selected service and category
           setSelectedService(firstServiceId);
           setSelectedCategory(firstCategoryId);
-          
+
           // Map all products from Level1
           // DetalleID in JSON corresponds to ProductoID in the API
           const loadedProducts: ProductWithQuantity[] = solicitudData.Level1.map((item: any) => ({
-            ProductoID: parseInt(item.DetalleID.toString()), // This is the actual product ID - convert to number
+            ProductoID: parseInt(item.DetalleID.toString()),
+            // This is the actual product ID - convert to number
             NombreProducto: `Producto ${item.DetalleID}`,
             Precio: parseFloat(item.Precio || "0"),
             TextosId: undefined,
@@ -541,30 +525,33 @@ const ServicioOnePageWithUser = () => {
             SR: item.SR || "S",
             Comision: parseFloat(item.Comision || "0"),
             ComisionTipo: item.ComisionTipo || "P",
-            DetallesID: parseInt(item.DetalleID.toString()), // Store DetalleID for matching with API products
+            DetallesID: parseInt(item.DetalleID.toString()),
+            // Store DetalleID for matching with API products
             quantity: parseInt(item.Cantidad || "1")
           }));
-          
           console.log("Loaded products with quantities from JSON:", loadedProducts);
           setSelectedProducts(loadedProducts);
-          
+
           // Also set allSelectedServices for the summary
-          const serviceGroups: { [key: string]: { [key: string]: ProductWithQuantity[] } } = {};
-          
+          const serviceGroups: {
+            [key: string]: {
+              [key: string]: ProductWithQuantity[];
+            };
+          } = {};
           solicitudData.Level1.forEach((item: any) => {
             const rubrosId = item.RubrosId.toString(); // Service ID
             const productoId = item.ProductoID.toString(); // Category ID
             const detalleId = item.DetalleID; // Actual Product ID
-            
+
             if (!serviceGroups[rubrosId]) {
               serviceGroups[rubrosId] = {};
             }
             if (!serviceGroups[rubrosId][productoId]) {
               serviceGroups[rubrosId][productoId] = [];
             }
-            
             serviceGroups[rubrosId][productoId].push({
-              ProductoID: parseInt(detalleId.toString()), // Use DetalleID as the actual product ID - convert to number
+              ProductoID: parseInt(detalleId.toString()),
+              // Use DetalleID as the actual product ID - convert to number
               NombreProducto: `Producto ${detalleId}`,
               Precio: parseFloat(item.Precio || "0"),
               TextosId: undefined,
@@ -572,37 +559,32 @@ const ServicioOnePageWithUser = () => {
               SR: item.SR || "S",
               Comision: parseFloat(item.Comision || "0"),
               ComisionTipo: item.ComisionTipo || "P",
-              DetallesID: parseInt(detalleId.toString()), // Store DetalleID for matching with API products
+              DetallesID: parseInt(detalleId.toString()),
+              // Store DetalleID for matching with API products
               quantity: parseInt(item.Cantidad || "1")
             });
           });
-
-          const loadedServices = Object.entries(serviceGroups).flatMap(([rubrosId, categories]) => 
-            Object.entries(categories).map(([productoId, products]) => ({
-              serviceId: rubrosId,
-              serviceName: `Servicio ${rubrosId}`,
-              categoryId: productoId,
-              categoryName: `Categoría ${productoId}`,
-              products: products
-            }))
-          );
-
+          const loadedServices = Object.entries(serviceGroups).flatMap(([rubrosId, categories]) => Object.entries(categories).map(([productoId, products]) => ({
+            serviceId: rubrosId,
+            serviceName: `Servicio ${rubrosId}`,
+            categoryId: productoId,
+            categoryName: `Categoría ${productoId}`,
+            products: products
+          })));
           setAllSelectedServices(loadedServices);
         }
-        
+
         // Set comments
         setComments(solicitudData.Comentario || "");
-        
+
         // Set terms acceptance
         setAcceptTerms(solicitudData.ConfirmarCondicionesUso === "S");
-
         toast.success("Datos de solicitud cargados correctamente");
       } catch (error) {
         console.error("Error al cargar datos de solicitud:", error);
         toast.error("Error al cargar datos de la solicitud");
       }
     };
-
     loadSolicitudData();
   }, [solicitudId]);
   const handleProductQuantityChange = (product: Product, change: number) => {
@@ -610,7 +592,6 @@ const ServicioOnePageWithUser = () => {
     if (solicitudId) {
       setSuggestedPrice(0);
     }
-    
     setSelectedProducts(prev => {
       const existing = prev.find(p => p.ProductoID === product.ProductoID);
       if (existing) {
@@ -693,7 +674,6 @@ const ServicioOnePageWithUser = () => {
     if (solicitudId) {
       setSuggestedPrice(0);
     }
-    
     setAllSelectedServices(prev => prev.filter((_, i) => i !== index));
   };
   const editServiceFromList = (index: number) => {
@@ -708,13 +688,12 @@ const ServicioOnePageWithUser = () => {
     setSelectedService(serviceToEdit.serviceId);
     setSelectedCategory(serviceToEdit.categoryId);
     setSelectedProducts([...serviceToEdit.products]);
-    
+
     // Enable the form to show the editing interface
     setIsAddingNewService(true);
 
     // Remove from the list of added services
     setAllSelectedServices(prev => prev.filter((_, i) => i !== index));
-
     toast.info("Servicio cargado para edición");
   };
 
@@ -791,13 +770,11 @@ const ServicioOnePageWithUser = () => {
       categoryId: selectedCategory,
       products: selectedProducts
     }] : [])];
-    
     console.log("=== DEBUG SERVICIOS ===");
     console.log("solicitudId:", solicitudId);
     console.log("allSelectedServices:", allSelectedServices);
     console.log("selectedProducts:", selectedProducts);
     console.log("allServicesWithProducts:", allServicesWithProducts);
-    
     if (allServicesWithProducts.length === 0 || allServicesWithProducts.every(s => s.products.length === 0)) {
       toast.error("Debe seleccionar al menos un producto");
       return;
@@ -821,12 +798,9 @@ const ServicioOnePageWithUser = () => {
     // Calculate total
     const productsTotal = checkoutItems.reduce((sum, item) => sum + item.PrecioFinal, 0);
     const total = productsTotal + zoneCost;
-    
+
     // Calculate discount - DEBE SER EXACTAMENTE LA DIFERENCIA (incluyendo zona)
-    const discountAmount = (solicitudId && suggestedPrice > 0) 
-      ? Math.round((productsTotal + zoneCost) - suggestedPrice)
-      : 0;
-    
+    const discountAmount = solicitudId && suggestedPrice > 0 ? Math.round(productsTotal + zoneCost - suggestedPrice) : 0;
     console.log("=== CÁLCULO DE DESCUENTO ===");
     console.log("solicitudId:", solicitudId);
     console.log("suggestedPrice (input del usuario):", suggestedPrice);
@@ -834,8 +808,7 @@ const ServicioOnePageWithUser = () => {
     console.log("zoneCost:", zoneCost);
     console.log("Fórmula: (productsTotal + zoneCost) - suggestedPrice");
     console.log("discountAmount calculado:", discountAmount);
-    console.log("Verificación manual:", productsTotal, "+", zoneCost, "-", suggestedPrice, "=", ((productsTotal + zoneCost) - suggestedPrice));
-    
+    console.log("Verificación manual:", productsTotal, "+", zoneCost, "-", suggestedPrice, "=", productsTotal + zoneCost - suggestedPrice);
     const data: CheckoutData = {
       Nombre: personalInfo.name,
       Telefono: personalInfo.phone,
@@ -856,9 +829,12 @@ const ServicioOnePageWithUser = () => {
       ConfirmarCondicionesUso: acceptTerms ? "S" : "N",
       ProveedorAuxiliar: getProviderAuxiliary(purchaseLocation?.storeId || "unknown", purchaseLocation?.storeName),
       CostoXZona: zoneCost,
-      PaginaOne: solicitudId ? "" : "One", // Empty when updating, "One" when creating
+      PaginaOne: solicitudId ? "" : "One",
+      // Empty when updating, "One" when creating
       Descuento: discountAmount,
-      ...(solicitudId && { SolicitudIdCancelar: parseInt(solicitudId) }),
+      ...(solicitudId && {
+        SolicitudIdCancelar: parseInt(solicitudId)
+      }),
       Level1: checkoutItems
     };
     console.log("=== VERIFICACIÓN DE ESTRUCTURA ===");
@@ -1060,8 +1036,7 @@ const ServicioOnePageWithUser = () => {
             </div>
 
             {/* Ubicación del servicio - SIEMPRE VISIBLE después de fecha/hora y ANTES de seleccionar servicio */}
-            {purchaseLocation ? (
-              <div className="p-4 bg-muted/50 rounded-lg border border-border">
+            {purchaseLocation ? <div className="p-4 bg-muted/50 rounded-lg border border-border">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-primary" />
@@ -1077,14 +1052,11 @@ const ServicioOnePageWithUser = () => {
                 {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-sm text-primary font-medium mt-2">
                     Costo adicional por zona: ${purchaseLocation.zonaCostoAdicional}
                   </p>}
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" onClick={() => setIsLocationModalOpen(true)}>
+              </div> : <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" onClick={() => setIsLocationModalOpen(true)}>
                 <MapPin className="h-5 w-5 text-primary" />
                 <span className="text-sm text-foreground flex-1">Configurar ubicación del servicio *</span>
                 <span className="text-sm text-muted-foreground">Click aquí</span>
-              </div>
-            )}
+              </div>}
 
             {/* Services Summary Section */}
             {allSelectedServices.length > 0 && <div className="p-4 bg-secondary/10 border border-secondary/30 rounded-lg">
@@ -1138,8 +1110,7 @@ const ServicioOnePageWithUser = () => {
                       </span>
                     </div>
 
-                    {purchaseLocation?.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && (
-                      <>
+                    {purchaseLocation?.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <>
                         <div className="flex justify-between items-center text-sm">
                           <span className="text-secondary">Costo adicional por zona:</span>
                           <span className="font-semibold text-secondary">
@@ -1152,81 +1123,60 @@ const ServicioOnePageWithUser = () => {
                             ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation.zonaCostoAdicional)}
                           </span>
                         </div>
-                      </>
-                    )}
+                      </>}
 
                     {/* Precio sugerido - solo visible en modo update - DESPUÉS del total final */}
-                    {solicitudId && (
-                      <div className="space-y-3 p-4 mt-4 rounded-lg border-2 border-primary/40 bg-primary/5">
+                    {solicitudId && <div className="space-y-3 p-4 mt-4 rounded-lg border-2 border-primary/40 bg-primary/5">
                         <Label htmlFor="suggested-price" className="text-base font-bold text-primary flex items-center gap-2">
                           <span className="text-lg">💰</span>
                           Precio sugerido *
                         </Label>
-                        <Input
-                          id="suggested-price"
-                          type="number"
-                          min="0"
-                          max={allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0")}
-                          value={suggestedPrice || ""}
-                          onChange={(e) => {
-                            const value = parseFloat(e.target.value) || 0;
-                            const servicesTotal = allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0);
-                            const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
-                            const finalTotal = servicesTotal + zoneCost;
-                            console.log("=== PRECIO SUGERIDO INPUT ===");
-                            console.log("Valor ingresado:", e.target.value);
-                            console.log("Valor parseado:", value);
-                            console.log("Total final máximo:", finalTotal);
-                            if (value <= finalTotal) {
-                              console.log("✓ Guardando precio sugerido:", value);
-                              setSuggestedPrice(value);
-                            } else {
-                              console.log("✗ Precio sugerido rechazado (mayor al total final)");
-                              toast.error("El precio sugerido no puede ser mayor al total final");
-                            }
-                          }}
-                          placeholder="Ingrese el precio sugerido aquí"
-                          className="h-12 text-lg font-semibold border-primary/50"
-                        />
+                        <Input id="suggested-price" type="number" min="0" max={allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0")} value={suggestedPrice || ""} onChange={e => {
+                const value = parseFloat(e.target.value) || 0;
+                const servicesTotal = allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0);
+                const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
+                const finalTotal = servicesTotal + zoneCost;
+                console.log("=== PRECIO SUGERIDO INPUT ===");
+                console.log("Valor ingresado:", e.target.value);
+                console.log("Valor parseado:", value);
+                console.log("Total final máximo:", finalTotal);
+                if (value <= finalTotal) {
+                  console.log("✓ Guardando precio sugerido:", value);
+                  setSuggestedPrice(value);
+                } else {
+                  console.log("✗ Precio sugerido rechazado (mayor al total final)");
+                  toast.error("El precio sugerido no puede ser mayor al total final");
+                }
+              }} placeholder="Ingrese el precio sugerido aquí" className="h-12 text-lg font-semibold border-primary/50" />
                         <p className="text-xs text-muted-foreground">
                           * Campo obligatorio. El precio debe ser menor o igual al total final.
                         </p>
-                        {suggestedPrice > 0 && (
-                          <div className="flex justify-between items-center p-3 rounded-md bg-green-50 border border-green-200">
+                        {suggestedPrice > 0 && <div className="flex justify-between items-center p-3 rounded-md bg-green-50 border border-green-200">
                             <span className="text-sm font-medium text-green-800">Descuento a aplicar:</span>
                             <span className="text-lg font-bold text-green-600">
-                              ${(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0")) - suggestedPrice}
+                              ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0") - suggestedPrice}
                             </span>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                          </div>}
+                      </div>}
                   </div>
                 </div>
               </div>}
 
             {/* Show "Add another service" button after services summary when form is hidden */}
-            {allSelectedServices.length > 0 && !isAddingNewService && (
-              <div className="text-center py-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setIsAddingNewService(true);
-                    setSelectedService("");
-                    setSelectedCategory("");
-                    setSelectedProducts([]);
-                  }}
-                  className="gap-2"
-                >
+            {allSelectedServices.length > 0 && !isAddingNewService && <div className="text-center py-4">
+                <Button variant="outline" onClick={() => {
+          setIsAddingNewService(true);
+          setSelectedService("");
+          setSelectedCategory("");
+          setSelectedProducts([]);
+        }} className="gap-2">
                   <Plus className="h-4 w-4" />
                   Agregar otro servicio
                 </Button>
-              </div>
-            )}
+              </div>}
 
             {/* Service selection form - only show if no services yet OR user clicked "add another" */}
-            {(allSelectedServices.length === 0 || isAddingNewService) && (
-              <>
+            {(allSelectedServices.length === 0 || isAddingNewService) && <>
                 <div>
                   <Label htmlFor="service" className="text-sm font-medium mb-2 block">
                     {allSelectedServices.length > 0 ? "Seleccione otro Servicio" : "Seleccione un Servicio"}
@@ -1260,8 +1210,7 @@ const ServicioOnePageWithUser = () => {
                       </SelectContent>
                     </Select>
                   </div>}
-              </>
-            )}
+              </>}
 
                 {/* Service Selection Section - Only show when actively adding a service */}
                 {selectedCategory !== "" && purchaseLocation && isAddingNewService && <div className="bg-background border border-border rounded-lg p-4 shadow-sm">
@@ -1277,10 +1226,10 @@ const ServicioOnePageWithUser = () => {
                         {isProductsLoading ? <div className="space-y-3">
                           {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full rounded-lg" />)}
                         </div> : products && products.length > 0 ? products.map((product: Product) => {
-                // Match by ProductoID 
-                const selectedProduct = selectedProducts.find(p => p.ProductoID === product.ProductoID);
-                const quantity = selectedProduct?.quantity || 0;
-                return <div key={product.ProductoID} className={cn("flex items-center space-x-2 p-2 border-2 rounded-lg transition-all duration-200", quantity > 0 ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/50")}>
+              // Match by ProductoID 
+              const selectedProduct = selectedProducts.find(p => p.ProductoID === product.ProductoID);
+              const quantity = selectedProduct?.quantity || 0;
+              return <div key={product.ProductoID} className={cn("flex items-center space-x-2 p-2 border-2 rounded-lg transition-all duration-200", quantity > 0 ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/50")}>
                               <div className="flex-1">
                                 <div className="flex justify-between items-start mb-2">
                                   <div>
@@ -1295,9 +1244,9 @@ const ServicioOnePageWithUser = () => {
                                 
                                 <div className="mb-1">
                                   <Button variant="link" className="text-xs text-secondary hover:text-secondary/80 p-0 h-auto cursor-pointer" onClick={() => setSelectedProductTerms({
-                        textosId: product.TextosId?.toString() || null,
-                        productName: product.NombreProducto
-                      })} type="button">
+                      textosId: product.TextosId?.toString() || null,
+                      productName: product.NombreProducto
+                    })} type="button">
                                     Ver Condiciones
                                   </Button>
                                 </div>
@@ -1323,7 +1272,7 @@ const ServicioOnePageWithUser = () => {
                                   </div>}
                               </div>
                             </div>;
-              }) : <div className="text-center py-6 text-muted-foreground bg-muted/30 rounded-lg">
+            }) : <div className="text-center py-6 text-muted-foreground bg-muted/30 rounded-lg">
                           <Package className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
                           <p className="font-medium">No hay productos disponibles</p>
                           <p className="text-sm">para esta categoría en tu ubicación</p>
@@ -1459,23 +1408,14 @@ const ServicioOnePageWithUser = () => {
 
             {/* Términos y condiciones */}
             <div className="flex items-start space-x-2 p-4 bg-accent/30 rounded-lg border border-border">
-              <Checkbox 
-                id="terms" 
-                checked={acceptTerms}
-                onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
-                className="mt-1"
-              />
+              <Checkbox id="terms" checked={acceptTerms} onCheckedChange={checked => setAcceptTerms(checked as boolean)} className="mt-1" />
               <div className="flex-1">
                 <Label htmlFor="terms" className="text-sm font-medium cursor-pointer">
                   Acepto los{" "}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setIsTermsModalOpen(true);
-                    }}
-                    className="text-primary hover:underline font-semibold"
-                  >
+                  <button type="button" onClick={e => {
+                  e.preventDefault();
+                  setIsTermsModalOpen(true);
+                }} className="text-primary hover:underline font-semibold">
                     términos y condiciones
                   </button>
                   {" "}*
@@ -1503,7 +1443,7 @@ const ServicioOnePageWithUser = () => {
         </div>
         <div className="px-4 mt-14">
         <Card className="shadow-xl border-border -mt-6">
-          <CardHeader className="bg-gradient-to-r from-primary to-secondary text-primary-foreground p-6">
+          <CardHeader className="from-primary to-secondary text-primary-foreground p-6 bg-[t] bg-[#fe8d0c] m-[-2px]">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
               <Package className="h-5 w-5" />
               {stepTitles[0]}
@@ -1521,10 +1461,10 @@ const ServicioOnePageWithUser = () => {
               </div>
               <div className="flex gap-3">
                 {(selectedService || selectedCategory || selectedProducts.length > 0) && <Button variant="outline" onClick={() => {
-              setSelectedService("");
-              setSelectedCategory("");
-              setSelectedProducts([]);
-            }} className="h-10 text-slate-950 font-bold">
+                setSelectedService("");
+                setSelectedCategory("");
+                setSelectedProducts([]);
+              }} className="h-10 text-slate-950 font-bold">
                     Limpiar
                   </Button>}
                 <Button onClick={handleShowConfirmation} disabled={isSubmitting || !validateForm()} className="min-w-32 h-10 bg-primary hover:bg-primary/90">
