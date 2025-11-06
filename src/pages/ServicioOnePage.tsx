@@ -993,11 +993,11 @@ const ServicioOnePage = () => {
       </div>;
   };
   return <div className="min-h-screen" style={{ backgroundColor: '#e7e9ef' }}>
-      <div className="container mx-auto px-4 py-8 max-w-3xl">
-        <div className="mb-6">
+      <div className="container mx-auto py-8 max-w-3xl">
+        <div className="mb-6 px-4">
           <img src={encabezado} alt="Encabezado" className="w-full h-auto" />
         </div>
-
+        <div className="px-4">
         <Card className="shadow-xl border-border">
           <CardHeader className="bg-gradient-to-r from-primary to-secondary text-primary-foreground p-6">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
@@ -1029,6 +1029,7 @@ const ServicioOnePage = () => {
               </div>
             </div>
           </Card>
+        </div>
 
         <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => setIsLocationModalOpen(false)} onSelectLocation={handleLocationSelect} stores={[]} serviceId={selectedService} serviceName={services?.find(s => s.id === selectedService)?.name} categoryId={selectedCategory} categoryName={categories?.find(c => c.id === selectedCategory)?.name} commerceId={commerceId} />
         
