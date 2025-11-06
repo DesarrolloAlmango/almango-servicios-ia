@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Home, Wind, Droplets, Zap, Package, Truck, Baby, MapPin, CalendarClock, UserCheck, CreditCard, Check, ShoppingCart, Plus, X, Pencil } from "lucide-react";
+import encabezado from "@/assets/encabezado.svg";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -993,11 +994,8 @@ const ServicioOnePage = () => {
   };
   return <div className="min-h-screen" style={{ backgroundColor: '#e7e9ef' }}>
       <div className="container mx-auto px-4 py-8 max-w-3xl">
-        <div className="mb-6 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-2 bg-gradient-to-r from-orange-500 via-orange-400 to-blue-500 bg-clip-text text-transparent drop-shadow-lg animate-gradient bg-[length:200%_auto]">
-            Solicitar Servicio
-          </h1>
-          <p className="text-muted-foreground text-sm">Complete el formulario para solicitar su servicio</p>
+        <div className="mb-6">
+          <img src={encabezado} alt="Encabezado" className="w-full h-auto" />
         </div>
 
         <Card className="shadow-xl border-border">
