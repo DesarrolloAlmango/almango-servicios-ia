@@ -996,7 +996,7 @@ const ServicioOnePage = () => {
         </div>
         <div className="px-4 mt-14">
         <Card className="shadow-xl border-border -mt-6">
-          <CardHeader className="from-primary to-secondary text-primary-foreground p-6 bg-[fe8d0c] bg-[#fe8d0c] m-[-2px]">
+          <CardHeader className="from-primary to-secondary text-primary-foreground p-6 bg-[fe8d0c] m-[-2px] bg-primary-DEFAULT">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
               <Package className="h-5 w-5" />
               {stepTitles[0]}
