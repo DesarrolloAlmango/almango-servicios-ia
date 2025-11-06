@@ -987,7 +987,7 @@ const ServicioOnePage = () => {
   }}>
       <div className="container mx-auto py-8 max-w-3xl">
         <div className="mb-6 px-4">
-          <div className="bg-[#fe8d0c] rounded-t-3xl p-8 text-center">
+          <div className="rounded-t-3xl p-8 text-center bg-primary-DEFAULT">
             <h1 className="text-white text-3xl mb-3 tracking-wide font-extrabold md:text-4xl">
               SOLICITAR SERVICIO
             </h1>
@@ -996,7 +996,7 @@ const ServicioOnePage = () => {
         </div>
         <div className="px-4 mt-14">
         <Card className="shadow-xl border-border -mt-6">
-          <CardHeader className="from-primary to-secondary text-primary-foreground p-6 bg-[fe8d0c] bg-[#fe8d0c] m-[-px]">
+          <CardHeader className="from-primary to-secondary text-primary-foreground p-6 bg-[fe8d0c] m-[-2px] bg-primary-DEFAULT">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
               <Package className="h-5 w-5" />
               {stepTitles[0]}
