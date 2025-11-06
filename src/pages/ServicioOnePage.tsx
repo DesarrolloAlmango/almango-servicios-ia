@@ -584,12 +584,11 @@ const ServicioOnePage = () => {
   };
   const stepTitles = ["Solicitud de Servicio"];
   const renderStepContent = () => {
-    return (
-      <div className="space-y-6">
+    return <div className="space-y-6">
         {/* Date and Time Selection - First priority */}
-            <div className="p-5 bg-white rounded-lg border-2 border-gray-200 shadow-sm">
-              <h4 className="font-bold mb-4 flex items-center gap-3 text-gray-800 text-lg">
-                <CalendarClock className="h-6 w-6 text-primary" />
+            <div className="p-4 bg-accent/50 rounded-lg border border-border">
+              <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
+                <CalendarClock className="h-5 w-5 text-primary" />
                 Fecha y Hora del Servicio
               </h4>
               
@@ -642,11 +641,11 @@ const ServicioOnePage = () => {
 
             {/* Ubicación del servicio - SIEMPRE VISIBLE después de fecha/hora y ANTES de seleccionar servicio */}
             {purchaseLocation ? (
-              <div className="p-5 bg-white rounded-lg border-2 border-gray-200 shadow-sm">
+              <div className="p-4 bg-muted/50 rounded-lg border border-border">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <MapPin className="h-6 w-6 text-primary" />
-                    <span className="font-bold text-lg text-gray-800">Ubicación del servicio</span>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="font-medium text-sm">Ubicación del servicio</span>
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => setIsLocationModalOpen(true)} className="h-8 text-sm">
                     Editar
@@ -660,24 +659,24 @@ const ServicioOnePage = () => {
                   </p>}
               </div>
             ) : (
-              <div className="flex items-center gap-3 p-5 bg-white rounded-lg border-2 border-gray-200 shadow-sm cursor-pointer hover:bg-blue-50 transition-colors" onClick={() => setIsLocationModalOpen(true)}>
-                <MapPin className="h-6 w-6 text-primary" />
-                <span className="font-semibold text-gray-800 flex-1">Configurar ubicación del servicio *</span>
-                <span className="text-sm text-primary font-medium">Click aquí</span>
+              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" onClick={() => setIsLocationModalOpen(true)}>
+                <MapPin className="h-5 w-5 text-primary" />
+                <span className="text-sm text-foreground flex-1">Configurar ubicación del servicio *</span>
+                <span className="text-sm text-muted-foreground">Click aquí</span>
               </div>
             )}
 
             {/* Services Summary Section */}
-            {allSelectedServices.length > 0 && <div className="p-6 bg-blue-50 border-2 border-blue-200 rounded-lg shadow-md">
-                <div className="flex items-center gap-3 mb-4">
-                  <Check className="h-6 w-6 text-blue-600" />
-                  <h3 className="font-bold text-blue-800 text-lg">
+            {allSelectedServices.length > 0 && <div className="p-4 bg-secondary/10 border border-secondary/30 rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <Check className="h-5 w-5 text-secondary" />
+                  <h3 className="font-semibold text-secondary text-base">
                     Servicios Agregados ({allSelectedServices.length})
                   </h3>
                 </div>
                 
                 <div className="space-y-3">
-                  {allSelectedServices.map((service, index) => <div key={index} className="bg-white p-4 rounded-lg border-2 border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                  {allSelectedServices.map((service, index) => <div key={index} className="bg-background p-3 rounded-lg border border-border shadow-sm hover:shadow-md transition-shadow">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <h4 className="font-semibold text-foreground mb-1">{service.serviceName}</h4>
@@ -710,25 +709,25 @@ const ServicioOnePage = () => {
                     </div>)}
                 </div>
                 
-                <div className="mt-4 pt-4 border-t-2 border-blue-300">
-                  <div className="space-y-3">
+                <div className="mt-3 pt-3 border-t border-secondary/30 bg-secondary/5 rounded-lg p-3">
+                  <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="font-bold text-gray-700 text-base">Total de servicios:</span>
-                      <span className="text-2xl font-bold text-blue-600">
+                      <span className="font-semibold text-secondary">Total de servicios:</span>
+                      <span className="text-lg font-bold text-secondary">
                         ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0)}
                       </span>
                     </div>
                     {purchaseLocation?.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && (
                       <>
                         <div className="flex justify-between items-center text-sm">
-                          <span className="text-gray-700 font-medium">Costo adicional por zona:</span>
-                          <span className="font-bold text-blue-600">
+                          <span className="text-secondary">Costo adicional por zona:</span>
+                          <span className="font-semibold text-secondary">
                             ${purchaseLocation.zonaCostoAdicional}
                           </span>
                         </div>
-                        <div className="flex justify-between items-center pt-3 border-t-2 border-blue-200">
-                          <span className="font-bold text-gray-800 text-lg">Total final:</span>
-                          <span className="text-3xl font-bold text-blue-600">
+                        <div className="flex justify-between items-center pt-2 border-t border-secondary/20">
+                          <span className="font-bold text-secondary">Total final:</span>
+                          <span className="text-xl font-bold text-secondary">
                             ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation.zonaCostoAdicional)}
                           </span>
                         </div>
@@ -738,29 +737,8 @@ const ServicioOnePage = () => {
                 </div>
               </div>}
 
-            {/* Add another service button */}
-            {allSelectedServices.length > 0 && (
-              <div className="text-center py-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    // Reset selection to add another service
-                    setSelectedService("");
-                    setSelectedCategory("");
-                    setSelectedProducts([]);
-                  }}
-                  className="gap-2 border-2 border-gray-300 hover:border-primary hover:text-primary font-bold uppercase tracking-wide px-6 h-11"
-                >
-                  <Plus className="h-5 w-5" />
-                  Agregar otro servicio
-                </Button>
-              </div>
-            )}
-
-            <div className="p-5 bg-white rounded-lg border-2 border-gray-200 shadow-sm">
-              <Label htmlFor="service" className="text-sm font-semibold mb-3 block text-gray-700">
-                {allSelectedServices.length > 0 ? "Seleccione otro Servicio" : "Seleccione un Servicio"}
-              </Label>
+            <div>
+              <Label htmlFor="service" className="text-sm font-medium mb-2 block">Seleccione otro Servicio</Label>
               <Select value={selectedService} onValueChange={setSelectedService}>
                 <SelectTrigger className="h-10">
                   <SelectValue placeholder="Seleccione un servicio" />
@@ -775,10 +753,8 @@ const ServicioOnePage = () => {
               </Select>
             </div>
 
-            </div>
-
-            {selectedService && <div className="p-5 bg-white rounded-lg border-2 border-gray-200 shadow-sm">
-                <Label htmlFor="category" className="text-sm font-semibold mb-3 block text-gray-700">Seleccione una Categoría</Label>
+            {selectedService && <div>
+                <Label htmlFor="category" className="text-sm font-medium mb-2 block">Seleccione una Categoría</Label>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger className="h-10">
                     <SelectValue placeholder="Seleccione una categoría" />
@@ -879,212 +855,177 @@ const ServicioOnePage = () => {
                 </div>
               </div>}
 
-            {/* Información Personal Section */}
-            <Separator className="my-8" />
-            
-            <div className="space-y-4 p-5 bg-white rounded-lg border-2 border-gray-200 shadow-sm">
-              <div className="flex items-center gap-3 mb-4">
-                <UserCheck className="h-6 w-6 text-primary" />
-                <h3 className="text-lg font-bold text-gray-800">Información Personal</h3>
-              </div>
+        {/* Información Personal Section */}
+        <Separator className="my-6" />
+        
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-3">
+            <UserCheck className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold text-foreground">Información Personal</h3>
+          </div>
           
-              <div className="space-y-4">
-                {/* Información Personal */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name" className="text-sm font-medium mb-2 block">Nombre completo *</Label>
-                    <Input id="name" placeholder="Nombre y apellido" value={personalInfo.name} className="h-10" onChange={e => setPersonalInfo(prev => ({
+          <div className="space-y-4">
+            {/* Información Personal */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="name" className="text-sm font-medium mb-2 block">Nombre completo *</Label>
+                <Input id="name" placeholder="Nombre y apellido" value={personalInfo.name} className="h-10" onChange={e => setPersonalInfo(prev => ({
+                ...prev,
+                name: e.target.value
+              }))} required />
+              </div>
+              <div>
+                <Label htmlFor="phone" className="text-sm font-medium mb-2 block">Teléfono *</Label>
+                <Input id="phone" placeholder="Teléfono de contacto" value={personalInfo.phone} className="h-10" onChange={e => setPersonalInfo(prev => ({
+                ...prev,
+                phone: e.target.value
+              }))} required />
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="email" className="text-sm font-medium mb-2 block">Correo electrónico (opcional)</Label>
+              <Input id="email" type="email" placeholder="tu@email.com" value={personalInfo.email} className="h-10" onChange={e => setPersonalInfo(prev => ({
+              ...prev,
+              email: e.target.value
+            }))} />
+            </div>
+
+            {/* Dirección */}
+            <div className="space-y-4">
+              <h4 className="font-semibold">Dirección</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="street" className="text-sm font-medium mb-2 block">Calle *</Label>
+                  <Input id="street" placeholder="Nombre de la calle" value={personalInfo.street} className="h-10" onChange={e => setPersonalInfo(prev => ({
+                  ...prev,
+                  street: e.target.value
+                }))} required />
+                </div>
+                
+                <div>
+                  <Label htmlFor="number" className="text-sm font-medium mb-2 block">Número *</Label>
+                  <div className="space-y-2">
+                    <Input id="number" placeholder="Número de puerta" value={personalInfo.number} disabled={noNumber} className="h-10" onChange={e => setPersonalInfo(prev => ({
                     ...prev,
-                    name: e.target.value
-                  }))} required />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone" className="text-sm font-medium mb-2 block">Teléfono *</Label>
-                    <Input id="phone" placeholder="Teléfono de contacto" value={personalInfo.phone} className="h-10" onChange={e => setPersonalInfo(prev => ({
-                    ...prev,
-                    phone: e.target.value
-                  }))} required />
+                    number: e.target.value
+                  }))} required={!noNumber} />
+                    <div className="flex items-center space-x-2">
+                      <Checkbox id="no-number" checked={noNumber} onCheckedChange={checked => {
+                      setNoNumber(checked as boolean);
+                      if (checked) {
+                        setPersonalInfo(prev => ({
+                          ...prev,
+                          number: "S/N"
+                        }));
+                      } else {
+                        setPersonalInfo(prev => ({
+                          ...prev,
+                          number: ""
+                        }));
+                      }
+                    }} className="h-4 w-4" />
+                      <Label htmlFor="no-number" className="text-sm font-normal cursor-pointer">
+                        S/N
+                      </Label>
+                    </div>
                   </div>
                 </div>
+              </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="email" className="text-sm font-medium mb-2 block">Correo electrónico (opcional)</Label>
-                  <Input id="email" type="email" placeholder="tu@email.com" value={personalInfo.email} className="h-10" onChange={e => setPersonalInfo(prev => ({
+                  <Label htmlFor="corner" className="text-sm font-medium mb-2 block">Esquina</Label>
+                  <Input id="corner" placeholder="Intersección más cercana" value={personalInfo.corner} className="h-10" onChange={e => setPersonalInfo(prev => ({
                   ...prev,
-                  email: e.target.value
+                  corner: e.target.value
                 }))} />
                 </div>
-
-                {/* Dirección */}
-                <div className="space-y-4 p-5 bg-gray-50 rounded-lg border border-gray-200">
-                  <h4 className="font-bold text-gray-800 flex items-center gap-2">
-                    <MapPin className="h-5 w-5 text-primary" />
-                    Dirección
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="street" className="text-sm font-medium mb-2 block">Calle *</Label>
-                      <Input id="street" placeholder="Nombre de la calle" value={personalInfo.street} className="h-10" onChange={e => setPersonalInfo(prev => ({
-                      ...prev,
-                      street: e.target.value
-                    }))} required />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="number" className="text-sm font-medium mb-2 block">Número *</Label>
-                      <div className="space-y-2">
-                        <Input id="number" placeholder="Número de puerta" value={personalInfo.number} disabled={noNumber} className="h-10" onChange={e => setPersonalInfo(prev => ({
-                        ...prev,
-                        number: e.target.value
-                      }))} required={!noNumber} />
-                        <div className="flex items-center space-x-2">
-                          <Checkbox id="no-number" checked={noNumber} onCheckedChange={checked => {
-                          setNoNumber(checked as boolean);
-                          if (checked) {
-                            setPersonalInfo(prev => ({
-                              ...prev,
-                              number: "S/N"
-                            }));
-                          } else {
-                            setPersonalInfo(prev => ({
-                              ...prev,
-                              number: ""
-                            }));
-                          }
-                        }} className="h-4 w-4" />
-                          <Label htmlFor="no-number" className="text-sm font-normal cursor-pointer">
-                            S/N
-                          </Label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="corner" className="text-sm font-medium mb-2 block">Esquina</Label>
-                      <Input id="corner" placeholder="Intersección más cercana" value={personalInfo.corner} className="h-10" onChange={e => setPersonalInfo(prev => ({
-                      ...prev,
-                      corner: e.target.value
-                    }))} />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="apartment" className="text-sm font-medium mb-2 block">Apartamento</Label>
-                      <Input id="apartment" placeholder="Apto (opcional)" value={personalInfo.apartment} className="h-10" onChange={e => setPersonalInfo(prev => ({
-                      ...prev,
-                      apartment: e.target.value
-                    }))} />
-                    </div>
-                  </div>
-                </div>
-
-
-                {/* Comentarios */}
+                
                 <div>
-                  <Label htmlFor="comments" className="text-sm font-medium mb-2 block">Comentarios</Label>
-                  <Textarea id="comments" placeholder="¿Hay algo más que debamos saber?" value={personalInfo.comments} className="min-h-[80px]" onChange={e => setPersonalInfo(prev => ({
+                  <Label htmlFor="apartment" className="text-sm font-medium mb-2 block">Apartamento</Label>
+                  <Input id="apartment" placeholder="Apto (opcional)" value={personalInfo.apartment} className="h-10" onChange={e => setPersonalInfo(prev => ({
                   ...prev,
-                  comments: e.target.value
+                  apartment: e.target.value
                 }))} />
-                </div>
-
-                {/* Términos y condiciones */}
-                <div className="flex items-start space-x-2 p-4 bg-accent/30 rounded-lg border border-border">
-                  <Checkbox 
-                    id="terms" 
-                    checked={acceptTerms}
-                    onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
-                    className="mt-1"
-                  />
-                  <div className="flex-1">
-                    <Label htmlFor="terms" className="text-sm font-medium cursor-pointer">
-                      Acepto los{" "}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setIsTermsModalOpen(true);
-                        }}
-                        className="text-primary hover:underline font-semibold"
-                      >
-                        términos y condiciones
-                      </button>
-                      {" "}*
-                    </Label>
-                  </div>
                 </div>
               </div>
             </div>
-        </div>
-      </div>
-    );
-  };
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50">
-      {/* Header azul */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-8 text-center shadow-md">
-        <h1 className="text-3xl md:text-4xl font-bold uppercase tracking-wide">
-          Solicitar Servicio
-        </h1>
-        <p className="text-blue-50 mt-2 text-sm md:text-base">Complete el formulario para solicitar su servicio</p>
-      </div>
 
-      {/* Barra naranja con logo */}
-      <div className="bg-primary py-4 px-6 shadow-lg">
-        <div className="container mx-auto max-w-3xl flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Package className="h-6 w-6 text-white" />
-            <span className="text-white font-bold text-lg">Solicitud de Servicio</span>
+
+            {/* Comentarios */}
+            <div>
+              <Label htmlFor="comments" className="text-sm font-medium mb-2 block">Comentarios</Label>
+              <Textarea id="comments" placeholder="¿Hay algo más que debamos saber?" value={personalInfo.comments} className="min-h-[80px]" onChange={e => setPersonalInfo(prev => ({
+              ...prev,
+              comments: e.target.value
+            }))} />
+            </div>
+
+            {/* Términos y condiciones */}
+            <div className="flex items-start space-x-2 p-4 bg-accent/30 rounded-lg border border-border">
+              <Checkbox 
+                id="terms" 
+                checked={acceptTerms}
+                onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
+                className="mt-1"
+              />
+              <div className="flex-1">
+                <Label htmlFor="terms" className="text-sm font-medium cursor-pointer">
+                  Acepto los{" "}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsTermsModalOpen(true);
+                    }}
+                    className="text-primary hover:underline font-semibold"
+                  >
+                    términos y condiciones
+                  </button>
+                  {" "}*
+                </Label>
+              </div>
+            </div>
           </div>
-          <div className="text-white font-bold text-xl tracking-wider">almango</div>
         </div>
-      </div>
-
+      </div>;
+  };
+  return <div className="min-h-screen" style={{ backgroundColor: '#e7e9ef' }}>
       <div className="container mx-auto px-4 py-8 max-w-3xl">
-        <Card className="shadow-xl border-0 bg-white"
-          >
-            <CardContent className="p-6 md:p-8">
+        <div className="mb-6 text-center">
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-2 bg-gradient-to-r from-orange-500 via-orange-400 to-blue-500 bg-clip-text text-transparent drop-shadow-lg animate-gradient bg-[length:200%_auto]">
+            Solicitar Servicio
+          </h1>
+          <p className="text-muted-foreground text-sm">Complete el formulario para solicitar su servicio</p>
+        </div>
+
+        <Card className="shadow-xl border-border">
+          <CardHeader className="bg-gradient-to-r from-primary to-secondary text-primary-foreground p-6">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              {stepTitles[0]}
+            </CardTitle>
+          </CardHeader>
+            
+            <CardContent className="p-6">
               {renderStepContent()}
             </CardContent>
             
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-6 border-t bg-gray-50">
+            <div className="flex justify-between items-center p-6 border-t bg-accent/10">
               <div className="text-sm text-muted-foreground">
                 * Campos requeridos
               </div>
-              <div className="flex gap-3 w-full sm:w-auto">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setSelectedService("");
-                    setSelectedCategory("");
-                    setSelectedProducts([]);
-                    setAllSelectedServices([]);
-                    setPersonalInfo({
-                      name: "",
-                      phone: "",
-                      email: "",
-                      street: "",
-                      number: "",
-                      corner: "",
-                      apartment: "",
-                      comments: "",
-                      termsAccepted: true
-                    });
-                    setSelectedDate(undefined);
-                    setSelectedTimeSlot("");
-                    setAcceptTerms(false);
-                  }} 
-                  className="h-11 px-8 border-2 font-bold uppercase tracking-wide flex-1 sm:flex-initial"
-                >
-                  Limpiar
-                </Button>
-                <Button 
-                  onClick={handleShowConfirmation} 
-                  disabled={isSubmitting || !validateForm()} 
-                  className="h-11 px-8 bg-primary hover:bg-primary/90 font-bold uppercase tracking-wide flex-1 sm:flex-initial"
-                >
+              <div className="flex gap-3">
+                {(selectedService || selectedCategory || selectedProducts.length > 0) && <Button variant="outline" onClick={() => {
+              setSelectedService("");
+              setSelectedCategory("");
+              setSelectedProducts([]);
+            }} className="h-10 text-slate-950 font-bold">
+                    Limpiar
+                  </Button>}
+                <Button onClick={handleShowConfirmation} disabled={isSubmitting || !validateForm()} className="min-w-32 h-10 bg-primary hover:bg-primary/90">
                   {isSubmitting ? "Enviando..." : "Confirmar Solicitud"}
                 </Button>
               </div>
@@ -1099,7 +1040,6 @@ const ServicioOnePage = () => {
 
         <GeneralTermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
       </div>
-    </div>
-  );
+    </div>;
 };
 export default ServicioOnePage;
