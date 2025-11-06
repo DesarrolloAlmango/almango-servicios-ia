@@ -990,7 +990,7 @@ const ServicioOnePage = () => {
             <p className="text-white text-sm mt-[-8px] font-semibold md:text-xl">Completa el formulario para solicitar su servicio</p>
           </div>
         </div>
-        <div className="px-4">
+        <div className="px-4 mt-14">
         <Card className="shadow-xl border-border -mt-6">
           <CardHeader className="from-primary to-secondary text-primary-foreground p-6 bg-[fe8d0c] bg-[#fe8d0c]">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
