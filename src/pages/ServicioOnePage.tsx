@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ArrowLeft, Home, Wind, Droplets, Zap, Package, Truck, Baby, MapPin, CalendarClock, UserCheck, CreditCard, Check, ShoppingCart, Plus, X, Pencil } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import fondoAzul from "@/assets/fondo-azul-patrones.svg";
-import zocaloFooter from "@/assets/zocalo-footer.svg";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -588,11 +586,9 @@ const ServicioOnePage = () => {
   const renderStepContent = () => {
     return <div className="space-y-6">
         {/* Date and Time Selection - First priority */}
-            <div className="p-6 bg-white rounded-lg border-2 border-[#FF6B35]">
-              <h4 className="font-bold mb-4 flex items-center gap-3 text-gray-900 text-lg">
-                <div className="bg-[#FF6B35] rounded-full p-2">
-                  <CalendarClock className="h-6 w-6 text-white" />
-                </div>
+            <div className="p-4 bg-accent/50 rounded-lg border border-border">
+              <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
+                <CalendarClock className="h-5 w-5 text-primary" />
                 Fecha y Hora del Servicio
               </h4>
               
@@ -645,13 +641,11 @@ const ServicioOnePage = () => {
 
             {/* Ubicación del servicio - SIEMPRE VISIBLE después de fecha/hora y ANTES de seleccionar servicio */}
             {purchaseLocation ? (
-              <div className="p-6 bg-white rounded-lg border-2 border-[#FF6B35]">
+              <div className="p-4 bg-muted/50 rounded-lg border border-border">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-[#FF6B35] rounded-full p-2">
-                      <MapPin className="h-6 w-6 text-white" />
-                    </div>
-                    <span className="font-bold text-lg text-gray-900">Ubicación del servicio</span>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="font-medium text-sm">Ubicación del servicio</span>
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => setIsLocationModalOpen(true)} className="h-8 text-sm">
                     Editar
@@ -665,22 +659,18 @@ const ServicioOnePage = () => {
                   </p>}
               </div>
             ) : (
-              <div className="flex items-center gap-4 p-6 bg-white rounded-lg border-2 border-[#FF6B35] cursor-pointer hover:bg-orange-50 transition-colors" onClick={() => setIsLocationModalOpen(true)}>
-                <div className="bg-[#FF6B35] rounded-full p-2">
-                  <MapPin className="h-6 w-6 text-white" />
-                </div>
-                <span className="text-base font-semibold text-gray-900 flex-1">Configurar ubicación del servicio *</span>
-                <span className="text-sm text-gray-600">Click aquí</span>
+              <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" onClick={() => setIsLocationModalOpen(true)}>
+                <MapPin className="h-5 w-5 text-primary" />
+                <span className="text-sm text-foreground flex-1">Configurar ubicación del servicio *</span>
+                <span className="text-sm text-muted-foreground">Click aquí</span>
               </div>
             )}
 
             {/* Services Summary Section */}
-            {allSelectedServices.length > 0 && <div className="p-6 bg-[#E3F2FD] border-2 border-[#2196F3] rounded-lg">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="bg-[#2196F3] rounded-full p-2">
-                    <Check className="h-6 w-6 text-white" />
-                  </div>
-                  <h3 className="font-bold text-[#1976D2] text-lg">
+            {allSelectedServices.length > 0 && <div className="p-4 bg-secondary/10 border border-secondary/30 rounded-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <Check className="h-5 w-5 text-secondary" />
+                  <h3 className="font-semibold text-secondary text-base">
                     Servicios Agregados ({allSelectedServices.length})
                   </h3>
                 </div>
@@ -868,12 +858,10 @@ const ServicioOnePage = () => {
         {/* Información Personal Section */}
         <Separator className="my-6" />
         
-        <div className="space-y-4 p-6 bg-white rounded-lg border-2 border-[#FF6B35]">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="bg-[#FF6B35] rounded-full p-2">
-              <UserCheck className="h-6 w-6 text-white" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-900">Información Personal</h3>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-3">
+            <UserCheck className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold text-foreground">Información Personal</h3>
           </div>
           
           <div className="space-y-4">
@@ -1003,9 +991,22 @@ const ServicioOnePage = () => {
         </div>
       </div>;
   };
-  return <div className="min-h-screen bg-white">
-      <div className="container mx-auto px-4 pb-8 max-w-3xl">
-        <Card className="shadow-xl border-border bg-white mt-8">
+  return <div className="min-h-screen" style={{ backgroundColor: '#e7e9ef' }}>
+      <div className="container mx-auto px-4 py-8 max-w-3xl">
+        <div className="mb-6 text-center">
+          <h1 className="text-4xl md:text-5xl font-extrabold mb-2 bg-gradient-to-r from-orange-500 via-orange-400 to-blue-500 bg-clip-text text-transparent drop-shadow-lg animate-gradient bg-[length:200%_auto]">
+            Solicitar Servicio
+          </h1>
+          <p className="text-muted-foreground text-sm">Complete el formulario para solicitar su servicio</p>
+        </div>
+
+        <Card className="shadow-xl border-border">
+          <CardHeader className="bg-gradient-to-r from-primary to-secondary text-primary-foreground p-6">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              {stepTitles[0]}
+            </CardTitle>
+          </CardHeader>
             
             <CardContent className="p-6">
               {renderStepContent()}
@@ -1039,16 +1040,6 @@ const ServicioOnePage = () => {
 
         <GeneralTermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
       </div>
-
-      {/* Footer con zócalo */}
-      <div 
-        className="w-full bg-cover bg-center h-60 mt-12"
-        style={{ 
-          backgroundImage: `url(${zocaloFooter})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
-      />
     </div>;
 };
 export default ServicioOnePage;
