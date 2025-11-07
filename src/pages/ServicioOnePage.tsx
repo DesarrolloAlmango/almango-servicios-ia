@@ -988,7 +988,7 @@ const ServicioOnePage = () => {
   }}>
       <div className="container mx-auto py-8 max-w-3xl">
         <div className="mb-6 px-4">
-          <div className="bg-[#fe8d0c] rounded-t-3xl p-8 text-center">
+          <div className="rounded-t-3xl p-8 text-center bg-primary-DEFAULT">
             <h1 className="text-white text-3xl mb-3 tracking-wide font-extrabold md:text-4xl">
               SOLICITAR SERVICIO
             </h1>
@@ -1002,7 +1002,9 @@ const ServicioOnePage = () => {
               <Package className="h-5 w-5" />
               {stepTitles[0]}
             </CardTitle>
-            <img src={logo} alt="Logo" className="h-16 w-auto object-contain" style={{ imageRendering: 'crisp-edges' }} />
+            <img src={logo} alt="Logo" className="h-16 w-auto object-contain" style={{
+              imageRendering: 'crisp-edges'
+            }} />
           </CardHeader>
             
             <CardContent className="p-6">
