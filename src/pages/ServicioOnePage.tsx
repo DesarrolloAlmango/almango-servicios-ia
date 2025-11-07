@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ArrowLeft, Home, Wind, Droplets, Zap, Package, Truck, Baby, MapPin, CalendarClock, UserCheck, CreditCard, Check, ShoppingCart, Plus, X, Pencil } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import fondoAzul from "@/assets/fondo-azul-patrones.svg";
+import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -996,11 +997,12 @@ const ServicioOnePage = () => {
         </div>
         <div className="px-4 mt-14">
         <Card className="shadow-xl border-border -mt-6">
-          <CardHeader className="from-primary to-secondary text-primary-foreground p-6 bg-[fe8d0c] bg-[#fe8d0c] m-[-2px]">
+          <CardHeader className="from-primary to-secondary text-primary-foreground p-6 bg-[fe8d0c] bg-[#fe8d0c] m-[-2px] flex flex-row items-center justify-between">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
               <Package className="h-5 w-5" />
               {stepTitles[0]}
             </CardTitle>
+            <img src={logo} alt="Logo" className="h-12 w-auto" />
           </CardHeader>
             
             <CardContent className="p-6">
