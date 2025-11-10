@@ -1123,8 +1123,12 @@ const ServicioOnePage = () => {
         <GeneralTermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
 
         {/* Success Modal */}
-        <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-          <DialogContent className="sm:max-w-md">
+        <Dialog open={showSuccessModal}>
+          <DialogContent 
+            className="sm:max-w-md"
+            onPointerDownOutside={(e) => e.preventDefault()}
+            onEscapeKeyDown={(e) => e.preventDefault()}
+          >
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-green-600">
                 <Check className="h-6 w-6" />
