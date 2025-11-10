@@ -271,12 +271,12 @@ const ServicioOnePageWithUser = () => {
         setSelectedProducts(updatedProducts);
       }
     }
-  }, [products]);
+  }, [products, selectedProducts.length]);
 
   // Update service and category names in allSelectedServices when API data is loaded
   // BUT ONLY for the initial load from JSON, not when adding new services
   useEffect(() => {
-    if (services && services.length > 0 || categories && categories.length > 0) {
+    if ((services && services.length > 0) || (categories && categories.length > 0) || (products && products.length > 0)) {
       if (allSelectedServices.length > 0 && !hasLoadedInitialData) {
         console.log("Updating service and category names in allSelectedServices (initial load only)");
         const updatedServices = allSelectedServices.map(service => {
@@ -325,15 +325,22 @@ const ServicioOnePageWithUser = () => {
             products: updatedProducts
           };
         });
-        const hasChanges = updatedServices.some((s, i) => s.serviceName !== allSelectedServices[i].serviceName || s.categoryName !== allSelectedServices[i].categoryName || s.products.some((p, j) => p.NombreProducto !== allSelectedServices[i].products[j]?.NombreProducto));
+        const hasChanges = updatedServices.some((s, i) => 
+          s.serviceName !== allSelectedServices[i].serviceName || 
+          s.categoryName !== allSelectedServices[i].categoryName || 
+          s.products.some((p, j) => 
+            p.NombreProducto !== allSelectedServices[i].products[j]?.NombreProducto ||
+            p.Precio !== allSelectedServices[i].products[j]?.Precio
+          )
+        );
         if (hasChanges) {
-          console.log("Updated allSelectedServices with API names:", updatedServices);
+          console.log("Updated allSelectedServices with API names and prices:", updatedServices);
           setAllSelectedServices(updatedServices);
           setHasLoadedInitialData(true); // Mark as loaded so this doesn't run again
         }
       }
     }
-  }, [services, categories, products]);
+  }, [services, categories, products, allSelectedServices.length, hasLoadedInitialData]);
 
   // This useEffect was removed because it was causing issues when adding new services.
   // The price sync now happens only during initial data load in the previous useEffect.
