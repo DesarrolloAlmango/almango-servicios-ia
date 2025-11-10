@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Home, Wind, Droplets, Zap, Package, Truck, Baby, MapPin, CalendarClock, UserCheck, CreditCard, Check, ShoppingCart, Plus, X, Pencil } from "lucide-react";
+import { ArrowLeft, Home, Wind, Droplets, Zap, Package, Truck, Baby, MapPin, CalendarClock, UserCheck, CreditCard, Check, ShoppingCart, Plus, X, Pencil, Copy } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import fondoAzul from "@/assets/fondo-azul-patrones.svg";
 import logo from "@/assets/logo.png";
@@ -128,6 +128,7 @@ const ServicioOnePage = () => {
   const [suggestedPrice, setSuggestedPrice] = useState<number>(0);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [solicitudIdSuccess, setSolicitudIdSuccess] = useState<string>("");
+  const [showCopyButton, setShowCopyButton] = useState(false);
 
   // Data fetching
   const {
@@ -571,6 +572,7 @@ const ServicioOnePage = () => {
       if (result.SolicitudesID && result.SolicitudesID !== "0") {
         // Show success modal
         setSolicitudIdSuccess(result.SolicitudesID.toString());
+        setShowCopyButton(suggestedPrice === 0); // Show copy button only if no suggested price was used
         setShowSuccessModal(true);
         setShowConfirmationModal(false);
         
@@ -1138,7 +1140,21 @@ const ServicioOnePage = () => {
                 <p className="text-3xl font-bold text-green-600 text-center">{solicitudIdSuccess}</p>
               </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="flex-col sm:flex-col gap-2">
+              {showCopyButton && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const link = `https://services.almango.com.uy/servicioonepage/update/${userId || "0"}/${solicitudIdSuccess}`;
+                    navigator.clipboard.writeText(link);
+                    toast.success("Link copiado al portapapeles");
+                  }}
+                  className="w-full"
+                >
+                  <Copy className="mr-2 h-4 w-4" />
+                  Copiar Link de Actualización
+                </Button>
+              )}
               <Button onClick={() => setShowSuccessModal(false)} className="w-full">
                 Aceptar
               </Button>
