@@ -123,6 +123,7 @@ const ServicioOnePage = () => {
     textosId: string | null;
     productName: string;
   } | null>(null);
+  const [suggestedPrice, setSuggestedPrice] = useState<number>(0);
 
   // Data fetching
   const {
@@ -243,6 +244,9 @@ const ServicioOnePage = () => {
     }
   }, [urlServiceId, urlCategoryId]);
   const handleProductQuantityChange = (product: Product, change: number) => {
+    // Reset suggested price when product quantity changes
+    setSuggestedPrice(0);
+    
     setSelectedProducts(prev => {
       const existing = prev.find(p => p.ProductoID === product.ProductoID);
       if (existing) {
@@ -295,6 +299,9 @@ const ServicioOnePage = () => {
       toast.error("Por favor complete la selección de servicio");
       return;
     }
+    
+    // Reset suggested price when adding new service
+    setSuggestedPrice(0);
     const serviceName = services?.find(s => s.id === selectedService)?.name || "";
     const categoryName = categories?.find(c => c.id === selectedCategory)?.name || "";
     const newService = {
@@ -314,6 +321,8 @@ const ServicioOnePage = () => {
   };
   const removeServiceFromList = (index: number) => {
     setAllSelectedServices(prev => prev.filter((_, i) => i !== index));
+    // Reset suggested price when removing service
+    setSuggestedPrice(0);
   };
   const editServiceFromList = (index: number) => {
     const serviceToEdit = allSelectedServices[index];
@@ -331,6 +340,10 @@ const ServicioOnePage = () => {
       top: 0,
       behavior: 'smooth'
     });
+    
+    // Reset suggested price when editing service
+    setSuggestedPrice(0);
+    
     toast.info("Servicio cargado para edición");
   };
 
@@ -423,6 +436,9 @@ const ServicioOnePage = () => {
     // Calculate total
     const productsTotal = checkoutItems.reduce((sum, item) => sum + item.PrecioFinal, 0);
     const total = productsTotal + zoneCost;
+    
+    // Calculate discount if suggested price is provided
+    const discountAmount = suggestedPrice > 0 ? Math.round(productsTotal + zoneCost - suggestedPrice) : 0;
     const data: CheckoutData = {
       Nombre: personalInfo.name,
       Telefono: personalInfo.phone,
@@ -444,7 +460,7 @@ const ServicioOnePage = () => {
       ProveedorAuxiliar: getProviderAuxiliary(purchaseLocation?.storeId || "unknown", purchaseLocation?.storeName),
       CostoXZona: zoneCost,
       PaginaOne: "One",
-      Descuento: 0,
+      Descuento: discountAmount,
       ...(solicitudId && {
         SolicitudIdCancelar: parseInt(solicitudId)
       }),
@@ -731,6 +747,64 @@ const ServicioOnePage = () => {
                           </span>
                         </div>
                       </>}
+                    
+                    {/* Precio sugerido - campo opcional */}
+                    {allSelectedServices.length > 0 && (
+                      <div className="space-y-3 p-4 mt-4 rounded-lg border-2 border-primary/40 bg-primary/5">
+                        <Label htmlFor="suggested-price" className="text-sm font-semibold flex items-center gap-2">
+                          <span className="text-lg">💰</span>
+                          Precio sugerido (opcional)
+                        </Label>
+                        <Input
+                          id="suggested-price"
+                          type="number"
+                          min="0"
+                          max={
+                            allSelectedServices.reduce((total, service) => 
+                              total + service.products.reduce((sum, p) => 
+                                sum + (p.Precio * p.quantity), 0
+                              ), 0
+                            ) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0")
+                          }
+                          value={suggestedPrice || ""}
+                          onChange={(e) => {
+                            const value = parseFloat(e.target.value) || 0;
+                            const servicesTotal = allSelectedServices.reduce((total, service) => 
+                              total + service.products.reduce((sum, p) => 
+                                sum + (p.Precio * p.quantity), 0
+                              ), 0
+                            );
+                            const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
+                            const finalTotal = servicesTotal + zoneCost;
+                            
+                            if (value <= finalTotal) {
+                              setSuggestedPrice(value);
+                            } else {
+                              toast.error("El precio sugerido no puede ser mayor al total final");
+                            }
+                          }}
+                          placeholder="Ingrese el precio sugerido aquí"
+                          className="h-12 text-lg font-semibold border-primary/50"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Ingrese un precio personalizado para aplicar un descuento automático
+                        </p>
+                        {suggestedPrice > 0 && (
+                          <div className="flex justify-between items-center p-3 rounded-md bg-green-50 border border-green-200">
+                            <span className="text-sm font-medium text-green-800">Descuento a aplicar:</span>
+                            <span className="text-lg font-bold text-green-600">
+                              ${
+                                allSelectedServices.reduce((total, service) => 
+                                  total + service.products.reduce((sum, p) => 
+                                    sum + (p.Precio * p.quantity), 0
+                                  ), 0
+                                ) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0") - suggestedPrice
+                              }
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>}
