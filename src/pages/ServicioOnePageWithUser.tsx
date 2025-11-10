@@ -1219,34 +1219,79 @@ const ServicioOnePageWithUser = () => {
                   <Label htmlFor="service" className="text-sm font-medium mb-2 block">
                     {allSelectedServices.length > 0 ? "Seleccione otro Servicio" : "Seleccione un Servicio"}
                   </Label>
-                  <Select value={selectedService} onValueChange={setSelectedService}>
-                    <SelectTrigger className="h-10">
-                      <SelectValue placeholder="Seleccione un servicio" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {isServicesLoading ? <SelectItem value="loading" disabled>Cargando servicios...</SelectItem> : services && services.length > 0 ? services.map((service: TarjetaServicio) => <SelectItem key={service.id} value={service.id!}>
-                            {service.name}
-                          </SelectItem>) : <SelectItem value="no-services" disabled>
-                          No hay servicios disponibles
-                        </SelectItem>}
-                    </SelectContent>
-                  </Select>
+                  {!selectedService ? (
+                    <Select value={selectedService} onValueChange={setSelectedService}>
+                      <SelectTrigger className="h-10">
+                        <SelectValue placeholder="Seleccione un servicio" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {isServicesLoading ? <SelectItem value="loading" disabled>Cargando servicios...</SelectItem> : services && services.length > 0 ? services.map((service: TarjetaServicio) => <SelectItem key={service.id} value={service.id!}>
+                              {service.name}
+                            </SelectItem>) : <SelectItem value="no-services" disabled>
+                            No hay servicios disponibles
+                          </SelectItem>}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Input 
+                        value={services?.find(s => s.id === selectedService)?.name || ""} 
+                        disabled 
+                        className="h-10 bg-muted"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => {
+                          setSelectedService("");
+                          setSelectedCategory("");
+                          setSelectedProducts([]);
+                        }}
+                        className="h-10 w-10 flex-shrink-0"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 {selectedService && <div>
                     <Label htmlFor="category" className="text-sm font-medium mb-2 block">Seleccione una Categoría</Label>
-                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                      <SelectTrigger className="h-10">
-                        <SelectValue placeholder="Seleccione una categoría" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {isCategoriesLoading ? <SelectItem value="loading" disabled>Cargando categorías...</SelectItem> : categories && categories.length > 0 ? categories.map((category: Category) => <SelectItem key={category.id} value={category.id}>
-                              {category.name}
-                            </SelectItem>) : <SelectItem value="no-categories" disabled>
-                            No hay categorías disponibles
-                          </SelectItem>}
-                      </SelectContent>
-                    </Select>
+                    {!selectedCategory ? (
+                      <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder="Seleccione una categoría" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {isCategoriesLoading ? <SelectItem value="loading" disabled>Cargando categorías...</SelectItem> : categories && categories.length > 0 ? categories.map((category: Category) => <SelectItem key={category.id} value={category.id}>
+                                {category.name}
+                              </SelectItem>) : <SelectItem value="no-categories" disabled>
+                              No hay categorías disponibles
+                            </SelectItem>}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Input 
+                          value={categories?.find(c => c.id === selectedCategory)?.name || ""} 
+                          disabled 
+                          className="h-10 bg-muted"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedCategory("");
+                            setSelectedProducts([]);
+                          }}
+                          className="h-10 w-10 flex-shrink-0"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>}
               </>}
 
