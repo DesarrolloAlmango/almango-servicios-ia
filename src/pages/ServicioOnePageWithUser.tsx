@@ -1527,15 +1527,24 @@ const ServicioOnePageWithUser = () => {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-green-600">
                 <Check className="h-6 w-6" />
-                Solicitud Cargada Exitosamente
+                {showCopyButton ? "Pre-Solicitud Cargada Exitosamente" : "Solicitud Cargada Exitosamente"}
               </DialogTitle>
             </DialogHeader>
             <div className="py-4">
               <p className="text-center text-lg mb-2">
-                Su solicitud ha sido registrada correctamente.
+                {showCopyButton 
+                  ? "Su pre-solicitud ha sido registrada correctamente." 
+                  : "Su solicitud ha sido registrada correctamente."}
               </p>
+              {showCopyButton && (
+                <p className="text-center text-sm text-muted-foreground mt-2">
+                  Un agente se comunicará con usted para cerrar la solicitud.
+                </p>
+              )}
               <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mt-4">
-                <p className="text-sm text-muted-foreground text-center mb-1">Número de Solicitud</p>
+                <p className="text-sm text-muted-foreground text-center mb-1">
+                  {showCopyButton ? "Número de Pre-Solicitud" : "Número de Solicitud"}
+                </p>
                 <p className="text-3xl font-bold text-green-600 text-center">{solicitudIdSuccess}</p>
               </div>
             </div>
