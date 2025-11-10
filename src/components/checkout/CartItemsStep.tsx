@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { getGlobalZoneCost } from "@/utils/globalZoneCost";
 import { calculateTotalWithDiscounts } from "@/utils/discountUtils";
+import { formatPrice } from "@/utils/priceFormat";
 
 export interface CartItemsStepProps {
   cartItems: CartItem[];
@@ -132,9 +133,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
                   </button>
                 </div>
                 <span className="font-medium min-w-[70px] text-right">
-                  ${(item.price * item.quantity).toLocaleString('es-UY', {
-                    maximumFractionDigits: 0
-                  })}
+                  ${formatPrice(item.price * item.quantity)}
                 </span>
               </div>
             </div>
@@ -144,9 +143,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
           <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
             <span className="font-medium">Subtotal servicios</span>
             <span className="font-medium">
-              ${totalsWithDiscounts.subtotal.toLocaleString('es-UY', {
-                maximumFractionDigits: 0
-              })}
+              ${formatPrice(totalsWithDiscounts.subtotal)}
             </span>
           </div>
 
@@ -161,9 +158,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
               </div>
               <div className="flex items-center gap-3">
                 <span className="font-medium text-green-700">
-                  -${discount.amount.toLocaleString('es-UY', {
-                    maximumFractionDigits: 0
-                  })}
+                  -${formatPrice(discount.amount)}
                 </span>
               </div>
             </div>
@@ -177,9 +172,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
             </div>
             <div className="flex items-center gap-3">
               <span className="font-medium min-w-[70px] text-right">
-                ${effectiveZoneCost.toLocaleString('es-UY', {
-                  maximumFractionDigits: 0
-                })}
+                ${formatPrice(effectiveZoneCost)}
               </span>
             </div>
           </div>
@@ -187,9 +180,7 @@ const CartItemsStep: React.FC<CartItemsStepProps> = ({
           {/* Total final */}
           <div className="flex justify-between p-4 bg-orange-50 rounded-lg text-orange-800 font-medium text-lg">
             <span>Total</span>
-            <span>${totalsWithDiscounts.total.toLocaleString('es-UY', {
-              maximumFractionDigits: 0
-            })}</span>
+            <span>${formatPrice(totalsWithDiscounts.total)}</span>
           </div>
         </div>
       )}

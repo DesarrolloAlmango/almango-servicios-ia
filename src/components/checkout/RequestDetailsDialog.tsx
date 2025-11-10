@@ -30,11 +30,11 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
   departments,
   municipalities
 }) => {
-  // Format price with thousands separator (dot) and no decimals
+  // Format price with thousands separator (dot) and decimals (comma)
   const formatPrice = (price: number): string => {
-    return price.toLocaleString('es-UY', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
+    return price.toLocaleString('es-AR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
     });
   };
   const getFormaDePago = (metodoPagoId: number): string => {
