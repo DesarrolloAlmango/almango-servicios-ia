@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -125,6 +126,8 @@ const ServicioOnePage = () => {
     productName: string;
   } | null>(null);
   const [suggestedPrice, setSuggestedPrice] = useState<number>(0);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [solicitudIdSuccess, setSolicitudIdSuccess] = useState<string>("");
 
   // Data fetching
   const {
@@ -460,7 +463,7 @@ const ServicioOnePage = () => {
       ConfirmarCondicionesUso: personalInfo.termsAccepted ? "S" : "N",
       ProveedorAuxiliar: getProviderAuxiliary(purchaseLocation?.storeId || "unknown", purchaseLocation?.storeName),
       CostoXZona: zoneCost,
-      PaginaOne: "One",
+      PaginaOne: suggestedPrice > 0 ? "" : "One",
       Descuento: discountAmount,
       ...(solicitudId && {
         SolicitudIdCancelar: parseInt(solicitudId)
@@ -566,8 +569,12 @@ const ServicioOnePage = () => {
       console.log("=== RESULTADO FINAL ===");
       console.log("SolicitudesID:", result.SolicitudesID);
       if (result.SolicitudesID && result.SolicitudesID !== "0") {
-        toast.success(`Solicitud enviada exitosamente. ID: ${result.SolicitudesID}`);
-        // Reset form or redirect
+        // Show success modal
+        setSolicitudIdSuccess(result.SolicitudesID.toString());
+        setShowSuccessModal(true);
+        setShowConfirmationModal(false);
+        
+        // Reset form
         setCurrentStep(1);
         setSelectedService("");
         setSelectedCategory("");
@@ -582,7 +589,7 @@ const ServicioOnePage = () => {
           corner: "",
           apartment: "",
           comments: "",
-          termsAccepted: true // Reset to default (accepted)
+          termsAccepted: true
         });
         setSelectedDate(undefined);
         setComments("");
@@ -591,8 +598,8 @@ const ServicioOnePage = () => {
         setPaymentMethod("1");
         setNoNumber(false);
         setPurchaseLocation(null);
-        setShowConfirmationModal(false);
         setConfirmationData(null);
+        setSuggestedPrice(0);
       } else {
         toast.error("Error: No se pudo obtener el ID de la solicitud");
       }
@@ -1112,6 +1119,32 @@ const ServicioOnePage = () => {
         <ConfirmationModal open={showConfirmationModal} onClose={() => setShowConfirmationModal(false)} onConfirm={handleSubmit} title="Confirmar Solicitud" description="Por favor revise los datos antes de enviar la solicitud." jsonData={confirmationData} isSubmitting={isSubmitting} />
 
         <GeneralTermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
+
+        {/* Success Modal */}
+        <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-green-600">
+                <Check className="h-6 w-6" />
+                Solicitud Cargada Exitosamente
+              </DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <p className="text-center text-lg mb-2">
+                Su solicitud ha sido registrada correctamente.
+              </p>
+              <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mt-4">
+                <p className="text-sm text-muted-foreground text-center mb-1">Número de Solicitud</p>
+                <p className="text-3xl font-bold text-green-600 text-center">{solicitudIdSuccess}</p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setShowSuccessModal(false)} className="w-full">
+                Aceptar
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>;
 };
