@@ -26,6 +26,7 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 import { GeneralTermsModal } from "@/components/ui/general-terms-modal";
 import { setGlobalZoneCost } from "@/utils/globalZoneCost";
 import ProductTermsModal from "@/components/checkout/ProductTermsModal";
+import { formatPrice } from "@/utils/priceFormat";
 interface TarjetaServicio {
   id?: string;
   name: string;
@@ -1071,14 +1072,14 @@ const ServicioOnePageWithUser = () => {
                           <div className="space-y-1 mb-2">
                             {service.products.map((product, idx) => <div key={idx} className="flex justify-between text-sm bg-muted/50 px-2 py-1 rounded">
                                 <span className="text-foreground">{product.NombreProducto} x{product.quantity}</span>
-                                <span className="font-medium text-foreground">${product.Precio * product.quantity}</span>
+                                <span className="font-medium text-foreground">${formatPrice(product.Precio * product.quantity)}</span>
                               </div>)}
                           </div>
                           
                           <div className="flex justify-between items-center pt-2 border-t border-border">
                             <span className="text-sm font-medium text-muted-foreground">Subtotal:</span>
                             <span className="font-bold text-secondary">
-                              ${service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0)}
+                              ${formatPrice(service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0))}
                             </span>
                           </div>
                         </div>
@@ -1100,7 +1101,7 @@ const ServicioOnePageWithUser = () => {
                     <div className="flex justify-between items-center">
                       <span className="font-semibold text-secondary">Total de servicios:</span>
                       <span className="text-lg font-bold text-secondary">
-                        ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0)}
+                        ${formatPrice(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0))}
                       </span>
                     </div>
 
@@ -1108,13 +1109,13 @@ const ServicioOnePageWithUser = () => {
                         <div className="flex justify-between items-center text-sm">
                           <span className="text-secondary">Costo adicional por zona:</span>
                           <span className="font-semibold text-secondary">
-                            ${purchaseLocation.zonaCostoAdicional}
+                            ${formatPrice(parseFloat(purchaseLocation.zonaCostoAdicional))}
                           </span>
                         </div>
                         <div className="flex justify-between items-center pt-2 border-t border-secondary/20">
                           <span className="font-bold text-secondary">Total final:</span>
                           <span className="text-xl font-bold text-secondary">
-                            ${allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation.zonaCostoAdicional)}
+                            ${formatPrice(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation.zonaCostoAdicional))}
                           </span>
                         </div>
                       </>}
@@ -1167,13 +1168,13 @@ const ServicioOnePageWithUser = () => {
                           <div className="flex justify-between items-center p-3 rounded-md bg-green-50 border border-green-200">
                             <span className="text-sm font-medium text-green-800">Descuento a aplicar:</span>
                             <span className="text-lg font-bold text-green-600">
-                              ${
+                              ${formatPrice(
                                 allSelectedServices.reduce((total, service) => 
                                   total + service.products.reduce((sum, p) => 
                                     sum + (p.Precio * p.quantity), 0
                                   ), 0
                                 ) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0") - suggestedPrice
-                              }
+                              )}
                             </span>
                           </div>
                         )}
@@ -1258,7 +1259,7 @@ const ServicioOnePageWithUser = () => {
                                     <span className="text-xs text-muted-foreground">Código: {product.ProductoID}</span>
                                   </div>
                                   <div className="text-right">
-                                    <span className="font-bold text-secondary text-sm">${product.Precio}</span>
+                                    <span className="font-bold text-secondary text-sm">${formatPrice(product.Precio)}</span>
                                     <span className="block text-xs text-muted-foreground">por unidad</span>
                                   </div>
                                 </div>
