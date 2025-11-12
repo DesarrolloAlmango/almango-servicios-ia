@@ -1170,11 +1170,14 @@ const ServicioOnePageWithUser = () => {
                             );
                             const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
                             const finalTotal = servicesTotal + zoneCost;
+                            const minPrice = servicesTotal * 0.3; // 30% del total de servicios
                             
-                            if (value <= finalTotal) {
-                              setSuggestedPrice(value);
-                            } else {
+                            if (value > finalTotal) {
                               toast.error("El precio sugerido no puede ser mayor al total final");
+                            } else if (value > 0 && value < minPrice) {
+                              toast.error(`El precio sugerido no puede ser menor al 30% del total de servicios ($${formatPrice(minPrice)})`);
+                            } else {
+                              setSuggestedPrice(value);
                             }
                           }}
                           placeholder="Ingrese el precio sugerido aquí"
@@ -1182,8 +1185,8 @@ const ServicioOnePageWithUser = () => {
                         />
                         <p className="text-xs text-muted-foreground">
                           {solicitudId 
-                            ? '* Campo obligatorio. El precio debe ser menor o igual al total final.'
-                            : 'Ingrese un precio personalizado para aplicar un descuento automático'
+                            ? '* Campo obligatorio. El precio debe estar entre el 30% y el 100% del total de servicios.'
+                            : 'Ingrese un precio entre el 30% y el 100% del total de servicios para aplicar un descuento'
                           }
                         </p>
                         {suggestedPrice > 0 && (
