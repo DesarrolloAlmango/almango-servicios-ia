@@ -239,24 +239,18 @@ const ServicioOnePageWithUser = () => {
   });
 
   // Update product prices and names when API products are loaded
+  // This only runs when products from API are available AND we haven't loaded initial data yet
   useEffect(() => {
-    if (products && products.length > 0 && selectedProducts.length > 0) {
+    if (!products || products.length === 0 || hasLoadedInitialData) {
+      return;
+    }
+    
+    if (selectedProducts.length > 0) {
       console.log("Updating prices for preloaded products", {
         products,
         selectedProducts
       });
       
-      // Check if any product needs updating
-      const needsUpdate = selectedProducts.some(selectedProduct => {
-        const apiProduct = products.find(p => p.ProductoID === selectedProduct.ProductoID);
-        return apiProduct && (selectedProduct.Precio !== apiProduct.Precio || selectedProduct.NombreProducto !== apiProduct.NombreProducto);
-      });
-
-      if (!needsUpdate) {
-        console.log("No price updates needed");
-        return;
-      }
-
       const updatedProducts = selectedProducts.map(selectedProduct => {
         // Match by ProductoID (which is the DetalleID from JSON)
         const apiProduct = products.find(p => p.ProductoID === selectedProduct.ProductoID);
@@ -281,77 +275,71 @@ const ServicioOnePageWithUser = () => {
       console.log("Updated products with API data:", updatedProducts);
       setSelectedProducts(updatedProducts);
     }
-  }, [products]);
+  }, [products, hasLoadedInitialData]);
 
   // Update service and category names in allSelectedServices when API data is loaded
   // BUT ONLY for the initial load from JSON, not when adding new services
   useEffect(() => {
-    if ((services && services.length > 0) || (categories && categories.length > 0) || (products && products.length > 0)) {
-      if (allSelectedServices.length > 0 && !hasLoadedInitialData) {
-        console.log("Updating service and category names in allSelectedServices (initial load only)");
-        const updatedServices = allSelectedServices.map(service => {
-          let serviceName = service.serviceName;
-          let categoryName = service.categoryName;
-
-          // Update service name if available
-          if (services && services.length > 0) {
-            const apiService = services.find((s: any) => s.id === service.serviceId);
-            if (apiService) {
-              serviceName = apiService.name;
-            }
-          }
-
-          // Update category name if available
-          if (categories && categories.length > 0) {
-            const apiCategory = categories.find((c: any) => c.id === service.categoryId);
-            if (apiCategory) {
-              categoryName = apiCategory.name;
-            }
-          }
-
-          // Update product names and prices
-          const updatedProducts = service.products.map(product => {
-            if (products && products.length > 0) {
-              const apiProduct = products.find(p => p.ProductoID === product.ProductoID);
-              if (apiProduct) {
-                return {
-                  ...product,
-                  NombreProducto: apiProduct.NombreProducto,
-                  Precio: apiProduct.Precio,
-                  TextosId: apiProduct.TextosId,
-                  SR: apiProduct.SR,
-                  Comision: apiProduct.Comision,
-                  ComisionTipo: apiProduct.ComisionTipo,
-                  DetallesID: apiProduct.DetallesID,
-                  Imagen: apiProduct.Imagen
-                };
-              }
-            }
-            return product;
-          });
-          return {
-            ...service,
-            serviceName,
-            categoryName,
-            products: updatedProducts
-          };
-        });
-        const hasChanges = updatedServices.some((s, i) => 
-          s.serviceName !== allSelectedServices[i].serviceName || 
-          s.categoryName !== allSelectedServices[i].categoryName || 
-          s.products.some((p, j) => 
-            p.NombreProducto !== allSelectedServices[i].products[j]?.NombreProducto ||
-            p.Precio !== allSelectedServices[i].products[j]?.Precio
-          )
-        );
-        if (hasChanges) {
-          console.log("Updated allSelectedServices with API names and prices:", updatedServices);
-          setAllSelectedServices(updatedServices);
-          setHasLoadedInitialData(true); // Mark as loaded so this doesn't run again
-        }
-      }
+    // Only run when we have products data and haven't marked initial load as complete
+    if (!products || products.length === 0 || hasLoadedInitialData) {
+      return;
     }
-  }, [services, categories, products, allSelectedServices.length, hasLoadedInitialData]);
+
+    if (allSelectedServices.length > 0) {
+      console.log("Updating service and category names in allSelectedServices (initial load only)");
+      
+      const updatedServices = allSelectedServices.map(service => {
+        let serviceName = service.serviceName;
+        let categoryName = service.categoryName;
+
+        // Update service name if available
+        if (services && services.length > 0) {
+          const apiService = services.find((s: any) => s.id === service.serviceId);
+          if (apiService) {
+            serviceName = apiService.name;
+          }
+        }
+
+        // Update category name if available
+        if (categories && categories.length > 0) {
+          const apiCategory = categories.find((c: any) => c.id === service.categoryId);
+          if (apiCategory) {
+            categoryName = apiCategory.name;
+          }
+        }
+
+        // Update product names and prices
+        const updatedProducts = service.products.map(product => {
+          const apiProduct = products.find(p => p.ProductoID === product.ProductoID);
+          if (apiProduct) {
+            return {
+              ...product,
+              NombreProducto: apiProduct.NombreProducto,
+              Precio: apiProduct.Precio,
+              TextosId: apiProduct.TextosId,
+              SR: apiProduct.SR,
+              Comision: apiProduct.Comision,
+              ComisionTipo: apiProduct.ComisionTipo,
+              DetallesID: apiProduct.DetallesID,
+              Imagen: apiProduct.Imagen
+            };
+          }
+          return product;
+        });
+        
+        return {
+          ...service,
+          serviceName,
+          categoryName,
+          products: updatedProducts
+        };
+      });
+      
+      console.log("Updated allSelectedServices with API names and prices:", updatedServices);
+      setAllSelectedServices(updatedServices);
+      setHasLoadedInitialData(true); // Mark as loaded so this doesn't run again
+    }
+  }, [products, services, categories, hasLoadedInitialData]);
 
   // This useEffect was removed because it was causing issues when adding new services.
   // The price sync now happens only during initial data load in the previous useEffect.
@@ -364,6 +352,10 @@ const ServicioOnePageWithUser = () => {
       console.log("No solicitudId found, skipping fetch");
       return;
     }
+    
+    // Reset the loaded flag when starting a new load
+    setHasLoadedInitialData(false);
+    
     const loadSolicitudData = async () => {
       try {
         const url = `https://app.almango.com.uy/WebAPI/ObtenerDatosToUpdateSol?SolicitudId=${solicitudId}`;
@@ -463,6 +455,8 @@ const ServicioOnePageWithUser = () => {
         }
 
         // Set purchase location based on ProveedorId, DepartamentoId and MunicipioId
+        // IMPORTANT: This must be set BEFORE setting selectedService and selectedCategory
+        // to ensure the products query has all the data it needs
         if (data.ProveedorID && solicitudData.DepartamentoId && solicitudData.MunicipioId) {
           // Fetch provider name
           let providerName = "";
@@ -523,6 +517,14 @@ const ServicioOnePageWithUser = () => {
           const zoneCost = parseFloat(zonaCostoAdicional);
           setGlobalZoneCost(zoneCost);
           console.log("Location loaded:", location);
+        } else {
+          console.error("Missing location data:", {
+            ProveedorID: data.ProveedorID,
+            DepartamentoId: solicitudData.DepartamentoId,
+            MunicipioId: solicitudData.MunicipioId
+          });
+          toast.error("Error: Datos de ubicación incompletos");
+          return;
         }
 
         // Process Level1 products
