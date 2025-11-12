@@ -110,20 +110,20 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   return (
     <Card className="overflow-hidden h-full flex flex-col relative">
-      <div className="relative h-48 bg-gray-100 flex items-center justify-center p-2">
-        {!imageLoaded && <Skeleton className="absolute inset-0 w-full h-full" />}
+      <div className="relative h-40 bg-muted/30 flex items-center justify-center p-3">
+        {!imageLoaded && imageSource && <Skeleton className="absolute inset-0 w-full h-full" />}
         {imageSource && !imageError ? (
           <img 
             src={imageSource} 
             alt={product.name} 
-            className="w-full h-full object-contain rounded"
+            className="w-full h-full object-contain"
             onError={() => setImageError(true)} 
             onLoad={() => setImageLoaded(true)} 
-            style={{ opacity: imageLoaded ? 1 : 0 }}
+            style={{ opacity: imageLoaded ? 1 : 0, transition: 'opacity 0.3s' }}
           />
         ) : (
-          <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded">
-            <span className="text-gray-500 text-sm text-center px-2">Imagen no disponible</span>
+          <div className="w-full h-full bg-muted/50 flex items-center justify-center rounded">
+            <span className="text-muted-foreground text-xs text-center px-2">Sin imagen</span>
           </div>
         )}
         
