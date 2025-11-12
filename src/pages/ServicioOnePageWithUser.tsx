@@ -1576,7 +1576,7 @@ const ServicioOnePageWithUser = () => {
         
         <ProductTermsModal isOpen={!!selectedProductTerms} onClose={() => setSelectedProductTerms(null)} textosId={selectedProductTerms?.textosId || null} productName={selectedProductTerms?.productName || ""} />
 
-        <ConfirmationModal open={showConfirmationModal} onClose={() => setShowConfirmationModal(false)} onConfirm={handleSubmit} title="Confirmar Solicitud" description="Por favor revise los datos antes de enviar la solicitud." jsonData={confirmationData} isSubmitting={isSubmitting} />
+        <ConfirmationModal open={showConfirmationModal} onClose={() => setShowConfirmationModal(false)} onConfirm={handleSubmit} title="Confirmar Solicitud" description="Por favor revise los datos antes de enviar la solicitud." jsonData={confirmationData} isSubmitting={isSubmitting} isUpdateMode={!!solicitudId} hasSuggestedPrice={suggestedPrice > 0} />
 
         <GeneralTermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 interface ConfirmationModalProps {
   open: boolean;
@@ -11,6 +11,8 @@ interface ConfirmationModalProps {
   description?: string;
   jsonData: any;
   isSubmitting?: boolean;
+  isUpdateMode?: boolean;
+  hasSuggestedPrice?: boolean;
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -20,25 +22,58 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   title,
   description,
   jsonData,
-  isSubmitting = false
+  isSubmitting = false,
+  isUpdateMode = false,
+  hasSuggestedPrice = false
 }) => {
+  // Determine the type of request
+  const isPreRequest = !isUpdateMode && !hasSuggestedPrice;
+  
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh]">
+      <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          {description && <DialogDescription>{description}</DialogDescription>}
+          <DialogTitle className="flex items-center gap-2">
+            {isPreRequest ? (
+              <>
+                <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                Confirmar Pre-Solicitud
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+                Confirmar Solicitud
+              </>
+            )}
+          </DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
-          <h4 className="font-medium text-sm text-muted-foreground">
-            Datos que se enviarán al endpoint:
-          </h4>
-          <ScrollArea className="h-96 w-full border rounded-md p-4">
-            <pre className="text-xs whitespace-pre-wrap font-mono">
-              {JSON.stringify(jsonData, null, 2)}
-            </pre>
-          </ScrollArea>
+        <div className="space-y-4 py-4">
+          {isPreRequest ? (
+            <div className="space-y-3">
+              <div className="p-3 bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                <p className="text-sm text-yellow-900 dark:text-yellow-200">
+                  <strong>Atención:</strong> Se cargará una <strong>Pre-Solicitud</strong> porque no se ha especificado un precio sugerido.
+                </p>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                La Pre-Solicitud deberá ser completada posteriormente con el precio sugerido para hacerse efectiva como una Solicitud formal.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div className="p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
+                <p className="text-sm text-green-900 dark:text-green-200">
+                  Se cargará una <strong>Solicitud</strong> con todos los datos completos.
+                </p>
+              </div>
+              {isUpdateMode && (
+                <p className="text-sm text-muted-foreground">
+                  Esta solicitud reemplazará la solicitud anterior.
+                </p>
+              )}
+            </div>
+          )}
         </div>
 
         <DialogFooter className="gap-2">
@@ -46,7 +81,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             Cancelar
           </Button>
           <Button onClick={onConfirm} disabled={isSubmitting}>
-            {isSubmitting ? "Enviando..." : "Confirmar Solicitud"}
+            {isSubmitting ? "Enviando..." : isPreRequest ? "Confirmar Pre-Solicitud" : "Confirmar Solicitud"}
           </Button>
         </DialogFooter>
       </DialogContent>
