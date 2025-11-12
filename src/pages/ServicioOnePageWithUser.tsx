@@ -245,6 +245,18 @@ const ServicioOnePageWithUser = () => {
         products,
         selectedProducts
       });
+      
+      // Check if any product needs updating
+      const needsUpdate = selectedProducts.some(selectedProduct => {
+        const apiProduct = products.find(p => p.ProductoID === selectedProduct.ProductoID);
+        return apiProduct && (selectedProduct.Precio !== apiProduct.Precio || selectedProduct.NombreProducto !== apiProduct.NombreProducto);
+      });
+
+      if (!needsUpdate) {
+        console.log("No price updates needed");
+        return;
+      }
+
       const updatedProducts = selectedProducts.map(selectedProduct => {
         // Match by ProductoID (which is the DetalleID from JSON)
         const apiProduct = products.find(p => p.ProductoID === selectedProduct.ProductoID);
@@ -258,21 +270,18 @@ const ServicioOnePageWithUser = () => {
             SR: apiProduct.SR,
             Comision: apiProduct.Comision,
             ComisionTipo: apiProduct.ComisionTipo,
-            DetallesID: apiProduct.DetallesID
+            DetallesID: apiProduct.DetallesID,
+            Imagen: apiProduct.Imagen
           };
         }
         console.log(`No match found for product ${selectedProduct.ProductoID}`);
         return selectedProduct;
       });
 
-      // Only update if prices changed or names changed
-      const hasChanges = updatedProducts.some((p, i) => p.Precio !== selectedProducts[i].Precio || p.NombreProducto !== selectedProducts[i].NombreProducto);
-      if (hasChanges) {
-        console.log("Updated products with API data:", updatedProducts);
-        setSelectedProducts(updatedProducts);
-      }
+      console.log("Updated products with API data:", updatedProducts);
+      setSelectedProducts(updatedProducts);
     }
-  }, [products, selectedProducts.length]);
+  }, [products]);
 
   // Update service and category names in allSelectedServices when API data is loaded
   // BUT ONLY for the initial load from JSON, not when adding new services
@@ -313,7 +322,8 @@ const ServicioOnePageWithUser = () => {
                   SR: apiProduct.SR,
                   Comision: apiProduct.Comision,
                   ComisionTipo: apiProduct.ComisionTipo,
-                  DetallesID: apiProduct.DetallesID
+                  DetallesID: apiProduct.DetallesID,
+                  Imagen: apiProduct.Imagen
                 };
               }
             }
