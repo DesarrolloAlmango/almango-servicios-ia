@@ -1184,11 +1184,16 @@ const ServicioOnePageWithUser = () => {
                           placeholder="Ingrese el precio sugerido aquí"
                           className="h-12 text-lg font-semibold border-primary/50"
                         />
-                        <p className="text-xs text-muted-foreground">
-                          {solicitudId 
-                            ? '* Campo obligatorio. El precio debe estar entre el 30% del total de servicios y el total final.'
-                            : 'Ingrese un precio entre el 30% del total de servicios y el total final para aplicar un descuento'
-                          }
+                        <p className="text-xs text-muted-foreground space-y-1">
+                          <span className="block">
+                            {solicitudId 
+                              ? '* Campo obligatorio. El precio debe estar entre el 30% del total de servicios y el total final.'
+                              : 'El precio debe estar entre el 30% del total de servicios y el total final para aplicar un descuento.'
+                            }
+                          </span>
+                          <span className="block italic">
+                            Este precio queda sujeto a aprobación. Un precio demasiado bajo posiblemente no sea considerado.
+                          </span>
                         </p>
                         {suggestedPrice > 0 && (
                           <div className="flex justify-between items-center p-3 rounded-md bg-green-50 border border-green-200">
