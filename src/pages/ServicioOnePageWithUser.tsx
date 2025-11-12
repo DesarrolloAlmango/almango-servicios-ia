@@ -766,6 +766,29 @@ const ServicioOnePageWithUser = () => {
       toast.error("Por favor ingrese un precio sugerido");
       return;
     }
+    
+    // Validar que el precio sugerido sea al menos el 30% del total de servicios
+    if (suggestedPrice > 0) {
+      const servicesTotal = allSelectedServices.reduce((total, service) => 
+        total + service.products.reduce((sum, p) => 
+          sum + (p.Precio * p.quantity), 0
+        ), 0
+      );
+      const minPrice = servicesTotal * 0.3;
+      const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
+      const maxPrice = servicesTotal + zoneCost;
+      
+      if (suggestedPrice < minPrice) {
+        toast.error(`El precio sugerido no puede ser menor al 30% del total de servicios ($${formatPrice(minPrice)})`);
+        return;
+      }
+      
+      if (suggestedPrice > maxPrice) {
+        toast.error(`El precio sugerido no puede ser mayor al total final ($${formatPrice(maxPrice)})`);
+        return;
+      }
+    }
+    
     const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
 
     // Combine all selected services with their context and current selection
@@ -1153,40 +1176,18 @@ const ServicioOnePageWithUser = () => {
                           id="suggested-price"
                           type="number"
                           min="0"
-                          max={
-                            allSelectedServices.reduce((total, service) => 
-                              total + service.products.reduce((sum, p) => 
-                                sum + (p.Precio * p.quantity), 0
-                              ), 0
-                            ) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0")
-                          }
                           value={suggestedPrice || ""}
                           onChange={(e) => {
                             const value = parseFloat(e.target.value) || 0;
-                            const servicesTotal = allSelectedServices.reduce((total, service) => 
-                              total + service.products.reduce((sum, p) => 
-                                sum + (p.Precio * p.quantity), 0
-                              ), 0
-                            );
-                            const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
-                            const finalTotal = servicesTotal + zoneCost;
-                            const minPrice = servicesTotal * 0.3; // 30% del total de servicios
-                            
-                            if (value > finalTotal) {
-                              toast.error("El precio sugerido no puede ser mayor al total final");
-                            } else if (value > 0 && value < minPrice) {
-                              toast.error(`El precio sugerido no puede ser menor al 30% del total de servicios ($${formatPrice(minPrice)})`);
-                            } else {
-                              setSuggestedPrice(value);
-                            }
+                            setSuggestedPrice(value);
                           }}
                           placeholder="Ingrese el precio sugerido aquí"
                           className="h-12 text-lg font-semibold border-primary/50"
                         />
                         <p className="text-xs text-muted-foreground">
                           {solicitudId 
-                            ? '* Campo obligatorio. El precio debe estar entre el 30% y el 100% del total de servicios.'
-                            : 'Ingrese un precio entre el 30% y el 100% del total de servicios para aplicar un descuento'
+                            ? '* Campo obligatorio. El precio debe estar entre el 30% del total de servicios y el total final.'
+                            : 'Ingrese un precio entre el 30% del total de servicios y el total final para aplicar un descuento'
                           }
                         </p>
                         {suggestedPrice > 0 && (
