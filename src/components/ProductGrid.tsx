@@ -266,11 +266,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         throw new Error(`Error al obtener productos: ${response.status}`);
       }
       const productsData = await response.json();
-      console.log('=== RESPUESTA CRUDA DE ObtenerNivel2 ===');
-      console.log('Cantidad de productos:', productsData.length);
-      console.log('Primer producto completo:', productsData[0]);
-      console.log('Campos del primer producto:', productsData[0] ? Object.keys(productsData[0]) : 'No hay productos');
-      console.log('=== FIN RESPUESTA CRUDA ===');
 
       // Initialize products with their default prices but set price to 0 initially
       const initialProducts = productsData.map((product: any) => {

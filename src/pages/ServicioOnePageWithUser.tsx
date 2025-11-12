@@ -218,17 +218,6 @@ const ServicioOnePageWithUser = () => {
       const response = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerNivel2?${params.toString()}`);
       if (!response.ok) throw new Error("Error al obtener productos");
       const data = await response.json();
-      console.log("===== DIAGNÓSTICO DE IMÁGENES =====");
-      console.log("Total productos recibidos:", data.length);
-      if (data.length > 0) {
-        console.log("Primer producto completo:", data[0]);
-        console.log("Campos disponibles:", Object.keys(data[0]));
-        console.log("Campo 'Imagen':", data[0].Imagen);
-        console.log("Campo 'imagen':", data[0].imagen);
-        console.log("Campo 'Image':", data[0].Image);
-      }
-      console.log("===== FIN DIAGNÓSTICO =====");
-      console.log("Raw products data:", data);
 
       // Map the products to the expected format
       const mappedProducts = data.map((product: any) => ({
@@ -241,7 +230,7 @@ const ServicioOnePageWithUser = () => {
         Comision: product.Comision || 0,
         ComisionTipo: product.ComisionTipo || "P",
         DetallesID: product.DetallesID || product.detallesId || null,
-        Imagen: product.Imagen || product.imagen || product.Image || ""
+        Imagen: product.image || product.Imagen || product.imagen || ""
       }));
       console.log("Mapped products:", mappedProducts);
       return mappedProducts;
@@ -1326,11 +1315,13 @@ const ServicioOnePageWithUser = () => {
               const quantity = selectedProduct?.quantity || 0;
               const imageSource = product.Imagen && product.Imagen.startsWith('data:image') ? product.Imagen : product.Imagen ? `data:image/png;base64,${product.Imagen}` : null;
               return <div key={product.ProductoID} className={cn("flex items-center space-x-3 p-3 border-2 rounded-lg transition-all duration-200", quantity > 0 ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/50")}>
-                            {imageSource && <div className="flex-shrink-0 w-16 h-16 bg-muted/30 rounded-md overflow-hidden flex items-center justify-center">
-                                <img src={imageSource} alt={product.NombreProducto} className="w-full h-full object-contain" onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }} />
-                              </div>}
+                            <div className="flex-shrink-0 w-16 h-16 bg-muted/30 rounded-md overflow-hidden flex items-center justify-center">
+                              {imageSource ? (
+                                <img src={imageSource} alt={product.NombreProducto} className="w-full h-full object-contain" />
+                              ) : (
+                                <Package className="h-8 w-8 text-muted-foreground" />
+                              )}
+                            </div>
                             <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-start mb-2">
                                   <div>
