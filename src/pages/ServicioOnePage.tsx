@@ -50,6 +50,7 @@ interface Product {
   Comision: number;
   ComisionTipo: string;
   DetallesID?: number | null;
+  Imagen?: string;
 }
 interface ProductWithQuantity extends Product {
   quantity: number;
@@ -219,19 +220,30 @@ const ServicioOnePage = () => {
       const response = await fetch(`https://app.almango.com.uy/WebAPI/ObtenerNivel2?${params.toString()}`);
       if (!response.ok) throw new Error("Error al obtener productos");
       const data = await response.json();
+      console.log("===== DIAGNÓSTICO DE IMÁGENES =====");
+      console.log("Total productos recibidos:", data.length);
+      if (data.length > 0) {
+        console.log("Primer producto completo:", data[0]);
+        console.log("Campos disponibles:", Object.keys(data[0]));
+        console.log("Campo 'Imagen':", data[0].Imagen);
+        console.log("Campo 'imagen':", data[0].imagen);
+        console.log("Campo 'Image':", data[0].Image);
+      }
+      console.log("===== FIN DIAGNÓSTICO =====");
       console.log("Raw products data:", data);
 
       // Map the products to the expected format
       const mappedProducts = data.map((product: any) => ({
-        ProductoID: parseInt(product.id) || product.ProductoID,
-        NombreProducto: product.name || product.NombreProducto,
+        ProductoID: parseInt(product.id) || product.ProductoID || product.Nivel2Id,
+        NombreProducto: product.name || product.NombreProducto || product.Nivel2Descripcion,
         Precio: parseFloat(product.price) || product.Precio,
         TextosId: product.TextosId || product.textosId,
         RubrosId: parseInt(selectedCategory),
         SR: product.SR || "S",
         Comision: product.Comision || 0,
         ComisionTipo: product.ComisionTipo || "P",
-        DetallesID: product.DetallesID || product.detallesId || null
+        DetallesID: product.DetallesID || product.detallesId || null,
+        Imagen: product.Imagen || product.imagen || product.Image || ""
       }));
       console.log("Mapped products:", mappedProducts);
       return mappedProducts;
@@ -912,8 +924,14 @@ const ServicioOnePage = () => {
                       </div> : products && products.length > 0 ? products.map((product: Product) => {
               const selectedProduct = selectedProducts.find(p => p.ProductoID === product.ProductoID);
               const quantity = selectedProduct?.quantity || 0;
-              return <div key={product.ProductoID} className={cn("flex items-center space-x-2 p-2 border-2 rounded-lg transition-all duration-200", quantity > 0 ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/50")}>
-                            <div className="flex-1">
+              const imageSource = product.Imagen && product.Imagen.startsWith('data:image') ? product.Imagen : product.Imagen ? `data:image/png;base64,${product.Imagen}` : null;
+              return <div key={product.ProductoID} className={cn("flex items-center space-x-3 p-3 border-2 rounded-lg transition-all duration-200", quantity > 0 ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/50")}>
+                            {imageSource && <div className="flex-shrink-0 w-16 h-16 bg-muted/30 rounded-md overflow-hidden flex items-center justify-center">
+                                <img src={imageSource} alt={product.NombreProducto} className="w-full h-full object-contain" onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }} />
+                              </div>}
+                            <div className="flex-1 min-w-0">
                               <div className="flex justify-between items-start mb-2">
                                 <div>
                                   <span className="font-semibold text-sm text-foreground block">{product.NombreProducto}</span>
