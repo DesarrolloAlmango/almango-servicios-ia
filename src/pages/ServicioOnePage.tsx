@@ -1066,7 +1066,7 @@ const ServicioOnePage = () => {
             <h1 className="text-white text-3xl mb-3 tracking-wide font-extrabold md:text-4xl">
               SOLICITAR SERVICIO
             </h1>
-            <p className="text-white text-sm mt-[-8px] font-semibold md:text-xl">Completa el formulario para solicitar su servicio</p>
+            <p className="text-white text-sm mt-[-8px] font-semibold md:text-xl">RÁPIDO, FÁCIL, SEGURO. SIN VUELTAS.</p>
           </div>
         </div>
         <div className="px-4 mt-14">
