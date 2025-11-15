@@ -28,6 +28,7 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 import { GeneralTermsModal } from "@/components/ui/general-terms-modal";
 import { setGlobalZoneCost } from "@/utils/globalZoneCost";
 import ProductTermsModal from "@/components/checkout/ProductTermsModal";
+import { CustomPriceTermsModal } from "@/components/checkout/CustomPriceTermsModal";
 import { formatPrice } from "@/utils/priceFormat";
 interface TarjetaServicio {
   id?: string;
@@ -132,6 +133,8 @@ const ServicioOnePage = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [solicitudIdSuccess, setSolicitudIdSuccess] = useState<string>("");
   const [showCopyButton, setShowCopyButton] = useState(false);
+  const [usesCustomPrice, setUsesCustomPrice] = useState<"suggested" | "custom">("suggested");
+  const [isCustomPriceTermsOpen, setIsCustomPriceTermsOpen] = useState(false);
 
   // Data fetching
   const {
@@ -799,39 +802,104 @@ const ServicioOnePage = () => {
                           </span>
                         </div>
                         <div className="flex justify-between items-center pt-2 border-t border-secondary/20">
-                          <span className="font-bold text-secondary">Monto final (precio sugerido):</span>
-                          <span className="text-xl font-bold text-secondary">
+                          <span className={cn(
+                            "font-bold text-secondary",
+                            usesCustomPrice === "custom" && suggestedPrice > 0 && "line-through opacity-60"
+                          )}>
+                            Monto final (precio sugerido):
+                          </span>
+                          <span className={cn(
+                            "text-xl font-bold text-secondary",
+                            usesCustomPrice === "custom" && suggestedPrice > 0 && "line-through opacity-60"
+                          )}>
                             ${formatPrice(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation.zonaCostoAdicional))}
                           </span>
                         </div>
+                        {usesCustomPrice === "custom" && suggestedPrice > 0 && (
+                          <div className="flex justify-between items-center pt-2">
+                            <span className="font-bold text-primary">Precio personalizado:</span>
+                            <span className="text-xl font-bold text-primary">
+                              ${formatPrice(suggestedPrice)}
+                            </span>
+                          </div>
+                        )}
                       </>}
                     
-                    {/* Precio sugerido - campo opcional */}
-                    {allSelectedServices.length > 0 && <div className="space-y-3 p-4 mt-4 rounded-lg border-2 border-primary/40 bg-primary/5">
-                        <Label htmlFor="suggested-price" className="text-sm font-semibold flex items-center gap-2">
-                          <span className="text-lg">💰</span>
-                          Precio sugerido (opcional)
-                        </Label>
-                        <Input id="suggested-price" type="number" min="0" max={allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0")} value={suggestedPrice || ""} onChange={e => {
-                const value = parseFloat(e.target.value) || 0;
-                const servicesTotal = allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0);
-                const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
-                const finalTotal = servicesTotal + zoneCost;
-                if (value <= finalTotal) {
-                  setSuggestedPrice(value);
-                } else {
-                  toast.error("El precio sugerido no puede ser mayor al total final");
-                }
-              }} placeholder="Ingrese el precio sugerido aquí" className="h-12 text-lg font-semibold border-primary/50" />
-                        <p className="text-xs text-muted-foreground">
-                          Ingrese un precio personalizado para aplicar un descuento automático
-                        </p>
-                        {suggestedPrice > 0 && <div className="flex justify-between items-center p-3 rounded-md bg-green-50 border border-green-200">
-                            <span className="text-sm font-medium text-green-800">Descuento a aplicar:</span>
-                            <span className="text-lg font-bold text-green-600">
-                              ${formatPrice(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0") - suggestedPrice)}
-                            </span>
-                          </div>}
+                    {/* Precio personalizado - campo opcional */}
+                    {allSelectedServices.length > 0 && <div className="space-y-4 p-4 mt-4 rounded-lg border-2 border-primary/40 bg-primary/5">
+                        <div className="space-y-2">
+                          <Label className="text-sm font-semibold flex items-center gap-2">
+                            <span className="text-lg">💰</span>
+                            ¿Querés proponer un precio distinto? Aplica{" "}
+                            <button
+                              type="button"
+                              onClick={() => setIsCustomPriceTermsOpen(true)}
+                              className="text-primary hover:underline font-semibold"
+                            >
+                              Términos y Condiciones
+                            </button>
+                          </Label>
+                          
+                          <RadioGroup
+                            value={usesCustomPrice}
+                            onValueChange={(value: "suggested" | "custom") => {
+                              setUsesCustomPrice(value);
+                              if (value === "suggested") {
+                                setSuggestedPrice(0);
+                              }
+                            }}
+                            className="flex gap-4"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="suggested" id="price-suggested" />
+                              <Label htmlFor="price-suggested" className="cursor-pointer font-normal">
+                                Precio sugerido
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="custom" id="price-custom" />
+                              <Label htmlFor="price-custom" className="cursor-pointer font-normal">
+                                SI
+                              </Label>
+                            </div>
+                          </RadioGroup>
+                        </div>
+
+                        {usesCustomPrice === "custom" && (
+                          <>
+                            <Input 
+                              id="suggested-price" 
+                              type="number" 
+                              min="0" 
+                              max={allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0")} 
+                              value={suggestedPrice || ""} 
+                              onChange={e => {
+                                const value = parseFloat(e.target.value) || 0;
+                                const servicesTotal = allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0);
+                                const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
+                                const finalTotal = servicesTotal + zoneCost;
+                                if (value <= finalTotal) {
+                                  setSuggestedPrice(value);
+                                } else {
+                                  toast.error("El precio sugerido no puede ser mayor al total final");
+                                }
+                              }} 
+                              placeholder="Ingresá un monto personalizado" 
+                              className="h-12 text-lg font-semibold border-primary/50" 
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Ingresá un precio personalizado para aplicar un descuento automático
+                            </p>
+                            {suggestedPrice > 0 && (
+                              <div className="flex justify-between items-center p-3 rounded-md bg-green-50 border border-green-200">
+                                <span className="text-sm font-medium text-green-800">Descuento a aplicar:</span>
+                                <span className="text-lg font-bold text-green-600">
+                                  ${formatPrice(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0") - suggestedPrice)}
+                                </span>
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>}
                   </div>
                 </div>
@@ -1188,6 +1256,8 @@ const ServicioOnePage = () => {
         <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => setIsLocationModalOpen(false)} onSelectLocation={handleLocationSelect} stores={[]} serviceId={selectedService} serviceName={services?.find(s => s.id === selectedService)?.name} categoryId={selectedCategory} categoryName={categories?.find(c => c.id === selectedCategory)?.name} commerceId={commerceId} />
         
         <ProductTermsModal isOpen={!!selectedProductTerms} onClose={() => setSelectedProductTerms(null)} textosId={selectedProductTerms?.textosId || null} productName={selectedProductTerms?.productName || ""} />
+
+        <CustomPriceTermsModal isOpen={isCustomPriceTermsOpen} onClose={() => setIsCustomPriceTermsOpen(false)} />
 
         <ConfirmationModal open={showConfirmationModal} onClose={() => setShowConfirmationModal(false)} onConfirm={handleSubmit} title="Confirmar Solicitud" description="Por favor revise los datos antes de enviar la solicitud." jsonData={confirmationData} isSubmitting={isSubmitting} />
 
