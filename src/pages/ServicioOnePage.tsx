@@ -616,8 +616,7 @@ const ServicioOnePage = () => {
     return <div className="space-y-6">
         {/* Date and Time Selection - First priority */}
             <div className="p-4 bg-accent/50 rounded-lg border border-border">
-              <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
-                <CalendarClock className="h-5 w-5 text-primary" />
+              <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">Fecha y Turno del Servicio<CalendarClock className="h-5 w-5 text-primary" />
                 Fecha y Hora del Servicio
               </h4>
               
