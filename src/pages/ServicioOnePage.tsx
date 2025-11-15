@@ -611,7 +611,7 @@ const ServicioOnePage = () => {
       setIsSubmitting(false);
     }
   };
-  const stepTitles = ["Solicitud de Servicio"];
+  const stepTitles = ["Formulario de solicitud de servicio"];
   const renderStepContent = () => {
     return <div className="space-y-6">
         {/* Date and Time Selection - First priority */}
