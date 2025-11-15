@@ -668,12 +668,21 @@ const ServicioOnePage = () => {
               </div>
             </div>
 
-            {/* Ubicación del servicio - SIEMPRE VISIBLE después de fecha/hora y ANTES de seleccionar servicio */}
-            {purchaseLocation ? <div className="p-4 bg-muted/50 rounded-lg border border-border">
+            {/* Ubicación del servicio - Habilitado solo después de fecha y turno */}
+            <div className={cn(
+              "transition-all duration-300",
+              (!selectedDate || !selectedTimeSlot) && "opacity-50 pointer-events-none"
+            )}>
+              <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
+                <MapPin className="h-5 w-5 text-primary" />
+                Ubicación del servicio
+                {(!selectedDate || !selectedTimeSlot) && <span className="text-xs text-muted-foreground font-normal ml-2">(Complete fecha y turno primero)</span>}
+              </h4>
+              {purchaseLocation ? <div className="p-4 bg-muted/50 rounded-lg border border-border">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-primary" />
-                    <span className="font-medium text-sm">Ubicación del servicio</span>
+                    <span className="font-medium text-sm">Ubicación configurada</span>
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => setIsLocationModalOpen(true)} className="h-8 text-sm">
                     Editar
@@ -685,11 +694,15 @@ const ServicioOnePage = () => {
                 {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-sm text-primary font-medium mt-2">
                     Costo adicional por zona: ${purchaseLocation.zonaCostoAdicional}
                   </p>}
-              </div> : <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors" onClick={() => setIsLocationModalOpen(true)}>
+              </div> : <div className={cn(
+                "flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border transition-colors",
+                (selectedDate && selectedTimeSlot) ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed"
+              )} onClick={() => (selectedDate && selectedTimeSlot) && setIsLocationModalOpen(true)}>
                 <MapPin className="h-5 w-5 text-primary" />
                 <span className="text-sm text-foreground flex-1">Configurar ubicación del servicio *</span>
                 <span className="text-sm text-muted-foreground">Click aquí</span>
               </div>}
+            </div>
 
             {/* Services Summary Section */}
             {allSelectedServices.length > 0 && <div className="p-4 bg-secondary/10 border border-secondary/30 rounded-lg">
@@ -788,9 +801,15 @@ const ServicioOnePage = () => {
                 </div>
               </div>}
 
-            <div>
-              <Label htmlFor="service" className="text-sm font-medium mb-2 block">Seleccione otro Servicio</Label>
-              {!selectedService ? <Select value={selectedService} onValueChange={setSelectedService}>
+            <div className={cn(
+              "transition-all duration-300",
+              !purchaseLocation && "opacity-50 pointer-events-none"
+            )}>
+              <Label htmlFor="service" className="text-sm font-medium mb-2 block">
+                Seleccione otro Servicio
+                {!purchaseLocation && <span className="text-xs text-muted-foreground font-normal ml-2">(Configure ubicación primero)</span>}
+              </Label>
+              {!selectedService ? <Select value={selectedService} onValueChange={setSelectedService} disabled={!purchaseLocation}>
                   <SelectTrigger className="h-10">
                     <SelectValue placeholder="Seleccione un servicio" />
                   </SelectTrigger>
@@ -813,9 +832,15 @@ const ServicioOnePage = () => {
                 </div>}
             </div>
 
-            {selectedService && <div>
-                <Label htmlFor="category" className="text-sm font-medium mb-2 block">Seleccione una Categoría</Label>
-                {!selectedCategory ? <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            {selectedService && <div className={cn(
+              "transition-all duration-300",
+              !purchaseLocation && "opacity-50 pointer-events-none"
+            )}>
+                <Label htmlFor="category" className="text-sm font-medium mb-2 block">
+                  Seleccione una Categoría
+                  {!purchaseLocation && <span className="text-xs text-muted-foreground font-normal ml-2">(Configure ubicación primero)</span>}
+                </Label>
+                {!selectedCategory ? <Select value={selectedCategory} onValueChange={setSelectedCategory} disabled={!purchaseLocation}>
                     <SelectTrigger className="h-10">
                       <SelectValue placeholder="Seleccione una categoría" />
                     </SelectTrigger>
