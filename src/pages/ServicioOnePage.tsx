@@ -252,7 +252,6 @@ const ServicioOnePage = () => {
   const handleProductQuantityChange = (product: Product, change: number) => {
     // Reset suggested price when product quantity changes
     setSuggestedPrice(0);
-    
     setSelectedProducts(prev => {
       const existing = prev.find(p => p.ProductoID === product.ProductoID);
       if (existing) {
@@ -305,7 +304,7 @@ const ServicioOnePage = () => {
       toast.error("Por favor complete la selección de servicio");
       return;
     }
-    
+
     // Reset suggested price when adding new service
     setSuggestedPrice(0);
     const serviceName = services?.find(s => s.id === selectedService)?.name || "";
@@ -346,10 +345,9 @@ const ServicioOnePage = () => {
       top: 0,
       behavior: 'smooth'
     });
-    
+
     // Reset suggested price when editing service
     setSuggestedPrice(0);
-    
     toast.info("Servicio cargado para edición");
   };
 
@@ -442,7 +440,7 @@ const ServicioOnePage = () => {
     // Calculate total
     const productsTotal = checkoutItems.reduce((sum, item) => sum + item.PrecioFinal, 0);
     const total = productsTotal + zoneCost;
-    
+
     // Calculate discount if suggested price is provided
     const discountAmount = suggestedPrice > 0 ? Math.round(productsTotal + zoneCost - suggestedPrice) : 0;
     const data: CheckoutData = {
@@ -576,7 +574,7 @@ const ServicioOnePage = () => {
         setShowCopyButton(suggestedPrice === 0); // Show copy button only if no suggested price was used
         setShowSuccessModal(true);
         setShowConfirmationModal(false);
-        
+
         // Reset form
         setCurrentStep(1);
         setSelectedService("");
@@ -760,70 +758,39 @@ const ServicioOnePage = () => {
                       </>}
                     
                     {/* Precio sugerido - campo opcional */}
-                    {allSelectedServices.length > 0 && (
-                      <div className="space-y-3 p-4 mt-4 rounded-lg border-2 border-primary/40 bg-primary/5">
+                    {allSelectedServices.length > 0 && <div className="space-y-3 p-4 mt-4 rounded-lg border-2 border-primary/40 bg-primary/5">
                         <Label htmlFor="suggested-price" className="text-sm font-semibold flex items-center gap-2">
                           <span className="text-lg">💰</span>
                           Precio sugerido (opcional)
                         </Label>
-                        <Input
-                          id="suggested-price"
-                          type="number"
-                          min="0"
-                          max={
-                            allSelectedServices.reduce((total, service) => 
-                              total + service.products.reduce((sum, p) => 
-                                sum + (p.Precio * p.quantity), 0
-                              ), 0
-                            ) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0")
-                          }
-                          value={suggestedPrice || ""}
-                          onChange={(e) => {
-                            const value = parseFloat(e.target.value) || 0;
-                            const servicesTotal = allSelectedServices.reduce((total, service) => 
-                              total + service.products.reduce((sum, p) => 
-                                sum + (p.Precio * p.quantity), 0
-                              ), 0
-                            );
-                            const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
-                            const finalTotal = servicesTotal + zoneCost;
-                            
-                            if (value <= finalTotal) {
-                              setSuggestedPrice(value);
-                            } else {
-                              toast.error("El precio sugerido no puede ser mayor al total final");
-                            }
-                          }}
-                          placeholder="Ingrese el precio sugerido aquí"
-                          className="h-12 text-lg font-semibold border-primary/50"
-                        />
+                        <Input id="suggested-price" type="number" min="0" max={allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0")} value={suggestedPrice || ""} onChange={e => {
+                const value = parseFloat(e.target.value) || 0;
+                const servicesTotal = allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0);
+                const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
+                const finalTotal = servicesTotal + zoneCost;
+                if (value <= finalTotal) {
+                  setSuggestedPrice(value);
+                } else {
+                  toast.error("El precio sugerido no puede ser mayor al total final");
+                }
+              }} placeholder="Ingrese el precio sugerido aquí" className="h-12 text-lg font-semibold border-primary/50" />
                         <p className="text-xs text-muted-foreground">
                           Ingrese un precio personalizado para aplicar un descuento automático
                         </p>
-                        {suggestedPrice > 0 && (
-                          <div className="flex justify-between items-center p-3 rounded-md bg-green-50 border border-green-200">
+                        {suggestedPrice > 0 && <div className="flex justify-between items-center p-3 rounded-md bg-green-50 border border-green-200">
                             <span className="text-sm font-medium text-green-800">Descuento a aplicar:</span>
                             <span className="text-lg font-bold text-green-600">
-                              ${formatPrice(
-                                allSelectedServices.reduce((total, service) => 
-                                  total + service.products.reduce((sum, p) => 
-                                    sum + (p.Precio * p.quantity), 0
-                                  ), 0
-                                ) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0") - suggestedPrice
-                              )}
+                              ${formatPrice(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0") - suggestedPrice)}
                             </span>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                          </div>}
+                      </div>}
                   </div>
                 </div>
               </div>}
 
             <div>
               <Label htmlFor="service" className="text-sm font-medium mb-2 block">Seleccione otro Servicio</Label>
-              {!selectedService ? (
-                <Select value={selectedService} onValueChange={setSelectedService}>
+              {!selectedService ? <Select value={selectedService} onValueChange={setSelectedService}>
                   <SelectTrigger className="h-10">
                     <SelectValue placeholder="Seleccione un servicio" />
                   </SelectTrigger>
@@ -834,35 +801,21 @@ const ServicioOnePage = () => {
                         No hay servicios disponibles
                       </SelectItem>}
                   </SelectContent>
-                </Select>
-              ) : (
-                <div className="flex gap-2">
-                  <Input 
-                    value={services?.find(s => s.id === selectedService)?.name || ""} 
-                    disabled 
-                    className="h-10 bg-muted"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => {
-                      setSelectedService("");
-                      setSelectedCategory("");
-                      setSelectedProducts([]);
-                    }}
-                    className="h-10 w-10 flex-shrink-0"
-                  >
+                </Select> : <div className="flex gap-2">
+                  <Input value={services?.find(s => s.id === selectedService)?.name || ""} disabled className="h-10 bg-muted" />
+                  <Button type="button" variant="outline" size="icon" onClick={() => {
+            setSelectedService("");
+            setSelectedCategory("");
+            setSelectedProducts([]);
+          }} className="h-10 w-10 flex-shrink-0">
                     <X className="h-4 w-4" />
                   </Button>
-                </div>
-              )}
+                </div>}
             </div>
 
             {selectedService && <div>
                 <Label htmlFor="category" className="text-sm font-medium mb-2 block">Seleccione una Categoría</Label>
-                {!selectedCategory ? (
-                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                {!selectedCategory ? <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                     <SelectTrigger className="h-10">
                       <SelectValue placeholder="Seleccione una categoría" />
                     </SelectTrigger>
@@ -873,28 +826,15 @@ const ServicioOnePage = () => {
                           No hay categorías disponibles
                         </SelectItem>}
                     </SelectContent>
-                  </Select>
-                ) : (
-                  <div className="flex gap-2">
-                    <Input 
-                      value={categories?.find(c => c.id === selectedCategory)?.name || ""} 
-                      disabled 
-                      className="h-10 bg-muted"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => {
-                        setSelectedCategory("");
-                        setSelectedProducts([]);
-                      }}
-                      className="h-10 w-10 flex-shrink-0"
-                    >
+                  </Select> : <div className="flex gap-2">
+                    <Input value={categories?.find(c => c.id === selectedCategory)?.name || ""} disabled className="h-10 bg-muted" />
+                    <Button type="button" variant="outline" size="icon" onClick={() => {
+            setSelectedCategory("");
+            setSelectedProducts([]);
+          }} className="h-10 w-10 flex-shrink-0">
                       <X className="h-4 w-4" />
                     </Button>
-                  </div>
-                )}
+                  </div>}
             </div>}
 
             {/* Service Selection Section - Only show when category and location are selected */}
@@ -916,11 +856,7 @@ const ServicioOnePage = () => {
               const imageSource = product.Imagen && product.Imagen.startsWith('data:image') ? product.Imagen : product.Imagen ? `data:image/png;base64,${product.Imagen}` : null;
               return <div key={product.ProductoID} className={cn("flex items-center space-x-3 p-3 border-2 rounded-lg transition-all duration-200", quantity > 0 ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/50")}>
                             <div className="flex-shrink-0 w-16 h-16 bg-muted/30 rounded-md overflow-hidden flex items-center justify-center">
-                              {imageSource ? (
-                                <img src={imageSource} alt={product.NombreProducto} className="w-full h-full object-contain" />
-                              ) : (
-                                <Package className="h-8 w-8 text-muted-foreground" />
-                              )}
+                              {imageSource ? <img src={imageSource} alt={product.NombreProducto} className="w-full h-full object-contain" /> : <Package className="h-8 w-8 text-muted-foreground" />}
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex justify-between items-start mb-2">
@@ -1126,7 +1062,7 @@ const ServicioOnePage = () => {
   }}>
       <div className="container mx-auto py-8 max-w-3xl">
         <div className="mb-6 px-4">
-          <div className="bg-[#fe8d0c] rounded-t-3xl p-8 text-center">
+          <div className="rounded-t-3xl p-8 text-center bg-[#fe8d0c]/0">
             <h1 className="text-white text-3xl mb-3 tracking-wide font-extrabold md:text-4xl">
               SOLICITAR SERVICIO
             </h1>
@@ -1135,12 +1071,14 @@ const ServicioOnePage = () => {
         </div>
         <div className="px-4 mt-14">
         <Card className="shadow-xl border-border -mt-6">
-          <CardHeader className="from-primary to-secondary text-primary-foreground p-6 bg-[fe8d0c] bg-[#fe8d0c] m-[-2px] flex flex-row items-center justify-between">
-            <CardTitle className="text-lg font-semibold flex items-center gap-2">
+          <CardHeader className="from-primary to-secondary text-primary-foreground p-6 bg-[fe8d0c] m-[-2px] flex flex-row items-center justify-between bg-[#fe8d0c]/0">
+            <CardTitle className="text-lg font-semibold flex items-center gap-2 text-sky-600">
               <Package className="h-5 w-5" />
               {stepTitles[0]}
             </CardTitle>
-            <img src={logo} alt="Logo" className="h-16 w-auto object-contain drop-shadow-lg" style={{ imageRendering: 'crisp-edges' }} />
+            <img src={logo} alt="Logo" className="h-16 w-auto object-contain drop-shadow-lg" style={{
+              imageRendering: 'crisp-edges'
+            }} />
           </CardHeader>
             
             <CardContent className="p-6">
@@ -1178,11 +1116,7 @@ const ServicioOnePage = () => {
 
         {/* Success Modal */}
         <Dialog open={showSuccessModal}>
-          <DialogContent 
-            className="sm:max-w-md"
-            onPointerDownOutside={(e) => e.preventDefault()}
-            onEscapeKeyDown={(e) => e.preventDefault()}
-          >
+          <DialogContent className="sm:max-w-md" onPointerDownOutside={e => e.preventDefault()} onEscapeKeyDown={e => e.preventDefault()}>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-green-600">
                 <Check className="h-6 w-6" />
@@ -1191,15 +1125,11 @@ const ServicioOnePage = () => {
             </DialogHeader>
             <div className="py-4">
               <p className="text-center text-lg mb-2">
-                {showCopyButton 
-                  ? "Su pre-solicitud ha sido registrada correctamente." 
-                  : "Su solicitud ha sido registrada correctamente."}
+                {showCopyButton ? "Su pre-solicitud ha sido registrada correctamente." : "Su solicitud ha sido registrada correctamente."}
               </p>
-              {showCopyButton && (
-                <p className="text-center text-sm text-muted-foreground mt-2">
+              {showCopyButton && <p className="text-center text-sm text-muted-foreground mt-2">
                   Un agente se comunicará con usted para cerrar la solicitud.
-                </p>
-              )}
+                </p>}
               <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mt-4">
                 <p className="text-sm text-muted-foreground text-center mb-1">
                   {showCopyButton ? "Número de Pre-Solicitud" : "Número de Solicitud"}
@@ -1208,20 +1138,14 @@ const ServicioOnePage = () => {
               </div>
             </div>
             <DialogFooter className="flex-col sm:flex-col gap-2">
-              {showCopyButton && (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    const link = `https://services.almango.com.uy/servicioonepage/update/${userId || "0"}/${solicitudIdSuccess}`;
-                    navigator.clipboard.writeText(link);
-                    toast.success("Link copiado al portapapeles");
-                  }}
-                  className="w-full"
-                >
+              {showCopyButton && <Button variant="outline" onClick={() => {
+              const link = `https://services.almango.com.uy/servicioonepage/update/${userId || "0"}/${solicitudIdSuccess}`;
+              navigator.clipboard.writeText(link);
+              toast.success("Link copiado al portapapeles");
+            }} className="w-full">
                   <Copy className="mr-2 h-4 w-4" />
                   Copiar Link de Actualización
-                </Button>
-              )}
+                </Button>}
               <Button onClick={() => setShowSuccessModal(false)} className="w-full">
                 Aceptar
               </Button>
