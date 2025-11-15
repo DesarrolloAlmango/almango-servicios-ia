@@ -835,7 +835,7 @@ const ServicioOnePage = () => {
               !purchaseLocation && "opacity-50 pointer-events-none"
             )}>
               <Label htmlFor="service" className="text-sm font-medium mb-2 block">
-                Seleccione otro Servicio
+                Seleccioná otro Servicio
                 {!purchaseLocation && <span className="text-xs text-muted-foreground font-normal ml-2">(Configure ubicación primero)</span>}
               </Label>
               {!selectedService ? <Select value={selectedService} onValueChange={setSelectedService} disabled={!purchaseLocation}>
@@ -866,7 +866,7 @@ const ServicioOnePage = () => {
               !purchaseLocation && "opacity-50 pointer-events-none"
             )}>
                 <Label htmlFor="category" className="text-sm font-medium mb-2 block">
-                  Seleccione una Categoría
+                  Seleccioná una Categoría
                   {!purchaseLocation && <span className="text-xs text-muted-foreground font-normal ml-2">(Configure ubicación primero)</span>}
                 </Label>
                 {!selectedCategory ? <Select value={selectedCategory} onValueChange={setSelectedCategory} disabled={!purchaseLocation}>
