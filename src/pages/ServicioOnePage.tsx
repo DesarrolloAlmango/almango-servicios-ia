@@ -113,6 +113,7 @@ const ServicioOnePage = () => {
   const [checkoutData, setCheckoutData] = useState<CheckoutData | null>(null);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
   const [purchaseLocation, setPurchaseLocation] = useState<PurchaseLocation | null>(null);
+  const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [allSelectedServices, setAllSelectedServices] = useState<{
     serviceId: string;
     serviceName: string;
@@ -200,6 +201,7 @@ const ServicioOnePage = () => {
       console.error("Categories query error:", categoriesError);
     }
   }, [categoriesError]);
+  
   const {
     data: products,
     isLoading: isProductsLoading
@@ -239,6 +241,33 @@ const ServicioOnePage = () => {
     },
     enabled: !!(selectedService && selectedCategory && purchaseLocation)
   });
+
+  // Progressive product display effect
+  useEffect(() => {
+    if (!products || products.length === 0) {
+      setDisplayedProducts([]);
+      return;
+    }
+
+    // Reset displayed products when products change
+    setDisplayedProducts([]);
+    let currentIndex = 0;
+
+    const showNextProduct = () => {
+      if (currentIndex < products.length) {
+        setDisplayedProducts(prev => [...prev, products[currentIndex]]);
+        currentIndex++;
+        setTimeout(showNextProduct, 50); // Show each product with 50ms delay
+      }
+    };
+
+    // Start showing products progressively
+    const timeoutId = setTimeout(showNextProduct, 0);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [products]);
 
   // Pre-select from URL parameters
   useEffect(() => {
@@ -875,7 +904,7 @@ const ServicioOnePage = () => {
                   <div className="grid gap-3 max-h-80 overflow-y-auto pr-2">
                     {isProductsLoading ? <div className="space-y-3">
                         {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full rounded-lg" />)}
-                      </div> : products && products.length > 0 ? products.map((product: Product) => {
+                      </div> : displayedProducts && displayedProducts.length > 0 ? displayedProducts.map((product: Product) => {
               const selectedProduct = selectedProducts.find(p => p.ProductoID === product.ProductoID);
               const quantity = selectedProduct?.quantity || 0;
               const imageSource = product.Imagen && product.Imagen.startsWith('data:image') ? product.Imagen : product.Imagen ? `data:image/png;base64,${product.Imagen}` : null;
