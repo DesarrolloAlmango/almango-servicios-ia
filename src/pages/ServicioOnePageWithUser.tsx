@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { ArrowLeft, Home, Wind, Droplets, Zap, Package, Truck, Baby, MapPin, CalendarClock, UserCheck, CreditCard, Check, ShoppingCart, Plus, X, Pencil, Copy } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import fondoAzul from "@/assets/fondo-azul-patrones.svg";
+import logoCalendar from "@/assets/logo-calendar.svg";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -1041,6 +1042,9 @@ const ServicioOnePageWithUser = () => {
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0 z-50 bg-white" align="start">
+                      <div className="flex justify-center p-2 border-b">
+                        <img src={logoCalendar} alt="Logo" className="h-12 w-auto" />
+                      </div>
                       <Calendar mode="single" selected={selectedDate} onSelect={setSelectedDate} disabled={date => {
                   const today = new Date();
                   today.setHours(0, 0, 0, 0);
