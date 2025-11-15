@@ -103,6 +103,7 @@ const ServicioOnePage = () => {
   const [paymentMethod, setPaymentMethod] = useState("1"); // Default to cash (efectivo)
   const [comments, setComments] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptProductTerms, setAcceptProductTerms] = useState(false);
   const [noNumber, setNoNumber] = useState(false);
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
@@ -334,6 +335,11 @@ const ServicioOnePage = () => {
       return;
     }
 
+    if (!acceptProductTerms) {
+      toast.error("Debés aceptar las condiciones de los productos para continuar");
+      return;
+    }
+
     // Reset suggested price when adding new service
     setSuggestedPrice(0);
     const serviceName = services?.find(s => s.id === selectedService)?.name || "";
@@ -351,6 +357,7 @@ const ServicioOnePage = () => {
     setSelectedService("");
     setSelectedCategory("");
     setSelectedProducts([]);
+    setAcceptProductTerms(false);
     // DON'T reset: setPurchaseLocation(null);
   };
   const removeServiceFromList = (index: number) => {
@@ -973,7 +980,37 @@ const ServicioOnePage = () => {
                           </p>
                         </div>
                       </div>
-                      <Button onClick={addCurrentServiceToList} className="w-full bg-primary hover:bg-primary/90 h-10">
+                      
+                      <div className="mb-3 flex items-start gap-2">
+                        <Checkbox
+                          id="accept-product-terms"
+                          checked={acceptProductTerms}
+                          onCheckedChange={(checked) => setAcceptProductTerms(checked as boolean)}
+                          className="mt-1"
+                        />
+                        <label
+                          htmlFor="accept-product-terms"
+                          className="text-sm text-foreground leading-tight cursor-pointer"
+                        >
+                          Acepto las{" "}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              setIsTermsModalOpen(true);
+                            }}
+                            className="text-primary hover:underline font-medium"
+                          >
+                            condiciones de los productos
+                          </button>
+                        </label>
+                      </div>
+                      
+                      <Button 
+                        onClick={addCurrentServiceToList} 
+                        disabled={!acceptProductTerms}
+                        className="w-full bg-primary hover:bg-primary/90 h-10 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
                         <Plus className="h-4 w-4 mr-2" />
                         Agregar a solicitud
                       </Button>
