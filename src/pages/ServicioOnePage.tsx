@@ -992,17 +992,7 @@ const ServicioOnePage = () => {
                           htmlFor="accept-product-terms"
                           className="text-sm text-foreground leading-tight cursor-pointer"
                         >
-                          Acepto las{" "}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              setIsTermsModalOpen(true);
-                            }}
-                            className="text-primary hover:underline font-medium"
-                          >
-                            condiciones de los productos
-                          </button>
+                          Acepto las condiciones de los productos
                         </label>
                       </div>
                       
