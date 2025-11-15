@@ -1063,9 +1063,7 @@ const ServicioOnePage = () => {
       <div className="container mx-auto py-8 max-w-3xl">
         <div className="mb-6 px-4">
           <div className="rounded-t-3xl p-8 text-center bg-[#fe8d0c]/0">
-            <h1 className="text-white text-3xl mb-3 tracking-wide font-extrabold md:text-4xl">
-              SOLICITAR SERVICIO
-            </h1>
+            <h1 className="text-white text-3xl mb-3 tracking-wide font-extrabold md:text-3xl">SOLICITÁ TU SERVICIO EN MINUTOS.</h1>
             <p className="text-white text-sm mt-[-8px] font-semibold md:text-xl">RÁPIDO, FÁCIL, SEGURO. SIN VUELTAS.</p>
           </div>
         </div>
