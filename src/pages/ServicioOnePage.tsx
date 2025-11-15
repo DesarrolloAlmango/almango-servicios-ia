@@ -487,7 +487,7 @@ const ServicioOnePage = () => {
     if (!data.Telefono) missingFields.push("Teléfono");
     if (!data.Direccion) missingFields.push("Dirección");
     if (!data.FechaInstalacion) missingFields.push("Fecha");
-    if (!data.TurnoInstalacion) missingFields.push("Horario");
+    if (!data.TurnoInstalacion) missingFields.push("Turno");
     if (data.Level1.length === 0) missingFields.push("Productos");
     if (!personalInfo.termsAccepted) missingFields.push("Términos y condiciones");
     if (!acceptTerms) missingFields.push("Aceptar términos y condiciones");
@@ -618,7 +618,7 @@ const ServicioOnePage = () => {
             <div className="p-4 bg-accent/50 rounded-lg border border-border">
               <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
                 <CalendarClock className="h-5 w-5 text-primary" />
-                Fecha y Hora del Servicio
+                Fecha y Turno del Servicio
               </h4>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -644,10 +644,10 @@ const ServicioOnePage = () => {
                 </div>
                 
                 {selectedDate && <div>
-                    <Label htmlFor="timeSlot" className="text-sm font-medium mb-2 block">Horario *</Label>
+                    <Label htmlFor="timeSlot" className="text-sm font-medium mb-2 block">Turno *</Label>
                     <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
                       <SelectTrigger className="bg-background h-10">
-                        <SelectValue placeholder="Seleccionar horario" />
+                        <SelectValue placeholder="Seleccionar turno" />
                       </SelectTrigger>
                       <SelectContent className="z-50 bg-white">
                         {(() => {
