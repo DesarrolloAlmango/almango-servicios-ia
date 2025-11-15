@@ -859,7 +859,7 @@ const ServicioOnePage = () => {
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="custom" id="price-custom" />
                               <Label htmlFor="price-custom" className="cursor-pointer font-normal">
-                                SI
+                                Precio distinto
                               </Label>
                             </div>
                           </RadioGroup>
