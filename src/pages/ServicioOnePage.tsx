@@ -836,11 +836,11 @@ const ServicioOnePage = () => {
             )}>
               <Label htmlFor="service" className="text-sm font-medium mb-2 block">
                 Seleccioná otro Servicio
-                {!purchaseLocation && <span className="text-xs text-muted-foreground font-normal ml-2">(Configure ubicación primero)</span>}
+                {!purchaseLocation && <span className="text-xs text-muted-foreground font-normal ml-2">(Configurá ubicación primero)</span>}
               </Label>
               {!selectedService ? <Select value={selectedService} onValueChange={setSelectedService} disabled={!purchaseLocation}>
                   <SelectTrigger className="h-10">
-                    <SelectValue placeholder="Seleccione un servicio" />
+                    <SelectValue placeholder="Seleccioná un servicio" />
                   </SelectTrigger>
                   <SelectContent>
                     {isServicesLoading ? <SelectItem value="loading" disabled>Cargando servicios...</SelectItem> : services && services.length > 0 ? services.map((service: TarjetaServicio) => <SelectItem key={service.id} value={service.id!}>
@@ -867,11 +867,11 @@ const ServicioOnePage = () => {
             )}>
                 <Label htmlFor="category" className="text-sm font-medium mb-2 block">
                   Seleccioná una Categoría
-                  {!purchaseLocation && <span className="text-xs text-muted-foreground font-normal ml-2">(Configure ubicación primero)</span>}
+                  {!purchaseLocation && <span className="text-xs text-muted-foreground font-normal ml-2">(Configurá ubicación primero)</span>}
                 </Label>
                 {!selectedCategory ? <Select value={selectedCategory} onValueChange={setSelectedCategory} disabled={!purchaseLocation}>
                     <SelectTrigger className="h-10">
-                      <SelectValue placeholder="Seleccione una categoría" />
+                      <SelectValue placeholder="Seleccioná una categoría" />
                     </SelectTrigger>
                     <SelectContent>
                       {isCategoriesLoading ? <SelectItem value="loading" disabled>Cargando categorías...</SelectItem> : categories && categories.length > 0 ? categories.map((category: Category) => <SelectItem key={category.id} value={category.id}>
