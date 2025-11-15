@@ -205,7 +205,6 @@ const ServicioOnePage = () => {
       console.error("Categories query error:", categoriesError);
     }
   }, [categoriesError]);
-  
   const {
     data: products,
     isLoading: isProductsLoading
@@ -256,7 +255,6 @@ const ServicioOnePage = () => {
     // Reset displayed products when products change
     setDisplayedProducts([]);
     let currentIndex = 0;
-
     const showNextProduct = () => {
       if (currentIndex < products.length) {
         setDisplayedProducts(prev => [...prev, products[currentIndex]]);
@@ -267,7 +265,6 @@ const ServicioOnePage = () => {
 
     // Start showing products progressively
     const timeoutId = setTimeout(showNextProduct, 0);
-
     return () => {
       clearTimeout(timeoutId);
     };
@@ -337,7 +334,6 @@ const ServicioOnePage = () => {
       toast.error("Por favor complete la selección de servicio");
       return;
     }
-
     if (!acceptProductTerms) {
       toast.error("Debés aceptar las condiciones de los productos para continuar");
       return;
@@ -708,10 +704,7 @@ const ServicioOnePage = () => {
             </div>
 
             {/* Ubicación del servicio - Habilitado solo después de fecha y turno */}
-            <div className={cn(
-              "transition-all duration-300",
-              (!selectedDate || !selectedTimeSlot) && "opacity-50 pointer-events-none"
-            )}>
+            <div className={cn("transition-all duration-300", (!selectedDate || !selectedTimeSlot) && "opacity-50 pointer-events-none")}>
               <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
                 <MapPin className="h-5 w-5 text-primary" />
                 Ubicación del servicio
@@ -733,10 +726,7 @@ const ServicioOnePage = () => {
                 {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-sm text-primary font-medium mt-2">
                     Costo adicional por zona: ${formatPrice(parseFloat(purchaseLocation.zonaCostoAdicional))}
                   </p>}
-              </div> : <div className={cn(
-                "flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border transition-colors",
-                (selectedDate && selectedTimeSlot) ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed"
-              )} onClick={() => (selectedDate && selectedTimeSlot) && setIsLocationModalOpen(true)}>
+              </div> : <div className={cn("flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border transition-colors", selectedDate && selectedTimeSlot ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed")} onClick={() => selectedDate && selectedTimeSlot && setIsLocationModalOpen(true)}>
                 <MapPin className="h-5 w-5 text-primary" />
                 <span className="text-sm text-foreground flex-1">Configurar ubicación del servicio *</span>
                 <span className="text-sm text-muted-foreground">Click aquí</span>
@@ -802,27 +792,19 @@ const ServicioOnePage = () => {
                           </span>
                         </div>
                         <div className="flex justify-between items-center pt-2 border-t border-secondary/20">
-                          <span className={cn(
-                            "font-bold text-secondary",
-                            usesCustomPrice === "custom" && suggestedPrice > 0 && "line-through opacity-60"
-                          )}>
+                          <span className={cn("font-bold text-secondary", usesCustomPrice === "custom" && suggestedPrice > 0 && "line-through opacity-60")}>
                             Monto final (precio sugerido):
                           </span>
-                          <span className={cn(
-                            "text-xl font-bold text-secondary",
-                            usesCustomPrice === "custom" && suggestedPrice > 0 && "line-through opacity-60"
-                          )}>
+                          <span className={cn("text-xl font-bold text-secondary", usesCustomPrice === "custom" && suggestedPrice > 0 && "line-through opacity-60")}>
                             ${formatPrice(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation.zonaCostoAdicional))}
                           </span>
                         </div>
-                        {usesCustomPrice === "custom" && suggestedPrice > 0 && (
-                          <div className="flex justify-between items-center pt-2">
+                        {usesCustomPrice === "custom" && suggestedPrice > 0 && <div className="flex justify-between items-center pt-2">
                             <span className="font-bold text-primary">Precio personalizado:</span>
                             <span className="text-xl font-bold text-primary">
                               ${formatPrice(suggestedPrice)}
                             </span>
-                          </div>
-                        )}
+                          </div>}
                       </>}
                     
                     {/* Precio personalizado - campo opcional */}
@@ -831,25 +813,17 @@ const ServicioOnePage = () => {
                           <Label className="text-sm font-semibold flex items-center gap-2">
                             <span className="text-lg">💰</span>
                             ¿Querés proponer un precio distinto? Aplica{" "}
-                            <button
-                              type="button"
-                              onClick={() => setIsCustomPriceTermsOpen(true)}
-                              className="text-primary hover:underline font-semibold"
-                            >
+                            <button type="button" onClick={() => setIsCustomPriceTermsOpen(true)} className="text-primary hover:underline font-semibold">
                               Términos y Condiciones
                             </button>
                           </Label>
                           
-                          <RadioGroup
-                            value={usesCustomPrice}
-                            onValueChange={(value: "suggested" | "custom") => {
-                              setUsesCustomPrice(value);
-                              if (value === "suggested") {
-                                setSuggestedPrice(0);
-                              }
-                            }}
-                            className="flex gap-4"
-                          >
+                          <RadioGroup value={usesCustomPrice} onValueChange={(value: "suggested" | "custom") => {
+                  setUsesCustomPrice(value);
+                  if (value === "suggested") {
+                    setSuggestedPrice(0);
+                  }
+                }} className="flex gap-4">
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="suggested" id="price-suggested" />
                               <Label htmlFor="price-suggested" className="cursor-pointer font-normal">
@@ -865,50 +839,32 @@ const ServicioOnePage = () => {
                           </RadioGroup>
                         </div>
 
-                        {usesCustomPrice === "custom" && (
-                          <>
-                            <Input 
-                              id="suggested-price" 
-                              type="number" 
-                              min="0" 
-                              max={allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0")} 
-                              value={suggestedPrice || ""} 
-                              onChange={e => {
-                                const value = parseFloat(e.target.value) || 0;
-                                const servicesTotal = allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0);
-                                const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
-                                const finalTotal = servicesTotal + zoneCost;
-                                if (value <= finalTotal) {
-                                  setSuggestedPrice(value);
-                                } else {
-                                  toast.error("El precio sugerido no puede ser mayor al total final");
-                                }
-                              }} 
-                              placeholder="Ingresá un monto personalizado" 
-                              className="h-12 text-lg font-semibold border-primary/50" 
-                            />
-                            <p className="text-xs text-muted-foreground">
-                              Ingresá un precio personalizado para aplicar un descuento automático
-                            </p>
-                            {suggestedPrice > 0 && (
-                              <div className="flex justify-between items-center p-3 rounded-md bg-green-50 border border-green-200">
+                        {usesCustomPrice === "custom" && <>
+                            <Input id="suggested-price" type="number" min="0" max={allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0")} value={suggestedPrice || ""} onChange={e => {
+                  const value = parseFloat(e.target.value) || 0;
+                  const servicesTotal = allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0);
+                  const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
+                  const finalTotal = servicesTotal + zoneCost;
+                  if (value <= finalTotal) {
+                    setSuggestedPrice(value);
+                  } else {
+                    toast.error("El precio sugerido no puede ser mayor al total final");
+                  }
+                }} placeholder="Ingresá un monto personalizado" className="h-12 text-lg font-semibold border-primary/50" />
+                            
+                            {suggestedPrice > 0 && <div className="flex justify-between items-center p-3 rounded-md bg-green-50 border border-green-200">
                                 <span className="text-sm font-medium text-green-800">Descuento a aplicar:</span>
                                 <span className="text-lg font-bold text-green-600">
                                   ${formatPrice(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0") - suggestedPrice)}
                                 </span>
-                              </div>
-                            )}
-                          </>
-                        )}
+                              </div>}
+                          </>}
                       </div>}
                   </div>
                 </div>
               </div>}
 
-            <div className={cn(
-              "transition-all duration-300",
-              !purchaseLocation && "opacity-50 pointer-events-none"
-            )}>
+            <div className={cn("transition-all duration-300", !purchaseLocation && "opacity-50 pointer-events-none")}>
               <Label htmlFor="service" className="text-sm font-medium mb-2 block">
                 Seleccioná otro Servicio
                 {!purchaseLocation && <span className="text-xs text-muted-foreground font-normal ml-2">(Configurá ubicación primero)</span>}
@@ -936,10 +892,7 @@ const ServicioOnePage = () => {
                 </div>}
             </div>
 
-            {selectedService && <div className={cn(
-              "transition-all duration-300",
-              !purchaseLocation && "opacity-50 pointer-events-none"
-            )}>
+            {selectedService && <div className={cn("transition-all duration-300", !purchaseLocation && "opacity-50 pointer-events-none")}>
                 <Label htmlFor="category" className="text-sm font-medium mb-2 block">
                   Seleccioná una Categoría
                   {!purchaseLocation && <span className="text-xs text-muted-foreground font-normal ml-2">(Configurá ubicación primero)</span>}
@@ -1050,25 +1003,13 @@ const ServicioOnePage = () => {
                       </div>
                       
                       <div className="mb-3 flex items-start gap-2">
-                        <Checkbox
-                          id="accept-product-terms"
-                          checked={acceptProductTerms}
-                          onCheckedChange={(checked) => setAcceptProductTerms(checked as boolean)}
-                          className="mt-1"
-                        />
-                        <label
-                          htmlFor="accept-product-terms"
-                          className="text-sm text-foreground leading-tight cursor-pointer"
-                        >
+                        <Checkbox id="accept-product-terms" checked={acceptProductTerms} onCheckedChange={checked => setAcceptProductTerms(checked as boolean)} className="mt-1" />
+                        <label htmlFor="accept-product-terms" className="text-sm text-foreground leading-tight cursor-pointer">
                           Acepto las condiciones de los productos
                         </label>
                       </div>
                       
-                      <Button 
-                        onClick={addCurrentServiceToList} 
-                        disabled={!acceptProductTerms}
-                        className="w-full bg-primary hover:bg-primary/90 h-10 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
+                      <Button onClick={addCurrentServiceToList} disabled={!acceptProductTerms} className="w-full bg-primary hover:bg-primary/90 h-10 disabled:opacity-50 disabled:cursor-not-allowed">
                         <Plus className="h-4 w-4 mr-2" />
                         Agregar a solicitud
                       </Button>
