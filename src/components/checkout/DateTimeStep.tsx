@@ -90,7 +90,7 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
         </div>
 
         {selectedDate && <div ref={timeSlotsRef}>
-            <h4 className="font-medium mb-2">Elige un horario</h4>
+            <h4 className="font-medium mb-2">Elige un turno</h4>
             {availableTimeSlots.length > 0 ? <>
                 <RadioGroup value={selectedTimeSlot} onValueChange={setSelectedTimeSlot} className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   {availableTimeSlots.map(slot => <div key={slot} className="flex items-center space-x-2">
@@ -104,7 +104,7 @@ const DateTimeStep: React.FC<DateTimeStepProps> = ({
                   <p className="text-sm text-blue-700 text-center">En caso de coordinación web, confirme disponibilidad por whatsapp.</p>
                 </div>
               </> : <div className="text-center py-4 text-red-500">
-                No hay horarios disponibles para la fecha seleccionada. Por favor, elige otro día.
+                No hay turnos disponibles para la fecha seleccionada. Por favor, elige otro día.
               </div>}
           </div>}
       </div>
