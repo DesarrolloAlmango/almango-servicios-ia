@@ -721,7 +721,7 @@ const ServicioOnePage = () => {
                   {purchaseLocation.storeName} - {purchaseLocation.departmentName}, {purchaseLocation.locationName}
                 </p>
                 {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-sm text-primary font-medium mt-2">
-                    Costo adicional por zona: ${purchaseLocation.zonaCostoAdicional}
+                    Costo adicional por zona: ${formatPrice(parseFloat(purchaseLocation.zonaCostoAdicional))}
                   </p>}
               </div> : <div className={cn(
                 "flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border transition-colors",
@@ -949,7 +949,7 @@ const ServicioOnePage = () => {
                               {quantity > 0 && <div className="mt-2 pt-2 border-t border-border">
                                   <div className="flex justify-between items-center">
                                     <span className="text-xs font-medium text-muted-foreground">Subtotal:</span>
-                                    <span className="font-bold text-sm text-primary">${product.Precio * quantity}</span>
+                                    <span className="font-bold text-sm text-primary">${formatPrice(product.Precio * quantity)}</span>
                                   </div>
                                 </div>}
                             </div>
@@ -969,7 +969,7 @@ const ServicioOnePage = () => {
                         </p>
                         <div className="text-right">
                           <p className="text-lg font-bold text-primary">
-                            ${selectedProducts.reduce((sum, p) => sum + p.Precio * p.quantity, 0)}
+                            ${formatPrice(selectedProducts.reduce((sum, p) => sum + p.Precio * p.quantity, 0))}
                           </p>
                         </div>
                       </div>
