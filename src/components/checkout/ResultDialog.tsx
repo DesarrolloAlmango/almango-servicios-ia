@@ -179,9 +179,9 @@ const ResultDialog: React.FC<ResultDialogProps> = ({
       }
       message += `Fecha%3A+${encodeURIComponent(formattedDate)}%0A`;
       
-      // Formatear el horario usando formatTimeSlot
+      // Formatear el turno usando formatTimeSlot
       const formattedTimeSlot = formatTimeSlot(data.TurnoInstalacion || "");
-      message += `Horario%3A+${encodeURIComponent(formattedTimeSlot)}%0A`;
+      message += `Turno%3A+${encodeURIComponent(formattedTimeSlot)}%0A`;
       
       // Comentarios
       if (data.Comentario && data.Comentario.trim()) {
