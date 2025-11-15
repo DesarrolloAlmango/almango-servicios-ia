@@ -1076,7 +1076,7 @@ const ServicioOnePage = () => {
             </CardTitle>
             <img src={logo} alt="Logo" style={{
               imageRendering: 'crisp-edges'
-            }} className="h-12 w-auto object-contain" />
+            }} className="h-11 w-auto object-contain mr-[-15px]" />
           </CardHeader>
             
             <CardContent className="p-6">
