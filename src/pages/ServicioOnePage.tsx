@@ -1074,9 +1074,9 @@ const ServicioOnePage = () => {
               <Package className="h-5 w-5" />
               {stepTitles[0]}
             </CardTitle>
-            <img src={logo} alt="Logo" className="h-16 w-auto object-contain drop-shadow-lg" style={{
+            <img src={logo} alt="Logo" style={{
               imageRendering: 'crisp-edges'
-            }} />
+            }} className="h-10 w-auto object-contain" />
           </CardHeader>
             
             <CardContent className="p-6">
