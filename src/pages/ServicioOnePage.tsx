@@ -728,8 +728,7 @@ const ServicioOnePage = () => {
                   </p>}
               </div> : <div className={cn("flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border transition-colors", selectedDate && selectedTimeSlot ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed")} onClick={() => selectedDate && selectedTimeSlot && setIsLocationModalOpen(true)}>
                 <MapPin className="h-5 w-5 text-primary" />
-                <span className="text-sm text-foreground flex-1">Configurar ubicación del servicio *</span>
-                <span className="text-sm text-muted-foreground">Click aquí</span>
+                <span className="text-sm text-foreground flex-1">Ingresá la ubicación aquí *</span>
               </div>}
             </div>
 
