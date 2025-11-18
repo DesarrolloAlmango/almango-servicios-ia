@@ -1010,7 +1010,7 @@ const ServicioOnePage = () => {
                       
                       <Button onClick={addCurrentServiceToList} disabled={!acceptProductTerms} className="w-full bg-primary hover:bg-primary/90 h-10 disabled:opacity-50 disabled:cursor-not-allowed">
                         <Plus className="h-4 w-4 mr-2" />
-                        Agregar a solicitud
+                        AGREGAR A LA SOLICITUD
                       </Button>
                     </div>}
                 </div>
