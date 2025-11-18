@@ -866,7 +866,7 @@ const ServicioOnePage = () => {
 
             <div className={cn("transition-all duration-300", !purchaseLocation && "opacity-50 pointer-events-none")}>
               <Label htmlFor="service" className="text-sm font-medium mb-2 block">
-                {allSelectedServices.length > 0 ? "Seleccioná otro Servicio" : "Seleccioná un Servicio"}
+                {allSelectedServices.length > 0 ? "¿Qué otro servicio necesitás?" : "¿Qué servicio necesitás?"}
                 {!purchaseLocation && <span className="text-xs text-muted-foreground font-normal ml-2">(Configurá ubicación primero)</span>}
               </Label>
               {!selectedService ? <Select value={selectedService} onValueChange={setSelectedService} disabled={!purchaseLocation}>
