@@ -870,7 +870,7 @@ const ServicioOnePage = () => {
               </Label>
               {!selectedService ? <Select value={selectedService} onValueChange={setSelectedService} disabled={!purchaseLocation}>
                   <SelectTrigger className="h-10">
-                    <SelectValue placeholder="Seleccioná un servicio" />
+                    <SelectValue placeholder="Ver servicios" />
                   </SelectTrigger>
                   <SelectContent>
                     {isServicesLoading ? <SelectItem value="loading" disabled>Cargando servicios...</SelectItem> : services && services.length > 0 ? services.map((service: TarjetaServicio) => <SelectItem key={service.id} value={service.id!}>
@@ -898,7 +898,7 @@ const ServicioOnePage = () => {
                 </Label>
                 {!selectedCategory ? <Select value={selectedCategory} onValueChange={setSelectedCategory} disabled={!purchaseLocation}>
                     <SelectTrigger className="h-10">
-                      <SelectValue placeholder="Seleccioná una categoría" />
+                      <SelectValue placeholder="Ver categorías" />
                     </SelectTrigger>
                     <SelectContent>
                       {isCategoriesLoading ? <SelectItem value="loading" disabled>Cargando categorías...</SelectItem> : categories && categories.length > 0 ? categories.map((category: Category) => <SelectItem key={category.id} value={category.id}>
