@@ -308,7 +308,7 @@ const ServicioOnePage = () => {
   };
   const validateForm = (): boolean => {
     console.log("validateForm called");
-    const hasServices = allSelectedServices.length > 0 || selectedService && selectedCategory && selectedProducts.length > 0;
+    const hasServices = allSelectedServices.length > 0;
     const hasDateTime = !!selectedDate && !!selectedTimeSlot;
     const hasPersonalInfo = !!(personalInfo.name && personalInfo.phone && personalInfo.street && (personalInfo.number || noNumber) && personalInfo.termsAccepted);
     const hasAcceptedTerms = acceptTerms;
