@@ -1185,7 +1185,7 @@ const ServicioOnePage = () => {
               }} className="h-10 text-slate-950 font-bold">
                     Limpiar
                   </Button>}
-                <Button onClick={handleShowConfirmation} disabled={isSubmitting || !validateForm() || selectedProducts.length === 0} className="min-w-32 h-10 bg-primary hover:bg-primary/90">
+                <Button onClick={handleShowConfirmation} disabled={isSubmitting || !validateForm()} className="min-w-32 h-10 bg-primary hover:bg-primary/90">
                   {isSubmitting ? "Enviando..." : "Confirmar Solicitud"}
                 </Button>
               </div>
