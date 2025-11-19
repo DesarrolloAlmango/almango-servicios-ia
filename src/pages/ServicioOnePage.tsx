@@ -498,7 +498,7 @@ const ServicioOnePage = () => {
       ConfirmarCondicionesUso: personalInfo.termsAccepted ? "S" : "N",
       ProveedorAuxiliar: getProviderAuxiliary(purchaseLocation?.storeId || "unknown", purchaseLocation?.storeName),
       CostoXZona: zoneCost,
-      PaginaOne: suggestedPrice > 0 ? "" : "One",
+      PaginaOne: "",
       Descuento: discountAmount,
       ...(solicitudId && {
         SolicitudIdCancelar: parseInt(solicitudId)
@@ -1199,7 +1199,7 @@ const ServicioOnePage = () => {
 
         <CustomPriceTermsModal isOpen={isCustomPriceTermsOpen} onClose={() => setIsCustomPriceTermsOpen(false)} />
 
-        <ConfirmationModal open={showConfirmationModal} onClose={() => setShowConfirmationModal(false)} onConfirm={handleSubmit} title="Confirmar Solicitud" description="Por favor revise los datos antes de enviar la solicitud." jsonData={confirmationData} isSubmitting={isSubmitting} />
+        <ConfirmationModal open={showConfirmationModal} onClose={() => setShowConfirmationModal(false)} onConfirm={handleSubmit} title="Confirmar Solicitud" description="Por favor revise los datos antes de enviar la solicitud." jsonData={confirmationData} isSubmitting={isSubmitting} hasSuggestedPrice={true} />
 
         <GeneralTermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
 
