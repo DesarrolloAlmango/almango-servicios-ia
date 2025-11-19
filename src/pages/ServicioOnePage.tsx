@@ -438,7 +438,19 @@ const ServicioOnePage = () => {
       toast.error("Por favor complete todos los campos requeridos");
       return;
     }
+    
+    // Calculate total to validate custom price
     const zoneCost = parseFloat(purchaseLocation?.zonaCostoAdicional || "0");
+    const productsTotalForValidation = allSelectedServices.reduce((total, service) => 
+      total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0
+    );
+    const totalSuggestedPrice = productsTotalForValidation + zoneCost;
+    
+    // Validate that custom price is not less than 50% of suggested price
+    if (suggestedPrice > 0 && suggestedPrice < (totalSuggestedPrice * 0.5)) {
+      toast.error("El precio personalizado no puede ser menor al 50% del precio sugerido");
+      return;
+    }
 
     // Combine all selected services with their context and current selection
     const allServicesWithProducts = [...allSelectedServices.map(service => ({
