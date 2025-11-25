@@ -38,6 +38,8 @@ export interface CheckoutData {
   SolicitudIdCancelar?: number;
   Level1: CheckoutItem[];
   serviceName?: string; // Service category name
+  DepartamentoNombre?: string; // Department name for display
+  MunicipioNombre?: string; // Municipality name for display
 }
 
 export interface ServiceRequest {
