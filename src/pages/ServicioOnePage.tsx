@@ -630,7 +630,23 @@ const ServicioOnePage = () => {
         products: selectedProducts
       }] : [])];
       const allProducts = allServicesForLogging.flatMap(service => service.products);
-      console.log("=== DATOS DE LA SOLICITUD ===");
+      
+      console.log("=== DEBUG: PARÁMETROS DE RUTA ===");
+      console.log("userId desde params:", userId);
+      console.log("commerceId desde params:", commerceId);
+      console.log("solicitudId desde params:", solicitudId);
+      
+      console.log("\n=== DEBUG: PROVIDER ID ===");
+      console.log("ProveedorAuxiliar en data:", data.ProveedorAuxiliar);
+      console.log("Provider ID calculado:", providerId);
+      console.log("Purchase Location storeId:", purchaseLocation?.storeId);
+      
+      console.log("\n=== DEBUG: JSON COMPLETO A ENVIAR ===");
+      console.log("JSON stringify:", jsonSolicitud);
+      console.log("\n=== DEBUG: DATA OBJECT COMPLETO ===");
+      console.log(JSON.stringify(data, null, 2));
+      
+      console.log("\n=== DATOS DE LA SOLICITUD ===");
       console.log("Provider ID:", providerId);
       console.log("User ID:", userId || "0");
       console.log("Datos completos:", data);
@@ -640,7 +656,6 @@ const ServicioOnePage = () => {
       console.log("PaisISO en JSON:", data.PaisISO);
       console.log("ZonasID en JSON:", data.ZonasID);
       console.log("SolicitaCotizacion en JSON:", data.SolicitaCotizacion);
-      console.log("JSON que se envía:", jsonSolicitud);
       console.log("Personal Info completo:", personalInfo);
       console.log("Purchase Location:", purchaseLocation);
       console.log("Selected Products:", allProducts);
@@ -650,7 +665,15 @@ const ServicioOnePage = () => {
       url.searchParams.append("Proveedorid", providerId);
       url.searchParams.append("Usuarioid", userId || "0");
       url.searchParams.append("Jsonsolicitud", jsonSolicitud);
+      
+      console.log("\n=== DEBUG: URL PARAMETERS ===");
+      console.log("Proveedorid que se envía:", providerId);
+      console.log("Usuarioid que se envía:", userId || "0");
       console.log("URL completa:", url.toString());
+      console.log("\n=== DEBUG: DECODIFICANDO URL ===");
+      console.log("Proveedorid decodificado:", decodeURIComponent(url.searchParams.get("Proveedorid") || ""));
+      console.log("Usuarioid decodificado:", decodeURIComponent(url.searchParams.get("Usuarioid") || ""));
+      
       const response = await fetch(url.toString());
       console.log("Response status:", response.status);
       console.log("Response headers:", response.headers);
