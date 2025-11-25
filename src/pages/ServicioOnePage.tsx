@@ -1124,14 +1124,16 @@ const ServicioOnePage = () => {
                 </div>
               </div>}
 
-        {/* Información Personal Section */}
-        <Separator className="my-6" />
-        
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 mb-3">
-            <UserCheck className="h-5 w-5 text-primary" />
-            <h3 className="text-lg font-semibold text-foreground">Información Personal</h3>
-          </div>
+        {/* Información Personal Section - Only visible after date and time slot are selected */}
+        {selectedDate && selectedTimeSlot && (
+          <>
+            <Separator className="my-6" />
+            
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-3">
+                <UserCheck className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold text-foreground">Información Personal</h3>
+              </div>
           
           <div className="space-y-4">
             {/* Información Personal */}
@@ -1270,6 +1272,8 @@ const ServicioOnePage = () => {
             </div>
           </div>
         </div>
+          </>
+        )}
       </div>;
   };
   return <div className="min-h-screen" style={{
