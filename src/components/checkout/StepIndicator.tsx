@@ -4,7 +4,8 @@ import {
   ShoppingCart, 
   Clock, 
   User,
-  Check
+  Check,
+  MapPin
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,7 @@ const StepIndicator: React.FC<StepIndicatorProps> = ({
   totalSteps 
 }) => {
   const steps = [
+    { icon: MapPin, label: "Ubicación" },
     { icon: ShoppingCart, label: "Servicios" },
     { icon: Clock, label: "Fecha y Hora" },
     { icon: User, label: "Datos" },

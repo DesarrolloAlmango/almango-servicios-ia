@@ -659,11 +659,40 @@ const ServicioOnePage = () => {
   const stepTitles = ["Formulario de solicitud de servicio"];
   const renderStepContent = () => {
     return <div className="space-y-6">
-        {/* Date and Time Selection - First priority */}
-            <div className="p-4 bg-accent/50 rounded-lg border border-border">
+        {/* Ubicación del servicio - Primera prioridad */}
+            <div className="transition-all duration-300">
+              <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
+                <MapPin className="h-5 w-5 text-primary" />
+                Ubicación del servicio
+              </h4>
+              {purchaseLocation ? <div className="p-4 bg-muted/50 rounded-lg border border-border">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="font-medium text-sm">Ubicación configurada</span>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setIsLocationModalOpen(true)} className="h-8 text-sm">
+                    Editar
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {purchaseLocation.storeName} - {purchaseLocation.departmentName}, {purchaseLocation.locationName}
+                </p>
+                {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-sm text-primary font-medium mt-2">
+                    Costo adicional por zona: ${formatPrice(parseFloat(purchaseLocation.zonaCostoAdicional))}
+                  </p>}
+              </div> : <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border transition-colors cursor-pointer hover:bg-muted" onClick={() => setIsLocationModalOpen(true)}>
+                <MapPin className="h-5 w-5 text-primary" />
+                <span className="text-sm text-foreground flex-1">Ingresá la ubicación aquí *</span>
+              </div>}
+            </div>
+            
+            {/* Date and Time Selection - After location */}
+            <div className={cn("p-4 bg-accent/50 rounded-lg border border-border transition-all duration-300", !purchaseLocation && "opacity-50 pointer-events-none")}>
               <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
                 <CalendarClock className="h-5 w-5 text-primary" />
                 Fecha y Turno del Servicio
+                {!purchaseLocation && <span className="text-xs text-muted-foreground font-normal ml-2">(Configurá ubicación primero)</span>}
               </h4>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -671,7 +700,7 @@ const ServicioOnePage = () => {
                   <Label htmlFor="date" className="text-sm font-medium mb-2 block">Fecha *</Label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className={cn("w-full justify-start text-left font-normal bg-background h-10", !selectedDate && "text-muted-foreground")}>
+                      <Button variant="outline" className={cn("w-full justify-start text-left font-normal bg-background h-10", !selectedDate && "text-muted-foreground")} disabled={!purchaseLocation}>
                         <CalendarClock className="mr-2 h-3 w-3" />
                         {selectedDate ? format(selectedDate, "PPP", {
                     locale: es
@@ -690,7 +719,7 @@ const ServicioOnePage = () => {
                 
                 {selectedDate && <div>
                     <Label htmlFor="timeSlot" className="text-sm font-medium mb-2 block">Turno *</Label>
-                    <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
+                    <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot} disabled={!purchaseLocation}>
                       <SelectTrigger className="bg-background h-10">
                         <SelectValue placeholder="Seleccionar turno" />
                       </SelectTrigger>
@@ -711,35 +740,6 @@ const ServicioOnePage = () => {
                     </Select>
                   </div>}
               </div>
-            </div>
-
-            {/* Ubicación del servicio - Habilitado solo después de fecha y turno */}
-            <div className={cn("transition-all duration-300", (!selectedDate || !selectedTimeSlot) && "opacity-50 pointer-events-none")}>
-              <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
-                <MapPin className="h-5 w-5 text-primary" />
-                Ubicación del servicio
-                {(!selectedDate || !selectedTimeSlot) && <span className="text-xs text-muted-foreground font-normal ml-2">(Complete fecha y turno primero)</span>}
-              </h4>
-              {purchaseLocation ? <div className="p-4 bg-muted/50 rounded-lg border border-border">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-primary" />
-                    <span className="font-medium text-sm">Ubicación configurada</span>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => setIsLocationModalOpen(true)} className="h-8 text-sm">
-                    Editar
-                  </Button>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {purchaseLocation.storeName} - {purchaseLocation.departmentName}, {purchaseLocation.locationName}
-                </p>
-                {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-sm text-primary font-medium mt-2">
-                    Costo adicional por zona: ${formatPrice(parseFloat(purchaseLocation.zonaCostoAdicional))}
-                  </p>}
-              </div> : <div className={cn("flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border transition-colors", selectedDate && selectedTimeSlot ? "cursor-pointer hover:bg-muted" : "cursor-not-allowed")} onClick={() => selectedDate && selectedTimeSlot && setIsLocationModalOpen(true)}>
-                <MapPin className="h-5 w-5 text-primary" />
-                <span className="text-sm text-foreground flex-1">Ingresá la ubicación aquí *</span>
-              </div>}
             </div>
 
             {/* Services Summary Section */}
