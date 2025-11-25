@@ -1018,7 +1018,7 @@ const ServicioOnePage = () => {
                       <div className="mb-3 flex items-start gap-2">
                         <Checkbox id="accept-product-terms" checked={acceptProductTerms} onCheckedChange={checked => setAcceptProductTerms(checked as boolean)} className="mt-1" />
                         <label htmlFor="accept-product-terms" className="text-sm text-foreground leading-tight cursor-pointer">
-                          Acepto las condiciones de los productos
+                          Acepto las condiciones del servicio. 
                         </label>
                       </div>
                       
