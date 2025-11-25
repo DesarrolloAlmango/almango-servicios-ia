@@ -100,13 +100,13 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Departamento</p>
                     <p className="text-lg">
-                      {departments.find(d => d.id === requestData.DepartamentoId?.toString())?.name || "No especificado"}
+                      {requestData.DepartamentoNombre || departments.find(d => d.id === requestData.DepartamentoId?.toString())?.name || "No especificado"}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Localidad</p>
                     <p className="text-lg">
-                      {requestData.DepartamentoId && municipalities[requestData.DepartamentoId.toString()]?.find(m => m.id === requestData.MunicipioId?.toString())?.name || "No especificado"}
+                      {requestData.MunicipioNombre || (requestData.DepartamentoId && municipalities[requestData.DepartamentoId.toString()]?.find(m => m.id === requestData.MunicipioId?.toString())?.name) || "No especificado"}
                     </p>
                   </div>
                 </div>

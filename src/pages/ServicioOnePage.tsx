@@ -551,6 +551,8 @@ const ServicioOnePage = () => {
       PaisISO: 0,
       DepartamentoId: parseInt(purchaseLocation?.departmentId || "0"),
       MunicipioId: parseInt(purchaseLocation?.locationId || "0"),
+      DepartamentoNombre: purchaseLocation?.departmentName,
+      MunicipioNombre: purchaseLocation?.locationName,
       ZonasID: 0,
       Direccion: `${personalInfo.street} ${personalInfo.number}${personalInfo.apartment ? ` Apto ${personalInfo.apartment}` : ''}${personalInfo.corner ? ` esq. ${personalInfo.corner}` : ''}`,
       MetodoPagosID: paymentMethod === "later" ? 1 : 4,
