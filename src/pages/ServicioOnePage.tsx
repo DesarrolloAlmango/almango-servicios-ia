@@ -30,6 +30,10 @@ import { setGlobalZoneCost } from "@/utils/globalZoneCost";
 import ProductTermsModal from "@/components/checkout/ProductTermsModal";
 import { CustomPriceTermsModal } from "@/components/checkout/CustomPriceTermsModal";
 import { formatPrice } from "@/utils/priceFormat";
+import ResultDialog from "@/components/checkout/ResultDialog";
+import RequestDetailsDialog from "@/components/checkout/RequestDetailsDialog";
+import { useMercadoPagoPayment } from "@/components/checkout/useMercadoPagoPayment";
+import { ServiceRequest } from "@/types/checkoutTypes";
 interface TarjetaServicio {
   id?: string;
   name: string;
@@ -130,11 +134,29 @@ const ServicioOnePage = () => {
     productName: string;
   } | null>(null);
   const [suggestedPrice, setSuggestedPrice] = useState<number>(0);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [solicitudIdSuccess, setSolicitudIdSuccess] = useState<string>("");
-  const [showCopyButton, setShowCopyButton] = useState(false);
+  
+  // Result dialog states
+  const [showResultDialog, setShowResultDialog] = useState(false);
+  const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
+  const [showDetailDialog, setShowDetailDialog] = useState(false);
+  const [selectedRequestData, setSelectedRequestData] = useState<CheckoutData | null>(null);
+  
   const [usesCustomPrice, setUsesCustomPrice] = useState<"suggested" | "custom">("suggested");
   const [isCustomPriceTermsOpen, setIsCustomPriceTermsOpen] = useState(false);
+
+  // Use the custom hook for MercadoPago payment handling
+  const {
+    checkingPayment,
+  } = useMercadoPagoPayment(
+    serviceRequests, 
+    setServiceRequests,
+    showResultDialog,
+    selectedRequestData,
+    setSelectedRequestData,
+    selectedServiceId
+  );
 
   // Data fetching
   const {
@@ -243,6 +265,40 @@ const ServicioOnePage = () => {
       return mappedProducts;
     },
     enabled: !!(selectedService && selectedCategory && purchaseLocation)
+  });
+  
+  // Fetch departments
+  const { data: departments } = useQuery({
+    queryKey: ["departments"],
+    queryFn: async () => {
+      const response = await fetch("https://app.almango.com.uy/WebAPI/GetDepartamentos");
+      if (!response.ok) throw new Error("Error al obtener departamentos");
+      const data = await response.json();
+      return data.map((dept: any) => ({
+        id: dept.DepartamentoId?.toString() || dept.id,
+        name: dept.DepartamentoNombre || dept.name
+      }));
+    }
+  });
+  
+  // Fetch municipalities
+  const { data: municipalities } = useQuery({
+    queryKey: ["municipalities"],
+    queryFn: async () => {
+      const response = await fetch("https://app.almango.com.uy/WebAPI/GetLocalidades");
+      if (!response.ok) throw new Error("Error al obtener localidades");
+      const data = await response.json();
+      const grouped: Record<string, Array<{id: string, name: string}>> = {};
+      data.forEach((loc: any) => {
+        const deptId = loc.DepartamentoId?.toString() || loc.departmentId;
+        if (!grouped[deptId]) grouped[deptId] = [];
+        grouped[deptId].push({
+          id: loc.LocalidadId?.toString() || loc.id,
+          name: loc.LocalidadNombre || loc.name
+        });
+      });
+      return grouped;
+    }
   });
 
   // Progressive product display effect
@@ -614,11 +670,17 @@ const ServicioOnePage = () => {
       console.log("=== RESULTADO FINAL ===");
       console.log("SolicitudesID:", result.SolicitudesID);
       if (result.SolicitudesID && result.SolicitudesID !== "0") {
-        // Show success modal
-        setSolicitudIdSuccess(result.SolicitudesID.toString());
-        setShowCopyButton(suggestedPrice === 0); // Show copy button only if no suggested price was used
-        setShowSuccessModal(true);
+        // Create ServiceRequest object
+        const serviceRequest: ServiceRequest = {
+          solicitudId: parseInt(result.SolicitudesID),
+          serviceName: services?.find(s => s.id === selectedService)?.name || "Servicio",
+          requestData: data,
+          paymentConfirmed: paymentMethod === "later" // If paying later, mark as confirmed
+        };
+        
+        setServiceRequests([serviceRequest]);
         setShowConfirmationModal(false);
+        setShowResultDialog(true);
 
         // Reset form
         setCurrentStep(1);
@@ -650,8 +712,10 @@ const ServicioOnePage = () => {
         toast.error("Error: No se pudo obtener el ID de la solicitud");
       }
     } catch (error) {
-      console.error("Error al enviar solicitud:", error);
-      toast.error("Error al enviar la solicitud");
+      console.error("Error al enviar la solicitud:", error);
+      setError(`Error al enviar la solicitud: ${error instanceof Error ? error.message : "Error desconocido"}`);
+      setShowConfirmationModal(false);
+      setShowResultDialog(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -1243,44 +1307,33 @@ const ServicioOnePage = () => {
 
         <GeneralTermsModal isOpen={isTermsModalOpen} onClose={() => setIsTermsModalOpen(false)} />
 
-        {/* Success Modal */}
-        <Dialog open={showSuccessModal}>
-          <DialogContent className="sm:max-w-md" onPointerDownOutside={e => e.preventDefault()} onEscapeKeyDown={e => e.preventDefault()}>
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-green-600">
-                <Check className="h-6 w-6" />
-                {showCopyButton ? "Pre-Solicitud Cargada Exitosamente" : "Solicitud Cargada Exitosamente"}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="py-4">
-              <p className="text-center text-lg mb-2">
-                {showCopyButton ? "Su pre-solicitud ha sido registrada correctamente." : "Su solicitud ha sido registrada correctamente."}
-              </p>
-              {showCopyButton && <p className="text-center text-sm text-muted-foreground mt-2">
-                  Un agente se comunicará con usted para cerrar la solicitud.
-                </p>}
-              <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mt-4">
-                <p className="text-sm text-muted-foreground text-center mb-1">
-                  {showCopyButton ? "Número de Pre-Solicitud" : "Número de Solicitud"}
-                </p>
-                <p className="text-3xl font-bold text-green-600 text-center">{solicitudIdSuccess}</p>
-              </div>
-            </div>
-            <DialogFooter className="flex-col sm:flex-col gap-2">
-              {showCopyButton && <Button variant="outline" onClick={() => {
-              const link = `https://services.almango.com.uy/servicioonepage/update/${userId || "0"}/${solicitudIdSuccess}`;
-              navigator.clipboard.writeText(link);
-              toast.success("Link copiado al portapapeles");
-            }} className="w-full">
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copiar Link de Actualización
-                </Button>}
-              <Button onClick={() => setShowSuccessModal(false)} className="w-full">
-                Aceptar
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <ResultDialog
+          isOpen={showResultDialog}
+          onClose={() => {
+            setShowResultDialog(false);
+            navigate('/');
+          }}
+          serviceRequests={serviceRequests}
+          error={error}
+          checkingPayment={checkingPayment}
+          onPaymentClick={() => {}}
+          onViewServiceDetails={(request: ServiceRequest) => {
+            setSelectedServiceId(request.solicitudId);
+            setSelectedRequestData(request.requestData);
+            setShowDetailDialog(true);
+          }}
+          departments={departments || []}
+          municipalities={municipalities || {}}
+        />
+
+        <RequestDetailsDialog
+          isOpen={showDetailDialog}
+          onClose={() => setShowDetailDialog(false)}
+          requestData={selectedRequestData}
+          serviceId={selectedServiceId}
+          departments={departments || []}
+          municipalities={municipalities || {}}
+        />
       </div>
     </div>;
 };
