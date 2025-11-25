@@ -738,28 +738,30 @@ const ServicioOnePage = () => {
                         ${formatPrice(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0))}
                       </span>
                     </div>
-                    {purchaseLocation?.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <>
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-secondary">Costo adicional por zona:</span>
-                          <span className="font-semibold text-secondary">
-                            ${formatPrice(parseFloat(purchaseLocation.zonaCostoAdicional))}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center pt-2 border-t border-secondary/20">
-                          <span className={cn("font-bold text-secondary", usesCustomPrice === "custom" && suggestedPrice > 0 && "line-through opacity-60")}>
-                            Monto final (precio sugerido):
-                          </span>
-                          <span className={cn("text-xl font-bold text-secondary", usesCustomPrice === "custom" && suggestedPrice > 0 && "line-through opacity-60")}>
-                            ${formatPrice(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation.zonaCostoAdicional))}
-                          </span>
-                        </div>
-                        {usesCustomPrice === "custom" && suggestedPrice > 0 && <div className="flex justify-between items-center pt-2">
-                            <span className="font-bold text-primary">Precio personalizado:</span>
-                            <span className="text-xl font-bold text-primary">
-                              ${formatPrice(suggestedPrice)}
-                            </span>
-                          </div>}
-                      </>}
+                    {purchaseLocation?.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && (
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-secondary">Costo adicional por zona:</span>
+                        <span className="font-semibold text-secondary">
+                          ${formatPrice(parseFloat(purchaseLocation.zonaCostoAdicional))}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center pt-2 border-t border-secondary/20">
+                      <span className={cn("font-bold text-secondary", usesCustomPrice === "custom" && suggestedPrice > 0 && "line-through opacity-60")}>
+                        Monto final (precio sugerido):
+                      </span>
+                      <span className={cn("text-xl font-bold text-secondary", usesCustomPrice === "custom" && suggestedPrice > 0 && "line-through opacity-60")}>
+                        ${formatPrice(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0"))}
+                      </span>
+                    </div>
+                    {usesCustomPrice === "custom" && suggestedPrice > 0 && (
+                      <div className="flex justify-between items-center pt-2">
+                        <span className="font-bold text-primary">Precio personalizado:</span>
+                        <span className="text-xl font-bold text-primary">
+                          ${formatPrice(suggestedPrice)}
+                        </span>
+                      </div>
+                    )}
                     
                     {/* Precio personalizado - campo opcional */}
                     {allSelectedServices.length > 0 && <div className="space-y-4 p-4 mt-4 rounded-lg border-2 border-primary/40 bg-primary/5">
