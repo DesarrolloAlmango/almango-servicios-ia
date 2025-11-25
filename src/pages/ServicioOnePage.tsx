@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Home, Wind, Droplets, Zap, Package, Truck, Baby, MapPin, CalendarClock, UserCheck, CreditCard, Check, ShoppingCart, Plus, X, Pencil, Copy, Banknote } from "lucide-react";
+import { ArrowLeft, Home, Wind, Droplets, Zap, Package, Truck, Baby, MapPin, CalendarClock, UserCheck, CreditCard, Check, ShoppingCart, Plus, X, Pencil, Copy, Banknote, CheckCircle } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import fondoAzul from "@/assets/fondo-azul-patrones.svg";
 import logo from "@/assets/logo-new.svg";
@@ -30,6 +30,7 @@ import { setGlobalZoneCost } from "@/utils/globalZoneCost";
 import ProductTermsModal from "@/components/checkout/ProductTermsModal";
 import { CustomPriceTermsModal } from "@/components/checkout/CustomPriceTermsModal";
 import { formatPrice } from "@/utils/priceFormat";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 interface TarjetaServicio {
   id?: string;
   name: string;
@@ -1247,34 +1248,50 @@ const ServicioOnePage = () => {
         <Dialog open={showSuccessModal}>
           <DialogContent className="sm:max-w-md" onPointerDownOutside={e => e.preventDefault()} onEscapeKeyDown={e => e.preventDefault()}>
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-green-600">
-                <Check className="h-6 w-6" />
-                {showCopyButton ? "Pre-Solicitud Cargada Exitosamente" : "Solicitud Cargada Exitosamente"}
+              <DialogTitle className="text-center">
+                <div className="flex items-center justify-center gap-2 text-lg">
+                  <Check className="h-6 w-6 text-green-600" />
+                  <span className="text-green-600">
+                    ¡Todo listo, el servicio está confirmado!
+                  </span>
+                </div>
               </DialogTitle>
             </DialogHeader>
-            <div className="py-4">
-              <p className="text-center text-lg mb-2">
-                {showCopyButton ? "Su pre-solicitud ha sido registrada correctamente." : "Su solicitud ha sido registrada correctamente."}
-              </p>
-              {showCopyButton && <p className="text-center text-sm text-muted-foreground mt-2">
+            <div className="py-6 text-center space-y-4">
+              <Alert variant="default" className="bg-green-50 border-green-200">
+                <Check className="h-5 w-5 text-green-600" />
+                <AlertTitle>
+                  {showCopyButton ? "Pre-Solicitud confirmada" : "Solicitud confirmada"}
+                </AlertTitle>
+                <AlertDescription className="mt-2">
+                  <p className="text-lg font-semibold mb-2">
+                    Número de solicitud:
+                  </p>
+                  <div className="flex items-center justify-center p-3 rounded-lg bg-green-100">
+                    <div className="text-xl font-bold text-green-600">
+                      #{solicitudIdSuccess}
+                    </div>
+                  </div>
+                </AlertDescription>
+              </Alert>
+              
+              {showCopyButton && (
+                <p className="text-sm text-muted-foreground">
                   Un agente se comunicará con usted para cerrar la solicitud.
-                </p>}
-              <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mt-4">
-                <p className="text-sm text-muted-foreground text-center mb-1">
-                  {showCopyButton ? "Número de Pre-Solicitud" : "Número de Solicitud"}
                 </p>
-                <p className="text-3xl font-bold text-green-600 text-center">{solicitudIdSuccess}</p>
-              </div>
+              )}
             </div>
             <DialogFooter className="flex-col sm:flex-col gap-2">
-              {showCopyButton && <Button variant="outline" onClick={() => {
-              const link = `https://services.almango.com.uy/servicioonepage/update/${userId || "0"}/${solicitudIdSuccess}`;
-              navigator.clipboard.writeText(link);
-              toast.success("Link copiado al portapapeles");
-            }} className="w-full">
+              {showCopyButton && (
+                <Button variant="outline" onClick={() => {
+                  const link = `https://services.almango.com.uy/servicioonepage/update/${userId || "0"}/${solicitudIdSuccess}`;
+                  navigator.clipboard.writeText(link);
+                  toast.success("Link copiado al portapapeles");
+                }} className="w-full">
                   <Copy className="mr-2 h-4 w-4" />
                   Copiar Link de Actualización
-                </Button>}
+                </Button>
+              )}
               <Button onClick={() => setShowSuccessModal(false)} className="w-full">
                 Aceptar
               </Button>
