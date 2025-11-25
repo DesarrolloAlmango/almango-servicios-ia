@@ -82,11 +82,25 @@ const ServicioOnePage = () => {
   const navigate = useNavigate();
   const {
     userId,
-    commerceId,
+    commerceId: urlCommerceId,
     serviceId: urlServiceId,
     categoryId: urlCategoryId,
     solicitudId
   } = useParams();
+
+  // Check if commerceId is valid (not missing, not zero, not empty)
+  const isValidCommerceId = (id?: string) => {
+    return id && id !== "0" && id.trim() !== "";
+  };
+
+  const needsCommerceSelection = !isValidCommerceId(urlCommerceId);
+  
+  // State for commerce selection
+  const [selectedCommerce, setSelectedCommerce] = useState<string>(isValidCommerceId(urlCommerceId) ? urlCommerceId! : "");
+  const [selectedCommerceName, setSelectedCommerceName] = useState<string>("");
+  
+  // Use selected commerce or URL commerce
+  const commerceId = selectedCommerce || urlCommerceId;
 
   // Form states
   const [selectedService, setSelectedService] = useState<string>("");
@@ -145,6 +159,29 @@ const ServicioOnePage = () => {
   
   const [usesCustomPrice, setUsesCustomPrice] = useState<"suggested" | "custom">("suggested");
   const [isCustomPriceTermsOpen, setIsCustomPriceTermsOpen] = useState(false);
+
+  // Fetch available commerces when needed
+  const { data: commerces, isLoading: isCommercesLoading } = useQuery({
+    queryKey: ["commerces"],
+    queryFn: async () => {
+      const response = await fetch("https://app.almango.com.uy/WebAPI/ObtenerProveedor");
+      if (!response.ok) throw new Error("Error al obtener comercios");
+      const data = await response.json();
+      const storesData = Array.isArray(data) ? data : data.result || data.data || [];
+      if (!Array.isArray(storesData)) {
+        throw new Error("Formato de datos inválido");
+      }
+      return storesData
+        .filter((item: any) => item.ProveedorID && item.ProveedorNombre)
+        .map((item: any) => ({
+          id: item.ProveedorID.toString(),
+          name: item.ProveedorNombre.toString(),
+          logo: item.ProveedorLogo?.toString() || ""
+        }))
+        .sort((a: any, b: any) => a.name.localeCompare(b.name));
+    },
+    enabled: needsCommerceSelection
+  });
 
   // Use the custom hook for MercadoPago payment handling
   const {
@@ -748,11 +785,67 @@ const ServicioOnePage = () => {
   const stepTitles = ["Formulario de solicitud de servicio"];
   const renderStepContent = () => {
     return <div className="space-y-6">
+        {/* Commerce Selection - Only show when commerceId is missing or zero */}
+        {needsCommerceSelection && (
+          <div className="p-4 bg-primary/10 rounded-lg border border-primary/30">
+            <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
+              <Package className="h-5 w-5 text-primary" />
+              Seleccionar Comercio
+            </h4>
+            <Select 
+              value={selectedCommerce} 
+              onValueChange={(value) => {
+                setSelectedCommerce(value);
+                const commerce = commerces?.find((c: any) => c.id === value);
+                setSelectedCommerceName(commerce?.name || "");
+                // Reset dependent fields when commerce changes
+                setPurchaseLocation(null);
+                setSelectedService("");
+                setSelectedCategory("");
+                setSelectedProducts([]);
+                setAllSelectedServices([]);
+                toast.success(`Comercio seleccionado: ${commerce?.name}`);
+              }}
+              disabled={isCommercesLoading}
+            >
+              <SelectTrigger className="h-12 bg-background">
+                <SelectValue placeholder={isCommercesLoading ? "Cargando comercios..." : "Seleccionar comercio *"} />
+              </SelectTrigger>
+              <SelectContent>
+                {isCommercesLoading ? (
+                  <SelectItem value="loading" disabled>Cargando comercios...</SelectItem>
+                ) : commerces && commerces.length > 0 ? (
+                  commerces.map((commerce: any) => (
+                    <SelectItem key={commerce.id} value={commerce.id}>
+                      {commerce.name}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="no-commerces" disabled>
+                    No hay comercios disponibles
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+            {selectedCommerce && selectedCommerceName && (
+              <p className="text-sm text-muted-foreground mt-2">
+                ✓ Comercio: {selectedCommerceName}
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Ubicación del servicio - Primera prioridad */}
-            <div className="transition-all duration-300">
+            <div className={cn(
+              "transition-all duration-300",
+              needsCommerceSelection && !selectedCommerce && "opacity-50 pointer-events-none"
+            )}>
               <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
                 <MapPin className="h-5 w-5 text-primary" />
                 Ubicación del servicio
+                {needsCommerceSelection && !selectedCommerce && (
+                  <span className="text-xs text-muted-foreground font-normal ml-2">(Selecciona comercio primero)</span>
+                )}
               </h4>
               {purchaseLocation ? <div className="p-4 bg-muted/50 rounded-lg border border-border">
                 <div className="flex items-center justify-between mb-2">
@@ -760,7 +853,13 @@ const ServicioOnePage = () => {
                     <MapPin className="h-4 w-4 text-primary" />
                     <span className="font-medium text-sm">Ubicación configurada</span>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => setIsLocationModalOpen(true)} className="h-8 text-sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setIsLocationModalOpen(true)} 
+                    className="h-8 text-sm"
+                    disabled={needsCommerceSelection && !selectedCommerce}
+                  >
                     Editar
                   </Button>
                 </div>
@@ -770,7 +869,17 @@ const ServicioOnePage = () => {
                 {purchaseLocation.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && <p className="text-sm text-primary font-medium mt-2">
                     Costo adicional por zona: ${formatPrice(parseFloat(purchaseLocation.zonaCostoAdicional))}
                   </p>}
-              </div> : <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border transition-colors cursor-pointer hover:bg-muted" onClick={() => setIsLocationModalOpen(true)}>
+              </div> : <div 
+                  className={cn(
+                    "flex items-center gap-3 p-4 bg-muted/50 rounded-lg border border-border transition-colors cursor-pointer hover:bg-muted",
+                    needsCommerceSelection && !selectedCommerce && "cursor-not-allowed opacity-50"
+                  )}
+                  onClick={() => {
+                    if (!needsCommerceSelection || selectedCommerce) {
+                      setIsLocationModalOpen(true);
+                    }
+                  }}
+                >
                 <MapPin className="h-5 w-5 text-primary" />
                 <span className="text-sm text-foreground flex-1">Ingresá la ubicación aquí *</span>
               </div>}
@@ -1322,7 +1431,18 @@ const ServicioOnePage = () => {
           </Card>
         </div>
 
-        <PurchaseLocationModal isOpen={isLocationModalOpen} onClose={() => setIsLocationModalOpen(false)} onSelectLocation={handleLocationSelect} stores={[]} serviceId={selectedService} serviceName={services?.find(s => s.id === selectedService)?.name} categoryId={selectedCategory} categoryName={categories?.find(c => c.id === selectedCategory)?.name} commerceId={commerceId} />
+        <PurchaseLocationModal 
+          isOpen={isLocationModalOpen} 
+          onClose={() => setIsLocationModalOpen(false)} 
+          onSelectLocation={handleLocationSelect} 
+          stores={[]} 
+          serviceId={selectedService} 
+          serviceName={services?.find(s => s.id === selectedService)?.name} 
+          categoryId={selectedCategory} 
+          categoryName={categories?.find(c => c.id === selectedCategory)?.name} 
+          commerceId={selectedCommerce || commerceId}
+          commerceName={selectedCommerceName || purchaseLocation?.storeName}
+        />
         
         <ProductTermsModal isOpen={!!selectedProductTerms} onClose={() => setSelectedProductTerms(null)} textosId={selectedProductTerms?.textosId || null} productName={selectedProductTerms?.productName || ""} />
 
