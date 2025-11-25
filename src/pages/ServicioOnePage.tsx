@@ -818,64 +818,65 @@ const ServicioOnePage = () => {
                 </div>
               </div>}
 
-            {/* Date and Time Selection - After at least one service is added */}
-            <div className={cn("p-4 bg-accent/50 rounded-lg border border-border transition-all duration-300", allSelectedServices.length === 0 && "opacity-50 pointer-events-none")}>
-              <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
-                <CalendarClock className="h-5 w-5 text-primary" />
-                Fecha y Turno del Servicio
-                {allSelectedServices.length === 0 && <span className="text-xs text-muted-foreground font-normal ml-2">(Agregá al menos un servicio primero)</span>}
-              </h4>
-              
-              <p className="text-sm text-muted-foreground mb-4 italic">
-                El Profesional asiste dentro del rango horario seleccionado
-              </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="date" className="text-sm font-medium mb-2 block">Fecha *</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className={cn("w-full justify-start text-left font-normal bg-background h-10", !selectedDate && "text-muted-foreground")} disabled={allSelectedServices.length === 0}>
-                        <CalendarClock className="mr-2 h-3 w-3" />
-                        {selectedDate ? format(selectedDate, "PPP", {
-                    locale: es
-                  }) : "Seleccionar fecha"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 z-50 bg-white" align="start">
-                      <Calendar mode="single" selected={selectedDate} onSelect={setSelectedDate} disabled={date => {
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0);
-                  return date.getDay() === 0 || date < today || date.getTime() === today.getTime();
-                }} locale={es} className="pointer-events-auto" fromDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)} toDate={new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000)} />
-                    </PopoverContent>
-                  </Popover>
-                </div>
+            {/* Date and Time Selection - Only visible after at least one service is added */}
+            {allSelectedServices.length > 0 && (
+              <div className="p-4 bg-accent/50 rounded-lg border border-border transition-all duration-300">
+                <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
+                  <CalendarClock className="h-5 w-5 text-primary" />
+                  Fecha y Turno del Servicio
+                </h4>
                 
-                {selectedDate && <div>
-                    <Label htmlFor="timeSlot" className="text-sm font-medium mb-2 block">Turno *</Label>
-                    <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot} disabled={allSelectedServices.length === 0}>
-                      <SelectTrigger className="bg-background h-10">
-                        <SelectValue placeholder="Seleccionar turno" />
-                      </SelectTrigger>
-                      <SelectContent className="z-50 bg-white">
-                        {(() => {
-                  const day = selectedDate.getDay();
-                  let timeSlots: string[] = [];
-                  if (day === 6) {
-                    timeSlots = ["08:00 - 14:00", "14:00 - 20:00"];
-                  } else if (day !== 0) {
-                    timeSlots = ["08:00 - 12:00", "12:00 - 16:00", "16:00 - 20:00"];
-                  }
-                  return timeSlots.map(slot => <SelectItem key={slot} value={slot}>
-                              {slot}
-                            </SelectItem>);
-                })()}
-                      </SelectContent>
-                    </Select>
-                  </div>}
+                <p className="text-sm text-muted-foreground mb-4 italic">
+                  El Profesional asiste dentro del rango horario seleccionado
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="date" className="text-sm font-medium mb-2 block">Fecha *</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className={cn("w-full justify-start text-left font-normal bg-background h-10", !selectedDate && "text-muted-foreground")}>
+                          <CalendarClock className="mr-2 h-3 w-3" />
+                          {selectedDate ? format(selectedDate, "PPP", {
+                      locale: es
+                    }) : "Seleccionar fecha"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 z-50 bg-white" align="start">
+                        <Calendar mode="single" selected={selectedDate} onSelect={setSelectedDate} disabled={date => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return date.getDay() === 0 || date < today || date.getTime() === today.getTime();
+                  }} locale={es} className="pointer-events-auto" fromDate={new Date(new Date().getTime() + 24 * 60 * 60 * 1000)} toDate={new Date(new Date().getTime() + 60 * 24 * 60 * 60 * 1000)} />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  
+                  {selectedDate && <div>
+                      <Label htmlFor="timeSlot" className="text-sm font-medium mb-2 block">Turno *</Label>
+                      <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
+                        <SelectTrigger className="bg-background h-10">
+                          <SelectValue placeholder="Seleccionar turno" />
+                        </SelectTrigger>
+                        <SelectContent className="z-50 bg-white">
+                          {(() => {
+                    const day = selectedDate.getDay();
+                    let timeSlots: string[] = [];
+                    if (day === 6) {
+                      timeSlots = ["08:00 - 14:00", "14:00 - 20:00"];
+                    } else if (day !== 0) {
+                      timeSlots = ["08:00 - 12:00", "12:00 - 16:00", "16:00 - 20:00"];
+                    }
+                    return timeSlots.map(slot => <SelectItem key={slot} value={slot}>
+                                {slot}
+                              </SelectItem>);
+                  })()}
+                        </SelectContent>
+                      </Select>
+                    </div>}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className={cn("transition-all duration-300", !purchaseLocation && "opacity-50 pointer-events-none")}>
               <Label htmlFor="service" className="text-sm font-medium mb-2 block">
