@@ -732,19 +732,21 @@ const ServicioOnePage = () => {
                 
                 <div className="mt-3 pt-3 border-t border-secondary/30 bg-secondary/5 rounded-lg p-3">
                   <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="font-semibold text-secondary">Precio del servicio:</span>
-                      <span className="text-lg font-bold text-secondary">
-                        ${formatPrice(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0))}
-                      </span>
-                    </div>
                     {purchaseLocation?.zonaCostoAdicional && parseFloat(purchaseLocation.zonaCostoAdicional) > 0 && (
-                      <div className="flex justify-between items-center text-sm">
-                        <span className="text-secondary">Costo adicional por zona:</span>
-                        <span className="font-semibold text-secondary">
-                          ${formatPrice(parseFloat(purchaseLocation.zonaCostoAdicional))}
-                        </span>
-                      </div>
+                      <>
+                        <div className="flex justify-between items-center">
+                          <span className="font-semibold text-secondary">Precio del servicio:</span>
+                          <span className="text-lg font-bold text-secondary">
+                            ${formatPrice(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0))}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span className="text-secondary">Costo adicional por zona:</span>
+                          <span className="font-semibold text-secondary">
+                            ${formatPrice(parseFloat(purchaseLocation.zonaCostoAdicional))}
+                          </span>
+                        </div>
+                      </>
                     )}
                     <div className="flex justify-between items-center pt-2 border-t border-secondary/20">
                       <span className={cn("font-bold text-secondary", usesCustomPrice === "custom" && suggestedPrice > 0 && "line-through opacity-60")}>
