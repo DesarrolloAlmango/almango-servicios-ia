@@ -813,7 +813,7 @@ const ServicioOnePage = () => {
                             {suggestedPrice > 0 && <div className="flex justify-between items-center p-3 rounded-md bg-green-50 border border-green-200">
                                 <span className="text-sm font-medium text-green-800">Descuento a aplicar:</span>
                                 <span className="text-lg font-bold text-green-600">
-                                  ${formatPrice(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0") - suggestedPrice)}
+                                  -${formatPrice(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0") - suggestedPrice)}
                                 </span>
                               </div>}
                           </>}
