@@ -687,12 +687,12 @@ const ServicioOnePage = () => {
               </div>}
             </div>
             
-            {/* Date and Time Selection - After location */}
-            <div className={cn("p-4 bg-accent/50 rounded-lg border border-border transition-all duration-300", !purchaseLocation && "opacity-50 pointer-events-none")}>
+            {/* Date and Time Selection - After at least one service is added */}
+            <div className={cn("p-4 bg-accent/50 rounded-lg border border-border transition-all duration-300", allSelectedServices.length === 0 && "opacity-50 pointer-events-none")}>
               <h4 className="font-semibold mb-3 flex items-center gap-2 text-foreground">
                 <CalendarClock className="h-5 w-5 text-primary" />
                 Fecha y Turno del Servicio
-                {!purchaseLocation && <span className="text-xs text-muted-foreground font-normal ml-2">(Configurá ubicación primero)</span>}
+                {allSelectedServices.length === 0 && <span className="text-xs text-muted-foreground font-normal ml-2">(Agregá al menos un servicio primero)</span>}
               </h4>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -700,7 +700,7 @@ const ServicioOnePage = () => {
                   <Label htmlFor="date" className="text-sm font-medium mb-2 block">Fecha *</Label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="outline" className={cn("w-full justify-start text-left font-normal bg-background h-10", !selectedDate && "text-muted-foreground")} disabled={!purchaseLocation}>
+                      <Button variant="outline" className={cn("w-full justify-start text-left font-normal bg-background h-10", !selectedDate && "text-muted-foreground")} disabled={allSelectedServices.length === 0}>
                         <CalendarClock className="mr-2 h-3 w-3" />
                         {selectedDate ? format(selectedDate, "PPP", {
                     locale: es
@@ -719,7 +719,7 @@ const ServicioOnePage = () => {
                 
                 {selectedDate && <div>
                     <Label htmlFor="timeSlot" className="text-sm font-medium mb-2 block">Turno *</Label>
-                    <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot} disabled={!purchaseLocation}>
+                    <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot} disabled={allSelectedServices.length === 0}>
                       <SelectTrigger className="bg-background h-10">
                         <SelectValue placeholder="Seleccionar turno" />
                       </SelectTrigger>
