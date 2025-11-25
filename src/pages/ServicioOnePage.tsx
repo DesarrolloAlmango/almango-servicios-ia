@@ -826,6 +826,10 @@ const ServicioOnePage = () => {
                 {allSelectedServices.length === 0 && <span className="text-xs text-muted-foreground font-normal ml-2">(Agregá al menos un servicio primero)</span>}
               </h4>
               
+              <p className="text-sm text-muted-foreground mb-4 italic">
+                El Profesional asiste dentro del rango horario seleccionado
+              </p>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="date" className="text-sm font-medium mb-2 block">Fecha *</Label>
