@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ArrowLeft, Home, Wind, Droplets, Zap, Package, Truck, Baby, MapPin, CalendarClock, UserCheck, CreditCard, Check, ShoppingCart, Plus, X, Pencil, Copy } from "lucide-react";
+import { ArrowLeft, Home, Wind, Droplets, Zap, Package, Truck, Baby, MapPin, CalendarClock, UserCheck, CreditCard, Check, ShoppingCart, Plus, X, Pencil, Copy, Banknote } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import fondoAzul from "@/assets/fondo-azul-patrones.svg";
 import logo from "@/assets/logo-new.svg";
@@ -101,7 +101,7 @@ const ServicioOnePage = () => {
   });
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("1"); // Default to cash (efectivo)
+  const [paymentMethod, setPaymentMethod] = useState("later"); // Default to pay later
   const [comments, setComments] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptProductTerms, setAcceptProductTerms] = useState(false);
@@ -497,7 +497,7 @@ const ServicioOnePage = () => {
       MunicipioId: parseInt(purchaseLocation?.locationId || "0"),
       ZonasID: 0,
       Direccion: `${personalInfo.street} ${personalInfo.number}${personalInfo.apartment ? ` Apto ${personalInfo.apartment}` : ''}${personalInfo.corner ? ` esq. ${personalInfo.corner}` : ''}`,
-      MetodoPagosID: parseInt(paymentMethod) || 1,
+      MetodoPagosID: paymentMethod === "later" ? 1 : 4,
       SolicitudPagada: "",
       SolicitaCotizacion: total.toString(),
       SolicitaOtroServicio: "",
@@ -641,7 +641,7 @@ const ServicioOnePage = () => {
         setComments("");
         setAcceptTerms(false);
         setSelectedTimeSlot("");
-        setPaymentMethod("1");
+        setPaymentMethod("later");
         setNoNumber(false);
         setPurchaseLocation(null);
         setConfirmationData(null);
@@ -1140,6 +1140,27 @@ const ServicioOnePage = () => {
               ...prev,
               comments: e.target.value
             }))} />
+            </div>
+
+            {/* Forma de pago */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Forma de pago</Label>
+              <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="later" id="payment-later" />
+                  <Label htmlFor="payment-later" className="flex items-center gap-2 cursor-pointer font-normal">
+                    Pagar después (al profesional)
+                    <Banknote size={18} className="text-green-500" />
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="now" id="payment-now" />
+                  <Label htmlFor="payment-now" className="flex items-center gap-2 cursor-pointer font-normal">
+                    Pagar ahora (crédito/débito)
+                    <CreditCard size={18} className="text-sky-500" />
+                  </Label>
+                </div>
+              </RadioGroup>
             </div>
 
             {/* Términos y condiciones */}
