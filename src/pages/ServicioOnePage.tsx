@@ -929,7 +929,7 @@ const ServicioOnePage = () => {
                     )}
                     <div className="flex justify-between items-center pt-2 border-t border-secondary/20">
                       <span className={cn("font-bold text-secondary", usesCustomPrice === "custom" && suggestedPrice > 0 && "line-through opacity-60")}>
-                        Monto final (precio sugerido):
+                        {isInternalProvider ? "Monto final:" : "Monto final (precio sugerido):"}
                       </span>
                       <span className={cn("text-xl font-bold text-secondary", usesCustomPrice === "custom" && suggestedPrice > 0 && "line-through opacity-60")}>
                         ${formatPrice(allSelectedServices.reduce((total, service) => total + service.products.reduce((sum, p) => sum + p.Precio * p.quantity, 0), 0) + parseFloat(purchaseLocation?.zonaCostoAdicional || "0"))}
