@@ -172,6 +172,12 @@ const ServicioOnePage = () => {
         return;
       }
       
+      // Exception: commerceId 1001 always allows MercadoPago and custom price
+      if (commerceId === "1001") {
+        setIsInternalProvider(false);
+        return;
+      }
+      
       try {
         const response = await fetch("https://app.almango.com.uy/WebAPI/ObtenerProveedorTodos");
         if (!response.ok) {
@@ -506,7 +512,10 @@ const ServicioOnePage = () => {
     console.log("zonaCostoAdicional:", zonaCostoAdicional);
     
     // Check if the selected provider is internal
-    if (storeId && storeId !== "unknown" && storeId !== "other") {
+    // Exception: "No lo sé" (unknown) and "Otro" (other) always allow MercadoPago and custom price
+    if (storeId === "unknown" || storeId === "other") {
+      setIsInternalProvider(false);
+    } else if (storeId) {
       try {
         const response = await fetch("https://app.almango.com.uy/WebAPI/ObtenerProveedorTodos");
         if (response.ok) {
