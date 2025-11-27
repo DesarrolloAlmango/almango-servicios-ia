@@ -14,6 +14,7 @@ interface Store {
   id: string;
   name: string;
   logo?: string;
+  isInternal?: boolean; // Flag to indicate if provider is internal (ProveedorUsoInterno === 'S')
 }
 interface PurchaseLocationModalProps {
   isOpen: boolean;
@@ -124,6 +125,15 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       const provider = data.find((item: any) => item.ProveedorID?.toString() === commerceId.toString());
       if (provider && provider.ProveedorNombre) {
         setFetchedCommerceName(provider.ProveedorNombre);
+        
+        // Check if provider is internal and dispatch event to parent
+        if (provider.ProveedorUsoInterno === 'S') {
+          // Dispatch an event to notify the parent that this is an internal provider
+          const internalProviderEvent = new CustomEvent('internalProviderDetected', {
+            detail: { commerceId, isInternal: true }
+          });
+          document.dispatchEvent(internalProviderEvent);
+        }
       } else {
         setFetchedCommerceName("Comercio seleccionado");
       }
@@ -314,8 +324,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
   const fetchProviders = async () => {
     setLoading(true);
     try {
-      // Keep using ObtenerProveedor for the providers list
-      const response = await fetch("https://app.almango.com.uy/WebAPI/ObtenerProveedor");
+      // Use ObtenerProveedorTodos to get provider information including ProveedorUsoInterno
+      const response = await fetch("https://app.almango.com.uy/WebAPI/ObtenerProveedorTodos");
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
@@ -331,7 +341,8 @@ const PurchaseLocationModal: React.FC<PurchaseLocationModalProps> = ({
       const validStores = storesData.filter((item: any) => item.ProveedorID && item.ProveedorNombre).map((item: any) => ({
         id: item.ProveedorID.toString(),
         name: item.ProveedorNombre.toString(),
-        logo: item.ProveedorLogo?.toString() || ""
+        logo: item.ProveedorLogo?.toString() || "",
+        isInternal: item.ProveedorUsoInterno === 'S' // Add internal flag
       })).sort((a, b) => a.name.localeCompare(b.name));
       setLocalStores(validStores);
     } catch (error) {
