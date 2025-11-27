@@ -1039,7 +1039,7 @@ const ServicioOnePage = () => {
                   <div className="grid gap-3 max-h-80 overflow-y-auto pr-2">
                     {isProductsLoading ? <div className="space-y-3">
                         {[1, 2, 3].map(i => <Skeleton key={i} className="h-20 w-full rounded-lg" />)}
-                      </div> : displayedProducts && displayedProducts.length > 0 ? displayedProducts.map((product: Product) => {
+                      </div> : displayedProducts && displayedProducts.length > 0 ? displayedProducts.filter(product => product).map((product: Product) => {
               const selectedProduct = selectedProducts.find(p => p.ProductoID === product.ProductoID);
               const quantity = selectedProduct?.quantity || 0;
               const imageSource = product.Imagen && product.Imagen.startsWith('data:image') ? product.Imagen : product.Imagen ? `data:image/png;base64,${product.Imagen}` : null;
