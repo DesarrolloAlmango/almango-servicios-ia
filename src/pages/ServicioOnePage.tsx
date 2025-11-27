@@ -148,6 +148,9 @@ const ServicioOnePage = () => {
   
   // Payment link ref for MercadoPago
   const paymentLinkRef = useRef<HTMLAnchorElement>(null);
+  
+  // State to track if the provider is internal
+  const [isInternalProvider, setIsInternalProvider] = useState(false);
 
   // Use the custom hook for MercadoPago payment handling
   const {
@@ -160,6 +163,43 @@ const ServicioOnePage = () => {
     setSelectedRequestData,
     selectedServiceId
   );
+  
+  // Check if commerceId corresponds to an internal provider
+  useEffect(() => {
+    const checkInternalProvider = async () => {
+      if (!commerceId || commerceId === "0") {
+        setIsInternalProvider(false);
+        return;
+      }
+      
+      try {
+        const response = await fetch("https://app.almango.com.uy/WebAPI/ObtenerProveedorTodos");
+        if (!response.ok) {
+          console.error("Error fetching providers:", response.status);
+          setIsInternalProvider(false);
+          return;
+        }
+        
+        const data = await response.json();
+        const provider = data.find((item: any) => item.ProveedorID?.toString() === commerceId.toString());
+        
+        if (provider && provider.ProveedorUsoInterno === 'S') {
+          setIsInternalProvider(true);
+          // If internal provider, force suggested price and pay later
+          setUsesCustomPrice("suggested");
+          setPaymentMethod("later");
+          console.log("Internal provider detected, disabling MercadoPago and custom price");
+        } else {
+          setIsInternalProvider(false);
+        }
+      } catch (error) {
+        console.error("Error checking internal provider:", error);
+        setIsInternalProvider(false);
+      }
+    };
+    
+    checkInternalProvider();
+  }, [commerceId]);
 
   // Data fetching
   const {
@@ -455,7 +495,7 @@ const ServicioOnePage = () => {
 
   // Removed handleNextStep since we now have a single form
 
-  const handleLocationSelect = (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string, zonaCostoAdicional?: string) => {
+  const handleLocationSelect = async (storeId: string, storeName: string, departmentId: string, departmentName: string, locationId: string, locationName: string, otherLocation?: string, zonaCostoAdicional?: string) => {
     console.log("=== LOCATION SELECT RECIBIDO ===");
     console.log("storeId:", storeId);
     console.log("storeName:", storeName);
@@ -464,6 +504,34 @@ const ServicioOnePage = () => {
     console.log("locationId:", locationId);
     console.log("locationName:", locationName);
     console.log("zonaCostoAdicional:", zonaCostoAdicional);
+    
+    // Check if the selected provider is internal
+    if (storeId && storeId !== "unknown" && storeId !== "other") {
+      try {
+        const response = await fetch("https://app.almango.com.uy/WebAPI/ObtenerProveedorTodos");
+        if (response.ok) {
+          const data = await response.json();
+          const provider = data.find((item: any) => item.ProveedorID?.toString() === storeId.toString());
+          
+          if (provider && provider.ProveedorUsoInterno === 'S') {
+            setIsInternalProvider(true);
+            // If internal provider, force suggested price and pay later
+            setUsesCustomPrice("suggested");
+            setPaymentMethod("later");
+            setSuggestedPrice(0);
+            console.log("Internal provider selected, disabling MercadoPago and custom price");
+          } else {
+            setIsInternalProvider(false);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking internal provider:", error);
+        setIsInternalProvider(false);
+      }
+    } else {
+      setIsInternalProvider(false);
+    }
+    
     const location: PurchaseLocation = {
       storeId,
       storeName,
@@ -878,18 +946,26 @@ const ServicioOnePage = () => {
                             </button>
                           </Label>
                           
-                          <RadioGroup value={usesCustomPrice} onValueChange={(value: "suggested" | "custom") => {
-                  setUsesCustomPrice(value);
-                  if (value === "suggested") {
-                    setSuggestedPrice(0);
-                  } else if (value === "custom") {
-                    // If switching to custom price and MercadoPago is selected, switch to pay later
-                    if (paymentMethod === "now") {
-                      setPaymentMethod("later");
-                      toast.info("El pago con MercadoPago no está disponible con precio personalizado");
-                    }
-                  }
-                }} className="flex gap-4">
+                          <RadioGroup 
+                            value={usesCustomPrice} 
+                            onValueChange={(value: "suggested" | "custom") => {
+                              if (isInternalProvider && value === "custom") {
+                                toast.info("El precio personalizado no está disponible para comercios internos");
+                                return;
+                              }
+                              setUsesCustomPrice(value);
+                              if (value === "suggested") {
+                                setSuggestedPrice(0);
+                              } else if (value === "custom") {
+                                // If switching to custom price and MercadoPago is selected, switch to pay later
+                                if (paymentMethod === "now") {
+                                  setPaymentMethod("later");
+                                  toast.info("El pago con MercadoPago no está disponible con precio personalizado");
+                                }
+                              }
+                            }} 
+                            className="flex gap-4"
+                          >
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="suggested" id="price-suggested" />
                               <Label htmlFor="price-suggested" className="cursor-pointer font-normal">
@@ -897,12 +973,28 @@ const ServicioOnePage = () => {
                               </Label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="custom" id="price-custom" />
-                              <Label htmlFor="price-custom" className="cursor-pointer font-normal">
+                              <RadioGroupItem 
+                                value="custom" 
+                                id="price-custom" 
+                                disabled={isInternalProvider}
+                              />
+                              <Label 
+                                htmlFor="price-custom" 
+                                className={cn(
+                                  "font-normal",
+                                  isInternalProvider ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                                )}
+                              >
                                 Precio distinto
                               </Label>
                             </div>
                           </RadioGroup>
+                          
+                          {isInternalProvider && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              El precio personalizado no está disponible para comercios internos
+                            </p>
+                          )}
                         </div>
 
                         {usesCustomPrice === "custom" && <>
@@ -1267,22 +1359,25 @@ const ServicioOnePage = () => {
                   <RadioGroupItem 
                     value="now" 
                     id="payment-now" 
-                    disabled={usesCustomPrice === "custom"}
+                    disabled={usesCustomPrice === "custom" || isInternalProvider}
                   />
                   <Label 
                     htmlFor="payment-now" 
                     className={cn(
                       "flex items-center gap-2 font-normal",
-                      usesCustomPrice === "custom" ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                      (usesCustomPrice === "custom" || isInternalProvider) ? "cursor-not-allowed opacity-50" : "cursor-pointer"
                     )}
                   >
                     Pagar ahora (crédito/débito)
                     <CreditCard size={18} className="text-sky-500" />
                   </Label>
                 </div>
-                {usesCustomPrice === "custom" && (
+                {(usesCustomPrice === "custom" || isInternalProvider) && (
                   <p className="text-xs text-muted-foreground ml-6">
-                    El pago con MercadoPago solo está disponible con precio sugerido
+                    {isInternalProvider 
+                      ? "El pago con MercadoPago no está disponible para comercios internos"
+                      : "El pago con MercadoPago solo está disponible con precio sugerido"
+                    }
                   </p>
                 )}
               </RadioGroup>
