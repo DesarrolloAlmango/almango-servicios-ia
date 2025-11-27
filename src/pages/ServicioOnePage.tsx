@@ -945,7 +945,7 @@ const ServicioOnePage = () => {
                     )}
                     
                     {/* Precio personalizado - campo opcional */}
-                    {allSelectedServices.length > 0 && <div className="space-y-4 p-4 mt-4 rounded-lg border-2 border-primary/40 bg-primary/5">
+                    {!isInternalProvider && allSelectedServices.length > 0 && <div className="space-y-4 p-4 mt-4 rounded-lg border-2 border-primary/40 bg-primary/5">
                         <div className="space-y-2">
                           <Label className="text-sm font-semibold flex items-center gap-2">
                             <span className="text-lg">💰</span>
@@ -1354,43 +1354,45 @@ const ServicioOnePage = () => {
             </div>
 
             {/* Forma de pago */}
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Forma de pago</Label>
-              <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="later" id="payment-later" />
-                  <Label htmlFor="payment-later" className="flex items-center gap-2 cursor-pointer font-normal">
-                    Pagar después (al profesional)
-                    <Banknote size={18} className="text-green-500" />
-                  </Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem 
-                    value="now" 
-                    id="payment-now" 
-                    disabled={usesCustomPrice === "custom" || isInternalProvider}
-                  />
-                  <Label 
-                    htmlFor="payment-now" 
-                    className={cn(
-                      "flex items-center gap-2 font-normal",
-                      (usesCustomPrice === "custom" || isInternalProvider) ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-                    )}
-                  >
-                    Pagar ahora (crédito/débito)
-                    <CreditCard size={18} className="text-sky-500" />
-                  </Label>
-                </div>
-                {(usesCustomPrice === "custom" || isInternalProvider) && (
-                  <p className="text-xs text-muted-foreground ml-6">
-                    {isInternalProvider 
-                      ? "El pago con MercadoPago no está disponible para comercios internos"
-                      : "El pago con MercadoPago solo está disponible con precio sugerido"
-                    }
-                  </p>
-                )}
-              </RadioGroup>
-            </div>
+            {!isInternalProvider && (
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Forma de pago</Label>
+                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="later" id="payment-later" />
+                    <Label htmlFor="payment-later" className="flex items-center gap-2 cursor-pointer font-normal">
+                      Pagar después (al profesional)
+                      <Banknote size={18} className="text-green-500" />
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem 
+                      value="now" 
+                      id="payment-now" 
+                      disabled={usesCustomPrice === "custom" || isInternalProvider}
+                    />
+                    <Label 
+                      htmlFor="payment-now" 
+                      className={cn(
+                        "flex items-center gap-2 font-normal",
+                        (usesCustomPrice === "custom" || isInternalProvider) ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                      )}
+                    >
+                      Pagar ahora (crédito/débito)
+                      <CreditCard size={18} className="text-sky-500" />
+                    </Label>
+                  </div>
+                  {(usesCustomPrice === "custom" || isInternalProvider) && (
+                    <p className="text-xs text-muted-foreground ml-6">
+                      {isInternalProvider 
+                        ? "El pago con MercadoPago no está disponible para comercios internos"
+                        : "El pago con MercadoPago solo está disponible con precio sugerido"
+                      }
+                    </p>
+                  )}
+                </RadioGroup>
+              </div>
+            )}
 
             {/* Términos y condiciones */}
             <div className="flex items-start space-x-2 p-4 bg-accent/30 rounded-lg border border-border">
