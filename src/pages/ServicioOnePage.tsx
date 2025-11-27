@@ -512,8 +512,8 @@ const ServicioOnePage = () => {
     console.log("zonaCostoAdicional:", zonaCostoAdicional);
     
     // Check if the selected provider is internal
-    // Exception: "No lo sé" (unknown) and "Otro" (other) always allow MercadoPago and custom price
-    if (storeId === "unknown" || storeId === "other") {
+    // Exception: "No lo sé" (unknown), "Otro" (other), and commerceId 1001 always allow MercadoPago and custom price
+    if (storeId === "unknown" || storeId === "other" || commerceId === "1001") {
       setIsInternalProvider(false);
     } else if (storeId) {
       try {
