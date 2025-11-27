@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ArrowLeft, Home, Wind, Droplets, Zap, Package, Truck, Baby, MapPin, CalendarClock, UserCheck, CreditCard, Check, ShoppingCart, Plus, X, Pencil, Copy, Banknote } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import fondoAzul from "@/assets/fondo-azul-patrones.svg";
@@ -145,6 +145,9 @@ const ServicioOnePage = () => {
   
   const [usesCustomPrice, setUsesCustomPrice] = useState<"suggested" | "custom">("suggested");
   const [isCustomPriceTermsOpen, setIsCustomPriceTermsOpen] = useState(false);
+  
+  // Payment link ref for MercadoPago
+  const paymentLinkRef = useRef<HTMLAnchorElement>(null);
 
   // Use the custom hook for MercadoPago payment handling
   const {
@@ -745,6 +748,16 @@ const ServicioOnePage = () => {
       setIsSubmitting(false);
     }
   };
+  
+  // Handle payment link for MercadoPago
+  const handlePaymentLink = (solicitudId: number) => {
+    const paymentUrl = `https://pay.almango.com.uy/procesarpago.aspx?S${solicitudId}`;
+    if (paymentLinkRef.current) {
+      paymentLinkRef.current.href = paymentUrl;
+      paymentLinkRef.current.click();
+    }
+  };
+  
   const stepTitles = ["Formulario de solicitud de servicio"];
   const renderStepContent = () => {
     return <div className="space-y-6">
@@ -869,6 +882,12 @@ const ServicioOnePage = () => {
                   setUsesCustomPrice(value);
                   if (value === "suggested") {
                     setSuggestedPrice(0);
+                  } else if (value === "custom") {
+                    // If switching to custom price and MercadoPago is selected, switch to pay later
+                    if (paymentMethod === "now") {
+                      setPaymentMethod("later");
+                      toast.info("El pago con MercadoPago no está disponible con precio personalizado");
+                    }
                   }
                 }} className="flex gap-4">
                             <div className="flex items-center space-x-2">
@@ -1245,12 +1264,27 @@ const ServicioOnePage = () => {
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="now" id="payment-now" />
-                  <Label htmlFor="payment-now" className="flex items-center gap-2 cursor-pointer font-normal">
+                  <RadioGroupItem 
+                    value="now" 
+                    id="payment-now" 
+                    disabled={usesCustomPrice === "custom"}
+                  />
+                  <Label 
+                    htmlFor="payment-now" 
+                    className={cn(
+                      "flex items-center gap-2 font-normal",
+                      usesCustomPrice === "custom" ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+                    )}
+                  >
                     Pagar ahora (crédito/débito)
                     <CreditCard size={18} className="text-sky-500" />
                   </Label>
                 </div>
+                {usesCustomPrice === "custom" && (
+                  <p className="text-xs text-muted-foreground ml-6">
+                    El pago con MercadoPago solo está disponible con precio sugerido
+                  </p>
+                )}
               </RadioGroup>
             </div>
 
@@ -1282,6 +1316,14 @@ const ServicioOnePage = () => {
     backgroundPosition: 'center',
     backgroundRepeat: 'no-repeat'
   }}>
+      {/* Hidden link for MercadoPago payment */}
+      <a 
+        ref={paymentLinkRef} 
+        href="about:blank" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        style={{ display: 'none' }}
+      />
       <div className="container mx-auto py-8 max-w-3xl">
         <div className="mb-6 px-4">
           <div className="rounded-t-3xl p-8 text-center bg-[#fe8d0c]/0">
@@ -1355,7 +1397,7 @@ const ServicioOnePage = () => {
           serviceRequests={serviceRequests}
           error={error}
           checkingPayment={checkingPayment}
-          onPaymentClick={() => {}}
+          onPaymentClick={handlePaymentLink}
           onViewServiceDetails={(request: ServiceRequest) => {
             setSelectedServiceId(request.solicitudId);
             setSelectedRequestData(request.requestData);
